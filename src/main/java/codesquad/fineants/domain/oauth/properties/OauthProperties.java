@@ -97,6 +97,7 @@ public class OauthProperties {
 		private final String scope;
 		private final String tokenUri;
 		private final String redirectUri;
+		private final String userInfoUri;
 		private final String publicKeyUri;
 		private final String iss;
 		private final String aud;

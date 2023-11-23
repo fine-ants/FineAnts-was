@@ -99,9 +99,14 @@ public class MemberService {
 		LinkedMultiValueMap<String, String> header = new LinkedMultiValueMap<>();
 		header.add(HttpHeaders.AUTHORIZATION,
 			String.format("%s %s", accessTokenResponse.getTokenType(), accessTokenResponse.getAccessToken()));
-		Map<String, Object> attributes = webClientWrapper.get(oauthClient.getUserInfoUri(), header,
+
+		// 리팩토링 필요
+		String userInfoUri = oauthClient.getUserInfoUri() + "?access_token=" + accessTokenResponse.getAccessToken();
+
+		Map<String, Object> attributes = webClientWrapper.get(userInfoUri, header,
 			new ParameterizedTypeReference<>() {
 			});
+
 		return oauthClient.createOauthUserProfileResponse(attributes);
 	}
 
