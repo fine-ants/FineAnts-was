@@ -2,7 +2,12 @@ package co.fineants;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Role;
 
 public final class TestDataFactory {
@@ -19,30 +24,22 @@ public final class TestDataFactory {
 	public static Role createRole(String roleName, String roleDesc) {
 		return Role.create(roleName, roleDesc);
 	}
-	//
-	// public static Member createMember() {
-	// 	return createMember("nemo1234");
-	// }
-	//
-	// public static Member createMember(String nickname) {
-	// 	return createMember(nickname, "dragonbead95@naver.com");
-	// }
-	//
-	// public static Member createMember(String nickname, String email) {
-	// 	Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-	// 		.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
-	// 	// 회원 생성
-	// 	String password = passwordEncoder.encode("nemo1234@");
-	// 	MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-	// 	Member member = Member.localMember(profile);
-	// 	// 역할 설정
-	// 	member.addMemberRole(MemberRole.of(member, userRole));
-	//
-	// 	// 계정 알림 설정
-	// 	member.setNotificationPreference(NotificationPreference.allActive());
-	// 	return member;
-	// }
-	//
+
+	public static Member createMember() {
+		return createMember("nemo1234");
+	}
+
+	public static Member createMember(String nickname) {
+		return createMember(nickname, "dragonbead95@naver.com");
+	}
+
+	public static Member createMember(String nickname, String email) {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String password = passwordEncoder.encode("nemo1234@");
+		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
+		return Member.localMember(profile);
+	}
+
 	// public static Member createOauthMember() {
 	// 	Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
 	// 		.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
