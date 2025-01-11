@@ -30,8 +30,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
@@ -43,9 +41,6 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
-import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -70,13 +65,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private MemberService memberService;
 
 	@Autowired
-	private MemberRoleRepository memberRoleRepository;
-
-	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository preferenceRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
@@ -95,15 +84,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
-
-	@Autowired
-	private FcmRepository fcmRepository;
-
-	@Autowired
-	private NotificationRepository notificationRepository;
-
-	@Autowired
-	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 
 	@Autowired
 	private StockRepository stockRepository;
