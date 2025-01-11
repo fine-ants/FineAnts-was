@@ -64,28 +64,28 @@ class MemberTest {
 		Assertions.assertThat(preference.getMember()).isEqualTo(member);
 	}
 
-	// @DisplayName("알림이 회원을 변경한다")
-	// @Test
-	// void setMember() {
-	// 	// given
-	// 	Member member = createMember();
-	// 	NotificationPreference preference = NotificationPreference.create(false, false, false, false);
-	// 	// when
-	// 	preference.setMember(member);
-	// 	// then
-	// 	Assertions.assertThat(member.getNotificationPreference()).isEqualTo(preference);
-	// 	Assertions.assertThat(preference.getMember()).isEqualTo(member);
-	// }
-	//
-	// @DisplayName("회원의 간단한 정보를 출력한다")
-	// @Test
-	// void givenMember_whenToString_thenGenerateMemberInfo() {
-	// 	// given
-	// 	Member member = createMember();
-	// 	// when
-	// 	String actual = member.toString();
-	// 	// then
-	// 	Assertions.assertThat(actual)
-	// 		.isEqualTo("Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[ROLE_USER])");
-	// }
+	@DisplayName("알림이 회원을 변경한다")
+	@Test
+	void givenNotificationPreference_whenSetMember_thenChangedMember() {
+		// given
+		Member member = TestDataFactory.createMember();
+		NotificationPreference preference = NotificationPreference.allActive();
+		// when
+		preference.setMember(member);
+		// then
+		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(preference);
+		Assertions.assertThat(preference.getMember()).isEqualTo(member);
+	}
+
+	@DisplayName("회원의 간단한 정보를 출력한다")
+	@Test
+	void givenMember_whenToString_thenGenerateMemberInfo() {
+		// given
+		Member member = TestDataFactory.createMember();
+		// when
+		String actual = member.toString();
+		// then
+		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[])";
+		Assertions.assertThat(actual).isEqualTo(expected);
+	}
 }
