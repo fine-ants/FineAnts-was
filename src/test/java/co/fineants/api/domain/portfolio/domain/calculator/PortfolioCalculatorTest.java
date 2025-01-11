@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -41,7 +41,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
 
-	@SpyBean
+	@MockBean
 	private LocalDateTimeService localDateTimeService;
 
 	@BeforeEach

@@ -138,10 +138,10 @@ public abstract class AbstractContainerBaseTest {
 
 	@BeforeEach
 	public void abstractSetup() {
-		createRoleIfNotFound("ROLE_ADMIN", "관리자");
-		createRoleIfNotFound("ROLE_MANAGER", "매니저");
-		createRoleIfNotFound("ROLE_USER", "회원");
-		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
+		roleRepository.save(TestDataFactory.createRole("ROLE_ADMIN", "관리자"));
+		roleRepository.save(TestDataFactory.createRole("ROLE_MANAGER", "매니저"));
+		roleRepository.save(TestDataFactory.createRole("ROLE_USER", "회원"));
+		kisAccessTokenRepository.refreshAccessToken(TestDataFactory.createKisAccessToken());
 	}
 
 	@AfterEach
