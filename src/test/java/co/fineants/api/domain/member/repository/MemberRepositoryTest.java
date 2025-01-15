@@ -7,10 +7,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import co.fineants.AbstractContainerBaseTest;
+import co.fineants.AbstractDataJpaBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.entity.Member;
 
-class MemberRepositoryTest extends AbstractContainerBaseTest {
+class MemberRepositoryTest extends AbstractDataJpaBaseTest {
 
 	@Autowired
 	private MemberRepository repository;
@@ -19,10 +20,11 @@ class MemberRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void findMemberByEmailAndProvider() {
 		// given
-		Member member = repository.save(createMember());
+		repository.save(TestDataFactory.createMember());
+		String email = "dragonbead95@naver.com";
+		String provider = "local";
 		// when
-		Optional<Member> findMember = repository.findMemberByEmailAndProvider(member.getEmail(),
-			member.getProvider());
+		Optional<Member> findMember = repository.findMemberByEmailAndProvider(email, provider);
 		// then
 		Assertions.assertThat(findMember).isPresent();
 	}
