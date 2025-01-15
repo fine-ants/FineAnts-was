@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import co.fineants.api.domain.member.domain.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-	@Query("select distinct m from Member m join fetch m.roles "
+	@Query("select distinct m from Member m left join fetch m.roles "
 		+ "where m.profile.email = :email and m.profile.provider = :provider")
 	Optional<Member> findMemberByEmailAndProvider(@Param("email") String email, @Param("provider") String provider);
 
