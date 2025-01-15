@@ -119,8 +119,10 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
 	@ParameterizedTest
 	@MethodSource(value = "validChangeProfileSource")
-	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(MultipartFile profileImageFile,
-		String nickname, String expectedNickname,
+	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(
+		MultipartFile profileImageFile,
+		String nickname,
+		String expectedNickname,
 		String expectedProfileUrl) {
 		// given
 		Member member = memberRepository.save(createMember());
