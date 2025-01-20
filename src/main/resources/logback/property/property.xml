@@ -15,10 +15,10 @@
               value="%d{ISO8601} %-5level [%thread] [traceId=%X{traceId}] %logger{36}:%line - %msg %n"/>
 
     <!-- 개별 로그 레벨에 맞는 경로 -->
-    <property name="INFO_LOG_FILE_PATTERN" value="${LOG_PATH}/info/spring-info.%d{yyyy-MM-dd}-%i.gz"/>
-    <property name="DEBUG_LOG_FILE_PATTERN" value="${LOG_PATH}/debug/spring-debug.%d{yyyy-MM-dd}-%i.gz"/>
-    <property name="WARN_LOG_FILE_PATTERN" value="${LOG_PATH}/warn/spring-warn.%d{yyyy-MM-dd}-%i.gz"/>
-    <property name="ERROR_LOG_FILE_PATTERN" value="${LOG_PATH}/error/spring-error.%d{yyyy-MM-dd}-%i.gz"/>
+    <property name="INFO_LOG_FILE_PATTERN" value="${LOG_PATH}/info/spring-info.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="DEBUG_LOG_FILE_PATTERN" value="${LOG_PATH}/debug/spring-debug.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="WARN_LOG_FILE_PATTERN" value="${LOG_PATH}/warn/spring-warn.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="ERROR_LOG_FILE_PATTERN" value="${LOG_PATH}/error/spring-error.%d{yyyy-MM-dd}-%i.log"/>
     <!-- 최대 파일 사이즈 -->
     <property name="MAX_FILE_SIZE" value="256MB"/>
     <!-- 최대 내역 일수 -->
