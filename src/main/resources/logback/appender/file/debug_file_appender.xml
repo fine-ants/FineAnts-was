@@ -13,7 +13,7 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <!-- Rolling 정책 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- .gz,.zip 등을 넣으면 자동 일자별 로그파일 압축 -->
             <fileNamePattern>${DEBUG_LOG_FILE_PATTERN}</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
