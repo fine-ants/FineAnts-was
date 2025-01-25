@@ -56,7 +56,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.mail.EmailSender;
+import co.fineants.api.infra.mail.JavaEmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 public class MemberServiceTest extends AbstractContainerBaseTest {
@@ -98,7 +98,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private AmazonS3Service amazonS3Service;
 
 	@MockBean
-	private EmailSender emailSender;
+	private JavaEmailService javaEmailService;
 
 	@MockBean
 	private OauthMemberRedisService redisService;
@@ -395,7 +395,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		verify(redisService, times(1))
 			.saveEmailVerifCode("dragonbead95@naver.com", "123456");
-		verify(emailSender, times(1))
+		verify(javaEmailService, times(1))
 			.sendEmail("dragonbead95@naver.com", "Finants 회원가입 인증 코드", "인증코드를 회원가입 페이지에 입력해주세요: 123456");
 	}
 
