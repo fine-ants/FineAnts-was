@@ -14,11 +14,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -103,6 +105,12 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@MockBean
 	private VerifyCodeGenerator verifyCodeGenerator;
+
+	@BeforeEach
+	void setUp() {
+		// 각 테스트가 시작되기 전에 스파이 빈 상태 초기화
+		Mockito.reset(amazonS3Service);
+	}
 
 	public static Stream<Arguments> validChangeProfileSource() {
 		return Stream.of(

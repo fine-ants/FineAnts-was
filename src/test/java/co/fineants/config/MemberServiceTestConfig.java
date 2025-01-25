@@ -1,5 +1,6 @@
 package co.fineants.config;
 
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -17,6 +18,6 @@ public class MemberServiceTestConfig {
 
 	@Bean
 	public AmazonS3Service amazonS3Service() {
-		return new FakeAmazonS3Service();
+		return Mockito.spy(new FakeAmazonS3Service());
 	}
 }
