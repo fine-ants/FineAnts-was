@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class EmailSender {
 	private final JavaMailSender mailSender;
 
