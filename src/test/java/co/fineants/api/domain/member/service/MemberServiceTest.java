@@ -20,8 +20,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
@@ -98,7 +100,8 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@Autowired
-	private AmazonS3Service amazonS3Service;
+	@Qualifier("mockAmazonS3Service")
+	private AmazonS3Service mockAmazonS3Service;
 
 	@MockBean
 	private OauthMemberRedisService redisService;
@@ -108,8 +111,8 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		// 각 테스트가 시작되기 전에 스파이 빈 상태 초기화
-		Mockito.reset(amazonS3Service);
+		BDDMockito.given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
+			.willReturn("profileUrl");
 	}
 
 	public static Stream<Arguments> validChangeProfileSource() {
@@ -298,7 +301,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
-		given(amazonS3Service.upload(any(MultipartFile.class)))
+		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
 			.willThrow(new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 
 		SignUpRequest request = new SignUpRequest(

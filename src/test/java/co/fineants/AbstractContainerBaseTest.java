@@ -115,7 +115,7 @@ public abstract class AbstractContainerBaseTest {
 
 	@Autowired
 	private ExDividendDateCalculator exDividendDateCalculator;
-	
+
 	@Autowired
 	private ApplicationContextInitListener applicationContextInitListener;
 
