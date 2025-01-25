@@ -54,7 +54,7 @@ import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
-import co.fineants.api.infra.mail.service.MailService;
+import co.fineants.api.infra.mail.EmailSender;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,7 +72,7 @@ public class MemberService {
 	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
 	private final OauthMemberRedisService redisService;
-	private final MailService mailService;
+	private final EmailSender emailSender;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
@@ -191,7 +191,7 @@ public class MemberService {
 
 		try {
 			// 사용자에게 검증 코드 메일 전송
-			mailService.sendEmail(email,
+			emailSender.sendEmail(email,
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
 		} catch (Exception e) {

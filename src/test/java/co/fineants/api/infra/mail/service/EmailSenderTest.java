@@ -10,11 +10,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.infra.mail.EmailSender;
 
-class MailServiceTest extends AbstractContainerBaseTest {
+class EmailSenderTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MailService service;
+	private EmailSender service;
 
 	@MockBean
 	private JavaMailSender mailSender;
