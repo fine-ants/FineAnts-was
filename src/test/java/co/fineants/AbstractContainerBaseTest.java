@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -114,6 +115,12 @@ public abstract class AbstractContainerBaseTest {
 
 	@Autowired
 	private ExDividendDateCalculator exDividendDateCalculator;
+	
+	@Autowired
+	private ApplicationContextInitListener applicationContextInitListener;
+
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
@@ -148,6 +155,8 @@ public abstract class AbstractContainerBaseTest {
 	public void cleanDatabase() {
 		databaseCleaner.clear();
 		redisRepository.clearAll();
+		System.out.println("applicationContext.hashCode() : " + applicationContext.hashCode());
+		System.out.println("context init count : " + applicationContextInitListener.getContextInitCount());
 	}
 
 	public KisAccessToken createKisAccessToken() {
