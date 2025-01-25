@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefaultAmazonS3Service {
+public class DefaultAmazonS3Service implements AmazonS3Service {
 	private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 	private final AmazonS3 amazonS3;
@@ -36,6 +36,7 @@ public class DefaultAmazonS3Service {
 	private String profilePath;
 
 	@Transactional
+	@Override
 	public String upload(MultipartFile multipartFile) {
 		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
 			() -> new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
@@ -79,6 +80,7 @@ public class DefaultAmazonS3Service {
 		return Optional.of(convertedFile);
 	}
 
+	@Override
 	public void deleteFile(String url) {
 		try {
 			String fileName = extractFileName(url);

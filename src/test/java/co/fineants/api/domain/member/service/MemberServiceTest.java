@@ -57,7 +57,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.s3.service.DefaultAmazonS3Service;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.config.MemberServiceTestConfig;
 
 @Import(value = MemberServiceTestConfig.class)
@@ -97,7 +97,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@MockBean
-	private DefaultAmazonS3Service amazonS3Service;
+	private AmazonS3Service amazonS3Service;
 
 	@MockBean
 	private OauthMemberRedisService redisService;
