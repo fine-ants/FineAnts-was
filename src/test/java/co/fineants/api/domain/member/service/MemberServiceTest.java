@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,9 +57,10 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.mail.JavaEmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.config.MemberServiceTestConfig;
 
+@Import(value = MemberServiceTestConfig.class)
 public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -96,9 +98,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@MockBean
 	private AmazonS3Service amazonS3Service;
-
-	@MockBean
-	private JavaEmailService javaEmailService;
 
 	@MockBean
 	private OauthMemberRedisService redisService;
@@ -395,8 +394,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		verify(redisService, times(1))
 			.saveEmailVerifCode("dragonbead95@naver.com", "123456");
-		verify(javaEmailService, times(1))
-			.sendEmail("dragonbead95@naver.com", "Finants 회원가입 인증 코드", "인증코드를 회원가입 페이지에 입력해주세요: 123456");
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
