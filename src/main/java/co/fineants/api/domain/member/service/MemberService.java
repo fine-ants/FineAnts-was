@@ -55,7 +55,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.mail.EmailService;
-import co.fineants.api.infra.s3.service.DefaultAmazonS3Service;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -73,7 +73,7 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 	private final OauthMemberRedisService redisService;
 	private final EmailService emailService;
-	private final DefaultAmazonS3Service amazonS3Service;
+	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
 	private final WatchStockRepository watchStockRepository;
