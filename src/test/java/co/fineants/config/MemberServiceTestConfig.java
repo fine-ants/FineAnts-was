@@ -14,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 public class MemberServiceTestConfig {
 
 	@Bean
-	public EmailService emailService() {
+	@Primary
+	public EmailService mockEmailService() {
 		return Mockito.mock(EmailService.class);
 	}
 
