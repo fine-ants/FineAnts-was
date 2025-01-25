@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AmazonS3Service {
+public class DefaultAmazonS3Service {
 	private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 	private final AmazonS3 amazonS3;
@@ -88,8 +88,13 @@ public class AmazonS3Service {
 		}
 	}
 
+	/**
+	 * 파일 URL에서 이름만 추출하여 반환한다
+	 * @param url 파일 URL
+	 * - 예: <a href="https://fineants.s3.ap-northeast-2.amazonaws.com/9d07ee41-4404-414b-9ee7-12616aa6bedcprofile.jpeg">...</a>
+	 * @return 파일 이름
+	 */
 	private String extractFileName(String url) {
-		// 예시: https://fineants.s3.ap-northeast-2.amazonaws.com/9d07ee41-4404-414b-9ee7-12616aa6bedcprofile.jpeg
 		int lastSlashIndex = url.lastIndexOf('/');
 		return url.substring(lastSlashIndex + 1);
 	}
