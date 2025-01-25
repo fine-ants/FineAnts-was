@@ -2,7 +2,6 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
@@ -96,7 +95,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private WatchStockRepository watchStockRepository;
 
-	@MockBean
+	@Autowired
 	private AmazonS3Service amazonS3Service;
 
 	@MockBean
@@ -130,9 +129,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 			nickname,
 			member.getId()
 		);
-
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
 		// when
 		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
 
@@ -189,8 +185,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void signup(SignUpRequest request, MultipartFile profileImageFile, String expectedProfileUrl) {
 		// given
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
 		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
 
 		// when

@@ -37,7 +37,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 
 	@Transactional
 	@Override
-	public String upload(MultipartFile multipartFile) {
+	public String upload(MultipartFile multipartFile) throws BadRequestException {
 		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
 			() -> new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 		// random file name
