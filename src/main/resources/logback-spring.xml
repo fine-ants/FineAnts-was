@@ -11,6 +11,9 @@
     <springProfile name="local">
         <logger name="co.fineants" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="WARN_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
         </logger>
     </springProfile>
 
