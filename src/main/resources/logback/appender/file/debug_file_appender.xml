@@ -13,7 +13,7 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <!-- Rolling 정책 -->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- .gz,.zip 등을 넣으면 자동 일자별 로그파일 압축 -->
             <fileNamePattern>${DEBUG_LOG_FILE_PATTERN}</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
@@ -21,6 +21,7 @@
                 <!-- 파일당 최고 용량 kb, mb, gb -->
                 <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <!-- 일자별 로그파일 최대 보관주기(~일), 해당 설정일 이상된 파일은 자동으로 제거-->
             <maxHistory>${MAX_HISTORY_DAYS}</maxHistory>
         </rollingPolicy>

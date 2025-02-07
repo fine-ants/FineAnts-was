@@ -22,8 +22,10 @@ import co.fineants.api.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
@@ -45,5 +47,6 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 		CookieUtils.setCookie(response, tokenFactory.createRefreshTokenCookie(token));
 
 		objectMapper.writeValue(response.getWriter(), body);
+		log.info("Member {} has successfully logged", member.getNickname());
 	}
 }

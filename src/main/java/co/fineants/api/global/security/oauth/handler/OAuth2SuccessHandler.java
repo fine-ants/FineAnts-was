@@ -58,6 +58,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		CookieUtils.setCookie(response, tokenFactory.createAccessTokenCookie(token));
 		CookieUtils.setCookie(response, tokenFactory.createRefreshTokenCookie(token));
 
+		log.info("Member {} has successfully logged", memberAuthentication.getNickname());
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 }

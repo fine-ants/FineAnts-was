@@ -20,10 +20,21 @@ services:
     image: redis:latest
     restart: always
     volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
+    networks:
+      - spring-net
+  loki:
+    container_name: fineAnts_ loki
+    image: grafana/loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki:/etc/loki
+      - loki_data:/loki
+    command: -config.file=/etc/loki/prod-config.yaml
     networks:
       - spring-net
   promtail:
@@ -37,5 +48,17 @@ services:
     command:
       - -config.file=/etc/promtail/config.yaml
       - -config.expand-env=true
+  grafana:
+    container_name: fineAnts_grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - spring-net
+volumes:
+  loki_data:
+  grafana_data:
 networks:
   spring-net:

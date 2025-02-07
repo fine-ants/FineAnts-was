@@ -15,14 +15,14 @@
               value="%d{ISO8601} %-5level [%thread] [traceId=%X{traceId}] %logger{36}:%line - %msg %n"/>
 
     <!-- 개별 로그 레벨에 맞는 경로 -->
-    <property name="INFO_LOG_FILE_PATTERN" value="${LOG_PATH}/info/info.%d{yyyy-MM-dd}_%i.log"/>
-    <property name="DEBUG_LOG_FILE_PATTERN" value="${LOG_PATH}/debug/debug.%d{yyyy-MM-dd}_%i.log"/>
-    <property name="WARN_LOG_FILE_PATTERN" value="${LOG_PATH}/warn/warn.%d{yyyy-MM-dd}_%i.log"/>
-    <property name="ERROR_LOG_FILE_PATTERN" value="${LOG_PATH}/error/error.%d{yyyy-MM-dd}_%i.log"/>
+    <property name="INFO_LOG_FILE_PATTERN" value="${LOG_PATH}/info/spring-info.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="DEBUG_LOG_FILE_PATTERN" value="${LOG_PATH}/debug/spring-debug.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="WARN_LOG_FILE_PATTERN" value="${LOG_PATH}/warn/spring-warn.%d{yyyy-MM-dd}-%i.log"/>
+    <property name="ERROR_LOG_FILE_PATTERN" value="${LOG_PATH}/error/spring-error.%d{yyyy-MM-dd}-%i.log"/>
     <!-- 최대 파일 사이즈 -->
-    <property name="MAX_FILE_SIZE" value="1GB"/>
+    <property name="MAX_FILE_SIZE" value="256MB"/>
     <!-- 최대 내역 일수 -->
-    <property name="MAX_HISTORY_DAYS" value="7"/>
+    <property name="MAX_HISTORY_DAYS" value="2"/>
     <!-- CHARSET -->
     <property name="CHARSET" value="UTF-8"/>
 </included>
