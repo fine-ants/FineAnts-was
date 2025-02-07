@@ -34,7 +34,11 @@ services:
     volumes:
       - ./loki:/etc/loki
       - loki_data:/loki
-    command: -config.file=/etc/loki/prod-config.yaml
+    env_file:
+      - ./secret/loki/.env
+    command:
+      - -config.file=/etc/loki/prod-config.yaml
+      - -config.expand-env=true
     networks:
       - spring-net
   promtail:
