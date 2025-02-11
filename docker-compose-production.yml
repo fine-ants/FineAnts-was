@@ -27,14 +27,18 @@ services:
     networks:
       - spring-net
   loki:
-    container_name: fineAnts_ loki
+    container_name: fineAnts_loki
     image: grafana/loki
     ports:
       - "3100:3100"
     volumes:
       - ./loki:/etc/loki
       - loki_data:/loki
-    command: -config.file=/etc/loki/prod-config.yaml
+    env_file:
+      - ./secret/loki/.env
+    command:
+      - -config.file=/etc/loki/prod-config.yaml
+      - -config.expand-env=true
     networks:
       - spring-net
   promtail:
@@ -48,6 +52,8 @@ services:
     command:
       - -config.file=/etc/promtail/config.yaml
       - -config.expand-env=true
+    networks:
+      - spring-net
   grafana:
     container_name: fineAnts_grafana
     image: grafana/grafana:latest
