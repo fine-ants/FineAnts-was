@@ -7,16 +7,8 @@ services:
     restart: always
     ports:
       - "8080:8080"
-    environment:
-      PROFILE: local
-      TZ: Asia/Seoul
-      DB_HOST: fineAnts_db
-      DB_PORT: 3306
-      DB_DATABASE: fineAnts
-      DB_USERNAME: root
-      DB_PASSWORD: password1234!
-      REDIS_HOST: fineAnts_redis
-      REDOS_PORT: 6379
+    env_file:
+      - ./.env
     volumes:
       - ./logs:/app/logs
     depends_on:
@@ -26,21 +18,20 @@ services:
       - spring-net
   db:
     container_name: fineAnts_db
-    image: mysql:latest
+    image: mysql:8.4.0
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=password1234!
-      - MYSQL_ROOT_PASSWORD=password1234!
-      - MYSQL_DATABASE=fineAnts
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    env_file:
+      - ./.env
     command:
       - '--local-infile=1'
     networks:
       - spring-net
   redis:
     container_name: fineAnts_redis
-    image: redis:latest
+    image: redis:7.4-alpine
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
@@ -50,7 +41,7 @@ services:
       - spring-net
   loki:
     container_name: fineAnts_loki
-    image: grafana/loki
+    image: grafana/loki:3.1.2
     ports:
       - "3100:3100"
     volumes:
@@ -78,7 +69,7 @@ services:
       - spring-net
   grafana:
     container_name: fineAnts_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     ports:
       - "3000:3000"
     volumes:
