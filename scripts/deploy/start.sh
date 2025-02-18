@@ -12,5 +12,5 @@ sudo docker-compose -f /home/ec2-user/build/"$PROFILE"/docker-compose."$PROFILE"
 
 # 실행하고 싶은 setup_cron.sh 파일 실행
 echo ">>> Setting up cron job" >> /home/ec2-user/build/"$PROFILE"/deploy.log
-sudo chmod +x /home/ec2-user/build/"$PROFILE"/setup_cron.sh
-sudo bash /home/ec2-user/build/"$PROFILE"/setup_cron.sh
+sudo chmod +x /home/ec2-user/build/"$PROFILE"/scripts/setup_cron.sh
+sudo bash /home/ec2-user/build/"$PROFILE"/scripts/setup_cron.sh
