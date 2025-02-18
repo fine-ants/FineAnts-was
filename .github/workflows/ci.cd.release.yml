@@ -15,7 +15,7 @@ env:
   ACTIONS_STEP_DEBUG: true
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub 사용자명
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub 비밀번호
-  DOCKER_IMAGE_NAME: fineants-app  # 이미지 이름 (원하는 이름으로 설정)
+  DOCKER_IMAGE_NAME: fineants-app  # 이미지 이름
   TAG: release-latest
 
 jobs:
