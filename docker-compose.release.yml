@@ -2,7 +2,7 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app_release
-    build: .
+    image: fineants/fineants-app:release-latest
     restart: always
     ports:
       - "444:444"
@@ -15,7 +15,7 @@ services:
       - spring-net-release
   redis:
     container_name: fineAnts_redis_release
-    image: redis:latest
+    image: redis:7.4-alpine
     restart: always
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf

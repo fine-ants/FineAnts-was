@@ -2,45 +2,23 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app
-    platform: linux/amd64
-    build: .
+    image: fineants/fineants-app:production-latest
     restart: always
     ports:
-      - "8080:8080"
+      - "443:443"
     environment:
-      PROFILE: local
+      PROFILE: production
       TZ: Asia/Seoul
-      DB_HOST: fineAnts_db
-      DB_PORT: 3306
-      DB_DATABASE: fineAnts
-      DB_USERNAME: root
-      DB_PASSWORD: password1234!
-      REDIS_HOST: fineAnts_redis
-      REDOS_PORT: 6379
     volumes:
       - ./logs:/app/logs
     depends_on:
       - redis
-      - db
-    networks:
-      - spring-net
-  db:
-    container_name: fineAnts_db
-    image: mysql:latest
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=password1234!
-      - MYSQL_ROOT_PASSWORD=password1234!
-      - MYSQL_DATABASE=fineAnts
-    command:
-      - '--local-infile=1'
     networks:
       - spring-net
   redis:
     container_name: fineAnts_redis
-    image: redis:latest
+    image: redis:7.4-alpine
+    restart: always
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
@@ -50,7 +28,7 @@ services:
       - spring-net
   loki:
     container_name: fineAnts_loki
-    image: grafana/loki
+    image: grafana/loki:3.1.2
     ports:
       - "3100:3100"
     volumes:
@@ -59,26 +37,26 @@ services:
     env_file:
       - ./secret/loki/.env
     command:
-      - -config.file=/etc/loki/loki-s3-config.yaml
+      - -config.file=/etc/loki/prod-config.yaml
       - -config.expand-env=true
     networks:
       - spring-net
   promtail:
-    container_name: fineAnts_promtail
     image: grafana/promtail:2.3.0
+    container_name: promtail
     volumes:
       - ./promtail:/etc/promtail
       - ./logs:/var/log
+    env_file:
+      - ./secret/promtail/.env
     command:
       - -config.file=/etc/promtail/config.yaml
       - -config.expand-env=true
-    depends_on:
-      - loki
     networks:
       - spring-net
   grafana:
     container_name: fineAnts_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     ports:
       - "3000:3000"
     volumes:
@@ -90,4 +68,3 @@ volumes:
   grafana_data:
 networks:
   spring-net:
-    driver: bridge

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 설정값
-SCRIPT_PATH="/home/ec2-user/build/production/send_logs_to_s3.sh"
+SCRIPT_PATH="/home/ec2-user/build/production/scripts/send_logs_to_s3.sh"
 
 # cron 작업 내용 지정
 CRON_JOB="10 0 * * * /bin/bash $SCRIPT_PATH"

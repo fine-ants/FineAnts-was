@@ -2,23 +2,34 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app
+    platform: linux/amd64
     build: .
     restart: always
     ports:
-      - "443:443"
-    environment:
-      PROFILE: production
-      TZ: Asia/Seoul
+      - "8080:8080"
+    env_file:
+      - ./.env
     volumes:
       - ./logs:/app/logs
     depends_on:
       - redis
+      - db
+    networks:
+      - spring-net
+  db:
+    container_name: fineAnts_db
+    image: mysql:8.4.0
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./.env
+    command:
+      - '--local-infile=1'
     networks:
       - spring-net
   redis:
     container_name: fineAnts_redis
-    image: redis:latest
-    restart: always
+    image: redis:7.4-alpine
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
@@ -28,7 +39,7 @@ services:
       - spring-net
   loki:
     container_name: fineAnts_loki
-    image: grafana/loki
+    image: grafana/loki:3.1.2
     ports:
       - "3100:3100"
     volumes:
@@ -37,26 +48,26 @@ services:
     env_file:
       - ./secret/loki/.env
     command:
-      - -config.file=/etc/loki/prod-config.yaml
+      - -config.file=/etc/loki/loki-s3-config.yaml
       - -config.expand-env=true
     networks:
       - spring-net
   promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
+    container_name: fineAnts_promtail
+    image: grafana/promtail:2.3.0
     volumes:
       - ./promtail:/etc/promtail
       - ./logs:/var/log
-    env_file:
-      - ./secret/promtail/.env
     command:
       - -config.file=/etc/promtail/config.yaml
       - -config.expand-env=true
+    depends_on:
+      - loki
     networks:
       - spring-net
   grafana:
     container_name: fineAnts_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     ports:
       - "3000:3000"
     volumes:
@@ -68,3 +79,4 @@ volumes:
   grafana_data:
 networks:
   spring-net:
+    driver: bridge

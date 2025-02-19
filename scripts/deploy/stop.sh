@@ -1,18 +1,13 @@
 #!/bin/bash
 # scripts/stop.sh
 
-if [ "$DEPLOYMENT_GROUP_NAME" == "release" ]; then
-    if [ -f /home/ec2-user/build/release/docker-compose-release.yml ]; then
-        cd /home/ec2-user/build/release || exit
-        sudo docker-compose -f /home/ec2-user/build/release/docker-compose-release.yml down -v
-    else
-        echo "docker-compose-release.yml 파일이 존재하지 않습니다."
-    fi
-elif [ "$DEPLOYMENT_GROUP_NAME" == "production" ]; then
-    if [ -f /home/ec2-user/build/production/docker-compose-production.yml ]; then
-        cd /home/ec2-user/build/production || exit
-        sudo docker-compose -f /home/ec2-user/build/production/docker-compose-production.yml down -v
-    else
-        echo "docker-compose-production.yml 파일이 존재하지 않습니다."
-    fi
+BASE_DIR="/home/ec2-user/build"
+DOCKER_COMPOSE_FILE="docker-compose.${DEPLOYMENT_GROUP_NAME}.yml"
+DEPLOY_DIR="$BASE_DIR/$DEPLOYMENT_GROUP_NAME"
+
+if [ -f "$DEPLOY_DIR/$DOCKER_COMPOSE_FILE" ]; then
+    cd "$DEPLOY_DIR" || exit
+    sudo docker-compose -f "$DEPLOY_DIR/$DOCKER_COMPOSE_FILE" down
+else
+    echo "$DOCKER_COMPOSE_FILE 파일이 존재하지 않습니다."
 fi
