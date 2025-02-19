@@ -1,15 +1,13 @@
 #!/bin/bash
+# scripts/after-install.sh
 
-if [ "$DEPLOYMENT_GROUP_NAME" == "release" ]
-then
-    mkdir -p /home/ec2-user/build/release  # 디렉토리 존재 여부 확인 후 생성
-    cp -R /home/ec2-user/build/temp/* /home/ec2-user/build/release
-fi
+BASE_DIR="/home/ec2-user/build"
+TEMP_DIR="$BASE_DIR/temp"
+DEPLOY_DIR="$BASE_DIR/$DEPLOYMENT_GROUP_NAME"
 
-if [ "$DEPLOYMENT_GROUP_NAME" == "production" ]
-then
-    mkdir -p /home/ec2-user/build/production  # 디렉토리 존재 여부 확인 후 생성
-    cp -R /home/ec2-user/build/temp/* /home/ec2-user/build/production
-fi
-# Clean Up
+# 디렉토리 존재 여부 확인 후 생성
+mkdir -p "$DEPLOY_DIR"
+# temp의 모든 파일을 해당 디렉토리로 복사
+cp -R "$TEMP_DIR"/* "$DEPLOY_DIR"
+# 임시 디렉토리 삭제
 sudo rm -rf /home/ec2-user/build/temp
