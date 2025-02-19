@@ -15,7 +15,7 @@ services:
       - spring-net-release
   redis:
     container_name: fineAnts_redis_release
-    image: redis:latest
+    image: redis:7.4-alpine
     restart: always
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
