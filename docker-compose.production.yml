@@ -17,7 +17,7 @@ services:
       - spring-net
   redis:
     container_name: fineAnts_redis
-    image: redis:latest
+    image: redis:7.4-alpine
     restart: always
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
@@ -28,7 +28,7 @@ services:
       - spring-net
   loki:
     container_name: fineAnts_loki
-    image: grafana/loki
+    image: grafana/loki:3.1.2
     ports:
       - "3100:3100"
     volumes:
@@ -42,7 +42,7 @@ services:
     networks:
       - spring-net
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:2.3.0
     container_name: promtail
     volumes:
       - ./promtail:/etc/promtail
@@ -56,7 +56,7 @@ services:
       - spring-net
   grafana:
     container_name: fineAnts_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     ports:
       - "3000:3000"
     volumes:
