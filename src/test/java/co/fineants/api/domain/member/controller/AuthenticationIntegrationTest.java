@@ -23,7 +23,7 @@ import org.springframework.http.ResponseCookie;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.OauthMemberRedisService;
+import co.fineants.api.domain.member.service.RedisTokenManagementService;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -45,7 +45,7 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	private TokenFactory tokenFactory;
 
 	@Autowired
-	private OauthMemberRedisService oauthMemberRedisService;
+	private RedisTokenManagementService redisTokenManagementService;
 
 	@LocalServerPort
 	private int port;
@@ -57,7 +57,7 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
 	@AfterEach
 	void tearDown() {
-		oauthMemberRedisService.clear();
+		redisTokenManagementService.clear();
 	}
 
 	@SuppressWarnings("checkstyle:NoWhitespaceBefore")

@@ -103,7 +103,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private AmazonS3Service mockAmazonS3Service;
 
 	@MockBean
-	private OauthMemberRedisService redisService;
+	private RedisTokenManagementService redisService;
 
 	@MockBean
 	private VerifyCodeGenerator verifyCodeGenerator;

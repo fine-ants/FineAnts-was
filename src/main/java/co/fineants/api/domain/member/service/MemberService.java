@@ -73,7 +73,7 @@ public class MemberService {
 	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
 	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
-	private final OauthMemberRedisService redisService;
+	private final RedisTokenManagementService redisService;
 	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
@@ -89,7 +89,7 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final OauthMemberRedisService oauthMemberRedisService;
+	private final RedisTokenManagementService redisTokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 
@@ -103,13 +103,13 @@ public class MemberService {
 		// ban accessToken
 		String accessToken = CookieUtils.getAccessToken(request);
 		if (accessToken != null) {
-			oauthMemberRedisService.banAccessToken(accessToken);
+			redisTokenManagementService.banAccessToken(accessToken);
 		}
 
 		// ban refreshToken
 		String refreshToken = CookieUtils.getRefreshToken(request);
 		if (refreshToken != null) {
-			oauthMemberRedisService.banRefreshToken(refreshToken);
+			redisTokenManagementService.banRefreshToken(refreshToken);
 		}
 
 		expiredCookies(response);
