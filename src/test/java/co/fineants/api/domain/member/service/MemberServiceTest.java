@@ -21,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -62,7 +61,7 @@ import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.config.MemberServiceTestConfig;
 
-public class MemberServiceTest extends AbstractContainerBaseTest {
+class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberService memberService;
@@ -114,7 +113,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 			.tokenManagementService(mockedTokenManagementService)
 			.verifyCodeGenerator(mockedVerifyCodeGenerator)
 			.build();
-		BDDMockito.given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
+		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
 		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
