@@ -1,5 +1,6 @@
 package co.fineants.api.domain.member.service;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OauthMemberRedisService {
 
 	private static final String LOGOUT = "logout";
+	private static final Duration REFRESH_TOKEN_TIMEOUT = Duration.ofDays(7);
+	private static final Duration ACCESS_TOKEN_TIMEOUT = Duration.ofMinutes(5);
 
 	private final RedisTemplate<String, String> redisTemplate;
 
@@ -24,17 +27,15 @@ public class OauthMemberRedisService {
 	}
 
 	public void banRefreshToken(String token) {
-		long expiration = 1000L * 60L * 60L * 24L * 7L;
-		banToken(token, expiration);
+		banToken(token, REFRESH_TOKEN_TIMEOUT);
 	}
 
 	public void banAccessToken(String token) {
-		long expiration = 1000L * 60L * 5L;
-		banToken(token, expiration);
+		banToken(token, ACCESS_TOKEN_TIMEOUT);
 	}
 
-	public void banToken(String token, long expiration) {
-		redisTemplate.opsForValue().set(token, LOGOUT, expiration, TimeUnit.MILLISECONDS);
+	public void banToken(String token, Duration timeout) {
+		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 
 	public boolean isAlreadyLogout(String token) {
