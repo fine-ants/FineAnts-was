@@ -11,8 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -43,8 +41,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3DividendService amazonS3DividendService;
 
-	@MockBean
-	private KisService kisService;
+	private KisService mockedKisService;
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
@@ -55,15 +52,16 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	void setUp() {
 		MockFactory factory = new MockFactory();
 		mockedLocalDateTimeService = factory.mockLocalDateTimeService();
+		mockedKisService = factory.mockeKisService();
 		stockDividendService = stockDividendService.toBuilder()
 			.localDateTimeService(mockedLocalDateTimeService)
+			.kisService(mockedKisService)
 			.build();
 	}
 
 	/**
 	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
 	 */
-	@WithMockUser(roles = "ADMIN")
 	@DisplayName("배당일정을 초기화한다")
 	@Test
 	void initializeStockDividend() {
@@ -77,7 +75,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		assertThat(stockDividendRepository.findAllStockDividends()).hasSize(9);
 	}
 
-	@WithMockUser(roles = "ADMIN")
 	@DisplayName("배당 일정을 최신화한다")
 	@Test
 	void refreshStockDividend() {
@@ -97,7 +94,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		int kakaoDividend = 61;
 
 		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
-		given(kisService.fetchDividendsBetween(
+		given(mockedKisService.fetchDividendsBetween(
 			ArgumentMatchers.any(LocalDate.class),
 			ArgumentMatchers.any(LocalDate.class)
 		)).willReturn(List.of(
