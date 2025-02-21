@@ -14,10 +14,12 @@ import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Builder(toBuilder = true)
 public class ExchangeRateService {
 
 	private final ExchangeRateRepository exchangeRateRepository;
