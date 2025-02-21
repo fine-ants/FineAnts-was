@@ -95,27 +95,27 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
-
 	private AmazonS3Service mockAmazonS3Service;
-
-	private TokenManagementService mockedTokenManagementService;
+	private VerifyCodeManagementService mockedVerifyCodeManagementService;
 
 	@BeforeEach
 	void setUp() {
 		MemberServiceTestConfig config = new MemberServiceTestConfig();
 		mockAmazonS3Service = config.mockAmazonS3Service();
 		EmailService mockedEmailService = config.mockEmailService();
-		mockedTokenManagementService = config.mockTokenManagementService();
+		TokenManagementService mockedTokenManagementService = config.mockTokenManagementService();
 		VerifyCodeGenerator mockedVerifyCodeGenerator = config.mockVerifyCodeGenerator();
+		mockedVerifyCodeManagementService = config.mockVerifyCodeManagementService();
 		memberService = this.memberService.toBuilder()
 			.amazonS3Service(mockAmazonS3Service)
 			.emailService(mockedEmailService)
 			.tokenManagementService(mockedTokenManagementService)
 			.verifyCodeGenerator(mockedVerifyCodeGenerator)
+			.verifyCodeManagementService(mockedVerifyCodeManagementService)
 			.build();
 		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
-		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
+		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
 	}
@@ -400,8 +400,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		memberService.sendVerifyCode(request);
 
 		// then
-		verify(mockedTokenManagementService, times(1))
-			.saveEmailVerifCode("dragonbead95@naver.com", "123456");
+		verify(mockedVerifyCodeManagementService, times(1)).saveVerifyCode("dragonbead95@naver.com", "123456");
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
