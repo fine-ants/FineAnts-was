@@ -1,7 +1,6 @@
 package co.fineants.api.domain.member.service;
 
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -48,17 +47,6 @@ public class RedisTokenManagementService implements TokenManagementService {
 				redisTemplate.delete(key);
 			}
 		}
-	}
-
-	@Override
-	public Optional<String> get(String key) {
-		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
-	}
-
-	@Override
-	public void saveEmailVerifCode(String email, String verifCode) {
-		Duration timeout = Duration.ofMinutes(5);
-		redisTemplate.opsForValue().set(email, verifCode, timeout);
 	}
 
 	private void banToken(String token, Duration timeout) {

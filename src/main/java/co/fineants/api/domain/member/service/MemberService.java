@@ -91,6 +91,7 @@ public class MemberService {
 	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
+	private final VerifyCodeManagementService verifyCodeManagementService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -188,7 +189,7 @@ public class MemberService {
 		String verifyCode = verifyCodeGenerator.generate();
 
 		// Redis에 생성한 검증 코드 임시 저장
-		tokenManagementService.saveEmailVerifCode(email, verifyCode);
+		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
 
 		try {
 			// 사용자에게 검증 코드 메일 전송
@@ -287,7 +288,7 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = tokenManagementService.get(email);
+		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
 			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
 		}
