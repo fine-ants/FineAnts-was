@@ -34,7 +34,7 @@ public class RedisTokenManagementService {
 		banToken(token, ACCESS_TOKEN_TIMEOUT);
 	}
 
-	public void banToken(String token, Duration timeout) {
+	private void banToken(String token, Duration timeout) {
 		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 
