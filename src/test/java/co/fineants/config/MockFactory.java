@@ -3,6 +3,7 @@ package co.fineants.config;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 
+import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.domain.member.service.VerifyCodeManagementService;
@@ -35,5 +36,9 @@ public class MockFactory {
 
 	public LocalDateTimeService mockLocalDateTimeService() {
 		return Mockito.mock(LocalDateTimeService.class);
+	}
+
+	public KisService mockeKisService() {
+		return Mockito.mock(KisService.class);
 	}
 }
