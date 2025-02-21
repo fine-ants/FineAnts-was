@@ -486,9 +486,8 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	public static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		Path path = null;
 		try {
-			path = Paths.get(classPathResource.getURI());
+			Path path = Paths.get(classPathResource.getURI());
 			byte[] profile = Files.readAllBytes(path);
 			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
 				profile);
