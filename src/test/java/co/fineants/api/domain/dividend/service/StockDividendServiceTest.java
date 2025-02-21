@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,12 +58,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		stockDividendService = stockDividendService.toBuilder()
 			.localDateTimeService(mockedLocalDateTimeService)
 			.build();
-	}
-
-	@AfterEach
-	void tearDown() {
-		stockDividendRepository.deleteAllInBatch();
-		stockRepository.deleteAllInBatch();
 	}
 
 	/**
