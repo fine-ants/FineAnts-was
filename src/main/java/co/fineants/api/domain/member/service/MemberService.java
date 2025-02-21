@@ -73,7 +73,6 @@ public class MemberService {
 	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
 	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
-	private final RedisTokenManagementService redisService;
 	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
@@ -189,7 +188,7 @@ public class MemberService {
 		String verifyCode = verifyCodeGenerator.generate();
 
 		// Redis에 생성한 검증 코드 임시 저장
-		redisService.saveEmailVerifCode(email, verifyCode);
+		tokenManagementService.saveEmailVerifCode(email, verifyCode);
 
 		try {
 			// 사용자에게 검증 코드 메일 전송
@@ -288,7 +287,7 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = redisService.get(email);
+		Optional<String> verifyCode = tokenManagementService.get(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
 			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
 		}
