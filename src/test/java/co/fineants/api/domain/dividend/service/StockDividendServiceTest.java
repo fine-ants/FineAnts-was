@@ -41,12 +41,10 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3DividendService amazonS3DividendService;
 
-	private KisService mockedKisService;
-
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
-
 	private LocalDateTimeService mockedLocalDateTimeService;
+	private KisService mockedKisService;
 
 	@BeforeEach
 	void setUp() {
