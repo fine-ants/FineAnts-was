@@ -89,7 +89,7 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final RedisTokenManagementService redisTokenManagementService;
+	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 
@@ -103,13 +103,13 @@ public class MemberService {
 		// ban accessToken
 		String accessToken = CookieUtils.getAccessToken(request);
 		if (accessToken != null) {
-			redisTokenManagementService.banAccessToken(accessToken);
+			tokenManagementService.banAccessToken(accessToken);
 		}
 
 		// ban refreshToken
 		String refreshToken = CookieUtils.getRefreshToken(request);
 		if (refreshToken != null) {
-			redisTokenManagementService.banRefreshToken(refreshToken);
+			tokenManagementService.banRefreshToken(refreshToken);
 		}
 
 		expiredCookies(response);
