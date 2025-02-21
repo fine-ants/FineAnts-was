@@ -8,16 +8,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Currency;
@@ -29,6 +30,7 @@ import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 
+@WithMockUser(roles = {"ADMIN"})
 class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -37,15 +39,23 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private ExchangeRateRepository repository;
 
-	@MockBean
-	private ExchangeRateWebClient webClient;
+	@Autowired
+	private ExchangeRateUpdateService exchangeRateUpdateService;
 
-	@AfterEach
-	void tearDown() {
-		repository.deleteAllInBatch();
+	private ExchangeRateWebClient mockedWebClient;
+
+	@BeforeEach
+	void setUp() {
+		mockedWebClient = Mockito.mock(ExchangeRateWebClient.class);
+		exchangeRateUpdateService = exchangeRateUpdateService.toBuilder()
+			.webClient(mockedWebClient)
+			.build();
+		service = service.toBuilder()
+			.webClient(mockedWebClient)
+			.exchangeRateUpdateService(exchangeRateUpdateService)
+			.build();
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("관리자는 환율을 저장한다")
 	@CsvSource(value = {
 		"KRW, 1.0, true",
@@ -61,7 +71,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void createExchangeRate(String code, double rate, boolean base) {
 		// given
-		given(webClient.fetchRateBy(code, code)).willReturn(rate);
+		given(mockedWebClient.fetchRateBy(code, code)).willReturn(rate);
 
 		// when
 		service.createExchangeRate(code);
@@ -75,7 +85,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		assertThat(exchangeRate.parse()).isEqualTo(String.format("%s:%s", code, decimalFormat.format(rate)));
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("환율 추가 시나리오")
 	@TestFactory
 	Collection<DynamicTest> createExchangeRateDynamicTest() {
@@ -85,7 +94,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				// given
 				String krw = Currency.KRW.name();
 
-				given(webClient.fetchRateBy(krw, krw))
+				given(mockedWebClient.fetchRateBy(krw, krw))
 					.willReturn(1.0);
 				// when
 				service.createExchangeRate(krw);
@@ -102,7 +111,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				String base = "KRW";
 				String usd = Currency.USD.name();
 				double rate = 0.0007322;
-				given(webClient.fetchRateBy(usd, base))
+				given(mockedWebClient.fetchRateBy(usd, base))
 					.willReturn(rate);
 				// when
 				service.createExchangeRate(usd);
@@ -117,13 +126,12 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("관리자는 존재하지 않는 통화를 추가할 수 없다")
 	@Test
 	void createExchangeRate_whenNotExistCode_thenError() {
 		// given
 		String usd = "AAA";
-		given(webClient.fetchRateBy(usd, usd))
+		given(mockedWebClient.fetchRateBy(usd, usd))
 			.willThrow(new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE));
 
 		// when
@@ -135,7 +143,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			.hasMessage(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE.getMessage());
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("관리자는 이미 존재하는 통화를 저장할 수 없다")
 	@Test
 	void createExchangeRate_whenExistRate_thenThrowError() {
@@ -152,7 +159,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			.hasMessage("이미 존재하는 통화입니다");
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("관리자는 환율을 조회한다")
 	@Test
 	void readExchangeRates() {
@@ -175,7 +181,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
+	@Transactional
 	@DisplayName("기준 통화를 변경한다")
 	@Test
 	void patchBase() {
@@ -183,7 +189,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.base(Currency.KRW.name()));
 		repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
 
-		given(webClient.fetchRates(Currency.USD.name()))
+		given(mockedWebClient.fetchRates(Currency.USD.name()))
 			.willReturn(Map.of("USD", 1.0, "KRW", 1300.0));
 		// when
 		service.patchBase("USD");
@@ -200,7 +206,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
+	@Transactional
 	@DisplayName("관리자가 환율을 삭제한다")
 	@Test
 	void deleteExchangeRates() {
@@ -218,7 +224,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		assertThat(actual).isTrue();
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
 	@DisplayName("관리자는 기준 통화를 제거할 수 없다")
 	@Test
 	void deleteExchangeRates_whenDeletedBaseCode_thenChangeBase() {
@@ -234,7 +239,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			.hasMessage(ExchangeRateErrorCode.UNAVAILABLE_DELETE_BASE_EXCHANGE_RATE.getMessage());
 	}
 
-	@WithMockUser(roles = {"ADMIN"})
+	@Transactional
 	@DisplayName("관리자가 기준 통화를 제외한 모든 통화를 제거한다")
 	@Test
 	void deleteExchangeRates_whenAllDeleted() {
