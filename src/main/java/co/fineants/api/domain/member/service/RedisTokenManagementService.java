@@ -36,19 +36,10 @@ public class RedisTokenManagementService implements TokenManagementService {
 		banToken(token, ACCESS_TOKEN_TIMEOUT);
 	}
 
-	private void banToken(String token, Duration timeout) {
-		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
-	}
-
 	@Override
 	public boolean isAlreadyLogout(String token) {
 		String logout = redisTemplate.opsForValue().get(token);
 		return LOGOUT.equals(logout);
-	}
-
-	public void saveEmailVerifCode(String email, String verifCode) {
-		long expirationTimeInMinutes = 5; // 5 minutes
-		redisTemplate.opsForValue().set(email, verifCode, expirationTimeInMinutes, TimeUnit.MINUTES);
 	}
 
 	@Override
@@ -60,5 +51,14 @@ public class RedisTokenManagementService implements TokenManagementService {
 		for (String key : keys) {
 			redisTemplate.delete(key);
 		}
+	}
+
+	private void banToken(String token, Duration timeout) {
+		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
+	}
+
+	public void saveEmailVerifCode(String email, String verifCode) {
+		long expirationTimeInMinutes = 5; // 5 minutes
+		redisTemplate.opsForValue().set(email, verifCode, expirationTimeInMinutes, TimeUnit.MINUTES);
 	}
 }
