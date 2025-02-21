@@ -102,8 +102,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	private AmazonS3Service mockAmazonS3Service;
 
-	@MockBean
-	private RedisTokenManagementService redisService;
+	private TokenManagementService mockedTokenManagementService;
 
 	@MockBean
 	private VerifyCodeGenerator verifyCodeGenerator;
@@ -113,12 +112,16 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		MemberServiceTestConfig config = new MemberServiceTestConfig();
 		mockAmazonS3Service = config.mockAmazonS3Service();
 		EmailService mockedEmailService = config.mockEmailService();
+		mockedTokenManagementService = config.mockTokenManagementService();
 		memberService = this.memberService.toBuilder()
 			.amazonS3Service(mockAmazonS3Service)
 			.emailService(mockedEmailService)
+			.tokenManagementService(mockedTokenManagementService)
 			.build();
 		BDDMockito.given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
+		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
+			.willReturn(Optional.of("123456"));
 	}
 
 	public static Stream<Arguments> validChangeProfileSource() {
@@ -403,7 +406,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		memberService.sendVerifyCode(request);
 
 		// then
-		verify(redisService, times(1))
+		verify(mockedTokenManagementService, times(1))
 			.saveEmailVerifCode("dragonbead95@naver.com", "123456");
 	}
 
@@ -411,7 +414,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode() {
 		// given
-		given(redisService.get("dragonbead95@naver.com"))
+		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "123456";
@@ -423,7 +426,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
 		// given
-		given(redisService.get("dragonbead95@naver.com"))
+		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "234567";
