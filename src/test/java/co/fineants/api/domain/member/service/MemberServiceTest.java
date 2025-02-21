@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -59,7 +60,6 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
-import co.fineants.config.MockFactory;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -100,12 +100,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		MockFactory config = new MockFactory();
-		mockAmazonS3Service = config.mockAmazonS3Service();
-		EmailService mockedEmailService = config.mockEmailService();
-		TokenManagementService mockedTokenManagementService = config.mockTokenManagementService();
-		VerifyCodeGenerator mockedVerifyCodeGenerator = config.mockVerifyCodeGenerator();
-		mockedVerifyCodeManagementService = config.mockVerifyCodeManagementService();
+		mockAmazonS3Service = Mockito.mock(AmazonS3Service.class);
+		EmailService mockedEmailService = Mockito.mock(EmailService.class);
+		TokenManagementService mockedTokenManagementService = Mockito.mock(TokenManagementService.class);
+		VerifyCodeGenerator mockedVerifyCodeGenerator = Mockito.mock(VerifyCodeGenerator.class);
+		mockedVerifyCodeManagementService = Mockito.mock(VerifyCodeManagementService.class);
 		memberService = this.memberService.toBuilder()
 			.amazonS3Service(mockAmazonS3Service)
 			.emailService(mockedEmailService)
