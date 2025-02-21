@@ -414,8 +414,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode() {
 		// given
-		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "123456";
 		// when & then
@@ -426,8 +424,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
 		// given
-		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "234567";
 
