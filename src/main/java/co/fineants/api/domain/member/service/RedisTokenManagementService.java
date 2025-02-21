@@ -21,10 +21,6 @@ public class RedisTokenManagementService implements TokenManagementService {
 
 	private final RedisTemplate<String, String> redisTemplate;
 
-	public Optional<String> get(String key) {
-		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
-	}
-
 	@Override
 	public void banRefreshToken(String token) {
 		banToken(token, REFRESH_TOKEN_TIMEOUT);
@@ -54,12 +50,18 @@ public class RedisTokenManagementService implements TokenManagementService {
 		}
 	}
 
-	private void banToken(String token, Duration timeout) {
-		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
+	@Override
+	public Optional<String> get(String key) {
+		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
 	}
 
+	@Override
 	public void saveEmailVerifCode(String email, String verifCode) {
 		Duration timeout = Duration.ofMinutes(5);
 		redisTemplate.opsForValue().set(email, verifCode, timeout);
+	}
+
+	private void banToken(String token, Duration timeout) {
+		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 }
