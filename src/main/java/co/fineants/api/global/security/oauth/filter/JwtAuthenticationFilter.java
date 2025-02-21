@@ -10,7 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
-import co.fineants.api.domain.member.service.RedisTokenManagementService;
+import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 	private final TokenService tokenService;
-	private final RedisTokenManagementService redisTokenManagementService;
+	private final TokenManagementService tokenManagementService;
 	private final TokenFactory tokenFactory;
 
 	@Override
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		Token token = null;
 		log.debug("requestURL : {}", ((HttpServletRequest)request).getRequestURL());
 		log.debug("accessToken : {}", accessToken);
-		if (accessToken != null && !redisTokenManagementService.isAlreadyLogout(accessToken)) {
+		if (accessToken != null && !tokenManagementService.isAlreadyLogout(accessToken)) {
 			if (tokenService.isExpiredToken(accessToken)) {
 				log.debug("accessToken is Expired");
 				token = tokenService.refreshToken(refreshToken, LocalDateTime.now());
