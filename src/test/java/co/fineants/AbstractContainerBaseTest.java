@@ -165,13 +165,7 @@ public abstract class AbstractContainerBaseTest {
 	public KisAccessToken createKisAccessToken() {
 		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(86400), 86400);
 	}
-
-	protected void createRoleIfNotFound(String roleName, String roleDesc) {
-		Role role = roleRepository.findRoleByRoleName(roleName)
-			.orElseGet(() -> Role.create(roleName, roleDesc));
-		roleRepository.save(role);
-	}
-
+	
 	protected Member createMember() {
 		return createMember("nemo1234");
 	}
