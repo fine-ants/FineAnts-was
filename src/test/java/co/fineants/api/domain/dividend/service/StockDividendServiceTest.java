@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,6 +26,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.AmazonS3DividendService;
+import co.fineants.config.MockFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -54,7 +54,8 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		mockedLocalDateTimeService = BDDMockito.mock(LocalDateTimeService.class);
+		MockFactory factory = new MockFactory();
+		mockedLocalDateTimeService = factory.mockLocalDateTimeService();
 		stockDividendService = stockDividendService.toBuilder()
 			.localDateTimeService(mockedLocalDateTimeService)
 			.build();

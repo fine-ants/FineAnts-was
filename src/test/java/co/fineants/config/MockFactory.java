@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.domain.member.service.VerifyCodeManagementService;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -30,5 +31,9 @@ public class MockFactory {
 
 	public VerifyCodeManagementService mockVerifyCodeManagementService() {
 		return Mockito.mock(VerifyCodeManagementService.class);
+	}
+
+	public LocalDateTimeService mockLocalDateTimeService() {
+		return Mockito.mock(LocalDateTimeService.class);
 	}
 }
