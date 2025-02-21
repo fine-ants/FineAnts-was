@@ -59,11 +59,13 @@ import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
+@Builder(toBuilder = true)
 @Service
 public class MemberService {
 
@@ -293,7 +295,6 @@ public class MemberService {
 	}
 
 	@Transactional
-	@Secured("ROLE_USER")
 	public void deleteMember(Long memberId) {
 		Member member = findMember(memberId);
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberId(memberId);
