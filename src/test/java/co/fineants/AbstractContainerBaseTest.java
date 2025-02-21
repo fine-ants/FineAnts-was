@@ -61,7 +61,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.config.AmazonS3TestConfig;
-import co.fineants.config.MemberServiceTestConfig;
+import co.fineants.config.MockFactory;
 import co.fineants.config.TestConfig;
 import co.fineants.support.mysql.DatabaseCleaner;
 import co.fineants.support.redis.RedisRepository;
@@ -76,7 +76,7 @@ import okhttp3.mockwebserver.MockResponse;
 @AutoConfigureWebTestClient
 @Testcontainers
 @WithMockUser(username = "dragonbead95@naver.com")
-@Import(value = MemberServiceTestConfig.class)
+@Import(value = MockFactory.class)
 public abstract class AbstractContainerBaseTest {
 	private static final String REDIS_IMAGE = "redis:7-alpine";
 	private static final int REDIS_PORT = 6379;
@@ -165,7 +165,7 @@ public abstract class AbstractContainerBaseTest {
 	public KisAccessToken createKisAccessToken() {
 		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(86400), 86400);
 	}
-	
+
 	protected Member createMember() {
 		return createMember("nemo1234");
 	}

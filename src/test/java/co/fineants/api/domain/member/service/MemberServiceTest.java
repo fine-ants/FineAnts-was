@@ -59,7 +59,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
-import co.fineants.config.MemberServiceTestConfig;
+import co.fineants.config.MockFactory;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -100,7 +100,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		MemberServiceTestConfig config = new MemberServiceTestConfig();
+		MockFactory config = new MockFactory();
 		mockAmazonS3Service = config.mockAmazonS3Service();
 		EmailService mockedEmailService = config.mockEmailService();
 		TokenManagementService mockedTokenManagementService = config.mockTokenManagementService();

@@ -10,7 +10,7 @@ import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 @TestConfiguration
-public class MemberServiceTestConfig {
+public class MockFactory {
 
 	public EmailService mockEmailService() {
 		return Mockito.mock(EmailService.class);
