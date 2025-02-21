@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class RedisTokenManagementService {
+public class RedisTokenManagementService implements TokenManagementService {
 
 	private static final String LOGOUT = "logout";
 	private static final Duration REFRESH_TOKEN_TIMEOUT = Duration.ofDays(7);
@@ -26,10 +26,12 @@ public class RedisTokenManagementService {
 		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
 	}
 
+	@Override
 	public void banRefreshToken(String token) {
 		banToken(token, REFRESH_TOKEN_TIMEOUT);
 	}
 
+	@Override
 	public void banAccessToken(String token) {
 		banToken(token, ACCESS_TOKEN_TIMEOUT);
 	}
@@ -38,6 +40,7 @@ public class RedisTokenManagementService {
 		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 
+	@Override
 	public boolean isAlreadyLogout(String token) {
 		String logout = redisTemplate.opsForValue().get(token);
 		return LOGOUT.equals(logout);
@@ -48,6 +51,7 @@ public class RedisTokenManagementService {
 		redisTemplate.opsForValue().set(email, verifCode, expirationTimeInMinutes, TimeUnit.MINUTES);
 	}
 
+	@Override
 	public void clear() {
 		Set<String> keys = redisTemplate.keys("*");
 		if (keys == null) {
