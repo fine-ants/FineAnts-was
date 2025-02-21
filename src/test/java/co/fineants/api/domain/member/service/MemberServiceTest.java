@@ -23,7 +23,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -104,24 +103,24 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	private TokenManagementService mockedTokenManagementService;
 
-	@MockBean
-	private VerifyCodeGenerator verifyCodeGenerator;
-
 	@BeforeEach
 	void setUp() {
 		MemberServiceTestConfig config = new MemberServiceTestConfig();
 		mockAmazonS3Service = config.mockAmazonS3Service();
 		EmailService mockedEmailService = config.mockEmailService();
 		mockedTokenManagementService = config.mockTokenManagementService();
+		VerifyCodeGenerator mockedVerifyCodeGenerator = config.mockVerifyCodeGenerator();
 		memberService = this.memberService.toBuilder()
 			.amazonS3Service(mockAmazonS3Service)
 			.emailService(mockedEmailService)
 			.tokenManagementService(mockedTokenManagementService)
+			.verifyCodeGenerator(mockedVerifyCodeGenerator)
 			.build();
 		BDDMockito.given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
 		given(mockedTokenManagementService.get("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
+		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
 	}
 
 	public static Stream<Arguments> validChangeProfileSource() {
@@ -396,8 +395,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void sendVerifyCode() {
 		// given
-		given(verifyCodeGenerator.generate()).willReturn("123456");
-
 		VerifyEmailRequest request = ObjectMapperUtil.deserialize(
 			ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com")),
 			VerifyEmailRequest.class);

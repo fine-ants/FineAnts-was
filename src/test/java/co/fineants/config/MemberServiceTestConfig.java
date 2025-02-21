@@ -4,6 +4,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 
 import co.fineants.api.domain.member.service.TokenManagementService;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -20,5 +21,9 @@ public class MemberServiceTestConfig {
 
 	public TokenManagementService mockTokenManagementService() {
 		return Mockito.mock(TokenManagementService.class);
+	}
+
+	public VerifyCodeGenerator mockVerifyCodeGenerator() {
+		return Mockito.mock(VerifyCodeGenerator.class);
 	}
 }
