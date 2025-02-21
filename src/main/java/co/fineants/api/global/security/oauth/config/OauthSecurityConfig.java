@@ -18,7 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.member.service.OauthMemberRedisService;
+import co.fineants.api.domain.member.service.RedisTokenManagementService;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
@@ -42,7 +42,7 @@ public class OauthSecurityConfig {
 	private final RoleRepository roleRepository;
 	private final OAuth2UserMapper oAuth2UserMapper;
 	private final CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint;
-	private final OauthMemberRedisService oauthMemberRedisService;
+	private final RedisTokenManagementService redisTokenManagementService;
 	private final String loginSuccessUri;
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
@@ -51,7 +51,8 @@ public class OauthSecurityConfig {
 		NotificationPreferenceRepository notificationPreferenceRepository, TokenService tokenService,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
-		OauthMemberRedisService oauthMemberRedisService, @Value("${oauth2.login-success-uri}") String loginSuccessUri,
+		RedisTokenManagementService redisTokenManagementService,
+		@Value("${oauth2.login-success-uri}") String loginSuccessUri,
 		TokenFactory tokenFactory, CorsConfiguration corsConfiguration) {
 		this.memberRepository = memberRepository;
 		this.notificationPreferenceRepository = notificationPreferenceRepository;
@@ -60,7 +61,7 @@ public class OauthSecurityConfig {
 		this.roleRepository = roleRepository;
 		this.oAuth2UserMapper = oAuth2UserMapper;
 		this.commonLoginAuthenticationEntryPoint = commonLoginAuthenticationEntryPoint;
-		this.oauthMemberRedisService = oauthMemberRedisService;
+		this.redisTokenManagementService = redisTokenManagementService;
 		this.loginSuccessUri = loginSuccessUri;
 		this.tokenFactory = tokenFactory;
 		this.corsConfiguration = corsConfiguration;
@@ -93,7 +94,7 @@ public class OauthSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.addFilterBefore(new OAuth2AuthorizationRequestRedirectWithRedirectUrlParamFilter(),
 			OAuth2AuthorizationRequestRedirectFilter.class);
-		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, oauthMemberRedisService, tokenFactory),
+		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, redisTokenManagementService, tokenFactory),
 			AuthorizationFilter.class);
 
 		http
