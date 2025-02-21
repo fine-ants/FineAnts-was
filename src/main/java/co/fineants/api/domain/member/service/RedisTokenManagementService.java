@@ -3,7 +3,6 @@ package co.fineants.api.domain.member.service;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -60,7 +59,7 @@ public class RedisTokenManagementService implements TokenManagementService {
 	}
 
 	public void saveEmailVerifCode(String email, String verifCode) {
-		long expirationTimeInMinutes = 5; // 5 minutes
-		redisTemplate.opsForValue().set(email, verifCode, expirationTimeInMinutes, TimeUnit.MINUTES);
+		Duration timeout = Duration.ofMinutes(5);
+		redisTemplate.opsForValue().set(email, verifCode, timeout);
 	}
 }
