@@ -49,7 +49,9 @@ public class RedisTokenManagementService implements TokenManagementService {
 			return;
 		}
 		for (String key : keys) {
-			redisTemplate.delete(key);
+			if (LOGOUT.equals(redisTemplate.opsForValue().get(key))) {
+				redisTemplate.delete(key);
+			}
 		}
 	}
 
