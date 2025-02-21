@@ -23,7 +23,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +62,6 @@ import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.config.MemberServiceTestConfig;
 
-@Import(value = MemberServiceTestConfig.class)
 public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
