@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -60,6 +61,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.config.AmazonS3TestConfig;
+import co.fineants.config.MemberServiceTestConfig;
 import co.fineants.config.TestConfig;
 import co.fineants.support.mysql.DatabaseCleaner;
 import co.fineants.support.redis.RedisRepository;
@@ -74,6 +76,7 @@ import okhttp3.mockwebserver.MockResponse;
 @AutoConfigureWebTestClient
 @Testcontainers
 @WithMockUser(username = "dragonbead95@naver.com")
+@Import(value = MemberServiceTestConfig.class)
 public abstract class AbstractContainerBaseTest {
 	private static final String REDIS_IMAGE = "redis:7-alpine";
 	private static final int REDIS_PORT = 6379;
