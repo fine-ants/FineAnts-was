@@ -7,9 +7,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -48,8 +50,15 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
 
-	@MockBean
-	private LocalDateTimeService localDateTimeService;
+	private LocalDateTimeService mockedLocalDateTimeService;
+
+	@BeforeEach
+	void setUp() {
+		mockedLocalDateTimeService = BDDMockito.mock(LocalDateTimeService.class);
+		stockDividendService = stockDividendService.toBuilder()
+			.localDateTimeService(mockedLocalDateTimeService)
+			.build();
+	}
 
 	@AfterEach
 	void tearDown() {
@@ -141,7 +150,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 				null
 			)
 		));
-		given(localDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 4, 17));
+		given(mockedLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 4, 17));
 		// when
 		stockDividendService.reloadStockDividend();
 
