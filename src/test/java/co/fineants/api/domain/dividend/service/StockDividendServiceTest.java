@@ -6,12 +6,11 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -27,6 +26,7 @@ import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithMockUser(roles = {"ADMIN"})
 class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -43,18 +43,10 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
+	@Autowired
 	private LocalDateTimeService mockedLocalDateTimeService;
+	@Autowired
 	private KisService mockedKisService;
-
-	@BeforeEach
-	void setUp() {
-		mockedLocalDateTimeService = Mockito.mock(LocalDateTimeService.class);
-		mockedKisService = Mockito.mock(KisService.class);
-		stockDividendService = stockDividendService.toBuilder()
-			.localDateTimeService(mockedLocalDateTimeService)
-			.kisService(mockedKisService)
-			.build();
-	}
 
 	/**
 	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
