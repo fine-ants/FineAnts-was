@@ -8,17 +8,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Currency;
@@ -40,21 +37,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	private ExchangeRateRepository repository;
 
 	@Autowired
-	private ExchangeRateUpdateService exchangeRateUpdateService;
-
-	private ExchangeRateWebClient mockedWebClient;
-
-	@BeforeEach
-	void setUp() {
-		mockedWebClient = Mockito.mock(ExchangeRateWebClient.class);
-		exchangeRateUpdateService = exchangeRateUpdateService.toBuilder()
-			.webClient(mockedWebClient)
-			.build();
-		service = service.toBuilder()
-			.webClient(mockedWebClient)
-			.exchangeRateUpdateService(exchangeRateUpdateService)
-			.build();
-	}
+	private ExchangeRateWebClient mockedExchangeRateWebClient;
 
 	@DisplayName("관리자는 환율을 저장한다")
 	@CsvSource(value = {
@@ -71,7 +54,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void createExchangeRate(String code, double rate, boolean base) {
 		// given
-		given(mockedWebClient.fetchRateBy(code, code)).willReturn(rate);
+		given(mockedExchangeRateWebClient.fetchRateBy(code, code)).willReturn(rate);
 
 		// when
 		service.createExchangeRate(code);
@@ -94,7 +77,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				// given
 				String krw = Currency.KRW.name();
 
-				given(mockedWebClient.fetchRateBy(krw, krw))
+				given(mockedExchangeRateWebClient.fetchRateBy(krw, krw))
 					.willReturn(1.0);
 				// when
 				service.createExchangeRate(krw);
@@ -111,7 +94,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				String base = "KRW";
 				String usd = Currency.USD.name();
 				double rate = 0.0007322;
-				given(mockedWebClient.fetchRateBy(usd, base))
+				given(mockedExchangeRateWebClient.fetchRateBy(usd, base))
 					.willReturn(rate);
 				// when
 				service.createExchangeRate(usd);
@@ -131,7 +114,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	void createExchangeRate_whenNotExistCode_thenError() {
 		// given
 		String usd = "AAA";
-		given(mockedWebClient.fetchRateBy(usd, usd))
+		given(mockedExchangeRateWebClient.fetchRateBy(usd, usd))
 			.willThrow(new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE));
 
 		// when
@@ -181,7 +164,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
-	@Transactional
 	@DisplayName("기준 통화를 변경한다")
 	@Test
 	void patchBase() {
@@ -189,7 +171,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.base(Currency.KRW.name()));
 		repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
 
-		given(mockedWebClient.fetchRates(Currency.USD.name()))
+		given(mockedExchangeRateWebClient.fetchRates(Currency.USD.name()))
 			.willReturn(Map.of("USD", 1.0, "KRW", 1300.0));
 		// when
 		service.patchBase("USD");
@@ -206,7 +188,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
-	@Transactional
 	@DisplayName("관리자가 환율을 삭제한다")
 	@Test
 	void deleteExchangeRates() {
@@ -239,7 +220,6 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 			.hasMessage(ExchangeRateErrorCode.UNAVAILABLE_DELETE_BASE_EXCHANGE_RATE.getMessage());
 	}
 
-	@Transactional
 	@DisplayName("관리자가 기준 통화를 제외한 모든 통화를 제거한다")
 	@Test
 	void deleteExchangeRates_whenAllDeleted() {
