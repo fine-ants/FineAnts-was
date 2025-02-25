@@ -21,11 +21,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -58,9 +57,10 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.config.MemberServiceConfig;
 
+@Import(MemberServiceConfig.class)
 class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -95,23 +95,18 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
+
+	@Autowired
 	private AmazonS3Service mockAmazonS3Service;
+
+	@Autowired
 	private VerifyCodeManagementService mockedVerifyCodeManagementService;
+
+	@Autowired
+	private VerifyCodeGenerator mockedVerifyCodeGenerator;
 
 	@BeforeEach
 	void setUp() {
-		mockAmazonS3Service = Mockito.mock(AmazonS3Service.class);
-		EmailService mockedEmailService = Mockito.mock(EmailService.class);
-		TokenManagementService mockedTokenManagementService = Mockito.mock(TokenManagementService.class);
-		VerifyCodeGenerator mockedVerifyCodeGenerator = Mockito.mock(VerifyCodeGenerator.class);
-		mockedVerifyCodeManagementService = Mockito.mock(VerifyCodeManagementService.class);
-		memberService = this.memberService.toBuilder()
-			.amazonS3Service(mockAmazonS3Service)
-			.emailService(mockedEmailService)
-			.tokenManagementService(mockedTokenManagementService)
-			.verifyCodeGenerator(mockedVerifyCodeGenerator)
-			.verifyCodeManagementService(mockedVerifyCodeManagementService)
-			.build();
 		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
 		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
@@ -448,7 +443,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.containsExactlyInAnyOrder(true, true, true, true);
 	}
 
-	@Transactional
 	@DisplayName("사용자는 계정을 삭제한다")
 	@Test
 	void deleteMember() {
