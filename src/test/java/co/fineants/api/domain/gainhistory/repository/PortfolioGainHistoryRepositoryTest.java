@@ -8,8 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.AbstractContainerBaseTest;
+import co.fineants.AbstractDataJpaBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -17,7 +19,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 
-class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
+class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 	@Autowired
 	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
@@ -32,8 +34,8 @@ class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void findAllByPortfolioId() {
 		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 		portfolioGainHistoryRepository.save(PortfolioGainHistory.empty(portfolio));
 
 		// when
@@ -48,8 +50,8 @@ class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc() {
 		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 		portfolioGainHistoryRepository.save(PortfolioGainHistory.empty(portfolio));
 		PortfolioGainHistory saveHistory = portfolioGainHistoryRepository.save(PortfolioGainHistory.empty(portfolio));
 
@@ -66,12 +68,13 @@ class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
 		assertThat(history.getId()).isEqualTo(saveHistory.getId());
 	}
 
+	@Transactional
 	@DisplayName("주어진 날짜보다 같거나 작은 데이터들중 가장 최근의 데이터를 한개 조회한다")
 	@Test
 	void findFirstByCreateAtIsLessThanEqualOrderByCreateAtDesc() {
 		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
 		PortfolioGainHistory portfolioGainHistory1 = PortfolioGainHistory.create(
 			Money.won(10000L),
@@ -101,6 +104,5 @@ class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(result.getCurrentValuation()).isEqualByComparingTo(Money.won(120000L));
-
 	}
 }

@@ -5,10 +5,15 @@ import java.time.LocalDateTime;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
+import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
+import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 
 public final class TestDataFactory {
 	private TestDataFactory() {
@@ -65,45 +70,46 @@ public final class TestDataFactory {
 	// 	);
 	// }
 	//
-	// public static Portfolio createPortfolio(Member member) {
-	// 	return createPortfolio(
-	// 		member,
-	// 		Money.won(1000000)
-	// 	);
-	// }
-	//
-	// public static Portfolio createPortfolio(Member member, String name) {
-	// 	return createPortfolio(
-	// 		member,
-	// 		name,
-	// 		Money.won(1000000L),
-	// 		Money.won(1500000L),
-	// 		Money.won(900000L)
-	// 	);
-	// }
-	//
-	// public static Portfolio createPortfolio(Member member, Money budget) {
-	// 	return createPortfolio(
-	// 		member,
-	// 		"내꿈은 워렌버핏",
-	// 		budget,
-	// 		Money.won(1500000L),
-	// 		Money.won(900000L)
-	// 	);
-	// }
-	//
-	// public static Portfolio createPortfolio(Member member, String name, Money budget, Money targetGain,
-	// 	Money maximumLoss) {
-	// 	PortfolioDetail detail = PortfolioDetail.of(name, "토스증권", properties);
-	// 	PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
-	// 	return Portfolio.allActive(
-	// 		null,
-	// 		detail,
-	// 		financial,
-	// 		member
-	// 	);
-	// }
-	//
+	public static Portfolio createPortfolio(Member member) {
+		return createPortfolio(
+			member,
+			Money.won(1000000)
+		);
+	}
+
+	public static Portfolio createPortfolio(Member member, String name) {
+		return createPortfolio(
+			member,
+			name,
+			Money.won(1000000L),
+			Money.won(1500000L),
+			Money.won(900000L)
+		);
+	}
+
+	public static Portfolio createPortfolio(Member member, Money budget) {
+		return createPortfolio(
+			member,
+			"내꿈은 워렌버핏",
+			budget,
+			Money.won(1500000L),
+			Money.won(900000L)
+		);
+	}
+
+	public static Portfolio createPortfolio(Member member, String name, Money budget, Money targetGain,
+		Money maximumLoss) {
+		PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권"});
+		PortfolioDetail detail = PortfolioDetail.of(name, "토스증권", properties);
+		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
+		return Portfolio.allActive(
+			null,
+			detail,
+			financial,
+			member
+		);
+	}
+
 	// public static Stock createSamsungStock() {
 	// 	return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
 	// }
