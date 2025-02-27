@@ -39,11 +39,10 @@ public class StockDividendServiceConfig {
 	@Bean
 	@Primary
 	public LocalDateTimeService mockedLocalDateTimeService() {
-		return Mockito.mock(LocalDateTimeService.class);
+		return Mockito.spy(LocalDateTimeService.class);
 	}
 
 	@Bean
-	@Primary
 	public KisService mockedKisService() {
 		return Mockito.mock(KisService.class);
 	}
