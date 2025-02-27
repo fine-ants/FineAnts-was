@@ -101,7 +101,7 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 	private CurrentPriceRedisRepository manager;
 
 	@Autowired
-	private KisService kisService;
+	private KisService mockedKisService;
 
 	@MockBean
 	private FirebaseMessagingService firebaseMessagingService;
@@ -464,7 +464,7 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 
 		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
 		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
-		given(kisService.fetchCurrentPrice(stock2.getTickerSymbol()))
+		given(mockedKisService.fetchCurrentPrice(stock2.getTickerSymbol()))
 			.willReturn(Mono.just(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L)));
 		given(firebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
@@ -501,7 +501,7 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 					createTargetPriceNotification(stockTargetPrice1, List.of(60000L, 70000L)));
 
 				manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-				given(kisService.fetchCurrentPrice(stock.getTickerSymbol()))
+				given(mockedKisService.fetchCurrentPrice(stock.getTickerSymbol()))
 					.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 10000L)));
 				given(firebaseMessagingService.send(any(Message.class)))
 					.willReturn(Optional.of("messageId"));
