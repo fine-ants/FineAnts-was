@@ -5,10 +5,8 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +24,8 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 	private ExchangeRateUpdateService service;
 	@Autowired
 	private ExchangeRateRepository repository;
-	private ExchangeRateWebClient mockedWebClient;
-
-	@BeforeEach
-	void setUp() {
-		mockedWebClient = Mockito.mock(ExchangeRateWebClient.class);
-		service = service.toBuilder()
-			.webClient(mockedWebClient)
-			.build();
-	}
+	@Autowired
+	private ExchangeRateWebClient mockedExchangeRateWebClient;
 
 	@Transactional
 	@DisplayName("환율을 최신화한다")
@@ -48,7 +39,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.of(usd, rate, false));
 
 		double usdRate = 0.2;
-		given(mockedWebClient.fetchRates(krw)).willReturn(Map.of(usd, usdRate));
+		given(mockedExchangeRateWebClient.fetchRates(krw)).willReturn(Map.of(usd, usdRate));
 		// when
 		service.updateExchangeRates();
 		// then
@@ -65,7 +56,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 	void updateExchangeRates_whenNoBase_thenError() {
 		// given
 		String baseCode = "KRW";
-		given(mockedWebClient.fetchRates(baseCode)).willReturn(Map.of(baseCode, 1.0));
+		given(mockedExchangeRateWebClient.fetchRates(baseCode)).willReturn(Map.of(baseCode, 1.0));
 		// when
 		Throwable throwable = catchThrowable(() -> service.updateExchangeRates());
 		// then
