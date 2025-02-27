@@ -72,7 +72,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	private KisClient kisClient;
 
 	@Autowired
-	private KisService kisService;
+	private KisService mockedKisService;
 
 	@Autowired
 	private DelayManager spyDelayManager;
@@ -200,9 +200,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 			"KR7000660001",
 			"전기,전자",
 			Market.KOSPI);
-		given(kisService.fetchStockInfoInRangedIpo())
+		given(mockedKisService.fetchStockInfoInRangedIpo())
 			.willReturn(Flux.just(hynix));
-		given(kisService.fetchSearchStockInfo(hynix.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(hynix.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				"KR7000660001",
 				"000660",
@@ -213,12 +213,12 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				"전기,전자",
 				"전기,전자"))
 			);
-		given(kisService.fetchSearchStockInfo(nokwon.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(nokwon.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.delistedStock("KR7065560005", "065560", "녹원씨엔아이",
 				"Nokwon Commercials & Industries, Inc.",
 				"KSQ", "시가총액규모대", "소프트웨어", "소프트웨어", LocalDate.of(2024, 7, 29))));
 		DateTimeFormatter dtf = DateTimeFormatter.BASIC_ISO_DATE;
-		given(kisService.fetchDividend(hynix.getTickerSymbol()))
+		given(mockedKisService.fetchDividend(hynix.getTickerSymbol()))
 			.willReturn(Flux.just(KisDividend.create(hynix.getTickerSymbol(),
 					Money.won(300),
 					LocalDate.parse("20240331", dtf),
@@ -268,13 +268,13 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void reloadStocks_shouldNotBlockingThread_whenFetchSearchStockInfo() {
 		// given
-		given(kisService.fetchStockInfoInRangedIpo())
+		given(mockedKisService.fetchStockInfoInRangedIpo())
 			.willReturn(Flux.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
-		given(kisService.fetchSearchStockInfo(anyString()))
+		given(mockedKisService.fetchSearchStockInfo(anyString()))
 			.willReturn(Mono.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
-		given(kisService.fetchDividend(anyString()))
+		given(mockedKisService.fetchDividend(anyString()))
 			.willReturn(Flux.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
 		// when
@@ -291,7 +291,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
 		stockDividendRepository.saveAll(createStockDividendWith(samsung));
-		given(kisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				samsung.getStockCode(),
 				samsung.getTickerSymbol(),
