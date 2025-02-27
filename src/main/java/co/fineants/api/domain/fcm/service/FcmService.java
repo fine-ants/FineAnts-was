@@ -25,7 +25,6 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.FcmErrorCode;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Builder(toBuilder = true)
 public class FcmService {
 
 	private final FcmRepository fcmRepository;
