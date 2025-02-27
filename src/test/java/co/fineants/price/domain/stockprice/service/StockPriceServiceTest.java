@@ -34,6 +34,7 @@ class StockPriceServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockCsvReader stockCsvReader;
 
+	// TODO: MockBean 제거
 	@MockBean
 	private StockPriceDispatcher dispatcher;
 

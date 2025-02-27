@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
@@ -81,11 +80,12 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	@Autowired
 	private WebSocketApprovalKeyRedisRepository approvalKeyRedisRepository;
 
+	// todo: spyBean 제거
 	@SpyBean
 	private PortfolioCacheService portfolioCacheService;
 
-	@MockBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@BeforeEach
 	void setUp() {
@@ -109,7 +109,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(50000), "첫구매", holding));
 
-		given(localDateTimeService.getLocalDateTimeWithNow())
+		given(spyLocalDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(LocalDateTime.of(2024, 9, 6, 10, 0, 0));
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 50000L));
 		closingPriceRepository.addPrice(KisClosingPrice.create(samsung.getTickerSymbol(), 49000L));
@@ -141,7 +141,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(50000), "첫구매", holding));
 
-		given(localDateTimeService.getLocalDateTimeWithNow())
+		given(spyLocalDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(LocalDateTime.of(2024, 9, 6, 10, 0, 0));
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 50000L));
 		closingPriceRepository.addPrice(KisClosingPrice.create(samsung.getTickerSymbol(), 49000L));
@@ -194,7 +194,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(50000), "첫구매", holding));
 
-		given(localDateTimeService.getLocalDateTimeWithNow())
+		given(spyLocalDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(LocalDateTime.of(2024, 9, 6, 16, 0, 0));
 
 		Map<String, String> loginCookies = login(member);
