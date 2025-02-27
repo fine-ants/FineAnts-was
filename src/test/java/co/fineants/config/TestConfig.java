@@ -12,6 +12,7 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
+import co.fineants.api.domain.fcm.service.FirebaseMessagingService;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.kis.service.KisService;
@@ -56,6 +57,9 @@ public class TestConfig {
 
 	@MockBean
 	private JavaMailSender javaMailSender;
+
+	@MockBean
+	private FirebaseMessagingService firebaseMessagingService;
 
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {

@@ -75,14 +75,14 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	private KisService kisService;
 
 	@Autowired
-	private DelayManager delayManager;
+	private DelayManager spyDelayManager;
 
 	@Autowired
-	private LocalDateTimeService localDateTimeService;
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@BeforeEach
 	void setUp() {
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
 	}
 
@@ -227,7 +227,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 					Money.won(300),
 					LocalDate.parse("20240630", dtf),
 					LocalDate.parse("20240814", dtf))));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		// when
 		StockReloadResponse response = stockService.reloadStocks();
 		// then
