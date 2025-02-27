@@ -20,7 +20,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -98,8 +97,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioCacheSupportService portfolioCacheSupportService;
 
-	@SpyBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@MockBean
 	private PortfolioHoldingEventPublisher publisher;
@@ -120,9 +119,9 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		portfolio.setLocalDateTimeService(localDateTimeService);
+		portfolio.setLocalDateTimeService(spyLocalDateTimeService);
 		Stock stock = stockRepository.save(createSamsungStock());
-		given(localDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
+		given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
 		stockDividendRepository.saveAll(createStockDividendThisYearWith(stock));
 		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 

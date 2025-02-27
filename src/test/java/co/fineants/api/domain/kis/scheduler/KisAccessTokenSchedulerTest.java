@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.kis.client.KisClient;
@@ -27,7 +26,7 @@ class KisAccessTokenSchedulerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private KisAccessTokenRedisService kisAccessTokenRedisService;
 
-	@MockBean
+	@Autowired
 	private KisClient kisClient;
 
 	@BeforeEach

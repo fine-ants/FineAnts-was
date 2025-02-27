@@ -15,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -34,9 +33,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.errorcode.FcmErrorCode;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.config.FcmServiceConfig;
 
-@Import(FcmServiceConfig.class)
 class FcmServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired

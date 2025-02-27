@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -43,14 +44,15 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.kis.KisException;
+import co.fineants.config.AmazonS3TestConfig;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @Slf4j
+@ContextConfiguration(classes = AmazonS3TestConfig.class, inheritLocations = false)
 class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -85,9 +87,6 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 	@SpyBean
 	private DelayManager delayManager;
-
-	@SpyBean
-	private LocalDateTimeService localDateTimeService;
 
 	@AfterEach
 	void tearDown() {

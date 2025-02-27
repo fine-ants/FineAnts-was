@@ -11,13 +11,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
@@ -52,14 +49,11 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3DividendService amazonS3DividendService;
 
-	@MockBean
-	private KisClient kisClient;
+	@Autowired
+	private KisService mockedKisService;
 
-	@MockBean
-	private KisService kisService;
-
-	@SpyBean
-	private DelayManager delayManager;
+	@Autowired
+	private DelayManager spyDelayManager;
 
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
@@ -73,13 +67,13 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 			"KR7000660001",
 			"전기,전자",
 			Market.KOSPI);
-		given(kisService.fetchStockInfoInRangedIpo())
+		given(mockedKisService.fetchStockInfoInRangedIpo())
 			.willReturn(Flux.just(stock));
-		given(kisService.fetchSearchStockInfo(stock.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(stock.getTickerSymbol()))
 			.willReturn(Mono.just(
 				KisSearchStockInfo.listedStock(stock.getStockCode(), stock.getTickerSymbol(), stock.getCompanyName(),
 					stock.getCompanyNameEng(), "STK", "시가총액규모대", "전기,전자", "전기,전자")));
-		stocks.forEach(s -> given(kisService.fetchSearchStockInfo(s.getTickerSymbol()))
+		stocks.forEach(s -> given(mockedKisService.fetchSearchStockInfo(s.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 					s.getStockCode(),
 					s.getTickerSymbol(),
@@ -91,14 +85,14 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 					s.getSector()
 				))
 			));
-		stocks.forEach(s -> given(kisService.fetchDividend(anyString()))
+		stocks.forEach(s -> given(mockedKisService.fetchDividend(anyString()))
 			.willReturn(Flux.empty()));
-		stocks.forEach(s -> given(kisService.fetchDividend(s.getTickerSymbol()))
+		stocks.forEach(s -> given(mockedKisService.fetchDividend(s.getTickerSymbol()))
 			.willReturn(Flux.just(KisDividend.create(s.getTickerSymbol(), Money.won(300), LocalDate.of(2024, 3, 1),
 					LocalDate.of(2024, 5, 1)),
 				KisDividend.create(s.getTickerSymbol(), Money.won(300), LocalDate.of(2024, 5, 1),
 					LocalDate.of(2024, 7, 1)))));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		// when
 		stockScheduler.scheduledReloadStocks();
 		// then

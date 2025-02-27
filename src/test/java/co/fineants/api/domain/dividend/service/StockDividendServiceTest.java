@@ -43,8 +43,10 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
+
 	@Autowired
 	private LocalDateTimeService mockedLocalDateTimeService;
+
 	@Autowired
 	private KisService mockedKisService;
 
