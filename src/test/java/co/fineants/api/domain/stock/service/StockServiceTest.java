@@ -16,8 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -70,16 +68,16 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3StockService amazonS3StockService;
 
-	@MockBean
+	@Autowired
 	private KisClient kisClient;
 
-	@MockBean
+	@Autowired
 	private KisService kisService;
 
-	@SpyBean
+	@Autowired
 	private DelayManager delayManager;
 
-	@SpyBean
+	@Autowired
 	private LocalDateTimeService localDateTimeService;
 
 	@BeforeEach

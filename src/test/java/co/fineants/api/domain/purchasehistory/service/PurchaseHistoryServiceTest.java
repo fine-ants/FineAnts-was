@@ -85,8 +85,8 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 	@MockBean
 	private NotificationSentRepository sentManager;
 
-	@MockBean
-	private KisClient kisClient;
+	@Autowired
+	private KisClient mockedKisClient;
 
 	@WithMockUser
 	@DisplayName("사용자는 매입 이력을 추가한다")
@@ -341,7 +341,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 		PurchaseHistory history = purchaseHistoryRepository.save(
 			createPurchaseHistory(null, LocalDateTime.of(2023, 9, 26, 9, 30, 0), Count.from(3), Money.won(50000), "첫구매",
 				holding));
-		given(kisClient.fetchCurrentPrice(anyString()))
+		given(mockedKisClient.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L)));
 
 		setAuthentication(member);

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -25,15 +24,15 @@ class StockPriceDispatcherTest extends AbstractContainerBaseTest {
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 
-	@MockBean
-	private KisService kisService;
+	@Autowired
+	private KisService mockedKisService;
 
 	@DisplayName("종목의 현재가를 조회하고 저장소에 캐시된다")
 	@Test
 	void dispatchCurrentPrice() {
 		// given
 		String ticker = "005930";
-		given(kisService.fetchCurrentPrice(ticker))
+		given(mockedKisService.fetchCurrentPrice(ticker))
 			.willReturn(Mono.just(KisCurrentPrice.create(ticker, 50000L)));
 		// when
 		dispatcher.dispatchCurrentPrice(ticker);

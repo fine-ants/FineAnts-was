@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -65,14 +64,14 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private FcmRepository fcmRepository;
 
-	@MockBean
-	private FirebaseMessaging firebaseMessaging;
+	@Autowired
+	private FirebaseMessaging mockedFirebaseMessaging;
 
 	@DisplayName("매입 이력 이벤트 발생시 목표 수익률에 달성하여 푸시 알림을 한다")
 	@Test
 	void listenPurchaseHistory() throws FirebaseMessagingException {
 		// given
-		given(firebaseMessaging.send(any(Message.class)))
+		given(mockedFirebaseMessaging.send(any(Message.class)))
 			.willReturn("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5");
 
 		Member member = memberRepository.save(createMember());
@@ -98,7 +97,7 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 	@Test
 	void addPurchaseHistory_whenAchieveMaxLoss_thenSaveNotification() throws FirebaseMessagingException {
 		// given
-		given(firebaseMessaging.send(any(Message.class)))
+		given(mockedFirebaseMessaging.send(any(Message.class)))
 			.willReturn("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5");
 
 		Member member = memberRepository.save(createMember());

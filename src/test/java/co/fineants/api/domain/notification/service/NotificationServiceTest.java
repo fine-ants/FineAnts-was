@@ -94,13 +94,13 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private NotificationSentRepository sentManager;
 
-	@MockBean
+	@Autowired
 	private FirebaseMessaging firebaseMessaging;
 
 	@Autowired
 	private CurrentPriceRedisRepository manager;
 
-	@MockBean
+	@Autowired
 	private KisService kisService;
 
 	@MockBean
