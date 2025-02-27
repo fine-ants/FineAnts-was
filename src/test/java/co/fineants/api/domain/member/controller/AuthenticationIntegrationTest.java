@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,11 +52,6 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
-	}
-
-	@AfterEach
-	void tearDown() {
-		tokenManagementService.clear();
 	}
 
 	@SuppressWarnings("checkstyle:NoWhitespaceBefore")

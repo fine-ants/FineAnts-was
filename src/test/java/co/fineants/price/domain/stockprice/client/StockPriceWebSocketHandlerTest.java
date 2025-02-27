@@ -28,6 +28,7 @@ class StockPriceWebSocketHandlerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 
+	// todo: mockbean 제거
 	@MockBean
 	private ApplicationEventPublisher eventPublisher;
 

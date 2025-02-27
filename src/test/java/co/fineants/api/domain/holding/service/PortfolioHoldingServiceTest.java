@@ -100,6 +100,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
 
+	// todo: mockbean 제거
 	@MockBean
 	private PortfolioHoldingEventPublisher publisher;
 

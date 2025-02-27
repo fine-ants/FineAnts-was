@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -41,14 +41,14 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
 
-	@MockBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@BeforeEach
 	void setUp() {
 		currentPriceRepository = new CurrentPriceMemoryRepository();
-		calculator = new PortfolioCalculator(currentPriceRepository, localDateTimeService);
-		given(localDateTimeService.getLocalDateWithNow())
+		calculator = new PortfolioCalculator(currentPriceRepository, spyLocalDateTimeService);
+		given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 5, 1));
 	}
 
@@ -501,7 +501,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendBy(localDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
 		// then
 		Expression expected = Money.won(4_332);
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -521,7 +521,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendYieldBy(localDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendYieldBy(spyLocalDateTimeService, portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(150_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -541,7 +541,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(localDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(spyLocalDateTimeService, portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(120_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -561,7 +561,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		Expression annualDividend = calculator.calAnnualDividendBy(localDateTimeService, portfolio);
+		Expression annualDividend = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
 		Expression totalInvestment = calculator.calTotalInvestmentBy(portfolio);
 		// when
 		Expression actual = calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);
@@ -1211,7 +1211,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualExpectedDividend(stock, List.of(history), localDateTimeService);
+		Expression actual = calculator.calAnnualExpectedDividend(stock, List.of(history), spyLocalDateTimeService);
 		// then
 		Expression expected = Money.won(1083);
 		assertThat(actual).isEqualByComparingTo(expected);
