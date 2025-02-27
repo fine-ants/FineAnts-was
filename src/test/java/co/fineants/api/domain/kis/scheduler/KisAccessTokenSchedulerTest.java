@@ -27,7 +27,7 @@ class KisAccessTokenSchedulerTest extends AbstractContainerBaseTest {
 	private KisAccessTokenRedisService kisAccessTokenRedisService;
 
 	@Autowired
-	private KisClient kisClient;
+	private KisClient mockedKisClient;
 
 	@BeforeEach
 	void clean() {
@@ -39,7 +39,7 @@ class KisAccessTokenSchedulerTest extends AbstractContainerBaseTest {
 	@Test
 	void checkAndReissueAccessToken() {
 		// given
-		BDDMockito.given(kisClient.fetchAccessToken())
+		BDDMockito.given(mockedKisClient.fetchAccessToken())
 			.willReturn(Mono.just(createKisAccessToken()).delayElement(Duration.ofSeconds(5)));
 		// when
 		accessTokenScheduler.checkAndReissueAccessToken();
