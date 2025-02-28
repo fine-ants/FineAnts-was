@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -115,6 +116,12 @@ public abstract class AbstractContainerBaseTest {
 	@Autowired
 	private ExDividendDateCalculator exDividendDateCalculator;
 
+	@Autowired
+	private ApplicationContextInitListener applicationContextInitListener;
+
+	@Autowired
+	private ApplicationContext applicationContext;
+
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
 		// redis property config
@@ -138,26 +145,22 @@ public abstract class AbstractContainerBaseTest {
 
 	@BeforeEach
 	public void abstractSetup() {
-		createRoleIfNotFound("ROLE_ADMIN", "관리자");
-		createRoleIfNotFound("ROLE_MANAGER", "매니저");
-		createRoleIfNotFound("ROLE_USER", "회원");
-		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
+		roleRepository.save(TestDataFactory.createRole("ROLE_ADMIN", "관리자"));
+		roleRepository.save(TestDataFactory.createRole("ROLE_MANAGER", "매니저"));
+		roleRepository.save(TestDataFactory.createRole("ROLE_USER", "회원"));
+		kisAccessTokenRepository.refreshAccessToken(TestDataFactory.createKisAccessToken());
 	}
 
 	@AfterEach
 	public void cleanDatabase() {
 		databaseCleaner.clear();
 		redisRepository.clearAll();
+		System.out.println("applicationContext.hashCode() : " + applicationContext.hashCode());
+		System.out.println("context init count : " + applicationContextInitListener.getContextInitCount());
 	}
 
 	public KisAccessToken createKisAccessToken() {
 		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(86400), 86400);
-	}
-
-	protected void createRoleIfNotFound(String roleName, String roleDesc) {
-		Role role = roleRepository.findRoleByRoleName(roleName)
-			.orElseGet(() -> Role.create(roleName, roleDesc));
-		roleRepository.save(role);
 	}
 
 	protected Member createMember() {

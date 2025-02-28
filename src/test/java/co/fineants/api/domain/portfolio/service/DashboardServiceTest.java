@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -57,8 +56,8 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 	private StockDividendRepository stockDividendRepository;
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
-	@SpyBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@Test
 	void getOverviewWhenNoPortfolio() {
@@ -111,7 +110,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
 
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 72900L));
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow()).willReturn(purchaseDate.toLocalDate());
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(purchaseDate.toLocalDate());
 		// when
 		OverviewResponse response = dashboardService.getOverview(member.getId());
 

@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -38,22 +37,21 @@ import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = StockTargetPriceRestController.class)
 class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private StockTargetPriceService service;
+	@Autowired
+	private StockTargetPriceService mockedStockTargetPriceService;
 
 	@Override
 	protected Object initController() {
-		return new StockTargetPriceRestController(service);
+		return new StockTargetPriceRestController(mockedStockTargetPriceService);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")
 	@Test
 	void createStockTargetPriceNotification() throws Exception {
 		// given
-		given(service.createStockTargetPrice(
+		given(mockedStockTargetPriceService.createStockTargetPrice(
 			any(TargetPriceNotificationCreateRequest.class),
 			anyLong()))
 			.willReturn(TargetPriceNotificationCreateResponse.builder()
@@ -107,7 +105,7 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 		// given
 		Stock stock = createSamsungStock();
 		LocalDateTime now = LocalDateTime.now();
-		given(service.searchStockTargetPrices(anyLong()))
+		given(mockedStockTargetPriceService.searchStockTargetPrices(anyLong()))
 			.willReturn(TargetPriceNotificationSearchResponse.builder()
 				.stocks(List.of(TargetPriceNotificationSearchItem.builder()
 					.companyName(stock.getCompanyName())
@@ -155,7 +153,7 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 		// given
 		Stock stock = createSamsungStock();
 		LocalDateTime now = LocalDateTime.now();
-		given(service.searchStockTargetPrice(anyString(), anyLong()))
+		given(mockedStockTargetPriceService.searchStockTargetPrice(anyString(), anyLong()))
 			.willReturn(TargetPriceNotificationSpecifiedSearchResponse.builder()
 				.targetPrices(List.of(
 					TargetPriceNotificationSpecificItem.builder()
@@ -195,7 +193,8 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 			"isActive", false
 		);
 
-		given(service.updateStockTargetPrice(any(TargetPriceNotificationUpdateRequest.class), anyLong()))
+		given(mockedStockTargetPriceService.updateStockTargetPrice(any(TargetPriceNotificationUpdateRequest.class),
+			anyLong()))
 			.willReturn(TargetPriceNotificationUpdateResponse.builder()
 				.stockTargetPriceId(1L)
 				.tickerSymbol(stock.getTickerSymbol())

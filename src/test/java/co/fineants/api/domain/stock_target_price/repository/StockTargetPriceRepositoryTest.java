@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 
@@ -18,9 +17,6 @@ class StockTargetPriceRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private PortfolioRepository portfolioRepository;
 
 	@Autowired
 	private StockRepository stockRepository;

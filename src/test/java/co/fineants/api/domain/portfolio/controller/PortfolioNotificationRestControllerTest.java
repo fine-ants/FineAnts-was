@@ -13,8 +13,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
@@ -23,18 +22,17 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortfolioNotificationRestController.class)
 class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private PortfolioNotificationService service;
+	@Autowired
+	private PortfolioNotificationService mockedPortfolioNotificationService;
 
-	@MockBean
-	private PortfolioRepository portfolioRepository;
+	@Autowired
+	private PortfolioRepository mockedPortfolioRepository;
 
 	@Override
 	protected Object initController() {
-		return new PortfolioNotificationRestController(service);
+		return new PortfolioNotificationRestController(mockedPortfolioNotificationService);
 	}
 
 	@DisplayName("사용자는 포트폴리오의 목표수익금액 알람을 활성화합니다.")
@@ -52,8 +50,8 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
 		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
 			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(service.updateNotificationTargetGain(
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioNotificationService.updateNotificationTargetGain(
 			anyBoolean(),
 			anyLong()
 		)).willReturn(response);
@@ -85,8 +83,8 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
 		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
 			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(service.updateNotificationTargetGain(
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioNotificationService.updateNotificationTargetGain(
 			anyBoolean(),
 			anyLong()
 		)).willReturn(response);
@@ -118,8 +116,8 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
 		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
 			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(service.updateNotificationMaximumLoss(
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioNotificationService.updateNotificationMaximumLoss(
 			anyBoolean(),
 			anyLong()
 		)).willReturn(response);
@@ -151,8 +149,8 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
 		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
 			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(service.updateNotificationMaximumLoss(
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioNotificationService.updateNotificationMaximumLoss(
 			anyBoolean(),
 			anyLong()
 		)).willReturn(response);

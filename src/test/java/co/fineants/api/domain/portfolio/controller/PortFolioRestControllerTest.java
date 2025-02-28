@@ -19,8 +19,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.count.Count;
@@ -38,15 +37,14 @@ import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortFolioRestController.class)
 class PortFolioRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private PortFolioService portFolioService;
+	@Autowired
+	private PortFolioService mockedPortfolioService;
 
 	@Override
 	protected Object initController() {
-		return new PortFolioRestController(portFolioService);
+		return new PortFolioRestController(mockedPortfolioService);
 	}
 
 	@DisplayName("사용자는 포트폴리오 추가를 요청한다")
@@ -65,7 +63,7 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 				Money.won(maximumLoss)
 			)
 		);
-		BDDMockito.given(portFolioService.createPortfolio(any(PortfolioCreateRequest.class),
+		BDDMockito.given(mockedPortfolioService.createPortfolio(any(PortfolioCreateRequest.class),
 				ArgumentMatchers.anyLong()))
 			.willReturn(response);
 
@@ -131,7 +129,7 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 			.numShares(Count.from(0))
 			.dateCreated(LocalDateTime.now())
 			.build();
-		BDDMockito.given(portFolioService.readMyAllPortfolio(ArgumentMatchers.anyLong()))
+		BDDMockito.given(mockedPortfolioService.readMyAllPortfolio(ArgumentMatchers.anyLong()))
 			.willReturn(PortfoliosResponse.builder()
 				.portfolios(List.of(portFolioItem))
 				.build());
@@ -174,8 +172,9 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 		);
 		PortfolioModifyResponse response = PortfolioModifyResponse.from(portfolio);
 
-		BDDMockito.given(portFolioService.updatePortfolio(any(PortfolioModifyRequest.class), ArgumentMatchers.anyLong(),
-				ArgumentMatchers.anyLong()))
+		BDDMockito.given(
+				mockedPortfolioService.updatePortfolio(any(PortfolioModifyRequest.class), ArgumentMatchers.anyLong(),
+					ArgumentMatchers.anyLong()))
 			.willReturn(response);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();

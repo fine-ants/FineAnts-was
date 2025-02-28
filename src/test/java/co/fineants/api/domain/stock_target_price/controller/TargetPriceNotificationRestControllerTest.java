@@ -17,8 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationDeleteResponse;
@@ -26,22 +25,21 @@ import co.fineants.api.domain.stock_target_price.service.TargetPriceNotification
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = TargetPriceNotificationRestController.class)
 class TargetPriceNotificationRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private TargetPriceNotificationService service;
+	@Autowired
+	private TargetPriceNotificationService mockedTargetPriceNotificationService;
 
 	@Override
 	protected Object initController() {
-		return new TargetPriceNotificationRestController(service);
+		return new TargetPriceNotificationRestController(mockedTargetPriceNotificationService);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림들을 삭제합니다")
 	@Test
 	void deleteAllStockTargetPriceNotification() throws Exception {
 		// given
-		given(service.deleteStockTargetPriceNotification(
+		given(mockedTargetPriceNotificationService.deleteStockTargetPriceNotification(
 			anyLong()))
 			.willReturn(TargetPriceNotificationDeleteResponse.builder()
 				.deletedIds(List.of(1L, 2L))
@@ -89,7 +87,7 @@ class TargetPriceNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deleteStockTargetPriceNotification() throws Exception {
 		// given
-		given(service.deleteStockTargetPriceNotification(
+		given(mockedTargetPriceNotificationService.deleteStockTargetPriceNotification(
 			anyLong()))
 			.willReturn(TargetPriceNotificationDeleteResponse.builder()
 				.deletedIds(List.of(1L))

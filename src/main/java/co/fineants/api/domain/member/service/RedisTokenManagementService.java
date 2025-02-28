@@ -1,8 +1,7 @@
 package co.fineants.api.domain.member.service;
 
-import java.util.Optional;
+import java.time.Duration;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,47 +12,44 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OauthMemberRedisService {
+public class RedisTokenManagementService implements TokenManagementService {
 
 	private static final String LOGOUT = "logout";
+	private static final Duration REFRESH_TOKEN_TIMEOUT = Duration.ofDays(7);
+	private static final Duration ACCESS_TOKEN_TIMEOUT = Duration.ofMinutes(5);
 
 	private final RedisTemplate<String, String> redisTemplate;
 
-	public Optional<String> get(String key) {
-		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
-	}
-
+	@Override
 	public void banRefreshToken(String token) {
-		long expiration = 1000L * 60L * 60L * 24L * 7L;
-		banToken(token, expiration);
+		banToken(token, REFRESH_TOKEN_TIMEOUT);
 	}
 
+	@Override
 	public void banAccessToken(String token) {
-		long expiration = 1000L * 60L * 5L;
-		banToken(token, expiration);
+		banToken(token, ACCESS_TOKEN_TIMEOUT);
 	}
 
-	public void banToken(String token, long expiration) {
-		redisTemplate.opsForValue().set(token, LOGOUT, expiration, TimeUnit.MILLISECONDS);
-	}
-
+	@Override
 	public boolean isAlreadyLogout(String token) {
 		String logout = redisTemplate.opsForValue().get(token);
 		return LOGOUT.equals(logout);
 	}
 
-	public void saveEmailVerifCode(String email, String verifCode) {
-		long expirationTimeInMinutes = 5; // 5 minutes
-		redisTemplate.opsForValue().set(email, verifCode, expirationTimeInMinutes, TimeUnit.MINUTES);
-	}
-
+	@Override
 	public void clear() {
 		Set<String> keys = redisTemplate.keys("*");
 		if (keys == null) {
 			return;
 		}
 		for (String key : keys) {
-			redisTemplate.delete(key);
+			if (LOGOUT.equals(redisTemplate.opsForValue().get(key))) {
+				redisTemplate.delete(key);
+			}
 		}
+	}
+
+	private void banToken(String token, Duration timeout) {
+		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 }

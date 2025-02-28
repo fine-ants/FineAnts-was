@@ -54,7 +54,7 @@ import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
-import co.fineants.api.infra.mail.service.MailService;
+import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,8 +71,7 @@ public class MemberService {
 	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
 	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
-	private final OauthMemberRedisService redisService;
-	private final MailService mailService;
+	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
@@ -87,9 +86,10 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final OauthMemberRedisService oauthMemberRedisService;
+	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
+	private final VerifyCodeManagementService verifyCodeManagementService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -101,13 +101,13 @@ public class MemberService {
 		// ban accessToken
 		String accessToken = CookieUtils.getAccessToken(request);
 		if (accessToken != null) {
-			oauthMemberRedisService.banAccessToken(accessToken);
+			tokenManagementService.banAccessToken(accessToken);
 		}
 
 		// ban refreshToken
 		String refreshToken = CookieUtils.getRefreshToken(request);
 		if (refreshToken != null) {
-			oauthMemberRedisService.banRefreshToken(refreshToken);
+			tokenManagementService.banRefreshToken(refreshToken);
 		}
 
 		expiredCookies(response);
@@ -187,11 +187,11 @@ public class MemberService {
 		String verifyCode = verifyCodeGenerator.generate();
 
 		// Redis에 생성한 검증 코드 임시 저장
-		redisService.saveEmailVerifCode(email, verifyCode);
+		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
 
 		try {
 			// 사용자에게 검증 코드 메일 전송
-			mailService.sendEmail(email,
+			emailService.sendEmail(email,
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
 		} catch (Exception e) {
@@ -286,14 +286,13 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = redisService.get(email);
+		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
 			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
 		}
 	}
 
 	@Transactional
-	@Secured("ROLE_USER")
 	public void deleteMember(Long memberId) {
 		Member member = findMember(memberId);
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberId(memberId);

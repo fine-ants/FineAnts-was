@@ -1,4 +1,4 @@
-package co.fineants.api.infra.mail.service;
+package co.fineants.api.infra.mail;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -6,11 +6,12 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Service
-public class MailService {
+@RequiredArgsConstructor
+public class JavaEmailService implements EmailService {
 	private final JavaMailSender mailSender;
 
+	@Override
 	public void sendEmail(String to, String subject, String body) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
