@@ -21,8 +21,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -39,19 +39,19 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = MemberRestController.class)
 public class SignUpRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private MemberService memberService;
+	@Autowired
+	private MemberService mockedMemberService;
 
 	@Override
 	protected Object initController() {
-		return new SignUpRestController(memberService);
+		return new SignUpRestController(mockedMemberService);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
 	@Test
 	void signup() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
+		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
 			.willReturn(SignUpServiceResponse.from(createMember()));
 
 		Map<String, Object> profileInformationMap = Map.of(
@@ -80,7 +80,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenSkipProfileImageFile_then200OK() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
+		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
 			.willReturn(SignUpServiceResponse.from(createMember()));
 
 		Map<String, Object> profileInformationMap = Map.of(
@@ -135,7 +135,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
+		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
 			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME));
 
 		Map<String, Object> profileInformationMap = Map.of(
@@ -164,7 +164,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
+		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
 			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL));
 
 		Map<String, Object> profileInformationMap = Map.of(
@@ -193,7 +193,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
+		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
 			.willThrow(new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL));
 
 		Map<String, Object> profileInformationMap = Map.of(
@@ -250,7 +250,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME))
-			.when(memberService)
+			.when(mockedMemberService)
 			.checkNickname(anyString());
 		String nickname = "일개미1234";
 
@@ -282,7 +282,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String email = "dragonbead95@naver.com";
 		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL))
-			.when(memberService)
+			.when(mockedMemberService)
 			.checkEmail(anyString());
 
 		// when & then
