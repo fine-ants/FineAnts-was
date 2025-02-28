@@ -16,8 +16,8 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -33,12 +33,12 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = MemberRestController.class)
 class MemberRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private MemberService memberService;
+	@Autowired
+	private MemberService mockedMemberService;
 
 	@Override
 	protected Object initController() {
-		return new MemberRestController(memberService);
+		return new MemberRestController(mockedMemberService);
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 새 프로필 및 닉네임을 수정한다")
@@ -46,7 +46,7 @@ class MemberRestControllerTest extends ControllerTestSupport {
 	void changeProfile() throws Exception {
 		// given
 		Member member = createMember();
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(mockedMemberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(ProfileChangeResponse.from(member));
 
 		Map<String, Object> profileInformationMap = Map.of("nickname", "일개미12345");
@@ -76,7 +76,7 @@ class MemberRestControllerTest extends ControllerTestSupport {
 	void changeProfile_whenNewProfile_thenOK() throws Exception {
 		// given
 		Member member = createMember();
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(mockedMemberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(ProfileChangeResponse.from(member));
 
 		// when & then
@@ -97,7 +97,7 @@ class MemberRestControllerTest extends ControllerTestSupport {
 	void changeProfile_whenEmptyProfile_thenOK() throws Exception {
 		// given
 		Member member = createMember();
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(mockedMemberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(ProfileChangeResponse.from(member));
 
 		// when & then
@@ -118,7 +118,7 @@ class MemberRestControllerTest extends ControllerTestSupport {
 	void changeProfile_whenOnlyChangeNickname_thenOK() throws Exception {
 		// given
 		Member member = createMember();
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(mockedMemberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(ProfileChangeResponse.from(member));
 
 		Map<String, Object> profileInformationMap = Map.of("nickname", "일개미1234");
@@ -146,7 +146,7 @@ class MemberRestControllerTest extends ControllerTestSupport {
 	void changeProfile_whenInvalidNickname_thenResponse400() throws Exception {
 		// given
 		Member member = createMember();
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(mockedMemberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(ProfileChangeResponse.from(member));
 
 		Map<String, Object> profileInformationMap = Map.of("nickname", "");
