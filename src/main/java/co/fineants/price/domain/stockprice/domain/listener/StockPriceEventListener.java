@@ -1,4 +1,4 @@
-package co.fineants.price.domain.stockprice.service.listener;
+package co.fineants.price.domain.stockprice.domain.listener;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
