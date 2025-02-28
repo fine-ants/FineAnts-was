@@ -5,18 +5,31 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.amazonaws.services.s3.AmazonS3;
+
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.config.AmazonS3TestConfig;
 
 class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private AmazonS3StockService amazonS3StockService;
+
+	@Autowired
+	private AmazonS3TestConfig amazonS3TestConfig;
+
+	@BeforeEach
+	void setUp() {
+		AmazonS3 amazonS3 = amazonS3TestConfig.amazonS3();
+		amazonS3TestConfig.init(amazonS3);
+	}
 
 	@DisplayName("종목 정보를 csv 파일에 저장한다")
 	@Test
