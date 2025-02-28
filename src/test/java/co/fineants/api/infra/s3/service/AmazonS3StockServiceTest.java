@@ -5,18 +5,31 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.amazonaws.services.s3.AmazonS3;
+
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.config.AmazonS3TestConfig;
 
 class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private AmazonS3StockService amazonS3StockService;
+
+	@Autowired
+	private AmazonS3TestConfig amazonS3TestConfig;
+
+	@BeforeEach
+	void setUp() {
+		AmazonS3 amazonS3 = amazonS3TestConfig.amazonS3();
+		amazonS3TestConfig.init(amazonS3);
+	}
 
 	@DisplayName("종목 정보를 csv 파일에 저장한다")
 	@Test
@@ -24,7 +37,6 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 		// given
 		Stock stock = Stock.of("000370", "한화손해보험보통주", "\"Hanwha General Insurance Co.,Ltd.\"", "KR7000370007", "보험",
 			Market.KOSPI);
-		List<Stock> previousStocks = amazonS3StockService.fetchStocks();
 		// when
 		amazonS3StockService.writeStocks(List.of(stock));
 		// then
@@ -36,8 +48,6 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 				Stock::getSector, Stock::getMarket)
 			.containsExactly("000370", "한화손해보험보통주", "\"Hanwha General Insurance Co.,Ltd.\"", "KR7000370007", "보험",
 				Market.KOSPI);
-		// rollback
-		amazonS3StockService.writeStocks(previousStocks);
 	}
 
 	@DisplayName("종목 정보를 S3에서 가져온 다음에 csv 파일에 작성하면 정상적으로 CSV 파일에 저장된다")
