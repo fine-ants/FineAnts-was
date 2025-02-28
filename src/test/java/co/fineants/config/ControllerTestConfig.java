@@ -14,6 +14,7 @@ import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
+import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 @TestConfiguration
@@ -53,4 +54,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private PurchaseHistoryService purchaseHistoryService;
+
+	@MockBean
+	private StockService stockService;
 }

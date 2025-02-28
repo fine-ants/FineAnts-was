@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -23,7 +23,7 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = StockRestController.class)
 class StockRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
+	@Autowired
 	private StockService stockService;
 
 	@Override
