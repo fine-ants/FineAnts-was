@@ -45,9 +45,10 @@ import co.fineants.api.global.config.jackson.JacksonConfig;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
+import co.fineants.config.ControllerTestConfig;
 
 @ActiveProfiles("test")
-@Import(value = {SpringConfig.class, JacksonConfig.class})
+@Import(value = {SpringConfig.class, JacksonConfig.class, ControllerTestConfig.class})
 @MockBean(JpaAuditingConfiguration.class)
 public abstract class ControllerTestSupport {
 
