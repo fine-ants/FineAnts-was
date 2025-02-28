@@ -77,10 +77,10 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	@Test
 	void setupResources() {
 		// given
+		List<Stock> previousStocks = amazonS3StockService.fetchStocks();
 		int limit = 100;
 		List<Stock> stocks = writeStocks(limit);
 		List<StockDividend> stockDividends = writeStockDividends(stocks, limit);
-		
 		// when
 		setupDataLoader.setupResources();
 		// then
@@ -120,6 +120,9 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		assertThat(stockDividendRepository.findAll())
 			.hasSizeGreaterThanOrEqualTo(1)
 			.containsExactlyInAnyOrderElementsOf(stockDividends);
+
+		// rollback
+		amazonS3StockService.writeStocks(previousStocks);
 	}
 
 	private List<Stock> writeStocks(int limit) {
