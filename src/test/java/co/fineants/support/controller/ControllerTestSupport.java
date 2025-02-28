@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.MethodParameter;
@@ -30,6 +31,8 @@ import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
+import co.fineants.api.domain.member.controller.MemberNotificationRestController;
+import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -50,6 +53,10 @@ import co.fineants.config.ControllerTestConfig;
 @ActiveProfiles("test")
 @Import(value = {SpringConfig.class, JacksonConfig.class, ControllerTestConfig.class})
 @MockBean(JpaAuditingConfiguration.class)
+@WebMvcTest(controllers = {
+	MemberNotificationRestController.class,
+	MemberRestController.class
+})
 public abstract class ControllerTestSupport {
 
 	protected MockMvc mockMvc;
@@ -65,21 +72,21 @@ public abstract class ControllerTestSupport {
 
 	private ExDividendDateCalculator exDividendDateCalculator;
 
-	@MockBean
-	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
+	@Autowired
+	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
 
 	@BeforeEach
 	void setup() throws Exception {
 		mockMvc = MockMvcBuilders.standaloneSetup(initController())
 			.setControllerAdvice(globalExceptionHandler)
-			.setCustomArgumentResolvers(memberAuthenticationArgumentResolver)
+			.setCustomArgumentResolvers(mockedMemberAuthenticationArgumentResolver)
 			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
 			.alwaysDo(print())
 			.build();
 
-		given(memberAuthenticationArgumentResolver.supportsParameter(ArgumentMatchers.any(MethodParameter.class)))
+		given(mockedMemberAuthenticationArgumentResolver.supportsParameter(ArgumentMatchers.any(MethodParameter.class)))
 			.willReturn(true);
-		given(memberAuthenticationArgumentResolver.resolveArgument(any(), any(), any(), any()))
+		given(mockedMemberAuthenticationArgumentResolver.resolveArgument(any(), any(), any(), any()))
 			.willReturn(createMemberAuthentication());
 		this.exDividendDateCalculator = new FileExDividendDateCalculator(
 			new FileHolidayRepository(new HolidayFileReader()));

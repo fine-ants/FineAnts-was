@@ -16,7 +16,10 @@ import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingServ
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
+import co.fineants.api.domain.stock_target_price.service.TargetPriceNotificationService;
+import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 
 @TestConfiguration
 public class ControllerTestConfig {
@@ -61,4 +64,13 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private StockTargetPriceService stockTargetPriceService;
+
+	@MockBean
+	private TargetPriceNotificationService targetPriceNotificationService;
+
+	@MockBean
+	private WatchListService watchListService;
+
+	@MockBean
+	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
 }
