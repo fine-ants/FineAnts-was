@@ -42,7 +42,7 @@ public class TestConfig {
 	private ExchangeRateWebClient mockedExchangeRateWebClient;
 
 	@SpyBean
-	private LocalDateTimeService mockedLocalDateTimeService;
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@MockBean
 	private FirebaseMessaging firebaseMessaging;
@@ -64,7 +64,7 @@ public class TestConfig {
 
 	@SpyBean
 	private PortfolioCacheService portfolioCacheService;
-	
+
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {
 		return new FileExDividendDateCalculator(new FileHolidayRepository(new HolidayFileReader()));
