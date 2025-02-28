@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentMatchers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.count.Count;
@@ -40,15 +40,15 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = PurchaseHistoryRestController.class)
 class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private PurchaseHistoryService purchaseHistoryService;
+	@Autowired
+	private PurchaseHistoryService mockedPurchaseHistoryService;
 
-	@MockBean
-	private PortfolioRepository portfolioRepository;
+	@Autowired
+	private PortfolioRepository mockedPortfolioRepository;
 
 	@Override
 	protected Object initController() {
-		return new PurchaseHistoryRestController(purchaseHistoryService);
+		return new PurchaseHistoryRestController(mockedPurchaseHistoryService);
 	}
 
 	@DisplayName("사용자가 매입 이력을 추가한다")
@@ -69,7 +69,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 		requestBody.put("purchasePricePerShare", 50000);
 		requestBody.put("memo", "첫구매");
 
-		given(purchaseHistoryService.createPurchaseHistory(
+		given(mockedPurchaseHistoryService.createPurchaseHistory(
 			ArgumentMatchers.any(PurchaseHistoryCreateRequest.class),
 			anyLong(),
 			anyLong(),
@@ -77,7 +77,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 		)).willReturn(
 			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), member.getId())
 		);
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
 
 		// when & then
 		mockMvc.perform(post(url)
@@ -107,7 +107,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 		requestBody.put("purchasePricePerShare", 0);
 		requestBody.put("memo", "첫구매");
 
-		given(portfolioRepository.findById(anyLong()))
+		given(mockedPortfolioRepository.findById(anyLong()))
 			.willReturn(Optional.of(portfolio));
 
 		// when & then
@@ -138,9 +138,9 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 
 		String body = ObjectMapperUtil.serialize(requestBody);
 
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
 
-		given(purchaseHistoryService.createPurchaseHistory(
+		given(mockedPurchaseHistoryService.createPurchaseHistory(
 			any(PurchaseHistoryCreateRequest.class),
 			anyLong(),
 			anyLong(),
@@ -176,7 +176,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 
 		String body = ObjectMapperUtil.serialize(requestBody);
 
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
 
 		// when & then
 		mockMvc.perform(put(url)
@@ -201,7 +201,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory/%d", portfolio.getId(),
 			portfolioHolding.getId(), purchaseHistory.getId());
 
-		given(portfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
 
 		// when & then
 		mockMvc.perform(delete(url))
