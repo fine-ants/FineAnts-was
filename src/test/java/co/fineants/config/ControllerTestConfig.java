@@ -12,6 +12,7 @@ import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
+import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 @TestConfiguration
@@ -45,4 +46,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private PortfolioRepository portfolioRepository;
+
+	@MockBean
+	private PortfolioNotificationSettingService portfolioNotificationSettingService;
 }

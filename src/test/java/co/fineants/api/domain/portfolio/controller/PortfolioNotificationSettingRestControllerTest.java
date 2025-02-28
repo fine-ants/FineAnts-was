@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationSettingSearchItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationSettingSearchResponse;
@@ -21,12 +21,12 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = PortfolioNotificationSettingRestController.class)
 class PortfolioNotificationSettingRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private PortfolioNotificationSettingService service;
+	@Autowired
+	private PortfolioNotificationSettingService mockedPortfolioNotificationSettingService;
 
 	@Override
 	protected Object initController() {
-		return new PortfolioNotificationSettingRestController(service);
+		return new PortfolioNotificationSettingRestController(mockedPortfolioNotificationSettingService);
 	}
 
 	@DisplayName("사용자는 포트폴리오 활성 알림 목록을 조회합니다")
@@ -34,7 +34,7 @@ class PortfolioNotificationSettingRestControllerTest extends ControllerTestSuppo
 	void searchPortfolioNotificationSetting() throws Exception {
 		// given
 		LocalDateTime now = LocalDateTime.now();
-		given(service.searchPortfolioNotificationSetting(anyLong()))
+		given(mockedPortfolioNotificationSettingService.searchPortfolioNotificationSetting(anyLong()))
 			.willReturn(PortfolioNotificationSettingSearchResponse.builder()
 				.portfolios(List.of(PortfolioNotificationSettingSearchItem.builder()
 						.portfolioId(1L)
