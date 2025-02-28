@@ -9,7 +9,9 @@ import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 @TestConfiguration
@@ -37,4 +39,10 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private LocalDateTimeService localDateTimeService;
+
+	@MockBean
+	private PortfolioNotificationService service;
+
+	@MockBean
+	private PortfolioRepository portfolioRepository;
 }
