@@ -12,8 +12,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.fcm.domain.dto.request.FcmRegisterRequest;
@@ -23,22 +22,21 @@ import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = FcmRestController.class)
 class FcmRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private FcmService fcmService;
+	@Autowired
+	private FcmService mockedFcmService;
 
 	@Override
 	protected Object initController() {
-		return new FcmRestController(fcmService);
+		return new FcmRestController(mockedFcmService);
 	}
 
 	@DisplayName("사용자는 FCM 토큰을 등록한다")
 	@Test
 	void createToken() throws Exception {
 		// given
-		given(fcmService.createToken(any(FcmRegisterRequest.class), ArgumentMatchers.anyLong()))
+		given(mockedFcmService.createToken(any(FcmRegisterRequest.class), ArgumentMatchers.anyLong()))
 			.willReturn(FcmRegisterResponse.builder()
 				.fcmTokenId(1L)
 				.build());
@@ -78,7 +76,7 @@ class FcmRestControllerTest extends ControllerTestSupport {
 	void deleteToken() throws Exception {
 		// given
 		Long fcmTokenId = 1L;
-		given(fcmService.deleteToken(ArgumentMatchers.anyLong()))
+		given(mockedFcmService.deleteToken(ArgumentMatchers.anyLong()))
 			.willReturn(FcmDeleteResponse.builder()
 				.fcmTokenId(fcmTokenId)
 				.build());

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ import org.springframework.http.ResponseCookie;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.OauthMemberRedisService;
+import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -45,7 +44,7 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	private TokenFactory tokenFactory;
 
 	@Autowired
-	private OauthMemberRedisService oauthMemberRedisService;
+	private TokenManagementService tokenManagementService;
 
 	@LocalServerPort
 	private int port;
@@ -53,11 +52,6 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
-	}
-
-	@AfterEach
-	void tearDown() {
-		oauthMemberRedisService.clear();
 	}
 
 	@SuppressWarnings("checkstyle:NoWhitespaceBefore")

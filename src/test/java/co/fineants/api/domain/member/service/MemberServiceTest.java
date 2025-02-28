@@ -2,7 +2,6 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
@@ -15,13 +14,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,8 +30,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
@@ -43,9 +41,6 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
-import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -61,22 +56,15 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.mail.service.MailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
-public class MemberServiceTest extends AbstractContainerBaseTest {
+class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberService memberService;
 
 	@Autowired
-	private MemberRoleRepository memberRoleRepository;
-
-	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository preferenceRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
@@ -97,15 +85,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
-	private FcmRepository fcmRepository;
-
-	@Autowired
-	private NotificationRepository notificationRepository;
-
-	@Autowired
-	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
-
-	@Autowired
 	private StockRepository stockRepository;
 
 	@Autowired
@@ -114,130 +93,57 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private WatchStockRepository watchStockRepository;
 
-	@MockBean
-	private AmazonS3Service amazonS3Service;
+	@Autowired
+	private AmazonS3Service mockAmazonS3Service;
 
-	@MockBean
-	private MailService mailService;
+	@Autowired
+	private VerifyCodeManagementService mockedVerifyCodeManagementService;
 
-	@MockBean
-	private OauthMemberRedisService redisService;
+	@Autowired
+	private VerifyCodeGenerator mockedVerifyCodeGenerator;
 
-	@MockBean
-	private VerifyCodeGenerator verifyCodeGenerator;
-
-	@DisplayName("사용자는 회원의 프로필에서 새 프로필 사진과 닉네임을 변경한다")
-	@Test
-	void changeProfile() {
-		// given
-		Member member = memberRepository.save(createMember());
-		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
-			createProfileFile(),
-			"nemo12345",
-			member.getId()
-		);
-
-		given(amazonS3Service.upload(any(MultipartFile.class)))
+	@BeforeEach
+	void setUp() {
+		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
 			.willReturn("profileUrl");
-		// when
-		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo12345", "dragonbead95@naver.com", "profileUrl");
+		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
+			.willReturn(Optional.of("123456"));
+		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
 	}
 
-	@DisplayName("사용자는 회원 프로필에서 새 프로필만 변경한다")
-	@Test
-	void changeProfile_whenNewProfile_thenOK() {
-		// given
-		Member member = memberRepository.save(createMember());
-		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
-			createProfileFile(),
-			null,
-			member.getId()
+	public static Stream<Arguments> validChangeProfileSource() {
+		return Stream.of(
+			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "profileUrl", "새 프로필 사진과 새 닉네임 변경"),
+			Arguments.of(createProfileFile(), null, "nemo1234", "profileUrl", "새 프로필 사진만 변경"),
+			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", null, "기본 프로필 사진으로만 변경"),
+			Arguments.of(null, "nemo12345", "nemo12345", "profileUrl", "닉네임만 변경"),
+			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "profileUrl", "프로필 사진과 닉네임을 그대로 유지")
 		);
-
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
-		// when
-		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", "profileUrl");
 	}
 
-	@DisplayName("사용자는 회원 프로필에서 기본 프로필로만 변경한다")
-	@Test
-	void changeProfile_whenEmptyProfile_thenOK() {
+	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
+	@ParameterizedTest
+	@MethodSource(value = "validChangeProfileSource")
+	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(
+		MultipartFile profileImageFile,
+		String nickname,
+		String expectedNickname,
+		String expectedProfileUrl) {
 		// given
 		Member member = memberRepository.save(createMember());
 		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
-			createEmptyProfileImageFile(),
-			null,
+			profileImageFile,
+			nickname,
 			member.getId()
 		);
-
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
 		// when
 		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
 
 		// then
 		assertThat(response)
 			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", null);
-	}
-
-	@DisplayName("사용자는 회원 프로필에서 프로필은 유지하고 닉네임만 변경한다")
-	@Test
-	void changeProfile_whenChangeNickname_thenOK() {
-		// given
-		Member member = memberRepository.save(createMember());
-		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
-			null,
-			"nemo12345",
-			member.getId()
-		);
-
-		// when
-		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo12345", "dragonbead95@naver.com", "profileUrl");
-	}
-
-	@DisplayName("사용자는 회원 프로필에서 자기 닉네임을 그대로 수정한다")
-	@Test
-	void changeProfile_whenNoChangeNickname_thenOK() {
-		// given
-		Member member = memberRepository.save(createMember());
-		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
-			createProfileFile(),
-			"nemo1234",
-			member.getId()
-		);
-
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
-
-		// when
-		ProfileChangeResponse response = memberService.changeProfile(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", "profileUrl");
+			.extracting("nickname", "profileUrl")
+			.containsExactlyInAnyOrder(expectedNickname, expectedProfileUrl);
 	}
 
 	@DisplayName("사용자는 회원 프로필에서 닉네임 변경시 중복되어 변경하지 못한다")
@@ -286,8 +192,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void signup(SignUpRequest request, MultipartFile profileImageFile, String expectedProfileUrl) {
 		// given
-		given(amazonS3Service.upload(any(MultipartFile.class)))
-			.willReturn("profileUrl");
 		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
 
 		// when
@@ -393,7 +297,7 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
-		given(amazonS3Service.upload(any(MultipartFile.class)))
+		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
 			.willThrow(new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 
 		SignUpRequest request = new SignUpRequest(
@@ -479,8 +383,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void sendVerifyCode() {
 		// given
-		given(verifyCodeGenerator.generate()).willReturn("123456");
-
 		VerifyEmailRequest request = ObjectMapperUtil.deserialize(
 			ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com")),
 			VerifyEmailRequest.class);
@@ -489,18 +391,13 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		memberService.sendVerifyCode(request);
 
 		// then
-		verify(redisService, times(1))
-			.saveEmailVerifCode("dragonbead95@naver.com", "123456");
-		verify(mailService, times(1))
-			.sendEmail("dragonbead95@naver.com", "Finants 회원가입 인증 코드", "인증코드를 회원가입 페이지에 입력해주세요: 123456");
+		verify(mockedVerifyCodeManagementService, times(1)).saveVerifyCode("dragonbead95@naver.com", "123456");
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
 	@Test
 	void checkVerifyCode() {
 		// given
-		given(redisService.get("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "123456";
 		// when & then
@@ -511,8 +408,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
 		// given
-		given(redisService.get("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
 		String email = "dragonbead95@naver.com";
 		String code = "234567";
 
@@ -565,7 +460,6 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 		targetPriceNotificationRepository.save(createTargetPriceNotification(stockTargetPrice));
 		WatchList watchList = watchListRepository.save(createWatchList(member));
 		watchStockRepository.save(createWatchStock(watchList, stock));
-
 		// when
 		memberService.deleteMember(member.getId());
 
@@ -575,9 +469,8 @@ public class MemberServiceTest extends AbstractContainerBaseTest {
 
 	public static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		Path path = null;
 		try {
-			path = Paths.get(classPathResource.getURI());
+			Path path = Paths.get(classPathResource.getURI());
 			byte[] profile = Files.readAllBytes(path);
 			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
 				profile);

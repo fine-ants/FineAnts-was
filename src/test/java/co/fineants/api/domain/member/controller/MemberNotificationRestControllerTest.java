@@ -14,8 +14,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -28,18 +27,18 @@ import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = MemberNotificationRestController.class)
 class MemberNotificationRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private MemberNotificationService notificationService;
+	@Autowired
+	private MemberNotificationService mockedMemberNotificationService;
 
-	@MockBean
-	private MemberNotificationPreferenceService preferenceService;
+	@Autowired
+	private MemberNotificationPreferenceService mockedMemberNotificationPreferenceService;
 
 	@Override
 	protected Object initController() {
-		return new MemberNotificationRestController(notificationService, preferenceService);
+		return new MemberNotificationRestController(mockedMemberNotificationService,
+			mockedMemberNotificationPreferenceService);
 	}
 
 	@DisplayName("사용자는 알림 목록 조회합니다")
@@ -49,7 +48,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Member member = createMember();
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(notificationService.searchMemberNotifications(anyLong()))
+		given(mockedMemberNotificationService.searchMemberNotifications(anyLong()))
 			.willReturn(MemberNotificationResponse.create(mockNotifications));
 
 		// when & then
@@ -71,7 +70,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Member member = createMember();
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(notificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -99,7 +98,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Member member = createMember();
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(notificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -125,7 +124,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Member member = createMember();
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(notificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -155,7 +154,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		List<Long> notificationIds = mockNotifications.stream()
 			.map(MemberNotification::getNotificationId)
 			.toList();
-		given(notificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(notificationIds);
 
 		// when & then
@@ -184,7 +183,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.type(PORTFOLIO_MAX_LOSS.getCategory())
 			.referenceId("2")
 			.build();
-		given(notificationService.deleteMemberNotifications(anyLong(), anyList()))
+		given(mockedMemberNotificationService.deleteMemberNotifications(anyLong(), anyList()))
 			.willReturn(List.of(mockNotification.getNotificationId()));
 
 		// when & then

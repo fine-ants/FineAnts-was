@@ -1,7 +1,6 @@
 package co.fineants.api.global.init;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,7 +9,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +19,6 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.domain.exchangerate.service.ExchangeRateService;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Role;
@@ -75,9 +72,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
 
-	@MockBean
-	private ExchangeRateService exchangeRateService;
-
 	@Transactional
 	@DisplayName("서버는 권한 및 역할 등의 리소스들을 생성한다")
 	@Test
@@ -86,8 +80,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		int limit = 100;
 		List<Stock> stocks = writeStocks(limit);
 		List<StockDividend> stockDividends = writeStockDividends(stocks, limit);
-
-		doNothing().when(exchangeRateService).updateExchangeRates();
 		// when
 		setupDataLoader.setupResources();
 		// then

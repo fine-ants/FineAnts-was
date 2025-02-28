@@ -3,33 +3,25 @@ package co.fineants.api.domain.member.domain.entity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 
-class MemberTest extends AbstractContainerBaseTest {
+class MemberTest {
 
-	@Autowired
-	private MemberRepository repository;
-
-	@Transactional
 	@DisplayName("회원에 매니저 역할을 추가한다")
 	@Test
-	void addMemberRole() {
+	void givenMember_whenAddMemberRole_thenAddRoleList() {
 		// given
-		Member member = createMember();
-		Role memberRole = Role.create("ROLE_USER", "회원");
+		Member member = TestDataFactory.createMember();
+		Role userRole = Role.create("ROLE_USER", "회원");
 		Role managerRole = Role.create("ROLE_MANAGER", "매니저");
-		MemberRole memberMemberRole = MemberRole.of(member, memberRole);
+		MemberRole memberMemberRole = MemberRole.of(member, userRole);
 		MemberRole managerMemberRole = MemberRole.of(member, managerRole);
 		// when
-		member.addMemberRole(managerMemberRole);
+		member.addMemberRole(memberMemberRole, managerMemberRole);
 		// then
-		Member saveMember = repository.save(member);
-		Assertions.assertThat(saveMember.getRoles())
+		Assertions.assertThat(member.getRoles())
 			.hasSize(2)
 			.containsExactlyInAnyOrder(memberMemberRole, managerMemberRole);
 	}
@@ -38,44 +30,46 @@ class MemberTest extends AbstractContainerBaseTest {
 	@Test
 	void addMemberRole_whenAssignMemberRoleToOtherMember_thenReleaseEntityRelationShip() {
 		// given
-		Member member = createMember();
-		Role memberRole = Role.create("ROLE_USER", "회원");
+		Member member = TestDataFactory.createMember();
+		Role userRole = Role.create("ROLE_USER", "회원");
 		Role managerRole = Role.create("ROLE_MANAGER", "매니저");
+		MemberRole userMemberRole = MemberRole.of(member, userRole);
 		MemberRole managerMemberRole = MemberRole.of(member, managerRole);
-		member.addMemberRole(managerMemberRole);
+		member.addMemberRole(userMemberRole, managerMemberRole);
 
-		Member otherMember = createMember("other1", "other1@gmail.com");
+		Member otherMember = TestDataFactory.createMember("other1", "other1@gmail.com");
+		otherMember.addMemberRole(MemberRole.of(otherMember, userRole));
 		// when
 		otherMember.addMemberRole(managerMemberRole);
 		// then
 		Assertions.assertThat(member.getRoles())
 			.hasSize(1)
-			.containsExactly(MemberRole.of(member, memberRole));
+			.containsExactly(MemberRole.of(member, userRole));
 		Assertions.assertThat(otherMember.getRoles())
 			.hasSize(2)
-			.containsExactlyInAnyOrder(MemberRole.of(otherMember, memberRole), MemberRole.of(otherMember, managerRole));
+			.containsExactlyInAnyOrder(MemberRole.of(otherMember, userRole), MemberRole.of(otherMember, managerRole));
 	}
 
-	@Transactional
-	@DisplayName("회원의 알림 설정을 변경한다")
+	@DisplayName("회원의 알림 설정을 전부 활성화로 변경한다")
 	@Test
-	void setNotificationPreference() {
+	void givenMember_whenSetNotificationPreference_thenNotificationPreferenceIsAllActive() {
 		// given
-		Member member = createMember();
-		NotificationPreference preference = NotificationPreference.create(false, false, false, false);
+		Member member = TestDataFactory.createMember();
+		NotificationPreference preference = NotificationPreference.allActive();
 		// when
 		member.setNotificationPreference(preference);
 		// then
-		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(preference);
+		NotificationPreference expected = NotificationPreference.allActive();
+		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(expected);
 		Assertions.assertThat(preference.getMember()).isEqualTo(member);
 	}
 
 	@DisplayName("알림이 회원을 변경한다")
 	@Test
-	void setMember() {
+	void givenNotificationPreference_whenSetMember_thenChangedMember() {
 		// given
-		Member member = createMember();
-		NotificationPreference preference = NotificationPreference.create(false, false, false, false);
+		Member member = TestDataFactory.createMember();
+		NotificationPreference preference = NotificationPreference.allActive();
 		// when
 		preference.setMember(member);
 		// then
@@ -87,11 +81,11 @@ class MemberTest extends AbstractContainerBaseTest {
 	@Test
 	void givenMember_whenToString_thenGenerateMemberInfo() {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		// when
 		String actual = member.toString();
 		// then
-		Assertions.assertThat(actual)
-			.isEqualTo("Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[ROLE_USER])");
+		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[])";
+		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 }

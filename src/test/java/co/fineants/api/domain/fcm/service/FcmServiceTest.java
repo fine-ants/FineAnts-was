@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -44,8 +45,13 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private FcmRepository fcmRepository;
 
-	@MockBean
-	private FirebaseMessaging firebaseMessaging;
+	@Autowired
+	private FirebaseMessaging mockedFirebaseMessaging;
+
+	@AfterEach
+	void tearDown() {
+		Mockito.clearInvocations(mockedFirebaseMessaging);
+	}
 
 	@DisplayName("사용자는 FCM 토큰을 등록한다")
 	@Test
@@ -57,7 +63,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 			.build();
 
 		String messageId = "1";
-		given(firebaseMessaging.send(any(Message.class), anyBoolean()))
+		given(mockedFirebaseMessaging.send(any(Message.class), anyBoolean()))
 			.willReturn(messageId);
 
 		// when
@@ -69,7 +75,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("한 사용자가 동일한 토큰값으로 여러번의 토큰 등록을 요청해도 db에는 한개의 member_id, token 값쌍의 데이터가 있어야 한다")
 	@Test
-	void createToken_whenMultipleCreateFcmTokenApi_thenOneFcmToken() {
+	void createToken_whenMultipleCreateFcmTokenApi_thenOneFcmToken() throws FirebaseMessagingException {
 		// given
 		Member member = memberRepository.save(createMember());
 		FcmRegisterRequest request = FcmRegisterRequest.builder()
@@ -87,6 +93,10 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 			});
 			futures.add(future);
 		}
+
+		String messageId = "1";
+		given(mockedFirebaseMessaging.send(any(Message.class), anyBoolean()))
+			.willReturn(messageId);
 
 		// 10개의 쓰레드가 전부 완료할때까지 대기
 		Throwable throwable = catchThrowable(() -> futures.stream()
@@ -109,7 +119,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 			.fcmToken("fcmToken")
 			.build();
 
-		given(firebaseMessaging.send(any(Message.class), anyBoolean()))
+		given(mockedFirebaseMessaging.send(any(Message.class), anyBoolean()))
 			.willThrow(FirebaseMessagingException.class);
 
 		// when

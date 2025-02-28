@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -34,11 +33,6 @@ class StockQueryRepositoryTest extends AbstractContainerBaseTest {
 	@BeforeEach
 	void setup() {
 		stockRepository.saveAll(stockCsvReader.readStockCsv());
-	}
-
-	@AfterEach
-	void tearDown() {
-		stockRepository.deleteAllInBatch();
 	}
 
 	@DisplayName("사용자는 키워드 없이 종목을 검색한다")

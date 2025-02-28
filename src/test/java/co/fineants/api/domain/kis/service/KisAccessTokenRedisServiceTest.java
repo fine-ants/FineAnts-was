@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +16,7 @@ class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisAccessTokenRedisService service;
-
-	@AfterEach
-	void tearDown() {
-		service.deleteAccessTokenMap();
-	}
-
+	
 	@DisplayName("kis 액세스 토큰맵을 저장한다")
 	@Test
 	void setAccessTokenMap() {

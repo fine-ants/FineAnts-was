@@ -22,8 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -58,36 +57,36 @@ import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortfolioHoldingRestController.class)
 class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private PortfolioHoldingService portfolioHoldingService;
+	@Autowired
+	private PortfolioHoldingService mockedPortfolioHoldingService;
 
-	@MockBean
-	private PortfolioObservableService portfolioObservableService;
-	@MockBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private PortfolioObservableService mockedPortfolioObservableService;
+
+	@Autowired
+	private LocalDateTimeService mockedlocalDateTimeService;
 
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
 
 	@Override
 	protected Object initController() {
-		return new PortfolioHoldingRestController(portfolioHoldingService, portfolioObservableService);
+		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, mockedPortfolioObservableService);
 	}
 
 	@BeforeEach
 	void setUp() {
 		currentPriceRepository = new CurrentPriceMemoryRepository();
-		calculator = new PortfolioCalculator(currentPriceRepository, localDateTimeService);
+		calculator = new PortfolioCalculator(currentPriceRepository, mockedlocalDateTimeService);
 	}
 
 	@DisplayName("사용자의 포트폴리오 상세 정보를 가져온다")
 	@Test
 	void readMyPortfolioStocks() throws Exception {
 		// given
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+		BDDMockito.given(mockedlocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
@@ -108,10 +107,10 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		PortfolioHoldingsResponse mockResponse = PortfolioHoldingsResponse.of(portfolio, history,
 			List.of(portfolioHolding),
 			lastDayClosingPriceMap,
-			localDateTimeService,
+			mockedlocalDateTimeService,
 			calculator);
 
-		given(portfolioHoldingService.readPortfolioHoldings(anyLong())).willReturn(mockResponse);
+		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong())).willReturn(mockResponse);
 		// when & then
 		ResultActions resultActions = mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId()))
 			.andExpect(status().isOk());
@@ -170,7 +169,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	void readMyPortfolioStocksWithNotExistPortfolioId() throws Exception {
 		// given
 		long portfolioId = 9999L;
-		given(portfolioHoldingService.readPortfolioHoldings(anyLong()))
+		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong()))
 			.willThrow(new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
 
 		// when & then
@@ -188,7 +187,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
 			PortfolioHolding.of(1L, portfolio, stock));
-		given(portfolioHoldingService.createPortfolioHolding(anyLong(),
+		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
 			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -223,7 +222,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
 			PortfolioHolding.of(1L, portfolio, stock));
-		given(portfolioHoldingService.createPortfolioHolding(anyLong(),
+		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
 			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
@@ -300,7 +299,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
 		PortfolioStockDeletesResponse mockResponse = new PortfolioStockDeletesResponse(delPortfolioHoldingIds);
-		given(portfolioHoldingService.deletePortfolioHoldings(anyLong(), anyLong(), anyList())).willReturn(
+		given(mockedPortfolioHoldingService.deletePortfolioHoldings(anyLong(), anyLong(), anyList())).willReturn(
 			mockResponse);
 		// when & then
 		mockMvc.perform(delete("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
@@ -366,7 +365,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		List<PortfolioSectorChartItem> sectorChartItems = sectorChart.createBy(portfolio);
 		PortfolioChartResponse response = PortfolioChartResponse.create(portfolioDetails, pieChartItems,
 			dividendChartItems, sectorChartItems);
-		given(portfolioHoldingService.readPortfolioCharts(anyLong(), any(LocalDate.class)))
+		given(mockedPortfolioHoldingService.readPortfolioCharts(anyLong(), any(LocalDate.class)))
 			.willReturn(response);
 
 		// when & then

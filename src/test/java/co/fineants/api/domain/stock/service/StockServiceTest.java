@@ -16,8 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -70,21 +68,21 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3StockService amazonS3StockService;
 
-	@MockBean
+	@Autowired
 	private KisClient kisClient;
 
-	@MockBean
-	private KisService kisService;
+	@Autowired
+	private KisService mockedKisService;
 
-	@SpyBean
-	private DelayManager delayManager;
+	@Autowired
+	private DelayManager spyDelayManager;
 
-	@SpyBean
-	private LocalDateTimeService localDateTimeService;
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@BeforeEach
 	void setUp() {
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
 	}
 
@@ -202,9 +200,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 			"KR7000660001",
 			"전기,전자",
 			Market.KOSPI);
-		given(kisService.fetchStockInfoInRangedIpo())
+		given(mockedKisService.fetchStockInfoInRangedIpo())
 			.willReturn(Flux.just(hynix));
-		given(kisService.fetchSearchStockInfo(hynix.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(hynix.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				"KR7000660001",
 				"000660",
@@ -215,12 +213,12 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				"전기,전자",
 				"전기,전자"))
 			);
-		given(kisService.fetchSearchStockInfo(nokwon.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(nokwon.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.delistedStock("KR7065560005", "065560", "녹원씨엔아이",
 				"Nokwon Commercials & Industries, Inc.",
 				"KSQ", "시가총액규모대", "소프트웨어", "소프트웨어", LocalDate.of(2024, 7, 29))));
 		DateTimeFormatter dtf = DateTimeFormatter.BASIC_ISO_DATE;
-		given(kisService.fetchDividend(hynix.getTickerSymbol()))
+		given(mockedKisService.fetchDividend(hynix.getTickerSymbol()))
 			.willReturn(Flux.just(KisDividend.create(hynix.getTickerSymbol(),
 					Money.won(300),
 					LocalDate.parse("20240331", dtf),
@@ -229,7 +227,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 					Money.won(300),
 					LocalDate.parse("20240630", dtf),
 					LocalDate.parse("20240814", dtf))));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		// when
 		StockReloadResponse response = stockService.reloadStocks();
 		// then
@@ -270,13 +268,13 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void reloadStocks_shouldNotBlockingThread_whenFetchSearchStockInfo() {
 		// given
-		given(kisService.fetchStockInfoInRangedIpo())
+		given(mockedKisService.fetchStockInfoInRangedIpo())
 			.willReturn(Flux.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
-		given(kisService.fetchSearchStockInfo(anyString()))
+		given(mockedKisService.fetchSearchStockInfo(anyString()))
 			.willReturn(Mono.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
-		given(kisService.fetchDividend(anyString()))
+		given(mockedKisService.fetchDividend(anyString()))
 			.willReturn(Flux.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
 		// when
@@ -293,7 +291,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
 		stockDividendRepository.saveAll(createStockDividendWith(samsung));
-		given(kisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
+		given(mockedKisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				samsung.getStockCode(),
 				samsung.getTickerSymbol(),
