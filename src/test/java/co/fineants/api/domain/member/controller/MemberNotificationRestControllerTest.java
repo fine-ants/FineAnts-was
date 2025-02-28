@@ -15,7 +15,6 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -28,7 +27,6 @@ import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = MemberNotificationRestController.class)
 class MemberNotificationRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

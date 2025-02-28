@@ -15,8 +15,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -35,12 +35,12 @@ import co.fineants.support.controller.ControllerTestSupport;
 @WebMvcTest(controllers = WatchListRestController.class)
 class WatchListRestControllerTest extends ControllerTestSupport {
 
-	@MockBean
-	private WatchListService watchListService;
+	@Autowired
+	private WatchListService mockedWatchListService;
 
 	@Override
 	protected Object initController() {
-		return new WatchListRestController(watchListService);
+		return new WatchListRestController(mockedWatchListService);
 	}
 
 	@DisplayName("사용자가 watchlist를 추가한다.")
@@ -53,7 +53,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 
 		CreateWatchListResponse response = CreateWatchListResponse.create(1L);
 
-		given(watchListService.createWatchList(anyLong(), any(CreateWatchListRequest.class)))
+		given(mockedWatchListService.createWatchList(anyLong(), any(CreateWatchListRequest.class)))
 			.willReturn(response);
 
 		// when & then
@@ -75,7 +75,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 			ReadWatchListsResponse.create(1L, "My WatchList 1"),
 			ReadWatchListsResponse.create(2L, "My WatchList 2")
 		);
-		given(watchListService.readWatchLists(anyLong())).willReturn(response);
+		given(mockedWatchListService.readWatchLists(anyLong())).willReturn(response);
 
 		// when & then
 		mockMvc.perform(get("/api/watchlists")
@@ -108,7 +108,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 
 		ReadWatchListResponse response = new ReadWatchListResponse("My Watchlist", List.of(watchStockResponse));
 
-		given(watchListService.readWatchList(anyLong(), any(Long.class))).willReturn(response);
+		given(mockedWatchListService.readWatchList(anyLong(), any(Long.class))).willReturn(response);
 
 		// when & then
 		mockMvc.perform(get("/api/watchlists/1")
@@ -136,7 +136,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		requestBodyMap.put("tickerSymbols", List.of("005930"));
 		String body = objectMapper.writeValueAsString(requestBodyMap);
 
-		doNothing().when(watchListService)
+		doNothing().when(mockedWatchListService)
 			.createWatchStocks(anyLong(), any(Long.class), any(CreateWatchStockRequest.class));
 
 		// when & then
@@ -159,7 +159,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		requestBodyMap.put("watchlistIds", watchListIds);
 		String body = objectMapper.writeValueAsString(requestBodyMap);
 
-		doNothing().when(watchListService).deleteWatchLists(anyLong(), anyList());
+		doNothing().when(mockedWatchListService).deleteWatchLists(anyLong(), anyList());
 
 		// when & then
 		mockMvc.perform(delete("/api/watchlists")
@@ -180,7 +180,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		requestBodyMap.put("tickerSymbols", List.of("005930"));
 		String body = objectMapper.writeValueAsString(requestBodyMap);
 
-		doNothing().when(watchListService)
+		doNothing().when(mockedWatchListService)
 			.deleteWatchStocks(anyLong(), any(Long.class), any(DeleteWatchStocksRequest.class));
 
 		// when & then
@@ -198,7 +198,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deleteWatchStock() throws Exception {
 		// given
-		doNothing().when(watchListService)
+		doNothing().when(mockedWatchListService)
 			.deleteWatchStocks(anyLong(), any(Long.class), any(DeleteWatchStocksRequest.class));
 
 		// when & then
@@ -218,7 +218,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		requestBodyMap.put("name", "My watchlist");
 		String body = objectMapper.writeValueAsString(requestBodyMap);
 
-		doNothing().when(watchListService)
+		doNothing().when(mockedWatchListService)
 			.changeWatchListName(anyLong(), any(Long.class), any(ChangeWatchListNameRequest.class));
 
 		// when & then
@@ -241,7 +241,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 			WatchListHasStockResponse.create(1L, "My WatchList1", true),
 			WatchListHasStockResponse.create(2L, "My WatchList2", false)
 		);
-		given(watchListService.hasStock(anyLong(), any(String.class))).willReturn(response);
+		given(mockedWatchListService.hasStock(anyLong(), any(String.class))).willReturn(response);
 
 		// when & then
 		mockMvc.perform(get("/api/watchlists/stockExists/" + tickerSymbol)
