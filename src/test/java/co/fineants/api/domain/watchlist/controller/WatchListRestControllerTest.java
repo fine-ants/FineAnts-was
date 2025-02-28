@@ -16,7 +16,6 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
@@ -32,7 +31,6 @@ import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockRes
 import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = WatchListRestController.class)
 class WatchListRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.count.Count;
@@ -38,7 +37,6 @@ import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortFolioRestController.class)
 class PortFolioRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

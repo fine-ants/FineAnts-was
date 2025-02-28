@@ -14,7 +14,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
@@ -23,7 +22,6 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortfolioNotificationRestController.class)
 class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

@@ -64,7 +64,7 @@ public class TestConfig {
 
 	@SpyBean
 	private PortfolioCacheService portfolioCacheService;
-
+	
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {
 		return new FileExDividendDateCalculator(new FileHolidayRepository(new HolidayFileReader()));

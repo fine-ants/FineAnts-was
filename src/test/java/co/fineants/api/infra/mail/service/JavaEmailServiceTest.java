@@ -2,26 +2,28 @@ package co.fineants.api.infra.mail.service;
 
 import static org.mockito.BDDMockito.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.mail.EmailService;
-import co.fineants.config.AmazonS3TestConfig;
+import co.fineants.api.infra.mail.JavaEmailService;
 
-@ContextConfiguration(classes = {AmazonS3TestConfig.class}, inheritLocations = false)
 class JavaEmailServiceTest extends AbstractContainerBaseTest {
 
-	@Autowired
 	private EmailService service;
 
-	@MockBean
+	@Autowired
 	private JavaMailSender mockedJavaMailSender;
+
+	@BeforeEach
+	void setUp() {
+		service = new JavaEmailService(mockedJavaMailSender);
+	}
 
 	@DisplayName("서버는 이메일을 전송한다")
 	@Test
