@@ -15,6 +15,7 @@ import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.service.StockService;
+import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 @TestConfiguration
@@ -44,7 +45,7 @@ public class ControllerTestConfig {
 	private LocalDateTimeService localDateTimeService;
 
 	@MockBean
-	private PortfolioNotificationService service;
+	private PortfolioNotificationService portfolioNotificationService;
 
 	@MockBean
 	private PortfolioRepository portfolioRepository;
@@ -57,4 +58,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private StockService stockService;
+
+	@MockBean
+	private StockTargetPriceService stockTargetPriceService;
 }
