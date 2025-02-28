@@ -11,14 +11,12 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationSettingSearchItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationSettingSearchResponse;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PortfolioNotificationSettingRestController.class)
 class PortfolioNotificationSettingRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

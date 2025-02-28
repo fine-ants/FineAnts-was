@@ -28,20 +28,31 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
+import co.fineants.api.domain.fcm.controller.FcmRestController;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
+import co.fineants.api.domain.holding.controller.PortfolioHoldingRestController;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.member.controller.MemberNotificationRestController;
 import co.fineants.api.domain.member.controller.MemberRestController;
+import co.fineants.api.domain.member.controller.SignUpRestControllerTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
+import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
+import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.purchasehistory.controller.PurchaseHistoryRestController;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.stock.controller.StockRestController;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock_target_price.controller.StockTargetPriceRestController;
+import co.fineants.api.domain.stock_target_price.controller.TargetPriceNotificationRestController;
+import co.fineants.api.domain.watchlist.controller.WatchListRestController;
 import co.fineants.api.global.config.JpaAuditingConfiguration;
 import co.fineants.api.global.config.SpringConfig;
 import co.fineants.api.global.config.jackson.JacksonConfig;
@@ -55,7 +66,18 @@ import co.fineants.config.ControllerTestConfig;
 @MockBean(JpaAuditingConfiguration.class)
 @WebMvcTest(controllers = {
 	MemberNotificationRestController.class,
-	MemberRestController.class
+	MemberRestController.class,
+	FcmRestController.class,
+	PortFolioRestController.class,
+	PortfolioHoldingRestController.class,
+	PortfolioNotificationRestController.class,
+	PortfolioNotificationSettingRestController.class,
+	PurchaseHistoryRestController.class,
+	SignUpRestControllerTest.class,
+	StockRestController.class,
+	StockTargetPriceRestController.class,
+	TargetPriceNotificationRestController.class,
+	WatchListRestController.class
 })
 public abstract class ControllerTestSupport {
 

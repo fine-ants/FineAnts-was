@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.fcm.domain.dto.request.FcmRegisterRequest;
@@ -23,7 +22,6 @@ import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = FcmRestController.class)
 class FcmRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

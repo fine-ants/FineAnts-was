@@ -19,7 +19,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.count.Count;
@@ -37,7 +36,6 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
-@WebMvcTest(controllers = PurchaseHistoryRestController.class)
 class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 
 	@Autowired

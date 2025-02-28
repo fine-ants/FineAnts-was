@@ -83,14 +83,14 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 
 	@MockBean
-	private KisClient client;
+	private KisClient mockedKisClient;
 
 	@SpyBean
-	private DelayManager delayManager;
+	private DelayManager spyDelayManager;
 
 	@AfterEach
 	void tearDown() {
-		Mockito.clearInvocations(client);
+		Mockito.clearInvocations(mockedKisClient);
 		kisAccessTokenRepository.refreshAccessToken(null);
 		kisAccessTokenRedisService.deleteAccessTokenMap();
 	}
@@ -102,7 +102,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol = "005930";
 		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
-		given(client.fetchCurrentPrice(anyString()))
+		given(mockedKisClient.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, 60000L)));
 		// when
 		KisCurrentPrice kisCurrentPrice = kisService.fetchCurrentPrice(tickerSymbol)
@@ -123,11 +123,11 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		List<Stock> stocks = stockRepository.saveAll(List.of(createSamsungStock()));
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
-		given(client.fetchCurrentPrice("005930"))
+		given(mockedKisClient.fetchCurrentPrice("005930"))
 			.willReturn(Mono.just(KisCurrentPrice.create("005930", 10000L)));
-		given(delayManager.timeout()).willReturn(Duration.ofSeconds(1));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.timeout()).willReturn(Duration.ofSeconds(1));
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 
 		List<String> tickerSymbols = stocks.stream()
 			.map(Stock::getTickerSymbol)
@@ -146,9 +146,9 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		List<String> tickers = saveStocks(100).stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
-		tickers.forEach(ticker -> given(client.fetchCurrentPrice(ticker))
+		tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
 			.willReturn(Mono.just(KisCurrentPrice.create(ticker, 50000L)).delayElement(Duration.ofMillis(100))));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		// when
 		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
 		// then
@@ -164,10 +164,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		List<Stock> stocks = stockRepository.saveAll(List.of(createSamsungStock()));
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
-		given(client.fetchCurrentPrice("005930"))
+		given(mockedKisClient.fetchCurrentPrice("005930"))
 			.willReturn(Mono.just(KisCurrentPrice.create("005930", 10000L)));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 
 		List<String> tickerSymbols = stocks.stream()
 			.map(Stock::getTickerSymbol)
@@ -179,7 +179,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisAccessTokenRedisService.setAccessTokenMap(soonExpiredAccessToken, LocalDateTime.now());
 
 		KisAccessToken reloadAccessToken = createKisAccessToken();
-		given(client.fetchAccessToken())
+		given(mockedKisClient.fetchAccessToken())
 			.willReturn(Mono.just(reloadAccessToken));
 
 		// when
@@ -199,7 +199,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		List<String> tickers = saveStocks(100).stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
-		tickers.forEach(ticker -> given(client.fetchCurrentPrice(ticker))
+		tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
 			.willReturn(Mono.error(KisException.expiredAccessToken())));
 		// when
 		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
@@ -214,9 +214,9 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		List<String> tickers = saveStocks(100).stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
-		tickers.forEach(ticker -> given(client.fetchCurrentPrice(ticker))
+		tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
 			.willReturn(Mono.error(KisException.requestLimitExceeded())));
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 		// when
 		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
 		// then
@@ -234,11 +234,11 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		));
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
-		given(client.fetchCurrentPrice("005930"))
+		given(mockedKisClient.fetchCurrentPrice("005930"))
 			.willReturn(Mono.error(KisException.requestLimitExceeded()))
 			.willReturn(Mono.just(KisCurrentPrice.create("005930", 50000L)));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 
 		List<String> tickerSymbols = stocks.stream()
 			.map(Stock::getTickerSymbol)
@@ -264,11 +264,11 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
 		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
-		given(client.fetchClosingPrice(anyString()))
+		given(mockedKisClient.fetchClosingPrice(anyString()))
 			.willThrow(KisException.requestLimitExceeded())
 			.willThrow(KisException.requestLimitExceeded())
 			.willReturn(Mono.just(KisClosingPrice.create("005930", 10000L)));
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 		List<String> tickerSymbols = stocks.stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
@@ -276,7 +276,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisService.refreshClosingPrice(tickerSymbols);
 
 		// then
-		verify(client, times(3)).fetchClosingPrice(anyString());
+		verify(mockedKisClient, times(3)).fetchClosingPrice(anyString());
 	}
 
 	@DisplayName("한국투자증권에 상장된 종목 정보를 조회한다")
@@ -289,7 +289,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		KisIpoResponse kisIpoResponse = KisIpoResponse.create(
 			List.of(KisIpo.create("20240326", "000660", "에스케이하이닉스보통주"))
 		);
-		given(client.fetchIpo(
+		given(mockedKisClient.fetchIpo(
 			any(LocalDate.class),
 			any(LocalDate.class)
 		))
@@ -297,7 +297,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 		KisSearchStockInfo kisSearchStockInfo = KisSearchStockInfo.listedStock("KR7000660001", "000660", "에스케이하이닉스보통주",
 			"SK hynix", "STK", "시가총액규모대", "전기,전자", "전기,전자");
-		given(client.fetchSearchStockInfo(anyString()))
+		given(mockedKisClient.fetchSearchStockInfo(anyString()))
 			.willReturn(Mono.just(kisSearchStockInfo));
 		// when
 		Flux<StockIntegrationInfo> stocks = kisService.fetchStockInfoInRangedIpo();
@@ -314,7 +314,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchStockInfoInRangedIpo_shouldNotBlockInSeparateThread() {
 		// given
-		given(client.fetchIpo(
+		given(mockedKisClient.fetchIpo(
 			any(LocalDate.class),
 			any(LocalDate.class)
 		)).willReturn(Mono.error(() -> new IllegalStateException(
@@ -342,7 +342,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		KisAccessToken kisAccessToken = createKisAccessToken();
 		kisAccessTokenRepository.refreshAccessToken(kisAccessToken);
 		stocks.forEach(s ->
-			given(client.fetchSearchStockInfo(s.getTickerSymbol()))
+			given(mockedKisClient.fetchSearchStockInfo(s.getTickerSymbol()))
 				.willReturn(Mono.just(
 						KisSearchStockInfo.listedStock(
 							s.getStockCode(),
@@ -379,7 +379,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		String tickerSymbol = "005930";
 		KisAccessToken kisAccessToken = createKisAccessToken();
 		kisAccessTokenRepository.refreshAccessToken(kisAccessToken);
-		given(client.fetchDividendThisYear(tickerSymbol))
+		given(mockedKisClient.fetchDividendThisYear(tickerSymbol))
 			.willReturn(Mono.just(KisDividendWrapper.create(List.of(
 				KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
 					LocalDate.of(2024, 5, 1))))));
@@ -400,9 +400,9 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		String tickerSymbol = "005930";
 		kisAccessTokenRepository.refreshAccessToken(null);
 		KisAccessToken newKisAccessToken = createKisAccessToken();
-		given(client.fetchAccessToken())
+		given(mockedKisClient.fetchAccessToken())
 			.willReturn(Mono.just(newKisAccessToken));
-		given(client.fetchDividendThisYear(tickerSymbol))
+		given(mockedKisClient.fetchDividendThisYear(tickerSymbol))
 			.willReturn(Mono.just(KisDividendWrapper.create(List.of(
 				KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
 					LocalDate.of(2024, 5, 1))))));
