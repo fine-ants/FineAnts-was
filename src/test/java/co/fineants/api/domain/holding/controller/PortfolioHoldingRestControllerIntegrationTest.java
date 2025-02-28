@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -80,9 +79,8 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	@Autowired
 	private WebSocketApprovalKeyRedisRepository approvalKeyRedisRepository;
 
-	// todo: spyBean 제거
-	@SpyBean
-	private PortfolioCacheService portfolioCacheService;
+	@Autowired
+	private PortfolioCacheService spyPortfolioCacheService;
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
@@ -153,7 +151,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		requestPortfolioHoldingWithSse(uri, loginCookies);
 		requestPortfolioHoldingWithSse(uri, loginCookies);
 		// then
-		verify(portfolioCacheService, times(1)).getTickerSymbolsFromPortfolioBy(portfolioId);
+		verify(spyPortfolioCacheService, times(1)).getTickerSymbolsFromPortfolioBy(portfolioId);
 		assertThat(stockPriceRepository.size())
 			.as("The number of stock prices stored in the repository must be 1.")
 			.isEqualTo(1);
