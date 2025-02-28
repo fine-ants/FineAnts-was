@@ -12,14 +12,13 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -33,26 +32,30 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
+import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
+import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.kis.KisException;
-import co.fineants.config.AmazonS3TestConfig;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @Slf4j
-@ContextConfiguration(classes = AmazonS3TestConfig.class, inheritLocations = false)
+@Transactional
 class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -82,11 +85,44 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 
-	@MockBean
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private StockTargetPricePublisher stockTargetPricePublisher;
+
+	@Autowired
+	private PortfolioPublisher portfolioPublisher;
+
+	@Autowired
+	private StockTargetPriceRepository stockTargetPriceRepository;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
 	private KisClient mockedKisClient;
 
-	@SpyBean
+	@Autowired
 	private DelayManager spyDelayManager;
+
+	@BeforeEach
+	void setUp() {
+		kisService = new KisService(
+			mockedKisClient,
+			portfolioHoldingRepository,
+			currentPriceRedisRepository,
+			closingPriceRepository,
+			stockTargetPricePublisher,
+			portfolioPublisher,
+			stockTargetPriceRepository,
+			spyDelayManager,
+			kisAccessTokenRepository,
+			kisAccessTokenRedisService,
+			stockRepository,
+			spyLocalDateTimeService
+		);
+	}
 
 	@AfterEach
 	void tearDown() {
