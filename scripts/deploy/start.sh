@@ -15,6 +15,10 @@ cd "$DEPLOY_DIR" || exit
 sudo chmod 666 /var/run/docker.sock
 sudo chmod +x /usr/local/bin/docker-compose
 
+# prometheus 실행 권한 설정
+sudo chown -R "$(whoami):$(whoami)" "$PROFILE/prometheus"
+sudo chmod -R 777 "$PROFILE/prometheus"
+
 # docker-compose 실행
 sudo docker-compose -f "$DOCKER_COMPOSE_FILE" pull
 sudo docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
