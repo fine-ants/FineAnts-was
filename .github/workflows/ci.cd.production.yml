@@ -75,7 +75,7 @@ jobs:
         run: docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$TAG
       # zip 파일 생성
       - name: Make zip file
-        run: zip -r ./$GITHUB_SHA.zip scripts/ loki/ promtail/ redis/ secret/ appspec.yml docker-compose.production.yml
+        run: zip -r ./$GITHUB_SHA.zip scripts/ loki/ promtail/ redis/ prometheus/ secret/ appspec.yml docker-compose.production.yml
       # AWS 인증정보 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
