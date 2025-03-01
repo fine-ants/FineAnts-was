@@ -74,6 +74,22 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
       - spring-net
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fineAnts_prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--web.enable-lifecycle'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: always
+    volumes:
+      - ./prometheus/config/local:/etc/prometheus
+      - ./prometheus/volume:/prometheus
+    networks:
+      - spring-net
 volumes:
   loki_data:
   grafana_data:

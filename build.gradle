@@ -42,6 +42,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -109,6 +110,9 @@ dependencies {
     // JMH
     testImplementation 'org.openjdk.jmh:jmh-core:1.37'
     testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+
+    // Prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
