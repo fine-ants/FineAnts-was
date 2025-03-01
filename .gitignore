@@ -13,3 +13,4 @@
 .env
 /loki_data/
 /prometheus/config/query_log_file.log
+/prometheus/volume/
