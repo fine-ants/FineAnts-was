@@ -169,7 +169,7 @@ public class Portfolio extends BaseEntity {
 	 * @param active 변경하고자 하는 알림 설정, true: 알림 활성화, false: 알림 비활성화
 	 * @throws IllegalPortfolioFinancialStateException 목표수익금액이 0원인 경우 예외 발생
 	 */
-	public void changeTargetGainNotification(Boolean active) {
+	public void changeTargetGainNotification(Boolean active) throws IllegalPortfolioFinancialStateException {
 		if (this.financial.isTargetGainZero()) {
 			throw new IllegalPortfolioFinancialStateException(this.financial,
 				PortfolioErrorCode.TARGET_GAIN_IS_ZERO_WITH_NOTIFY_UPDATE);

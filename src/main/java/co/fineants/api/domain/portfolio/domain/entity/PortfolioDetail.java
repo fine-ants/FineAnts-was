@@ -48,7 +48,8 @@ public class PortfolioDetail {
 	 * @throws IllegalPortfolioNameArgumentException 포트폴리오 이름의 형식이 유효하지 않으면 예외 발생
 	 * @throws IllegalPortfolioSecuritiesFirmArgumentException 증권사 이름이 목록(properties)에 없으면 예외 발생
 	 */
-	public static PortfolioDetail of(String name, String securitiesFirm, PortfolioProperties properties) {
+	public static PortfolioDetail of(String name, String securitiesFirm, PortfolioProperties properties)
+		throws IllegalPortfolioNameArgumentException, IllegalPortfolioSecuritiesFirmArgumentException {
 		return new PortfolioDetail(name, securitiesFirm, properties);
 	}
 
