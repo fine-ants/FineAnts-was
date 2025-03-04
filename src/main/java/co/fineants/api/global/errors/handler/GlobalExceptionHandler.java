@@ -22,7 +22,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(FineAntsException.class)
 	public ResponseEntity<ApiResponse<Object>> handleFineANtsException(FineAntsException exception) {
 		ApiResponse<Object> body = ApiResponse.error(exception.getErrorCode());
-		return ResponseEntity.status(exception.getErrorCode().getHttpStatus()).body(body);
+		return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
+			.body(body);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
