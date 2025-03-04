@@ -22,7 +22,7 @@ public class ErrorResponse {
 		HttpStatus httpStatus = errorCode.getHttpStatus();
 		this.code = httpStatus.value();
 		this.status = httpStatus.getReasonPhrase();
-		this.message = errorCode.getMessage();
+		this.message = exception.getMessage();
 		this.data = null;
 	}
 

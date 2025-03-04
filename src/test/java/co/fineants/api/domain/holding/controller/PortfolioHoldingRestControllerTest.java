@@ -169,7 +169,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	void readMyPortfolioStocksWithNotExistPortfolioId() throws Exception {
 		// given
 		long portfolioId = 9999L;
-		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong()))
+		given(mockedPortfolioHoldingService.readPortfolioHoldings(portfolioId))
 			.willThrow(new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
 
 		// when & then
