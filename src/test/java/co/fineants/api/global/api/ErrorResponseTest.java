@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.NotFoundResourceException;
 
 class ErrorResponseTest {
 
@@ -14,7 +14,7 @@ class ErrorResponseTest {
 	@Test
 	void shouldGenerateCorrectErrorResponse_whenMemberNotFound() {
 		// given
-		FineAntsException exception = new BadRequestException(MemberErrorCode.NOT_FOUND_MEMBER);
+		FineAntsException exception = new NotFoundResourceException(MemberErrorCode.NOT_FOUND_MEMBER);
 		ErrorResponse errorResponse = new ErrorResponse(exception);
 		// when
 		String actual = errorResponse.toString();
