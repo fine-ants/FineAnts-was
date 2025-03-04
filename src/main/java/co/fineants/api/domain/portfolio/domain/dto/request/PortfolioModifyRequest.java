@@ -39,7 +39,8 @@ public class PortfolioModifyRequest {
 			PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
 			return Portfolio.allInActive(detail, financial, member);
 		} catch (IllegalPortfolioArgumentException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
+			String message = "can create Portfolio Entity";
+			throw new BadRequestException(e.getErrorCode(), message, e);
 		}
 	}
 }
