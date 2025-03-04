@@ -18,7 +18,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(FineAntsException.class)
-	public ResponseEntity<ApiResponse<Object>> handleFineANtsException(FineAntsException exception) {
+	public ResponseEntity<ApiResponse<Object>> handleFineAntsException(FineAntsException exception) {
 		ApiResponse<Object> body = ApiResponse.error(exception.getErrorCode());
 		return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
 			.body(body);
