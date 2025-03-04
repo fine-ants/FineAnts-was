@@ -185,7 +185,7 @@ public class Portfolio extends BaseEntity {
 	 * @param active 변경하고자 하는 활성화 알림 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @throws IllegalPortfolioFinancialStateException 최대손실금액이 0원인 경우 예외 발생
 	 */
-	public void changeMaximumLossNotification(Boolean active) {
+	public void changeMaximumLossNotification(Boolean active) throws IllegalPortfolioFinancialStateException {
 		if (this.financial.isMaximumLossZero()) {
 			throw new IllegalPortfolioFinancialStateException(this.financial,
 				PortfolioErrorCode.MAX_LOSS_IS_ZERO_WITH_NOTIFY_UPDATE);
