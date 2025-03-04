@@ -13,9 +13,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
