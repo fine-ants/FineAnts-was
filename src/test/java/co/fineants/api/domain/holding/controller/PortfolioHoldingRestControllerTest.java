@@ -175,7 +175,10 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		// when & then
 		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolioId))
 			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오를 찾을 수 없습니다")));
+			.andExpect(jsonPath("code").value(equalTo(404)))
+			.andExpect(jsonPath("status").value(equalTo("Not Found")))
+			.andExpect(jsonPath("message").value(equalTo("포트폴리오를 찾을 수 없습니다")))
+			.andExpect(jsonPath("data").isEmpty());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")

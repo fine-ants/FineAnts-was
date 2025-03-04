@@ -8,11 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.api.ErrorResponse;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.NotFoundResourceException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,6 +25,12 @@ public class GlobalExceptionHandler {
 		ApiResponse<Object> body = ApiResponse.error(exception.getErrorCode());
 		return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
 			.body(body);
+	}
+
+	@ExceptionHandler(NotFoundResourceException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ErrorResponse handleNotFoundResourceException(NotFoundResourceException exception) {
+		return new ErrorResponse(exception);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
