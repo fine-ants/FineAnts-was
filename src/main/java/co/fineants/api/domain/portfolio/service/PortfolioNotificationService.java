@@ -48,7 +48,8 @@ public class PortfolioNotificationService {
 		try {
 			portfolio.changeTargetGainNotification(isActive);
 		} catch (IllegalPortfolioStateException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
+			String message = "can not change targetGainNotification status";
+			throw new BadRequestException(e.getErrorCode(), message, e);
 		}
 	}
 
@@ -80,7 +81,8 @@ public class PortfolioNotificationService {
 		try {
 			portfolio.changeMaximumLossNotification(active);
 		} catch (IllegalPortfolioStateException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
+			String message = "can not change maximumLossNotification status";
+			throw new BadRequestException(e.getErrorCode(), message, e);
 		}
 	}
 }
