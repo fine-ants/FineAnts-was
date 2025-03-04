@@ -1,5 +1,7 @@
 package co.fineants.api.global.util;
 
+import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +22,12 @@ public final class ObjectMapperUtil {
 			return objectMapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			log.error("Serialization failed: {}", e.getMessage());
-			throw new ServerInternalException(ObjectMapperErrorCode.FAIL_SERIALIZE, e);
+			String message = "Serialization failed, obj=%s".formatted(obj);
+			throw new ServerInternalException(
+				ObjectMapperErrorCode.FAIL_SERIALIZE,
+				HttpStatus.INTERNAL_SERVER_ERROR,
+				message,
+				e);
 		}
 	}
 
@@ -29,7 +36,12 @@ public final class ObjectMapperUtil {
 			return objectMapper.readValue(json, returnType);
 		} catch (JsonProcessingException e) {
 			log.error("Deserialization failed: {}", e.getMessage());
-			throw new ServerInternalException(ObjectMapperErrorCode.FAIL_DESERIALIZE, e);
+			String message = "Deserialization failed, json=%s, returnType=%s".formatted(json, returnType);
+			throw new ServerInternalException(
+				ObjectMapperErrorCode.FAIL_DESERIALIZE,
+				HttpStatus.INTERNAL_SERVER_ERROR,
+				message,
+				e);
 		}
 	}
 }
