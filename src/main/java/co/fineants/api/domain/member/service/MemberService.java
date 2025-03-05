@@ -51,7 +51,9 @@ import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.email.EmailSendException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -216,8 +218,9 @@ public class MemberService {
 			emailService.sendEmail(email,
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
-		} catch (Exception e) {
-			throw new BadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
+		} catch (EmailSendException e) {
+			String message = "can't send the verification code for signUp";
+			throw new EmailVerificationSendException(message, e);
 		}
 	}
 

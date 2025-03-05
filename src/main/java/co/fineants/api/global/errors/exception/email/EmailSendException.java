@@ -1,0 +1,7 @@
+package co.fineants.api.global.errors.exception.email;
+
+public class EmailSendException extends RuntimeException {
+	public EmailSendException(String message, Throwable cause) {
+		super(message, cause);
+	}
+}
