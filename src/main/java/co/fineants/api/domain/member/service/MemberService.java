@@ -204,9 +204,15 @@ public class MemberService {
 		}
 	}
 
+	/**
+	 * 회원가입을 진행하기 위한 검증 코드를 이메일로 전송한다
+	 *
+	 * @param request 수신자 정보가 담긴 요청 정보
+	 * @throws EmailVerificationSendException 이메일 전송하지 못하면 에외가 발생함
+	 */
 	@Transactional(readOnly = true)
 	@PermitAll
-	public void sendVerifyCode(VerifyEmailRequest request) {
+	public void sendVerifyCode(VerifyEmailRequest request) throws EmailVerificationSendException {
 		String email = request.getEmail();
 		String verifyCode = verifyCodeGenerator.generate();
 
@@ -214,7 +220,6 @@ public class MemberService {
 		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
 
 		try {
-			// 사용자에게 검증 코드 메일 전송
 			emailService.sendEmail(email,
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));

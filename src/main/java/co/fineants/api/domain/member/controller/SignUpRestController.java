@@ -21,7 +21,9 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.ServerInternalException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
@@ -64,10 +66,23 @@ public class SignUpRestController {
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
 
+	/**
+	 * 회원가입을 위한 검증 코드를 이메일로 전송한다
+	 *
+	 * @param request 수신자 이메일가 담긴 요청 정보
+	 * @return 검증 코드 전송 완료 결과
+	 * @throws ServerInternalException 이메일 전송이 실패하면 예외가 발생함
+	 */
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
-	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
-		memberService.sendVerifyCode(request);
+	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) throws
+		ServerInternalException {
+		try {
+			memberService.sendVerifyCode(request);
+		} catch (EmailVerificationSendException e) {
+			String message = "can't send verification code for signUp";
+			throw new ServerInternalException(null, message, e);
+		}
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
