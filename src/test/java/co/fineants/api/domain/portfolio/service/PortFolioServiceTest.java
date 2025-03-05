@@ -49,6 +49,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioCreateException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -128,8 +129,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioCreateException.class)
+			.hasMessage("can't create the Portfolio Entity");
 	}
 
 	@DisplayName("회원은 포트폴리오를 추가할때 최대손실율이 예산보다 같거나 크면 안된다")
@@ -153,9 +154,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.extracting("message")
-			.isEqualTo("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioCreateException.class)
+			.hasMessage("can't create the Portfolio Entity");
 	}
 
 	@DisplayName("회원은 내가 가지고 있는 포트폴리오들중에서 동일한 이름을 가지는 포트폴리오를 추가할 수는 없다")
@@ -343,8 +343,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioUpdateException.class)
+			.hasMessage("can't create the changed Portfolio's Entity");
 	}
 
 	@DisplayName("회원이 포트폴리오 정보 수정시 예산이 최대손실금액보다 같거나 작게 수정할 수 없다")
