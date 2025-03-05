@@ -93,6 +93,15 @@ public class PortFolioService {
 		}
 	}
 
+	/**
+	 * 포트폴리오의 일부 정보를 수정하여 수정 결과를 반환한다.
+	 *
+	 * @param request 수정하고자 하는 정보
+	 * @param portfolioId 포트폴리오 식별자 아이디
+	 * @param memberId 회원 식별자 아이디
+	 * @return 포트폴리오 수정 결과
+	 * @throws PortfolioModificationException 포트폴리오를 수정할 수 없을 때 예외가 발생한다
+	 */
 	@Transactional
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
