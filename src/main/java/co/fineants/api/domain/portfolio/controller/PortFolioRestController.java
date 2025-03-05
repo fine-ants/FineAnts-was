@@ -15,10 +15,13 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateReques
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfoliosDeleteRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.PortfolioUpdateException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioSuccessCode;
@@ -65,8 +68,14 @@ public class PortFolioRestController {
 	public ApiResponse<Void> updatePortfolio(@PathVariable Long portfolioId,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
 		@Valid @RequestBody PortfolioModifyRequest request) {
-		log.info("포트폴리오 수정 요청, request={}", request);
-		portFolioService.updatePortfolio(request, portfolioId, authentication.getId());
+		try {
+			PortfolioModifyResponse response = portFolioService.updatePortfolio(request, portfolioId,
+				authentication.getId());
+			log.info("changed portfolio result : {}", response);
+		} catch (PortfolioUpdateException e) {
+			String message = "can not change portfolio";
+			throw new BadRequestException(null, message, e);
+		}
 		return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO);
 	}
 
