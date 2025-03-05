@@ -1,9 +1,7 @@
 package co.fineants.api.global.errors.exception;
 
-import org.springframework.http.HttpStatus;
-
-public class PortfolioModificationException extends FineAntsException {
-	public PortfolioModificationException(HttpStatus httpStatus, String message, Throwable cause) {
-		super(httpStatus, message, cause);
+public class PortfolioModificationException extends RuntimeException {
+	public PortfolioModificationException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,7 +98,7 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
-		Long memberId) {
+		Long memberId) throws PortfolioModificationException {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
@@ -108,7 +107,7 @@ public class PortFolioService {
 			changePortfolio = request.toEntity(member, properties);
 		} catch (IllegalPortfolioArgumentException e) {
 			String message = "can't create the changed Portfolio's Entity";
-			throw new PortfolioModificationException(HttpStatus.BAD_REQUEST, message, e);
+			throw new PortfolioModificationException(message, e);
 		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
