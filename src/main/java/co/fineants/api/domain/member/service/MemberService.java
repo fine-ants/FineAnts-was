@@ -52,6 +52,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -189,7 +190,7 @@ public class MemberService {
 
 	private void verifyPassword(SignUpServiceRequest request) {
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new PasswordMismatchException("Password and password confirmation do not match");
 		}
 	}
 
