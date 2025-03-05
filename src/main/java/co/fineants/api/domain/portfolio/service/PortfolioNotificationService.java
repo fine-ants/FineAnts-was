@@ -14,7 +14,6 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialStateException;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,16 +69,12 @@ public class PortfolioNotificationService {
 		@ResourceId Long portfolioId) {
 		log.info("change the portfolio's maximumIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeMaximumLossNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
-	}
-
-	private void changeMaximumLossNotification(Portfolio portfolio, Boolean active) {
 		try {
 			portfolio.changeMaximumLossNotification(active);
-		} catch (IllegalPortfolioStateException e) {
-			String message = "can not change maximumLossNotification status";
-			throw new BadRequestException(e.getErrorCode(), message, e);
+		} catch (IllegalPortfolioFinancialStateException e) {
+			String message = "can't change the maximumLossNotification active status";
+			throw new PortfolioUpdateException(message, e);
 		}
+		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
 	}
 }

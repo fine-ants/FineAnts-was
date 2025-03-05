@@ -29,7 +29,6 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 
@@ -181,8 +180,8 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioErrorCode.MAX_LOSS_IS_ZERO_WITH_NOTIFY_UPDATE.getMessage());
+			.isInstanceOf(PortfolioUpdateException.class)
+			.hasMessage("can't change the maximumLossNotification active status");
 	}
 
 	@DisplayName("회원은 다른 회원 포트포리오의 최대손실금액 알림 상태를 수정할 수 없다")
