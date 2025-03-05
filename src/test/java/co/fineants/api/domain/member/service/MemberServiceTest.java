@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -32,6 +33,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
+import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
@@ -105,6 +107,9 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@BeforeEach
 	void setUp() {
@@ -373,7 +378,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(createMember());
 		String email = member.getEmail();
-		
+
 		// when
 		Throwable throwable = catchThrowable(() -> memberService.checkEmail(email));
 
@@ -469,6 +474,29 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(memberRepository.findById(member.getId())).isEmpty();
+	}
+
+	@DisplayName("비밀번호를 변경한다")
+	@Test
+	void modifyPassword() {
+		// given
+		Member member = memberRepository.save(createMember());
+		String currentPassword = "nemo1234@";
+		String newPassword = "nemo4321@";
+		String newPasswordConfirm = "nemo4321@";
+
+		PasswordModifyRequest request = new PasswordModifyRequest(currentPassword, newPassword,
+			newPasswordConfirm);
+		// when
+		memberService.modifyPassword(request, member.getId());
+
+		// then
+		String password = memberRepository.findById(member.getId())
+			.orElseThrow()
+			.getPassword()
+			.orElseThrow();
+		boolean actual = passwordEncoder.matches(newPassword, password);
+		org.assertj.core.api.Assertions.assertThat(actual).isTrue();
 	}
 
 	public static MultipartFile createProfileFile() {
