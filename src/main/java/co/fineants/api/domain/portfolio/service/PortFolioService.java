@@ -42,6 +42,7 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -100,7 +101,13 @@ public class PortFolioService {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
-		Portfolio changePortfolio = request.toEntity(member, properties);
+		Portfolio changePortfolio;
+		try {
+			changePortfolio = request.toEntity(member, properties);
+		} catch (IllegalPortfolioArgumentException e) {
+			String message = "can't create the changed Portfolio's Entity";
+			throw new BadRequestException(e.getErrorCode(), message, e);
+		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
 			validateUniquePortfolioName(changePortfolio.name(), member);
