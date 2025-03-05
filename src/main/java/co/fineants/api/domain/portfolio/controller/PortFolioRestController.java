@@ -21,6 +21,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioCreateException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -37,13 +38,25 @@ public class PortFolioRestController {
 
 	private final PortFolioService portFolioService;
 
-	// 포트폴리오 생성
+	/**
+	 * 포트폴리오를 생성한다
+	 *
+	 * @param request 생성하고자 하는 포트폴리오 정보
+	 * @param authentication 사용자 인증 정보
+	 * @return 포트폴리오 생성 완료 응답
+	 * @throws BadRequestException 포트폴리오를 생성하지 못하면 예외 발생함
+	 */
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
 	public ApiResponse<PortFolioCreateResponse> createPortfolio(@Valid @RequestBody PortfolioCreateRequest request,
-		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		log.info("포트폴리오 추가 요청, request={}", request);
-		PortFolioCreateResponse response = portFolioService.createPortfolio(request, authentication.getId());
+		@MemberAuthenticationPrincipal MemberAuthentication authentication) throws BadRequestException {
+		PortFolioCreateResponse response;
+		try {
+			response = portFolioService.createPortfolio(request, authentication.getId());
+		} catch (PortfolioCreateException exception) {
+			String message = "can't create the portfolio";
+			throw new BadRequestException(null, message, exception);
+		}
 		return ApiResponse.success(PortfolioSuccessCode.CREATED_ADD_PORTFOLIO, response);
 	}
 
@@ -81,7 +94,7 @@ public class PortFolioRestController {
 				authentication.getId());
 			log.info("changed portfolio result : {}", response);
 		} catch (PortfolioUpdateException e) {
-			String message = "can not change portfolio";
+			String message = "can't change the portfolio";
 			throw new BadRequestException(null, message, e);
 		}
 		return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO);
