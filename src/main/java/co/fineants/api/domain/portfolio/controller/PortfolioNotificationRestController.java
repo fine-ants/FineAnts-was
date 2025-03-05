@@ -10,6 +10,8 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioNotification
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import co.fineants.api.global.success.PortfolioSuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +38,27 @@ public class PortfolioNotificationRestController {
 		return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO_TARGET_GAIN_INACTIVE_NOTIFICATION);
 	}
 
+	/**
+	 * 포트폴리오의 최대손실율 알림 활성화 상태를 수정한다.
+	 *
+	 * @param portfolioId 포트폴리오 식별자 아이디
+	 * @param request 변경하고자 하는 활성화 상태 정보
+	 * @return 포트폴리오 알림 활성화 변경 완료 메시지 응답
+	 * @throws BadRequestException 포트폴리오의 최대손실율 알림 활성화 상태를 수정하지 못하면 예외가 발생함
+	 */
 	@PutMapping("/maxLoss")
 	public ApiResponse<Void> updateNotificationMaximumLoss(
 		@PathVariable Long portfolioId,
-		@Valid @RequestBody PortfolioNotificationUpdateRequest request) {
-		log.info("포트폴리오 알림 설정 : request={}, portfolioId={}", request, portfolioId);
-		PortfolioNotificationUpdateResponse response = service.updateNotificationMaximumLoss(request.getIsActive(),
-			portfolioId);
+		@Valid @RequestBody PortfolioNotificationUpdateRequest request) throws BadRequestException {
+		PortfolioNotificationUpdateResponse response;
+		try {
+			response = service.updateNotificationMaximumLoss(request.getIsActive(),
+				portfolioId);
+		} catch (PortfolioUpdateException exception) {
+			String message = "can't update the NotificationMaximumLoss";
+			throw new BadRequestException(null, message, exception);
+		}
+
 		if (Boolean.TRUE.equals(response.getIsActive())) {
 			return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO_MAXIMUM_LOSS_ACTIVE_NOTIFICATION);
 		}

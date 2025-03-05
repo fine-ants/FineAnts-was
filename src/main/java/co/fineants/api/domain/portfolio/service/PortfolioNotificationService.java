@@ -11,7 +11,6 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialStateException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
@@ -60,13 +59,13 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 최대손실금액 알림 활성화 설정 변경 결과
-	 * @throws BadRequestException 포트폴리오의 최대손실금액이 0원인 경우 예외 발생
+	 * @throws PortfolioUpdateException 포트폴리오 최대손실율 알림 활성화를 수정할 수 없으면 예외 발생
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationMaximumLoss(Boolean active,
-		@ResourceId Long portfolioId) {
+		@ResourceId Long portfolioId) throws PortfolioUpdateException {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		try {
 			portfolio.changeMaximumLossNotification(active);
