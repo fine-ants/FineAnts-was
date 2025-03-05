@@ -56,6 +56,8 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
+import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
@@ -336,8 +338,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.BAD_SIGNUP_INPUT.getMessage());
+			.isInstanceOf(InvalidMemberNicknameException.class)
+			.hasMessage("nickname is not valid, nickname=일");
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되어 에러를 받는다")
@@ -352,8 +354,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(DuplicateNicknameException.class)
+			.hasMessage("already exists nickname, nickname=일개미1234");
 	}
 
 	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
