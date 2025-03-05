@@ -49,6 +49,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.PortfolioUpdateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -371,8 +372,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioUpdateException.class)
+			.hasMessage("can't create the changed Portfolio's Entity");
 	}
 
 	@DisplayName("사용자가 나의 포트폴리오들을 처음 조회한다")
