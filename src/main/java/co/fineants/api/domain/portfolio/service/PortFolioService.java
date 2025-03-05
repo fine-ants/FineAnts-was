@@ -42,8 +42,8 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
-import co.fineants.api.global.errors.exception.PortfolioUpdateException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

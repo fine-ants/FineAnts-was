@@ -49,7 +49,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.ForBiddenException;
-import co.fineants.api.global.errors.exception.PortfolioUpdateException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 
