@@ -263,7 +263,7 @@ public class MemberService {
 	@PermitAll
 	public void checkEmail(String email) throws InvalidMemberEmailException, DuplicateEmailException {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			String message = "emtail is invalided pattern, email=%s".formatted(email);
+			String message = "email is invalided pattern, email=%s".formatted(email);
 			throw new InvalidMemberEmailException(message);
 		}
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
