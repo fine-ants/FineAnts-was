@@ -63,11 +63,19 @@ public class PortFolioRestController {
 			portFolioService.readMyAllPortfolioNames(authentication.getId()));
 	}
 
-	// 포트폴리오 수정
+	/**
+	 * 포트폴리오의 정보를 수정한다.
+	 *
+	 * @param portfolioId 포트폴리오 식별자 아이디
+	 * @param authentication 사용자 인증 정보
+	 * @param request 수정 요청 정보
+	 * @return 포트폴리오 수정 완료 응답
+	 * @throws BadRequestException 포트폴리오의 정보를 수정하지 못하면 예외 발생함
+	 */
 	@PutMapping("/{portfolioId}")
 	public ApiResponse<Void> updatePortfolio(@PathVariable Long portfolioId,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
-		@Valid @RequestBody PortfolioModifyRequest request) {
+		@Valid @RequestBody PortfolioModifyRequest request) throws BadRequestException {
 		try {
 			PortfolioModifyResponse response = portFolioService.updatePortfolio(request, portfolioId,
 				authentication.getId());
