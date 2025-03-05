@@ -42,7 +42,7 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
-import co.fineants.api.global.errors.exception.PortfolioModificationException;
+import co.fineants.api.global.errors.exception.PortfolioUpdateException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,14 +100,14 @@ public class PortFolioService {
 	 * @param portfolioId 포트폴리오 식별자 아이디
 	 * @param memberId 회원 식별자 아이디
 	 * @return 포트폴리오 수정 결과
-	 * @throws PortfolioModificationException 포트폴리오를 수정할 수 없을 때 예외가 발생한다
+	 * @throws PortfolioUpdateException 포트폴리오를 수정할 수 없을 때 예외가 발생한다
 	 */
 	@Transactional
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
-		Long memberId) throws PortfolioModificationException {
+		Long memberId) throws PortfolioUpdateException {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
@@ -116,7 +116,7 @@ public class PortFolioService {
 			changePortfolio = request.toEntity(member, properties);
 		} catch (IllegalPortfolioArgumentException e) {
 			String message = "can't create the changed Portfolio's Entity";
-			throw new PortfolioModificationException(message, e);
+			throw new PortfolioUpdateException(message, e);
 		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
