@@ -51,6 +51,7 @@ import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -120,8 +121,15 @@ public class MemberService {
 		CookieUtils.setCookie(response, expiredRefreshTokenCookie);
 	}
 
+	/**
+	 * 사용자가 회원가입을 한다
+	 *
+	 * @param request 회원가입 정보
+	 * @return 회원가입 결과
+	 * @throws DuplicateEmailException 이메일이 중복되면 예외가 발생함
+	 */
 	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) {
+	public SignUpServiceResponse signup(SignUpServiceRequest request) throws DuplicateEmailException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -155,9 +163,14 @@ public class MemberService {
 			.orElse(null);
 	}
 
-	private void verifyEmail(Member member) {
+	/**
+	 * 이메일이 중복되지 않았는지 검증한다
+	 * @param member 회원가입하고자 하는 회원 인스턴스
+	 * @throws DuplicateEmailException 이미 중복된 이메일이 존재하면 예외가 발생함
+	 */
+	private void verifyEmail(Member member) throws DuplicateEmailException {
 		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			throw new DuplicateEmailException("This is an e-mail that already exists");
 		}
 	}
 

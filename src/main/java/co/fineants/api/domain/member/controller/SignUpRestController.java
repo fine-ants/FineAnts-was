@@ -20,6 +20,8 @@ import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -34,6 +36,14 @@ public class SignUpRestController {
 
 	private final MemberService memberService;
 
+	/**
+	 * 사용자가 회원가입을 한다
+	 *
+	 * @param request 회원가입 정보
+	 * @param profileImageFile 프로필 이미지 파일(선택)
+	 * @return 회원가입 결과
+	 * @throws DuplicateEmailException 이메일이 중복되면 예외가 발생함
+	 */
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
 		MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -41,10 +51,15 @@ public class SignUpRestController {
 	public ApiResponse<Void> signup(
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
-	) {
+	) throws DuplicateEmailException {
 		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-		log.info("일반 회원 가입 컨트롤러 결과 : {}", response);
+		try {
+			SignUpServiceResponse response = memberService.signup(serviceRequest);
+			log.info("local signup result : {}", response);
+		} catch (DuplicateEmailException exception) {
+			String message = "can't signup";
+			throw new BadRequestException(message, exception);
+		}
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
 
