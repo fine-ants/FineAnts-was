@@ -43,6 +43,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioCreateException;
 import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,17 +64,32 @@ public class PortFolioService {
 	private final PortfolioProperties properties;
 	private final PortfolioCalculator calculator;
 
+	/**
+	 * 사용자의 포트폴리오를 생성한다
+	 *
+	 * @param request 생성하고자 하는 요청 정보
+	 * @param memberId 사용자 식별자 아이디
+	 * @return 포트폴리오 생성 결과
+	 * @throws PortfolioCreateException 포트폴리오를 생성하지 못하면 예외가 발생함
+	 */
 	@Transactional
 	@Secured("ROLE_USER")
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
-	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) {
+	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId)
+		throws PortfolioCreateException {
 		validateSecuritiesFirm(request.getSecuritiesFirm());
-
 		Member member = findMember(memberId);
-
 		validateUniquePortfolioName(request.getName(), member);
-		Portfolio portfolio = request.toEntity(member, properties);
-		return PortFolioCreateResponse.from(portfolioRepository.save(portfolio));
+
+		Portfolio portfolio;
+		try {
+			portfolio = request.toEntity(member, properties);
+		} catch (IllegalPortfolioArgumentException e) {
+			String message = "can't create the Portfolio Entity";
+			throw new PortfolioCreateException(message, e);
+		}
+		Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+		return PortFolioCreateResponse.from(savedPortfolio);
 	}
 
 	private Member findMember(Long memberId) {
