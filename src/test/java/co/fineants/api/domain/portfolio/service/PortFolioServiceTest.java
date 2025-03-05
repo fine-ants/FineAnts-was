@@ -370,7 +370,6 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 			() -> service.updatePortfolio(request, portfolioId, member.getId()));
 
 		// then
-		log.error("fail update portfolio", throwable);
 		assertThat(throwable)
 			.isInstanceOf(BadRequestException.class)
 			.hasMessage("최대 손실 금액은 예산 보다 작아야 합니다");
