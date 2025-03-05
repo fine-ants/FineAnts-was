@@ -27,6 +27,7 @@ import co.fineants.api.global.errors.exception.member.DuplicateNicknameException
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberEmailException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
+import co.fineants.api.global.errors.exception.member.InvalidVerificationCodeException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
@@ -89,10 +90,23 @@ public class SignUpRestController {
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
+	/**
+	 * 회원가입 서비스 중 사용자가 제출한 검증 코드가 일치하지는지 확인한다
+	 *
+	 * @param request 제출한 검증 코드 요청 정보
+	 * @return 검증 코드 확인 완료 응답
+	 * @throws BadRequestException 검증코드가 일치하지 않으면 예외가 발생함
+	 */
 	@PostMapping("/auth/signup/verifyCode")
 	@PermitAll
-	public ApiResponse<Void> checkVerifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-		memberService.checkVerifyCode(request.email(), request.code());
+	public ApiResponse<Void> checkVerifyCode(@Valid @RequestBody VerifyCodeRequest request) throws BadRequestException {
+		try {
+			memberService.checkVerifyCode(request.email(), request.code());
+		} catch (InvalidVerificationCodeException e) {
+			String message = "invalid the verification code";
+			throw new BadRequestException(message, e);
+		}
+
 		return ApiResponse.success(MemberSuccessCode.OK_VERIF_CODE);
 	}
 

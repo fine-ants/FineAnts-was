@@ -48,7 +48,6 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.NotificationPreferenceErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.email.EmailSendException;
@@ -57,6 +56,7 @@ import co.fineants.api.global.errors.exception.member.DuplicateNicknameException
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberEmailException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
+import co.fineants.api.global.errors.exception.member.InvalidVerificationCodeException;
 import co.fineants.api.global.errors.exception.member.NotFoundMemberException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
@@ -347,12 +347,20 @@ public class MemberService {
 			.orElseThrow(() -> new NotFoundMemberException("not found member, id=%d".formatted(id)));
 	}
 
+	/**
+	 * 검증 코드를 확인한다
+	 *
+	 * @param email 이메일
+	 * @param code 검증 코드
+	 * @throws InvalidVerificationCodeException 검증 코드가 유효하지 않으면 예외가 발생함
+	 */
 	@Transactional(readOnly = true)
 	@PermitAll
-	public void checkVerifyCode(String email, String code) {
+	public void checkVerifyCode(String email, String code) throws InvalidVerificationCodeException {
 		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
+			String message = "verification code check fail, email=%s, code=%s".formatted(email, code);
+			throw new InvalidVerificationCodeException(message);
 		}
 	}
 

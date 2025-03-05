@@ -60,6 +60,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
+import co.fineants.api.global.errors.exception.member.InvalidVerificationCodeException;
 import co.fineants.api.global.errors.exception.member.NotFoundMemberException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -426,8 +427,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL.getMessage());
+			.isInstanceOf(InvalidVerificationCodeException.class)
+			.hasMessage("verification code check fail, email=dragonbead95@naver.com, code=234567");
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")
@@ -455,7 +456,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	void givenInvalidMemberId_whenReadProfile_whenThrowNotFoundMemberException() {
 		// given
 		Long id = 9999L;
-		
+
 		// when
 		Throwable throwable = catchThrowable(() -> memberService.readProfile(id));
 
