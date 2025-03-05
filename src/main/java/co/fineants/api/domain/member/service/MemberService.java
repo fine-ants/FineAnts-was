@@ -53,7 +53,9 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.email.EmailSendException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
+import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -229,16 +231,24 @@ public class MemberService {
 		}
 	}
 
+	/**
+	 * 닉네임이 중복되었는지 확인합니다.
+	 *
+	 * @param nickname 회원의 닉네임
+	 * @throws InvalidMemberNicknameException 닉네임 이름 규칙이 맞지 않으면 예외가 발생함
+	 * @throws DuplicateNicknameException 닉네임이 중복되면 예외가 발생함
+	 */
 	@Transactional
 	@PermitAll
-	public void checkNickname(String nickname) {
+	public void checkNickname(String nickname) throws InvalidMemberNicknameException, DuplicateNicknameException {
 		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			String message = "nickname is not valid, nickname=%s".formatted(nickname);
+			throw new InvalidMemberNicknameException(message);
 		}
 		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME);
+			String message = "already exists nickname, nickname=%s".formatted(nickname);
+			throw new DuplicateNicknameException(message);
 		}
-
 	}
 
 	@Transactional
