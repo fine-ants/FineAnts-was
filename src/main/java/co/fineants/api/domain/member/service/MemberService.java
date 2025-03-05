@@ -128,9 +128,12 @@ public class MemberService {
 	 * @param request 회원가입 정보
 	 * @return 회원가입 결과
 	 * @throws DuplicateEmailException 이메일이 중복되면 예외가 발생함
+	 * @throws PasswordMismatchException 비밀번호가 서로 일치하지 않으면 예외가 발생함
 	 */
 	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) throws DuplicateEmailException {
+	public SignUpServiceResponse signup(SignUpServiceRequest request) throws
+		DuplicateEmailException,
+		PasswordMismatchException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -188,7 +191,12 @@ public class MemberService {
 		}
 	}
 
-	private void verifyPassword(SignUpServiceRequest request) {
+	/**
+	 * '비밀번호'와 '비밀번호 확인'의 값이 서로 일치하는지 검증한다
+	 * @param request 비밀번호, 비밀번호 확인 값을 저장한 요청 정보
+	 * @throws PasswordMismatchException 비밀번호가 서로 일치하지 않으면 예외 발생함
+	 */
+	private void verifyPassword(SignUpServiceRequest request) throws PasswordMismatchException {
 		if (!request.matchPassword()) {
 			throw new PasswordMismatchException("Password and password confirmation do not match");
 		}

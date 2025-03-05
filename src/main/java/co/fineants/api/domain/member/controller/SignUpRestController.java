@@ -22,6 +22,7 @@ import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -56,7 +57,7 @@ public class SignUpRestController {
 		try {
 			SignUpServiceResponse response = memberService.signup(serviceRequest);
 			log.info("local signup result : {}", response);
-		} catch (DuplicateEmailException exception) {
+		} catch (DuplicateEmailException | PasswordMismatchException exception) {
 			String message = "can't signup";
 			throw new BadRequestException(message, exception);
 		}
