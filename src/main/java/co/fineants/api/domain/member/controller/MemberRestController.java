@@ -19,6 +19,8 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.MemberSuccessCode;
@@ -61,12 +63,25 @@ public class MemberRestController {
 			memberService.readProfile(memberId));
 	}
 
+	/**
+	 * 비밀번호를 변경한다.
+	 *
+	 * @param request 비밀번호 변경 요청
+	 * @param authentication 사용자 인증 정보
+	 * @return 비밀번호 변경 완료 응답
+	 * @throws BadRequestException 비밀번호를 변경하지 못하면 예외가 발생함
+	 */
 	@PutMapping("/account/password")
 	public ApiResponse<Void> changePassword(
 		@RequestBody PasswordModifyRequest request,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
-	) {
-		memberService.modifyPassword(request, authentication.getId());
+	) throws BadRequestException {
+		try {
+			memberService.modifyPassword(request, authentication.getId());
+		} catch (PasswordMismatchException e) {
+			String message = "can't change the password";
+			throw new BadRequestException(message, e);
+		}
 		return ApiResponse.success(MemberSuccessCode.OK_PASSWORD_CHANGED);
 	}
 
