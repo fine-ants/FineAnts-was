@@ -16,9 +16,9 @@ public class FineAntsException extends RuntimeException {
 		this.errorCode = errorCode;
 	}
 
-	public FineAntsException(ErrorCode errorCode, HttpStatus httpStatus, String message, Throwable cause) {
+	public FineAntsException(HttpStatus httpStatus, String message, Throwable cause) {
 		super(message, cause);
-		this.errorCode = errorCode;
+		this.errorCode = null;
 		this.httpStatus = httpStatus;
 	}
 
