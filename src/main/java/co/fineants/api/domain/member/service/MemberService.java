@@ -57,6 +57,7 @@ import co.fineants.api.global.errors.exception.member.DuplicateNicknameException
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberEmailException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
+import co.fineants.api.global.errors.exception.member.NotFoundMemberException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -318,11 +319,14 @@ public class MemberService {
 	 *
 	 * @param request 비밀번호 변경 요청 정보
 	 * @param memberId 회원 식별자 아이디
+	 * @throws NotFoundMemberException 회원을 찾을 수 없는 경우에 예외 발생함
 	 * @throws PasswordMismatchException 현재 비밀번호가 일치하지 않거나 변경하고자 하는 비밀번호, 비밀번호 확인이 서로 일치하지 않으면 예외가 발생함
 	 */
 	@Transactional
 	@Secured("ROLE_USER")
-	public void modifyPassword(PasswordModifyRequest request, Long memberId) throws PasswordMismatchException {
+	public void modifyPassword(PasswordModifyRequest request, Long memberId) throws
+		NotFoundMemberException,
+		PasswordMismatchException {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
 			String message = "current password is not matched, currentPassword=%s".formatted(request.currentPassword());
@@ -338,9 +342,9 @@ public class MemberService {
 		log.info("member password change result : {}", count);
 	}
 
-	private Member findMember(Long id) {
+	private Member findMember(Long id) throws NotFoundMemberException {
 		return memberRepository.findById(id)
-			.orElseThrow(() -> new BadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new NotFoundMemberException("not found member, id=%d".formatted(id)));
 	}
 
 	@Transactional(readOnly = true)
@@ -352,8 +356,14 @@ public class MemberService {
 		}
 	}
 
+	/**
+	 * 회원을 삭제한다
+	 *
+	 * @param memberId 회원 식별자 아이디
+	 * @throws NotFoundMemberException 회원을 찾지 못하면 예외가 발생함
+	 */
 	@Transactional
-	public void deleteMember(Long memberId) {
+	public void deleteMember(Long memberId) throws NotFoundMemberException {
 		Member member = findMember(memberId);
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberId(memberId);
 		List<PortfolioHolding> portfolioHoldings = new ArrayList<>();
@@ -380,9 +390,16 @@ public class MemberService {
 		memberRepository.delete(member);
 	}
 
+	/**
+	 * 회원의 프로필 정보를 조회합니다.
+	 *
+	 * @param memberId 회원 식별자 아이디
+	 * @return 프로필 정보
+	 * @throws NotFoundMemberException 회원을 찾지 못하면 예외 발생함
+	 */
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
-	public ProfileResponse readProfile(Long memberId) {
+	public ProfileResponse readProfile(Long memberId) throws NotFoundMemberException {
 		Member member = findMember(memberId);
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
 			.orElseThrow(
