@@ -25,6 +25,7 @@ import co.fineants.api.global.errors.exception.ServerInternalException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
+import co.fineants.api.global.errors.exception.member.InvalidMemberEmailException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.success.MemberSuccessCode;
@@ -118,10 +119,26 @@ public class SignUpRestController {
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
+	/**
+	 * 이메일이 중복되었는지 확인한다
+	 *
+	 * @param email 이메일
+	 * @return 이메일 사용 가능 응답
+	 * @throws BadRequestException 이메일 사용이 불가능하면 예외가 발생함
+	 */
 	@GetMapping("/auth/signup/duplicationcheck/email/{email}")
 	@PermitAll
-	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) {
-		memberService.checkEmail(email);
+	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) throws BadRequestException {
+		try {
+			memberService.checkEmail(email);
+		} catch (InvalidMemberEmailException e) {
+			String message = "email is invalid pattern, email=%s".formatted(email);
+			throw new BadRequestException(message, e);
+		} catch (DuplicateEmailException e) {
+			String message = "email is duplicated, email=%s".formatted(email);
+			throw new BadRequestException(message, e);
+		}
+
 		return ApiResponse.success(MemberSuccessCode.OK_EMAIL_CHECK);
 	}
 }
