@@ -60,6 +60,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
+import co.fineants.api.global.errors.exception.member.NotFoundMemberException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
@@ -447,6 +448,21 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.extracting("user.notificationPreferences")
 			.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 			.containsExactlyInAnyOrder(true, true, true, true);
+	}
+
+	@DisplayName("존재하지 않는 회원 식별자 아이디가 주어지고 프로필을 조회하면 예외가 발생한다")
+	@Test
+	void givenInvalidMemberId_whenReadProfile_whenThrowNotFoundMemberException() {
+		// given
+		Long id = 9999L;
+		
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.readProfile(id));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(NotFoundMemberException.class)
+			.hasMessage("not found member, id=%d".formatted(id));
 	}
 
 	@DisplayName("사용자는 계정을 삭제한다")

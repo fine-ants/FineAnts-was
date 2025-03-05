@@ -56,12 +56,25 @@ public class MemberRestController {
 			memberService.changeProfile(serviceRequest));
 	}
 
+	/**
+	 * 회원 프로필 정보를 조회한다.
+	 *
+	 * @param authentication 사용자 인증 정보
+	 * @return 회원 프로필 정보
+	 * @throws BadRequestException 회원을 찾지 못하는 경우 예외가 발생함
+	 */
 	@GetMapping(value = "/profile")
 	public ApiResponse<ProfileResponse> readProfile(
-		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		@MemberAuthenticationPrincipal MemberAuthentication authentication) throws BadRequestException {
 		Long memberId = authentication.getId();
-		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE,
-			memberService.readProfile(memberId));
+		ProfileResponse response;
+		try {
+			response = memberService.readProfile(memberId);
+		} catch (NotFoundMemberException e) {
+			String message = "can't read profile, memberId=%d".formatted(memberId);
+			throw new BadRequestException(message, e);
+		}
+		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE, response);
 	}
 
 	/**
