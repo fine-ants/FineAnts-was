@@ -13,7 +13,9 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialStateException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
+import co.fineants.api.global.errors.exception.portfolio.PortfolioUpdateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,26 +33,21 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 목표수익금액 활성화 알림 변경 결과
-	 * @throws BadRequestException 포트폴리오의 목표수익금액이 0원인 경우 예외 발생
+	 * @throws PortfolioUpdateException 포트폴리오 수정에 실패하면 예외가 발생함
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationTargetGain(Boolean active,
-		@ResourceId Long portfolioId) {
-		log.info("change the Portfolio's targetGainIsActive, active={}, portfolioId={}", active, portfolioId);
+		@ResourceId Long portfolioId) throws PortfolioUpdateException {
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeTargetGainNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
-	}
-
-	private void changeTargetGainNotification(Portfolio portfolio, Boolean isActive) {
 		try {
-			portfolio.changeTargetGainNotification(isActive);
-		} catch (IllegalPortfolioStateException e) {
-			String message = "can not change targetGainNotification status";
-			throw new BadRequestException(e.getErrorCode(), message, e);
+			portfolio.changeTargetGainNotification(active);
+		} catch (IllegalPortfolioFinancialStateException e) {
+			String message = "can't change the targetGainNotification active status";
+			throw new PortfolioUpdateException(message, e);
 		}
+		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
 	}
 
 	private Portfolio findPortfolio(Long portfolioId) {
