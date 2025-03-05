@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,7 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.PortfolioModificationException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +108,7 @@ public class PortFolioService {
 			changePortfolio = request.toEntity(member, properties);
 		} catch (IllegalPortfolioArgumentException e) {
 			String message = "can't create the changed Portfolio's Entity";
-			throw new BadRequestException(e.getErrorCode(), message, e);
+			throw new PortfolioModificationException(HttpStatus.BAD_REQUEST, message, e);
 		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
