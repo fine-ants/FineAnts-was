@@ -56,6 +56,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -290,8 +291,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.PASSWORD_CHECK_FAIL.getMessage());
+			.isInstanceOf(PasswordMismatchException.class)
+			.hasMessage("Password and password confirmation do not match");
 	}
 
 	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
