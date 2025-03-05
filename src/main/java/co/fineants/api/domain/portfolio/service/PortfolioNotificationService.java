@@ -67,7 +67,6 @@ public class PortfolioNotificationService {
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationMaximumLoss(Boolean active,
 		@ResourceId Long portfolioId) {
-		log.info("change the portfolio's maximumIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
 		try {
 			portfolio.changeMaximumLossNotification(active);
