@@ -55,6 +55,7 @@ import co.fineants.api.global.errors.exception.email.EmailSendException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
 import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
+import co.fineants.api.global.errors.exception.member.InvalidMemberEmailException;
 import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.factory.TokenFactory;
@@ -251,14 +252,23 @@ public class MemberService {
 		}
 	}
 
+	/**
+	 * 회원가입 과정 중 이메일이 중복되었는지 확인한다
+	 *
+	 * @param email 이메일
+	 * @throws InvalidMemberEmailException 이메일이 규칙에 맞지 않으면 예외가 발생함
+	 * @throws DuplicateEmailException 이메일이 이미 존재하면 예외가 발생함
+	 */
 	@Transactional
 	@PermitAll
-	public void checkEmail(String email) {
+	public void checkEmail(String email) throws InvalidMemberEmailException, DuplicateEmailException {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			String message = "emtail is invalided pattern, email=%s".formatted(email);
+			throw new InvalidMemberEmailException(message);
 		}
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			String message = "email is duplicated, email=%s".formatted(email);
+			throw new DuplicateEmailException(message);
 		}
 	}
 

@@ -373,14 +373,14 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(createMember());
 		String email = member.getEmail();
-
+		
 		// when
 		Throwable throwable = catchThrowable(() -> memberService.checkEmail(email));
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_EMAIL.getMessage());
+			.isInstanceOf(DuplicateEmailException.class)
+			.hasMessage("email is duplicated, email=dragonbead95@naver.com");
 	}
 
 	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
