@@ -31,7 +31,7 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 목표수익금액 활성화 알림 변경 결과
-	 * @throws PortfolioUpdateException 포트폴리오 수정에 실패하면 예외가 발생함
+	 * @throws PortfolioUpdateException 포트폴리오 목표수익율 알림 활성화 상태 수정을 실패하면 예외 발생함
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)

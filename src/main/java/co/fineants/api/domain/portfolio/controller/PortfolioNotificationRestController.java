@@ -25,13 +25,26 @@ public class PortfolioNotificationRestController {
 
 	private final PortfolioNotificationService service;
 
+	/**
+	 * 포트폴리오의 목표수익률 알림 활성화 상태를 수정한다
+	 *
+	 * @param portfolioId 포트폴리오 식별자 아이디
+	 * @param request 변경하고자 하는 활성화 상태 정보
+	 * @return 포트폴리오 알림 활성화 변경 완료 메시지 응답
+	 * @throws BadRequestException 포트폴리오의 목표수익율 알림 활성화 상태를 수정하지 못하면 예외가 발생함
+	 */
 	@PutMapping("/targetGain")
 	public ApiResponse<Void> updateNotificationTargetGain(
 		@PathVariable Long portfolioId,
-		@Valid @RequestBody PortfolioNotificationUpdateRequest request) {
-		log.info("request={}, portfolioId={}", request, portfolioId);
-		PortfolioNotificationUpdateResponse response = service.updateNotificationTargetGain(request.getIsActive(),
-			portfolioId);
+		@Valid @RequestBody PortfolioNotificationUpdateRequest request) throws BadRequestException {
+		PortfolioNotificationUpdateResponse response;
+		try {
+			response = service.updateNotificationTargetGain(request.getIsActive(), portfolioId);
+		} catch (PortfolioUpdateException exception) {
+			String message = "can't update the TargetGain Notification active status";
+			throw new BadRequestException(null, message, exception);
+		}
+
 		if (Boolean.TRUE.equals(response.getIsActive())) {
 			return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO_TARGET_GAIN_ACTIVE_NOTIFICATION);
 		}
@@ -55,7 +68,7 @@ public class PortfolioNotificationRestController {
 			response = service.updateNotificationMaximumLoss(request.getIsActive(),
 				portfolioId);
 		} catch (PortfolioUpdateException exception) {
-			String message = "can't update the NotificationMaximumLoss";
+			String message = "can't update the MaximumLoss Notification active status";
 			throw new BadRequestException(null, message, exception);
 		}
 
