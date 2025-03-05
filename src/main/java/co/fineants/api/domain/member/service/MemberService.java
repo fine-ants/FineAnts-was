@@ -313,19 +313,29 @@ public class MemberService {
 			.orElseThrow(() -> new FineAntsException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
 
+	/**
+	 * 사용자 계정의 비밀번호를 변경한다
+	 *
+	 * @param request 비밀번호 변경 요청 정보
+	 * @param memberId 회원 식별자 아이디
+	 * @throws PasswordMismatchException 현재 비밀번호가 일치하지 않거나 변경하고자 하는 비밀번호, 비밀번호 확인이 서로 일치하지 않으면 예외가 발생함
+	 */
 	@Transactional
 	@Secured("ROLE_USER")
-	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
+	public void modifyPassword(PasswordModifyRequest request, Long memberId) throws PasswordMismatchException {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			String message = "current password is not matched, currentPassword=%s".formatted(request.currentPassword());
+			throw new PasswordMismatchException(message);
 		}
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.NEW_PASSWORD_CONFIRM_FAIL);
+			String message = "new password and new password confirm are not matched, newPassword=%s, newPasswordConfirm=%s"
+				.formatted(request.newPassword(), request.newPasswordConfirm());
+			throw new PasswordMismatchException(message);
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
-		log.info("회원 비밀번호 변경 결과 : {}", count);
+		log.info("member password change result : {}", count);
 	}
 
 	private Member findMember(Long id) {

@@ -34,6 +34,10 @@ public class PasswordModifyRequest {
 		return newPassword;
 	}
 
+	public String newPasswordConfirm() {
+		return newPasswordConfirm;
+	}
+
 	public boolean matchPassword() {
 		return newPassword.equals(newPasswordConfirm);
 	}
