@@ -23,7 +23,9 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.ServerInternalException;
 import co.fineants.api.global.errors.exception.member.DuplicateEmailException;
+import co.fineants.api.global.errors.exception.member.DuplicateNicknameException;
 import co.fineants.api.global.errors.exception.member.EmailVerificationSendException;
+import co.fineants.api.global.errors.exception.member.InvalidMemberNicknameException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
@@ -93,10 +95,26 @@ public class SignUpRestController {
 		return ApiResponse.success(MemberSuccessCode.OK_VERIF_CODE);
 	}
 
+	/**
+	 * 회원가입 서비스 중 닉네임이 사용 가능한지 확인한다.
+	 *
+	 * @param nickname 닉네임
+	 * @return 닉네임 사용 가능 응답
+	 * @throws BadRequestException 닉네임 사용이 불가능하면 예외가 발생함
+	 */
 	@GetMapping("/auth/signup/duplicationcheck/nickname/{nickname}")
 	@PermitAll
-	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) {
-		memberService.checkNickname(nickname);
+	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) throws BadRequestException {
+		try {
+			memberService.checkNickname(nickname);
+		} catch (InvalidMemberNicknameException e) {
+			String message = "invalid nickname";
+			throw new BadRequestException(message, e);
+		} catch (DuplicateNicknameException e) {
+			String message = "duplicated nickname";
+			throw new BadRequestException(message, e);
+		}
+
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
