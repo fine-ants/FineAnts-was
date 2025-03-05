@@ -20,6 +20,7 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.member.NotFoundMemberException;
 import co.fineants.api.global.errors.exception.member.PasswordMismatchException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -78,20 +79,35 @@ public class MemberRestController {
 	) throws BadRequestException {
 		try {
 			memberService.modifyPassword(request, authentication.getId());
-		} catch (PasswordMismatchException e) {
+		} catch (PasswordMismatchException | NotFoundMemberException e) {
 			String message = "can't change the password";
 			throw new BadRequestException(message, e);
 		}
 		return ApiResponse.success(MemberSuccessCode.OK_PASSWORD_CHANGED);
 	}
 
+	/**
+	 * 사용자 계정을 삭제한다
+	 *
+	 * @param authentication 사용자 인증 정보
+	 * @param servletRequest HTTP Request 정보
+	 * @param servletResponse HTTP Response 정보
+	 * @return 계정 삭제 완료 메시지 응답
+	 * @throws BadRequestException 계정 삭제를 하지 못하면 예외 발생함
+	 */
 	@DeleteMapping("/account")
 	public ApiResponse<Void> deleteAccount(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
 		HttpServletRequest servletRequest,
 		HttpServletResponse servletResponse
-	) {
-		memberService.deleteMember(authentication.getId());
+	) throws BadRequestException {
+		try {
+			memberService.deleteMember(authentication.getId());
+		} catch (NotFoundMemberException e) {
+			String message = "can't delete the member";
+			throw new BadRequestException(message, e);
+		}
+
 		memberService.logout(servletRequest, servletResponse);
 		return ApiResponse.success(MemberSuccessCode.OK_DELETED_ACCOUNT);
 	}
