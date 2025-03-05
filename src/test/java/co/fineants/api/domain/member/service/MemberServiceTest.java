@@ -496,7 +496,50 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.getPassword()
 			.orElseThrow();
 		boolean actual = passwordEncoder.matches(newPassword, password);
-		org.assertj.core.api.Assertions.assertThat(actual).isTrue();
+		assertThat(actual).isTrue();
+	}
+
+	@DisplayName("일치하지 않은 현재 비밀번호가 주어지고 비밀번호를 변경할 때 비밀번호를 변경하지 못한다")
+	@Test
+	void givenNotMatchedCurrentPassword_whenModifyPassword_thenThrowPasswordMismatchException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		String currentPassword = "wjaowejfoiawef";
+		String newPassword = "nemo4321@";
+		String newPasswordConfirm = "nemo4321@";
+
+		PasswordModifyRequest request = new PasswordModifyRequest(currentPassword, newPassword,
+			newPasswordConfirm);
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.modifyPassword(request, member.getId()));
+
+		// then
+		String message = "current password is not matched, currentPassword=%s".formatted(currentPassword);
+		assertThat(throwable)
+			.isInstanceOf(PasswordMismatchException.class)
+			.hasMessage(message);
+	}
+
+	@DisplayName("일치하지 않은 새로운 비밀번호와 비밀번호 확인이 주어지고 비밀번호를 변경할 때 비밀번호를 변경하지 못한다")
+	@Test
+	void givenNotMatchedNewPassword_whenModifyPassword_thenThrowPasswordMismatchException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		String currentPassword = "nemo1234@";
+		String newPassword = "nemo4321@";
+		String newPasswordConfirm = "nemo4321";
+
+		PasswordModifyRequest request = new PasswordModifyRequest(currentPassword, newPassword,
+			newPasswordConfirm);
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.modifyPassword(request, member.getId()));
+
+		// then
+		String message = "new password and new password confirm are not matched, newPassword=%s, newPasswordConfirm=%s"
+			.formatted(newPassword, newPasswordConfirm);
+		assertThat(throwable)
+			.isInstanceOf(PasswordMismatchException.class)
+			.hasMessage(message);
 	}
 
 	public static MultipartFile createProfileFile() {
