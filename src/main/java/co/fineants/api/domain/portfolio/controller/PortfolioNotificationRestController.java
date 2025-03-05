@@ -42,7 +42,7 @@ public class PortfolioNotificationRestController {
 			response = service.updateNotificationTargetGain(request.getIsActive(), portfolioId);
 		} catch (PortfolioUpdateException exception) {
 			String message = "can't update the TargetGain Notification active status";
-			throw new BadRequestException(null, message, exception);
+			throw new BadRequestException(message, exception);
 		}
 
 		if (Boolean.TRUE.equals(response.getIsActive())) {
@@ -69,7 +69,7 @@ public class PortfolioNotificationRestController {
 				portfolioId);
 		} catch (PortfolioUpdateException exception) {
 			String message = "can't update the MaximumLoss Notification active status";
-			throw new BadRequestException(null, message, exception);
+			throw new BadRequestException(message, exception);
 		}
 
 		if (Boolean.TRUE.equals(response.getIsActive())) {

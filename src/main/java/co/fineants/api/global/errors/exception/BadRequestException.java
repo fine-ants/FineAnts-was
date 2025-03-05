@@ -10,7 +10,7 @@ public class BadRequestException extends FineAntsException {
 		super(errorCode);
 	}
 
-	public BadRequestException(ErrorCode errorCode, String message, Throwable cause) {
+	public BadRequestException(String message, Throwable cause) {
 		super(HttpStatus.BAD_REQUEST, message, cause);
 	}
 }

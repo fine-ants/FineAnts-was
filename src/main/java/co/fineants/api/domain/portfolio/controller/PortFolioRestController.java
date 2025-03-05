@@ -55,7 +55,7 @@ public class PortFolioRestController {
 			response = portFolioService.createPortfolio(request, authentication.getId());
 		} catch (PortfolioCreateException exception) {
 			String message = "can't create the portfolio";
-			throw new BadRequestException(null, message, exception);
+			throw new BadRequestException(message, exception);
 		}
 		return ApiResponse.success(PortfolioSuccessCode.CREATED_ADD_PORTFOLIO, response);
 	}
@@ -95,7 +95,7 @@ public class PortFolioRestController {
 			log.info("changed portfolio result : {}", response);
 		} catch (PortfolioUpdateException e) {
 			String message = "can't change the portfolio";
-			throw new BadRequestException(null, message, e);
+			throw new BadRequestException(message, e);
 		}
 		return ApiResponse.success(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO);
 	}
