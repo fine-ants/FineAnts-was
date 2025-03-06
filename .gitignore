@@ -4,7 +4,6 @@
 /logs/
 /build/
 /.gradle/
-/src/main/resources/application-secret.yml
 /out/
 /src/main/resources/secret/
 /src/main/generated/
@@ -12,5 +11,5 @@
 /src/main/resources/db/
 .env
 /loki_data/
-/secret/prometheus/**/*.log
 /prometheus/
+/secret/prometheus/config/query_log_file.log
