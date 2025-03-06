@@ -19,4 +19,5 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-          - "app:8080"
+          - "host.docker.internal:8090"
+          - "app:8090"
