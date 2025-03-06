@@ -19,4 +19,4 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-          - "services.fineants.co:443"
+          - "services.fineants.co:8090"
