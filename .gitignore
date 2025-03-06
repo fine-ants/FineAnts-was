@@ -12,4 +12,4 @@
 .env
 /loki_data/
 /prometheus/
-/secret/prometheus/config/query_log_file.log
+
