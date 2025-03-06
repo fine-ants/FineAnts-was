@@ -88,7 +88,6 @@ public class OauthSecurityConfig {
 						"/health-check",
 						"/error"
 					).permitAll()
-					.requestMatchers("/actuator/**").permitAll()
 					.anyRequest().authenticated());
 		http
 			.sessionManagement(configurer -> configurer
