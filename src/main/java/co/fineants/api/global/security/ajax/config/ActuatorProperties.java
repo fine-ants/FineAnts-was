@@ -3,7 +3,10 @@ package co.fineants.api.global.security.ajax.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
+import lombok.Getter;
+
 @ConfigurationProperties(prefix = "actuator")
+@Getter
 public class ActuatorProperties {
 	private final String user;
 	private final String password;

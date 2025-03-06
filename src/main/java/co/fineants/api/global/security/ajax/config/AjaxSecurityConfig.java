@@ -52,6 +52,7 @@ public class AjaxSecurityConfig {
 	private final MemberService memberService;
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
+	private final ActuatorProperties actuatorProperties;
 
 	@Bean
 	@Order(0)
@@ -116,10 +117,10 @@ public class AjaxSecurityConfig {
 	@Bean
 	protected UserDetailsService inMemoryUserDetailsManager() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		String password = passwordEncoder.encode("password");
-		UserDetails userDetails = User.withUsername("admin")
-			.password(password)
-			.roles("ACTUATOR")
+		String encodedPassword = passwordEncoder.encode(actuatorProperties.getPassword());
+		UserDetails userDetails = User.withUsername(actuatorProperties.getUser())
+			.password(encodedPassword)
+			.roles(actuatorProperties.getRoleName())
 			.build();
 		manager.createUser(userDetails);
 		return manager;
