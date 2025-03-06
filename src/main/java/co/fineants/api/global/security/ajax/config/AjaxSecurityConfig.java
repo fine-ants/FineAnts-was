@@ -10,11 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -45,14 +42,14 @@ public class AjaxSecurityConfig {
 	private static final String ERROR_ENDPOINT = "/error";
 	private static final String ACTUATOR_ENDPOINT = "/actuator/**";
 
-	private final UserDetailsService userDetailsService;
+	private final UserDetailsService memberUserDetailsService;
+	private final UserDetailsService actuatorUserDetailService;
+	private final CorsConfiguration corsConfiguration;
 	private final PasswordEncoder passwordEncoder;
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
 	private final MemberService memberService;
 	private final TokenFactory tokenFactory;
-	private final CorsConfiguration corsConfiguration;
-	private final ActuatorProperties actuatorProperties;
 
 	@Bean
 	@Order(0)
@@ -110,20 +107,8 @@ public class AjaxSecurityConfig {
 			.formLogin(configurer -> {
 			})
 			.csrf(AbstractHttpConfigurer::disable);
-		http.userDetailsService(inMemoryUserDetailsManager());
+		http.userDetailsService(actuatorUserDetailService);
 		return http.build();
-	}
-
-	@Bean
-	protected UserDetailsService inMemoryUserDetailsManager() {
-		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		String encodedPassword = passwordEncoder.encode(actuatorProperties.getPassword());
-		UserDetails userDetails = User.withUsername(actuatorProperties.getUser())
-			.password(encodedPassword)
-			.roles(actuatorProperties.getRoleName())
-			.build();
-		manager.createUser(userDetails);
-		return manager;
 	}
 
 	@Bean
@@ -133,7 +118,7 @@ public class AjaxSecurityConfig {
 
 	@Bean
 	protected AuthenticationProvider authenticationProvider() {
-		return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder);
+		return new AjaxAuthenticationProvider(memberUserDetailsService, passwordEncoder);
 	}
 
 	@Bean
