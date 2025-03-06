@@ -10,8 +10,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -40,6 +43,7 @@ public class AjaxSecurityConfig {
 	private static final String LOGIN_ENDPOINT = "/api/auth/login";
 	private static final String LOGOUT_ENDPOINT = "/api/auth/logout";
 	private static final String ERROR_ENDPOINT = "/error";
+	private static final String ACTUATOR_ENDPOINT = "/actuator/**";
 
 	private final UserDetailsService userDetailsService;
 	private final PasswordEncoder passwordEncoder;
@@ -89,6 +93,36 @@ public class AjaxSecurityConfig {
 		http.cors(configurer -> configurer.configurationSource(request -> corsConfiguration));
 		http.csrf(AbstractHttpConfigurer::disable);
 		return http.build();
+	}
+
+	// basic auth를 위한 Security Filter Chain 설정
+	@Bean
+	@Order(1)
+	protected SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.httpBasic(configurer -> {
+			})
+			.authorizeHttpRequests(configurer ->
+				configurer.requestMatchers(ACTUATOR_ENDPOINT).hasRole("ACTUATOR")
+					.anyRequest().authenticated()
+			)
+			.formLogin(configurer -> {
+			})
+			.csrf(AbstractHttpConfigurer::disable);
+		http.userDetailsService(inMemoryUserDetailsManager());
+		return http.build();
+	}
+
+	@Bean
+	protected UserDetailsService inMemoryUserDetailsManager() {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		String password = passwordEncoder.encode("password");
+		UserDetails userDetails = User.withUsername("admin")
+			.password(password)
+			.roles("ACTUATOR")
+			.build();
+		manager.createUser(userDetails);
+		return manager;
 	}
 
 	@Bean
