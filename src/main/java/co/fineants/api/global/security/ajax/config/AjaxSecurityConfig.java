@@ -93,24 +93,6 @@ public class AjaxSecurityConfig {
 		return http.build();
 	}
 
-	// basic auth를 위한 Security Filter Chain 설정
-	@Bean
-	@Order(1)
-	protected SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
-		http
-			.httpBasic(configurer -> {
-			})
-			.authorizeHttpRequests(configurer ->
-				configurer.requestMatchers(ACTUATOR_ENDPOINT).hasRole("ACTUATOR")
-					.anyRequest().authenticated()
-			)
-			.formLogin(configurer -> {
-			})
-			.csrf(AbstractHttpConfigurer::disable);
-		http.userDetailsService(actuatorUserDetailService);
-		return http.build();
-	}
-
 	@Bean
 	protected AuthenticationManager authenticationManager() {
 		return new ProviderManager(authenticationProvider());
