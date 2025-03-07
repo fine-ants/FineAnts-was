@@ -40,14 +40,16 @@ public class AjaxSecurityConfig {
 	private static final String LOGIN_ENDPOINT = "/api/auth/login";
 	private static final String LOGOUT_ENDPOINT = "/api/auth/logout";
 	private static final String ERROR_ENDPOINT = "/error";
+	private static final String ACTUATOR_ENDPOINT = "/actuator/**";
 
-	private final UserDetailsService userDetailsService;
+	private final UserDetailsService memberUserDetailsService;
+	private final UserDetailsService actuatorUserDetailService;
+	private final CorsConfiguration corsConfiguration;
 	private final PasswordEncoder passwordEncoder;
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
 	private final MemberService memberService;
 	private final TokenFactory tokenFactory;
-	private final CorsConfiguration corsConfiguration;
 
 	@Bean
 	@Order(0)
@@ -98,7 +100,7 @@ public class AjaxSecurityConfig {
 
 	@Bean
 	protected AuthenticationProvider authenticationProvider() {
-		return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder);
+		return new AjaxAuthenticationProvider(memberUserDetailsService, passwordEncoder);
 	}
 
 	@Bean

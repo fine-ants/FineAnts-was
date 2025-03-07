@@ -31,6 +31,7 @@ spring:
     import:
       - ./secret/application-secret.yml
       - ./secret/application-oauth.yml
+      - ./secret/application-prometheus.yml
       - ./member.yml
   application:
     name: fineAnts
@@ -54,12 +55,3 @@ logging:
   level:
     com.zaxxer.hikari.HikariConfig: DEBUG
     com.zaxxer.hikari: TRACE
-# actuator 설정
-management:
-  endpoints:
-    web:
-      exposure:
-        include: prometheus, health, info
-  metrics:
-    tags:
-      application: ${spring.application.name}

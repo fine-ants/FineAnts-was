@@ -81,12 +81,12 @@ services:
       - "9090:9090"
     command:
       - '--web.enable-lifecycle'
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--config.file=/etc/prometheus/prometheus.local.yml'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
     restart: always
     volumes:
-      - ./prometheus/config/local:/etc/prometheus
+      - ./secret/prometheus/config:/etc/prometheus
       - ./prometheus/volume:/prometheus
     networks:
       - spring-net

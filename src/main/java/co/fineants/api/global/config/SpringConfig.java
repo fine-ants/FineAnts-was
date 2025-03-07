@@ -12,11 +12,20 @@ import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.init.properties.UserProperties;
+import co.fineants.api.global.security.ajax.config.ActuatorProperties;
 
 @EnableAspectJAutoProxy
 @EnableAsync
-@EnableConfigurationProperties(value = {PortfolioProperties.class, AdminProperties.class, ManagerProperties.class,
-	KisProperties.class, RoleProperties.class, UserProperties.class, KisTrIdProperties.class})
+@EnableConfigurationProperties(value = {
+	PortfolioProperties.class,
+	AdminProperties.class,
+	ManagerProperties.class,
+	KisProperties.class,
+	RoleProperties.class,
+	UserProperties.class,
+	KisTrIdProperties.class,
+	ActuatorProperties.class}
+)
 @Configuration
 public class SpringConfig {
 }
