@@ -65,8 +65,6 @@ public class SetupDataLoader {
 		setupSecurityResources();
 		setupMemberResources();
 		setAdminAuthentication();
-		// TODO: 임시 주석
-		// setupExchangeRateResources();
 		setupStockResources();
 		setupStockDividendResources();
 	}
