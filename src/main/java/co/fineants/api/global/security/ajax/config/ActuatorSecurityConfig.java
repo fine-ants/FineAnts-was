@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class ActuatorSecurityConfig {
-	private static final String ACTUATOR_ENDPOINT = "/actuator/**";
 	private final UserDetailsService actuatorUserDetailService;
 	private final ActuatorProperties actuatorProperties;
 
@@ -26,8 +25,12 @@ public class ActuatorSecurityConfig {
 		http
 			.httpBasic(configurer -> {
 			})
+			.securityMatcher("/actuator", "/actuator/**", "/login")
 			.authorizeHttpRequests(configurer ->
-				configurer.requestMatchers(ACTUATOR_ENDPOINT).hasRole(actuatorProperties.getRoleName())
+				configurer
+					.requestMatchers("/actuator").hasRole(actuatorProperties.getRoleName())
+					.requestMatchers("/actuator/**").hasRole(actuatorProperties.getRoleName())
+					.requestMatchers("/login").permitAll()
 					.anyRequest().authenticated()
 			)
 			.formLogin(configurer -> {
