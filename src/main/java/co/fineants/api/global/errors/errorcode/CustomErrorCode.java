@@ -20,6 +20,6 @@ public enum CustomErrorCode {
 
 	@Override
 	public String toString() {
-		return "ErrorCode(code=%s, message=%s)".formatted(code, message);
+		return "(code=%s, message=%s)".formatted(code, message);
 	}
 }
