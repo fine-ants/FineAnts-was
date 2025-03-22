@@ -2,7 +2,10 @@ package co.fineants.api.global.errors.errorcode;
 
 public enum CustomErrorCode {
 	// Business
-	DUPLICATE("B-001", "Duplicate Value");
+	DUPLICATE("B-001", "Duplicate Value"),
+
+	// Member
+	EMAIL_DUPLICATE("M-001", "Duplicate Email");
 
 	private final String code;
 	private final String message;

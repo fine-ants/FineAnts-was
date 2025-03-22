@@ -51,6 +51,7 @@ import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -157,7 +158,7 @@ public class MemberService {
 
 	private void verifyEmail(Member member) {
 		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			throw new EmailDuplicateException(member.getEmail());
 		}
 	}
 
