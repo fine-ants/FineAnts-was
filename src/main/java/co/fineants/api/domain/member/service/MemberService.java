@@ -52,6 +52,7 @@ import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -122,7 +123,9 @@ public class MemberService {
 	}
 
 	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) throws EmailDuplicateException {
+	public SignUpServiceResponse signup(SignUpServiceRequest request) throws
+		EmailDuplicateException,
+		NicknameDuplicateException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -162,16 +165,16 @@ public class MemberService {
 		}
 	}
 
-	private void verifyNickname(Member member) {
+	private void verifyNickname(Member member) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNickname(member).isPresent()) {
-			throw new FineAntsException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(member.getNickname());
 		}
 	}
 
 	// memberId을 제외한 다른 nickname이 존재하는지 검증
-	private void verifyNickname(String nickname, Long memberId) {
+	private void verifyNickname(String nickname, Long memberId) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
-			throw new FineAntsException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(nickname);
 		}
 	}
 

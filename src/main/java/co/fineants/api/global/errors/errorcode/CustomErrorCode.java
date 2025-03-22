@@ -5,7 +5,8 @@ public enum CustomErrorCode {
 	DUPLICATE("B-001", "Duplicate Value"),
 
 	// Member
-	EMAIL_DUPLICATE("M-001", "Duplicate Email");
+	EMAIL_DUPLICATE("M-001", "Duplicate Email"),
+	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname");
 
 	private final String code;
 	private final String message;

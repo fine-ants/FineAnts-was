@@ -56,6 +56,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -163,9 +164,10 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> memberService.changeProfile(serviceRequest));
 
 		// then
+		String expected = "nemo12345";
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(expected);
 	}
 
 	@DisplayName("사용자는 회원 프로필에서 변경할 정보가 없어서 실패한다")
@@ -245,8 +247,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(duplicatedNickname);
 	}
 
 	@DisplayName("사용자는 이메일이 중복되어 회원가입 할 수 없다")
