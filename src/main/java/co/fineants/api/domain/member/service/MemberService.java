@@ -122,7 +122,7 @@ public class MemberService {
 	}
 
 	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) {
+	public SignUpServiceResponse signup(SignUpServiceRequest request) throws EmailDuplicateException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -156,7 +156,7 @@ public class MemberService {
 			.orElse(null);
 	}
 
-	private void verifyEmail(Member member) {
+	private void verifyEmail(Member member) throws EmailDuplicateException {
 		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
 			throw new EmailDuplicateException(member.getEmail());
 		}
