@@ -17,6 +17,6 @@ public class BusinessException extends RuntimeException {
 
 	@Override
 	public String toString() {
-		return "BusinessException(errorCode=%s)".formatted(errorCode);
+		return "BusinessException(errorCode=%s, message=%s)".formatted(errorCode, super.getMessage());
 	}
 }
