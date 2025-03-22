@@ -53,6 +53,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -125,7 +126,8 @@ public class MemberService {
 	@Transactional
 	public SignUpServiceResponse signup(SignUpServiceRequest request) throws
 		EmailDuplicateException,
-		NicknameDuplicateException {
+		NicknameDuplicateException,
+		PasswordAuthenticationException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -178,9 +180,9 @@ public class MemberService {
 		}
 	}
 
-	private void verifyPassword(SignUpServiceRequest request) {
+	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new PasswordAuthenticationException(request.getPassword());
 		}
 	}
 

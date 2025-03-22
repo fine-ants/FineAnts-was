@@ -3,10 +3,12 @@ package co.fineants.api.global.errors.errorcode;
 public enum CustomErrorCode {
 	// Business
 	DUPLICATE("B-001", "Duplicate Value"),
+	UNAUTHENTICATED("B-002", "Unauthenticated Value"),
 
 	// Member
 	EMAIL_DUPLICATE("M-001", "Duplicate Email"),
-	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname");
+	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname"),
+	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password");
 
 	private final String code;
 	private final String message;
