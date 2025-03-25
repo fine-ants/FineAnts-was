@@ -8,7 +8,10 @@ public enum CustomErrorCode {
 	// Member
 	EMAIL_DUPLICATE("M-001", "Duplicate Email"),
 	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname"),
-	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password");
+	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password"),
+
+	// Portfolio
+	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name");
 
 	private final String code;
 	private final String message;

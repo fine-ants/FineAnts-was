@@ -46,9 +46,9 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -173,10 +173,10 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolio(request, member.getId()));
 
 		// then
+		String expected = "내꿈은 워렌버핏";
 		assertThat(throwable)
-			.isInstanceOf(ConflictException.class)
-			.extracting("message")
-			.isEqualTo("포트폴리오 이름이 중복되었습니다");
+			.isInstanceOf(PortfolioNameDuplicateException.class)
+			.hasMessage(expected);
 	}
 
 	@DisplayName("회원은 포트폴리오 추가시 목록에 없는 증권사를 입력하여 추가할 수 없다")
@@ -288,8 +288,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ConflictException.class)
-			.hasMessage("포트폴리오 이름이 중복되었습니다");
+			.isInstanceOf(PortfolioNameDuplicateException.class)
+			.hasMessage(duplicatedName);
 	}
 
 	@DisplayName("회원은 다른사람의 포트폴리오 정보를 수정할 수 없다")

@@ -40,8 +40,8 @@ import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.ConflictException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,7 +64,8 @@ public class PortFolioService {
 	@Transactional
 	@Secured("ROLE_USER")
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
-	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) {
+	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) throws
+		PortfolioNameDuplicateException {
 		validateSecuritiesFirm(request.getSecuritiesFirm());
 
 		Member member = findMember(memberId);
@@ -85,9 +86,9 @@ public class PortFolioService {
 		}
 	}
 
-	private void validateUniquePortfolioName(String name, Member member) {
+	private void validateUniquePortfolioName(String name, Member member) throws PortfolioNameDuplicateException {
 		if (portfolioRepository.findByNameAndMember(name, member).isPresent()) {
-			throw new ConflictException(PortfolioErrorCode.DUPLICATE_NAME);
+			throw new PortfolioNameDuplicateException(name);
 		}
 	}
 
@@ -96,7 +97,7 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
-		Long memberId) {
+		Long memberId) throws PortfolioNameDuplicateException {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
