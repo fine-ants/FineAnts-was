@@ -11,7 +11,10 @@ public enum CustomErrorCode {
 	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password"),
 
 	// Portfolio
-	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name");
+	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
+
+	// ObjectMapper
+	OBJECT_MAPPER_ERROR("O-001", "ObjectMapper Error");
 
 	private final String code;
 	private final String message;
