@@ -49,9 +49,9 @@ import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
 import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +83,7 @@ public class PortfolioHoldingService {
 		Portfolio portfolio = findPortfolio(portfolioId);
 
 		Stock stock = stockRepository.findByTickerSymbol(request.getTickerSymbol())
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK));
+			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
 
 		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
 				request.getTickerSymbol())

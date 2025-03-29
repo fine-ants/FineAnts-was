@@ -14,10 +14,13 @@ public enum CustomErrorCode {
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 
+	// Stock
+	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
+
 	// WatchStock
 	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),
 
-	// ObjectMapper
+	// ObjectMapper,
 	OBJECT_MAPPER_ERROR("O-001", "ObjectMapper Error");
 
 	private final String code;
