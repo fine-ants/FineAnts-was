@@ -53,8 +53,9 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -616,9 +617,10 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
 
 		// then
-		assertThat(throwable).isInstanceOf(NotFoundResourceException.class)
-			.extracting("message")
-			.isEqualTo("종목을 찾을 수 없습니다");
+		assertThat(throwable)
+			.isInstanceOf(StockNotFoundException.class)
+			.hasMessage("999999");
+
 	}
 
 	@DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
@@ -736,8 +738,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage("포트폴리오 종목이 존재하지 않습니다");
+			.isInstanceOf(HoldingNotFoundException.class)
+			.hasMessage("9999");
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}

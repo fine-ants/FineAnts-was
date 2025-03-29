@@ -50,7 +50,8 @@ import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
 import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -134,14 +135,14 @@ public class PortfolioHoldingService {
 		try {
 			portfolioHoldingRepository.deleteAllByIdIn(portfolioHoldingIds);
 		} catch (EmptyResultDataAccessException e) {
-			throw new NotFoundResourceException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
+			throw new HoldingNotFoundException(portfolioHoldingIds.toString(), e);
 		}
 		return new PortfolioStockDeletesResponse(portfolioHoldingIds);
 	}
 
 	private Portfolio findPortfolio(Long portfolioId) {
 		return portfolioRepository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	private void validateCashSufficientForPurchase(PortfolioHoldingCreateRequest request, Portfolio portfolio) {
@@ -156,7 +157,7 @@ public class PortfolioHoldingService {
 		portfolioHoldingIds.stream()
 			.filter(portfolioHoldingId -> !portfolioHoldingRepository.existsById(portfolioHoldingId))
 			.forEach(portfolioHoldingId -> {
-				throw new NotFoundResourceException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
+				throw new HoldingNotFoundException(portfolioHoldingId.toString());
 			});
 	}
 
@@ -182,7 +183,7 @@ public class PortfolioHoldingService {
 
 	private Portfolio findPortfolioUsingFetchJoin(Long portfolioId) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	@Transactional(readOnly = true)

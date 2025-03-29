@@ -13,9 +13,13 @@ public enum CustomErrorCode {
 
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
+	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
 
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
+
+	// Holding
+	HOLDING_NOT_FOUND("H-001", "Holding Not Found"),
 
 	// WatchStock
 	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),

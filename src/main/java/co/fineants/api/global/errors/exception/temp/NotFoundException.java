@@ -9,4 +9,9 @@ public class NotFoundException extends BusinessException {
 		super(value, errorCode);
 		this.value = value;
 	}
+
+	public NotFoundException(String value, CustomErrorCode errorCode, Throwable cause) {
+		super(value, errorCode, cause);
+		this.value = value;
+	}
 }
