@@ -4,6 +4,7 @@ public enum CustomErrorCode {
 	// Business
 	DUPLICATE("B-001", "Duplicate Value"),
 	UNAUTHENTICATED("B-002", "Unauthenticated Value"),
+	AUTHORIZATION("B-003", "Authorization Error"),
 
 	// Member
 	EMAIL_DUPLICATE("M-001", "Duplicate Email"),

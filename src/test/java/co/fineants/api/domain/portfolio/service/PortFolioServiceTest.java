@@ -44,10 +44,9 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -313,8 +312,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ForBiddenException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(originPortfolio.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오 정보 수정시 예산이 목표수익금액보다 같거나 작게 수정할 수 없다")
@@ -500,8 +499,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ForBiddenException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오들을 삭제한다")
@@ -556,8 +555,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	private static Stream<Arguments> invalidTargetGain() {

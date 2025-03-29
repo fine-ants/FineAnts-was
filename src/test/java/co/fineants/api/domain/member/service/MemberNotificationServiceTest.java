@@ -22,10 +22,9 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.NotificationErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 
 class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -99,8 +98,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class);
 	}
 
 	@DisplayName("사용자는 알림 모두 읽습니다")
@@ -171,8 +169,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class);
 	}
 
 	@DisplayName("사용자는 알림을 전체 삭제합니다")
@@ -235,8 +232,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class);
 	}
 
 	private List<Notification> createNotifications(Member member) {

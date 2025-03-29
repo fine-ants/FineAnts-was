@@ -15,9 +15,10 @@ import org.springframework.stereotype.Component;
 
 import co.fineants.api.global.common.authorized.service.AuthorizedService;
 import co.fineants.api.global.common.resource.ResourceIdParser;
+import co.fineants.api.global.errors.errorcode.CustomErrorCode;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class AuthorizationAspect {
 			.filter(resource -> !service.isAuthorized(resource, memberId))
 			.forEach(resource -> {
 				log.error("User with memberId {} have invalid authorization for resourceIds {}", memberId, resourceIds);
-				throw new ForBiddenException(MemberErrorCode.FORBIDDEN_MEMBER);
+				throw new AuthorizationException(resource.toString(), CustomErrorCode.AUTHORIZATION);
 			});
 		log.info("User with memberId {} has valid authorization for resourceIds {}.", memberId, resourceIds);
 	}

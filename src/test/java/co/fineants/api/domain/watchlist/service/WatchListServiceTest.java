@@ -37,8 +37,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.errorcode.WatchListErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
@@ -153,8 +152,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> watchListService.readWatchList(hacker.getId(), watchList.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist에 종목을 추가한다.")
@@ -200,8 +199,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.createWatchStocks(hacker.getId(), watchListId, request));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("관심 종목 중복 추가 예외 케이스 시나리오")
@@ -287,8 +286,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchLists(hacker.getId(), List.of(watchListId)));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist를 삭제한다.")
@@ -327,8 +326,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist에서 종목을 여러개 삭제한다.")
@@ -371,8 +370,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchStocks(hacker.getId(), watchListId, request));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist에서 종목을 삭제한다.")
@@ -412,8 +411,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchStock(hacker.getId(), watchListId, stock.getTickerSymbol()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist의 이름을 수정한다.")
@@ -452,8 +451,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.changeWatchListName(hacker.getId(), watchListId, request));
 		//then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(WatchListErrorCode.FORBIDDEN_WATCHLIST.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(watchList.toString());
 	}
 
 	@DisplayName("회원이 watchlist들이 주식을 포함하고 있는지 조회한다.")

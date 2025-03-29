@@ -28,11 +28,10 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.StockErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
@@ -322,7 +321,7 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.deleteStockTargetPrice(stockTargetPrice.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(stockTargetPrice.toString());
 	}
 }

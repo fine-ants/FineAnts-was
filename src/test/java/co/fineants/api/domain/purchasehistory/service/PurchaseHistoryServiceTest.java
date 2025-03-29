@@ -41,10 +41,10 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import reactor.core.publisher.Mono;
 
 class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
@@ -246,8 +246,8 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			() -> service.createPurchaseHistory(request, portfolio.getId(), holding.getId(), hacker.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(holding.toString());
 	}
 
 	@DisplayName("사용자는 매입 이력을 수정한다")
@@ -317,8 +317,8 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 				hacker.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(history.toString());
 	}
 
 	@DisplayName("사용자는 매입 이력을 삭제한다")
@@ -405,7 +405,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(AuthorizationException.class)
+			.hasMessage(history.toString());
 	}
 }
