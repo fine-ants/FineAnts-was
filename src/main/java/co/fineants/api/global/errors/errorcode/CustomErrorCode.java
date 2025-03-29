@@ -13,6 +13,9 @@ public enum CustomErrorCode {
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 
+	// WatchStock
+	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),
+
 	// ObjectMapper
 	OBJECT_MAPPER_ERROR("O-001", "ObjectMapper Error");
 

@@ -33,8 +33,8 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.StockErrorCode;
 import co.fineants.api.global.errors.errorcode.WatchListErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.ForBiddenException;
 import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -151,7 +151,7 @@ public class WatchListService {
 		List<WatchStock> watchStocks = watchStockRepository.findByWatchListAndStock_TickerSymbolIn(watchList.getId(),
 			tickerSymbols);
 		if (!watchStocks.isEmpty()) {
-			throw new ForBiddenException(WatchListErrorCode.ALREADY_WATCH_STOCK);
+			throw new WatchStockDuplicateException(tickerSymbols.toString());
 		}
 	}
 

@@ -39,6 +39,7 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.WatchListErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
 
@@ -241,8 +242,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 				// then
 				assertThat(throwable)
-					.isInstanceOf(FineAntsException.class)
-					.hasMessage(WatchListErrorCode.ALREADY_WATCH_STOCK.getMessage());
+					.isInstanceOf(WatchStockDuplicateException.class)
+					.hasMessage(List.of("005930").toString());
 			})
 		);
 	}
