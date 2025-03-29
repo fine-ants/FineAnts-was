@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ObjectMapperUtil {
 	private static final ObjectMapper objectMapper = new JacksonConfig().objectMapper();
-
+	
 	public static <T> String serialize(T obj) {
 		try {
 			return objectMapper.writeValueAsString(obj);
