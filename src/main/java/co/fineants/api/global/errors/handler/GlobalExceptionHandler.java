@@ -64,23 +64,23 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException exception) {
-		HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		HttpStatus httpStatus = exception.determineHttpStatus();
 		String message = exception.getErrorCode().getMessage();
-		String data = null;
-		if (exception instanceof DuplicateException duplicateException) {
-			httpStatus = HttpStatus.CONFLICT;
-			data = duplicateException.getValue();
-		} else if (exception instanceof AuthenticationException authenticationException) {
-			httpStatus = HttpStatus.UNAUTHORIZED;
-			data = authenticationException.getValue();
-		} else if (exception instanceof AuthorizationException authorizationException) {
-			httpStatus = HttpStatus.FORBIDDEN;
-			data = authorizationException.getValue();
-		} else if (exception instanceof NotFoundException notFoundException) {
-			httpStatus = HttpStatus.NOT_FOUND;
-			data = notFoundException.getValue();
-		}
+		String data = extractExceptionData(exception);
 		ApiResponse<Object> body = ApiResponse.error(httpStatus, message, data);
 		return ResponseEntity.status(httpStatus).body(body);
+	}
+
+	private String extractExceptionData(BusinessException exception) {
+		if (exception instanceof DuplicateException duplicateException) {
+			return duplicateException.getValue();
+		} else if (exception instanceof AuthenticationException authenticationException) {
+			return authenticationException.getValue();
+		} else if (exception instanceof AuthorizationException authorizationException) {
+			return authorizationException.getValue();
+		} else if (exception instanceof NotFoundException notFoundException) {
+			return notFoundException.getValue();
+		}
+		return null;
 	}
 }
