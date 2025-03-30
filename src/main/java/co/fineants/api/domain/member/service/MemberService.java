@@ -52,6 +52,7 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailBadRequestException;
+import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
@@ -210,12 +211,11 @@ public class MemberService {
 	@PermitAll
 	public void checkNickname(String nickname) {
 		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new TempBadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			throw new NicknameBadRequestException(nickname);
 		}
 		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(nickname);
 		}
-
 	}
 
 	@Transactional
