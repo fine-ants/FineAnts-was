@@ -16,9 +16,8 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.MemberNotificationPreferenceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.NotificationPreferenceErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,8 +56,7 @@ public class MemberNotificationPreferenceService {
 					notificationPreferenceRepository.save(preference);
 				});
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(memberId)
-			.orElseThrow(() ->
-				new NotFoundResourceException(NotificationPreferenceErrorCode.NOT_FOUND_NOTIFICATION_PREFERENCE));
+			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
 
 		// 회원 계정의 전체 알림 설정이 모두 비활성화인 경우 FCM 토큰 삭제
 		if (preference.isAllInActive() && request.hasFcmTokenId()) {

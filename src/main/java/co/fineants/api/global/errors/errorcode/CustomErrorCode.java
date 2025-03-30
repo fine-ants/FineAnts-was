@@ -24,6 +24,9 @@ public enum CustomErrorCode {
 	// WatchStock
 	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),
 
+	// NotificationPreference
+	NOTIFICATION_PREFERENCE_NOT_FOUND("N-001", "NotificationPreference Not Found"),
+	
 	// ObjectMapper,
 	OBJECT_MAPPER_ERROR("O-001", "ObjectMapper Error");
 
