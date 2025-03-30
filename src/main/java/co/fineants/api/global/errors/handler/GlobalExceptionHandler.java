@@ -65,9 +65,9 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException exception) {
 		HttpStatus httpStatus = exception.determineHttpStatus();
-		String message = exception.getErrorCode().getMessage();
+		String errorCodeMessage = exception.getErrorCodeMessage();
 		String data = extractExceptionData(exception);
-		ApiResponse<Object> body = ApiResponse.error(httpStatus, message, data);
+		ApiResponse<Object> body = ApiResponse.error(httpStatus, errorCodeMessage, data);
 		return ResponseEntity.status(httpStatus).body(body);
 	}
 

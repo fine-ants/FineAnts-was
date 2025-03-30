@@ -1,5 +1,7 @@
 package co.fineants.api.global.errors.exception.temp;
 
+import org.springframework.http.HttpStatus;
+
 import co.fineants.api.global.errors.errorcode.CustomErrorCode;
 import lombok.Getter;
 
@@ -10,5 +12,10 @@ public class AuthenticationException extends BusinessException {
 	public AuthenticationException(String value, CustomErrorCode errorCode) {
 		super(value, errorCode);
 		this.value = value;
+	}
+
+	@Override
+	public HttpStatus determineHttpStatus() {
+		return HttpStatus.UNAUTHORIZED;
 	}
 }
