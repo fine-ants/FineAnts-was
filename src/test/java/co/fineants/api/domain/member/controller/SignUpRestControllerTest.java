@@ -31,7 +31,7 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -134,7 +134,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME));
+			.willThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -163,7 +163,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL));
+			.willThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_EMAIL));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -192,7 +192,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL));
+			.willThrow(new TempBadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -247,7 +247,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME))
+		doThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME))
 			.when(mockedMemberService)
 			.checkNickname(anyString());
 		String nickname = "일개미1234";
@@ -279,7 +279,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void emailDuplicationCheck_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		String email = "dragonbead95@naver.com";
-		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL))
+		doThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_EMAIL))
 			.when(mockedMemberService)
 			.checkEmail(anyString());
 

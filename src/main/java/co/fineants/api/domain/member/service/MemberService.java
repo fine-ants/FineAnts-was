@@ -48,7 +48,7 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
@@ -201,7 +201,7 @@ public class MemberService {
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
 		} catch (MailException e) {
-			throw new BadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
 		}
 	}
 
@@ -209,10 +209,10 @@ public class MemberService {
 	@PermitAll
 	public void checkNickname(String nickname) {
 		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			throw new TempBadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
 		}
 		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME);
 		}
 
 	}
@@ -221,10 +221,10 @@ public class MemberService {
 	@PermitAll
 	public void checkEmail(String email) {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			throw new TempBadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
 		}
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			throw new TempBadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
 		}
 	}
 
@@ -274,10 +274,10 @@ public class MemberService {
 	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
 		}
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.NEW_PASSWORD_CONFIRM_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.NEW_PASSWORD_CONFIRM_FAIL);
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
@@ -286,7 +286,7 @@ public class MemberService {
 
 	private Member findMember(Long id) {
 		return memberRepository.findById(id)
-			.orElseThrow(() -> new BadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new TempBadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
 
 	@Transactional(readOnly = true)
@@ -294,7 +294,7 @@ public class MemberService {
 	public void checkVerifyCode(String email, String code) {
 		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
 		}
 	}
 

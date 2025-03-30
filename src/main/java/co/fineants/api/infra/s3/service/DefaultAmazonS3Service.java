@@ -19,7 +19,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +37,9 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 
 	@Transactional
 	@Override
-	public String upload(MultipartFile multipartFile) throws BadRequestException {
+	public String upload(MultipartFile multipartFile) throws TempBadRequestException {
 		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
-			() -> new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+			() -> new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 		// random file name
 		String key = profilePath + UUID.randomUUID() + file.getName();
 		// put S3
@@ -65,17 +65,17 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 			return Optional.empty();
 		}
 		if (file.getSize() > MAX_FILE_SIZE) {
-			throw new BadRequestException(MemberErrorCode.IMAGE_SIZE_EXCEEDED);
+			throw new TempBadRequestException(MemberErrorCode.IMAGE_SIZE_EXCEEDED);
 		}
 		String filename = file.getOriginalFilename();
 		if (filename == null) {
-			throw new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
 		}
 		File convertedFile = new File(filename);
 		try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
 			fos.write(file.getBytes());
 		} catch (IOException e) {
-			throw new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
 		}
 		return Optional.of(convertedFile);
 	}

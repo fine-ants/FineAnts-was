@@ -43,13 +43,13 @@ class FineAntsExceptionTest extends AbstractContainerBaseTest {
 			try {
 				PortfolioFinancial.of(budget, targetGain, maximumLoss);
 			} catch (IllegalPortfolioFinancialArgumentException e) {
-				throw new BadRequestException(e.getErrorCode(), e);
+				throw new TempBadRequestException(e.getErrorCode(), e);
 			}
 		});
 		// then
 		log.error("not create PortfolioFinancial Instance", throwable);
 		Assertions.assertThat(throwable)
-			.isInstanceOf(BadRequestException.class);
+			.isInstanceOf(TempBadRequestException.class);
 	}
 
 }

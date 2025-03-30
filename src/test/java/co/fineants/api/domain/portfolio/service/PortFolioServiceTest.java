@@ -44,7 +44,7 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
@@ -151,7 +151,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.extracting("message")
 			.isEqualTo("최대 손실 금액은 예산 보다 작아야 합니다");
 	}
@@ -192,7 +192,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage("해당 증권사는 포함되어 있지 않습니다");
 	}
 
@@ -371,7 +371,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 		// then
 		log.error("fail update portfolio", throwable);
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage("최대 손실 금액은 예산 보다 작아야 합니다");
 	}
 

@@ -53,7 +53,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
@@ -302,7 +302,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
 		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+			.willThrow(new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 
 		SignUpRequest request = new SignUpRequest(
 			"일개미4567",
@@ -317,7 +317,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL.getMessage());
 	}
 
@@ -338,7 +338,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage(MemberErrorCode.BAD_SIGNUP_INPUT.getMessage());
 	}
 
@@ -354,7 +354,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
 	}
 
@@ -379,7 +379,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage(MemberErrorCode.REDUNDANT_EMAIL.getMessage());
 	}
 
@@ -420,7 +420,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
+			.isInstanceOf(TempBadRequestException.class)
 			.hasMessage(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL.getMessage());
 	}
 

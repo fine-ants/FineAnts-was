@@ -38,7 +38,7 @@ import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedServi
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
@@ -82,7 +82,7 @@ public class PortFolioService {
 
 	private void validateSecuritiesFirm(String securitiesFirm) {
 		if (!portfolioPropertiesRepository.contains(securitiesFirm)) {
-			throw new BadRequestException(PortfolioErrorCode.SECURITIES_FIRM_IS_NOT_CONTAINS);
+			throw new TempBadRequestException(PortfolioErrorCode.SECURITIES_FIRM_IS_NOT_CONTAINS);
 		}
 	}
 

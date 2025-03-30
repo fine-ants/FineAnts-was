@@ -28,7 +28,7 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.StockTargetPriceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
@@ -78,7 +78,7 @@ public class StockTargetPriceService {
 			.mapToLong(id -> targetPriceNotificationRepository.findAllByStockTargetPriceId(id).size())
 			.sum();
 		if (size >= TARGET_PRICE_NOTIFICATION_LIMIT) {
-			throw new BadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_LIMIT);
+			throw new TempBadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_LIMIT);
 		}
 	}
 
@@ -94,7 +94,7 @@ public class StockTargetPriceService {
 			tickerSymbol,
 			targetPrice,
 			memberId).isPresent()) {
-			throw new BadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST);
+			throw new TempBadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST);
 		}
 	}
 
