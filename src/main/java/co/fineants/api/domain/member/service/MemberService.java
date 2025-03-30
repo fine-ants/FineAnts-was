@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.http.ResponseCookie;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -199,7 +200,7 @@ public class MemberService {
 			emailService.sendEmail(email,
 				"Finants 회원가입 인증 코드",
 				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
-		} catch (Exception e) {
+		} catch (MailException e) {
 			throw new BadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
 		}
 	}
