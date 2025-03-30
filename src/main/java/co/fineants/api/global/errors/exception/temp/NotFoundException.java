@@ -20,7 +20,12 @@ public class NotFoundException extends BusinessException {
 	}
 
 	@Override
-	public HttpStatus determineHttpStatus() {
+	public HttpStatus getHttpStatus() {
 		return HttpStatus.NOT_FOUND;
+	}
+
+	@Override
+	public String getExceptionValue() {
+		return value;
 	}
 }

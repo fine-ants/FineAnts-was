@@ -15,7 +15,12 @@ public class AuthorizationException extends BusinessException {
 	}
 
 	@Override
-	public HttpStatus determineHttpStatus() {
+	public HttpStatus getHttpStatus() {
 		return HttpStatus.FORBIDDEN;
+	}
+
+	@Override
+	public String getExceptionValue() {
+		return value;
 	}
 }

@@ -19,9 +19,9 @@ public abstract class BusinessException extends RuntimeException {
 		this.errorCode = errorCode;
 	}
 
-	public HttpStatus determineHttpStatus() {
-		return HttpStatus.INTERNAL_SERVER_ERROR;
-	}
+	public abstract HttpStatus getHttpStatus();
+
+	public abstract String getExceptionValue();
 
 	public String getErrorCodeMessage() {
 		return errorCode.getMessage();

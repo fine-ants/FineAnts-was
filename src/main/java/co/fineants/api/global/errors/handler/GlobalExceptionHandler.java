@@ -13,11 +13,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.temp.AuthenticationException;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.BusinessException;
-import co.fineants.api.global.errors.exception.temp.DuplicateException;
-import co.fineants.api.global.errors.exception.temp.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -64,23 +60,10 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException exception) {
-		HttpStatus httpStatus = exception.determineHttpStatus();
+		HttpStatus httpStatus = exception.getHttpStatus();
 		String errorCodeMessage = exception.getErrorCodeMessage();
-		String data = extractExceptionData(exception);
+		String data = exception.getExceptionValue();
 		ApiResponse<Object> body = ApiResponse.error(httpStatus, errorCodeMessage, data);
 		return ResponseEntity.status(httpStatus).body(body);
-	}
-
-	private String extractExceptionData(BusinessException exception) {
-		if (exception instanceof DuplicateException duplicateException) {
-			return duplicateException.getValue();
-		} else if (exception instanceof AuthenticationException authenticationException) {
-			return authenticationException.getValue();
-		} else if (exception instanceof AuthorizationException authorizationException) {
-			return authorizationException.getValue();
-		} else if (exception instanceof NotFoundException notFoundException) {
-			return notFoundException.getValue();
-		}
-		return null;
 	}
 }

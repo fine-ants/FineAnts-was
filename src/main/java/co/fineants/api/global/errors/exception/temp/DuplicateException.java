@@ -15,7 +15,12 @@ public class DuplicateException extends BusinessException {
 	}
 
 	@Override
-	public HttpStatus determineHttpStatus() {
+	public HttpStatus getHttpStatus() {
 		return HttpStatus.CONFLICT;
+	}
+
+	@Override
+	public String getExceptionValue() {
+		return value;
 	}
 }
