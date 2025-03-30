@@ -48,9 +48,10 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.MailBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
@@ -189,19 +190,19 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void sendVerifyCode(VerifyEmailRequest request) {
-		String email = request.getEmail();
+		String to = request.getEmail();
 		String verifyCode = verifyCodeGenerator.generate();
 
 		// Redis에 생성한 검증 코드 임시 저장
-		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
+		verifyCodeManagementService.saveVerifyCode(to, verifyCode);
 
+		String subject = "Finants 회원가입 인증 코드";
+		String body = String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode);
 		try {
-			// 사용자에게 검증 코드 메일 전송
-			emailService.sendEmail(email,
-				"Finants 회원가입 인증 코드",
-				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
-		} catch (MailException e) {
-			throw new TempBadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
+			emailService.sendEmail(to, subject, body);
+		} catch (MailException exception) {
+			String value = "to=%s, subject=%s, body=%s";
+			throw new MailBadRequestException(value, exception);
 		}
 	}
 
