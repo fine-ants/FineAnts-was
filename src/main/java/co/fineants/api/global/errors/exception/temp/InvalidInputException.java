@@ -4,15 +4,15 @@ import org.springframework.http.HttpStatus;
 
 import co.fineants.api.global.errors.errorcode.CustomErrorCode;
 
-public class BadRequestException extends BusinessException {
+public class InvalidInputException extends BusinessException {
 	private final String value;
 
-	protected BadRequestException(String value, CustomErrorCode errorCode) {
+	protected InvalidInputException(String value, CustomErrorCode errorCode) {
 		super(value, errorCode);
 		this.value = value;
 	}
 
-	protected BadRequestException(String value, CustomErrorCode errorCode, Throwable cause) {
+	protected InvalidInputException(String value, CustomErrorCode errorCode, Throwable cause) {
 		super(value, errorCode, cause);
 		this.value = value;
 	}

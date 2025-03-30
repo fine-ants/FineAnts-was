@@ -50,15 +50,15 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.temp.MailBadRequestException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
-import co.fineants.api.global.errors.exception.temp.PasswordBadRequestException;
-import co.fineants.api.global.errors.exception.temp.VerifyCodeBadRequestException;
+import co.fineants.api.global.errors.exception.temp.PasswordInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.VerifyCodeInvalidInputException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -206,7 +206,7 @@ public class MemberService {
 			emailService.sendEmail(to, subject, body);
 		} catch (MailException exception) {
 			String value = "to=%s, subject=%s, body=%s";
-			throw new MailBadRequestException(value, exception);
+			throw new MailInvalidInputException(value, exception);
 		}
 	}
 
@@ -214,7 +214,7 @@ public class MemberService {
 	@PermitAll
 	public void checkNickname(String nickname) {
 		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new NicknameBadRequestException(nickname);
+			throw new NicknameInvalidInputException(nickname);
 		}
 		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
 			throw new NicknameDuplicateException(nickname);
@@ -225,7 +225,7 @@ public class MemberService {
 	@PermitAll
 	public void checkEmail(String email) {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new MailBadRequestException(email);
+			throw new MailInvalidInputException(email);
 		}
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
 			throw new MailDuplicateException(email);
@@ -278,10 +278,10 @@ public class MemberService {
 	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new PasswordBadRequestException(request.currentPassword());
+			throw new PasswordInvalidInputException(request.currentPassword());
 		}
 		if (!request.matchPassword()) {
-			throw new PasswordBadRequestException(request.currentPassword());
+			throw new PasswordInvalidInputException(request.currentPassword());
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
@@ -298,7 +298,7 @@ public class MemberService {
 	public void checkVerifyCode(String email, String code) {
 		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new VerifyCodeBadRequestException(code);
+			throw new VerifyCodeInvalidInputException(code);
 		}
 	}
 

@@ -40,7 +40,7 @@ import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
-import co.fineants.api.global.errors.exception.temp.SecuritiesFirmBadRequestException;
+import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,7 +81,7 @@ public class PortFolioService {
 
 	private void validateSecuritiesFirm(String securitiesFirm) {
 		if (!portfolioPropertiesRepository.contains(securitiesFirm)) {
-			throw new SecuritiesFirmBadRequestException(securitiesFirm);
+			throw new SecuritiesFirmInvalidInputException(securitiesFirm);
 		}
 	}
 

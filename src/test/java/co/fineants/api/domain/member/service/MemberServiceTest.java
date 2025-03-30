@@ -57,8 +57,8 @@ import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
-import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
@@ -340,7 +340,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
 		assertThat(throwable)
-			.isInstanceOf(NicknameBadRequestException.class)
+			.isInstanceOf(NicknameInvalidInputException.class)
 			.hasMessage(nickname);
 	}
 
