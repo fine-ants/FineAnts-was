@@ -41,6 +41,7 @@ public enum CustomErrorCode {
 	// TargetPriceNotification
 	TARGET_PRICE_NOTIFICATION_NOT_FOUND("TPN-001", "TargetPriceNotification Not Found"),
 	TARGET_PRICE_NOTIFICATION_LIMIT_SIZE_BAD_REQUEST("TPN-002", "TargetPriceNotification Limit Size's Bad REquest"),
+	TARGET_PRICE_NOTIFICATION_DUPLICATE("TPN-003", "TargetPriceNotification Duplicate"),
 	// WatchList
 	WATCH_LIST_NOT_FOUND("WL-001", "WatchList Not Found"),
 	// Mail

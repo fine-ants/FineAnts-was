@@ -27,11 +27,10 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.StockTargetPriceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
 import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitSizeBadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +94,7 @@ public class StockTargetPriceService {
 			tickerSymbol,
 			targetPrice,
 			memberId).isPresent()) {
-			throw new TempBadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST);
+			throw new TargetPriceNotificationDuplicateException(tickerSymbol, targetPrice);
 		}
 	}
 
