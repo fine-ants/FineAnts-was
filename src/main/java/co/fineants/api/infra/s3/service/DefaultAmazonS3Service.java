@@ -22,6 +22,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageNameEmptyBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageSizeExceededBadRequestException;
+import co.fineants.api.global.errors.exception.temp.ImageWriteBadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,6 +41,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 	@Transactional
 	@Override
 	public String upload(MultipartFile multipartFile) throws TempBadRequestException {
+		// todo: refactoring the TempBadRequestExceptionL
 		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
 			() -> new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
 		// random file name
@@ -77,7 +79,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 		try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
 			fos.write(file.getBytes());
 		} catch (IOException e) {
-			throw new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new ImageWriteBadRequestException(convertedFile);
 		}
 		return Optional.of(convertedFile);
 	}
