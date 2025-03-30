@@ -31,7 +31,7 @@ import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitSizeInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +78,7 @@ public class StockTargetPriceService {
 			.mapToLong(id -> targetPriceNotificationRepository.findAllByStockTargetPriceId(id).size())
 			.sum();
 		if (size >= TARGET_PRICE_NOTIFICATION_LIMIT) {
-			throw new TargetPriceNotificationLimitSizeInvalidInputException(size);
+			throw new TargetPriceNotificationLimitExceededException(size);
 		}
 	}
 
