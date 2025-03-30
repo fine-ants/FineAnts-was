@@ -16,6 +16,7 @@ public enum CustomErrorCode {
 	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password"),
 	MEMBER_NOT_FOUND("M-004", "Member Not Found"),
 	NICKNAME_BAD_REQUEST("M-005", "Bad Request Nickname"),
+	EMAIL_BAD_REQUEST("M-006", "Bad Request Email"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
