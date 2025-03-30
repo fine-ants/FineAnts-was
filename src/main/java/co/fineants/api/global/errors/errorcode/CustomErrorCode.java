@@ -20,6 +20,8 @@ public enum CustomErrorCode {
 	PASSWORD_BAD_REQUEST("M-007", "Not Match Password"),
 	PASSWORD_CONFIRM_BAD_REQUEST("M-008", "Not Match Password Confirm"),
 	VERIFY_CODE_BAD_REQUEST("M-009", "Not Match Verify Code"),
+	IMAGE_SIZE_EXCEEDED_BAD_REQUEST("M-010", "Image Size Exceeded"),
+	IMAGE_NAME_EMPTY_BAD_REQUEST("M-011", "Image Name Empty"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),

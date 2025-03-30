@@ -20,6 +20,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
+import co.fineants.api.global.errors.exception.temp.ImageNameEmptyBadRequestException;
+import co.fineants.api.global.errors.exception.temp.ImageSizeExceededBadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,11 +67,11 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 			return Optional.empty();
 		}
 		if (file.getSize() > MAX_FILE_SIZE) {
-			throw new TempBadRequestException(MemberErrorCode.IMAGE_SIZE_EXCEEDED);
+			throw new ImageSizeExceededBadRequestException(file);
 		}
 		String filename = file.getOriginalFilename();
 		if (filename == null) {
-			throw new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new ImageNameEmptyBadRequestException(filename);
 		}
 		File convertedFile = new File(filename);
 		try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
