@@ -57,6 +57,7 @@ import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.temp.PasswordBadRequestException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -276,10 +277,10 @@ public class MemberService {
 	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new TempBadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new PasswordBadRequestException(request.currentPassword());
 		}
 		if (!request.matchPassword()) {
-			throw new TempBadRequestException(MemberErrorCode.NEW_PASSWORD_CONFIRM_FAIL);
+			throw new PasswordBadRequestException(request.currentPassword());
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());

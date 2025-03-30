@@ -17,6 +17,8 @@ public enum CustomErrorCode {
 	MEMBER_NOT_FOUND("M-004", "Member Not Found"),
 	NICKNAME_BAD_REQUEST("M-005", "Bad Request Nickname"),
 	EMAIL_BAD_REQUEST("M-006", "Bad Request Email"),
+	PASSWORD_BAD_REQUEST("M-007", "Not Match Password"),
+	PASSWORD_CONFIRM_BAD_REQUEST("M-008", "Not Match Password Confirm"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
