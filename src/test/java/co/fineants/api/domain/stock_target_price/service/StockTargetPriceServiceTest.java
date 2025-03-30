@@ -30,8 +30,8 @@ import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepo
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import co.fineants.api.global.errors.errorcode.StockErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
@@ -282,8 +282,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(StockErrorCode.NOT_FOUND_STOCK_TARGET_PRICE.getMessage());
+			.isInstanceOf(StockTargetPriceNotFoundException.class)
+			.hasMessage("999999");
 	}
 
 	@DisplayName("사용자는 단일 종목 지정가를 제거합니다")

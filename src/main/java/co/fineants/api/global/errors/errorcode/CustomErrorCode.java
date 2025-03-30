@@ -5,11 +5,13 @@ public enum CustomErrorCode {
 	DUPLICATE("B-001", "Duplicate Value"),
 	UNAUTHENTICATED("B-002", "Unauthenticated Value"),
 	AUTHORIZATION("B-003", "Authorization Error"),
+	NOT_FOUND("B-004", "Not Found"),
 
 	// Member
 	EMAIL_DUPLICATE("M-001", "Duplicate Email"),
 	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname"),
 	PASSWORD_UNAUTHENTICATED("M-003", "Unauthenticated Password"),
+	MEMBER_NOT_FOUND("M-004", "Member Not Found"),
 
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
@@ -31,7 +33,15 @@ public enum CustomErrorCode {
 	OBJECT_MAPPER_ERROR("O-001", "ObjectMapper Error"),
 
 	// Notification
-	NOTIFICATION_NOT_FOUND("N-001", "Notification Not Found");
+	NOTIFICATION_NOT_FOUND("N-001", "Notification Not Found"),
+	// StockTargetPrice
+	STOCK_TARGET_PRICE_NOT_FOUND("STP-001", "StockTargetPrice Not Found"),
+
+	// TargetPriceNotification
+	TARGET_PRICE_NOTIFICATION_NOT_FOUND("TPN-001", "TargetPriceNotification Not Found"),
+
+	// WatchList
+	WATCH_LIST_NOT_FOUND("WL-001", "WatchList Not Found");
 
 	private final String code;
 	private final String message;

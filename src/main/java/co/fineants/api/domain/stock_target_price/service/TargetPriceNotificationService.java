@@ -15,8 +15,8 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.TargetPriceNotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
+import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +53,7 @@ public class TargetPriceNotificationService {
 
 	private void verifyExistStock(String tickerSymbol) {
 		if (stockRepository.findByTickerSymbol(tickerSymbol).isEmpty()) {
-			throw new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK);
+			throw new StockNotFoundException(tickerSymbol);
 		}
 	}
 
@@ -61,7 +61,7 @@ public class TargetPriceNotificationService {
 	private void verifyExistTargetPriceById(List<Long> targetPriceNotificationIds) {
 		if (targetPriceNotificationRepository.findAllById(targetPriceNotificationIds).size()
 			!= targetPriceNotificationIds.size()) {
-			throw new NotFoundResourceException(StockErrorCode.NOT_FOUND_TARGET_PRICE);
+			throw new TargetPriceNotificationNotFoundException(targetPriceNotificationIds.toString());
 		}
 	}
 
@@ -99,6 +99,6 @@ public class TargetPriceNotificationService {
 
 	private TargetPriceNotification findTargetPriceNotification(Long targetPriceNotificationId) {
 		return targetPriceNotificationRepository.findById(targetPriceNotificationId)
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_TARGET_PRICE));
+			.orElseThrow(() -> new TargetPriceNotificationNotFoundException(targetPriceNotificationId.toString()));
 	}
 }

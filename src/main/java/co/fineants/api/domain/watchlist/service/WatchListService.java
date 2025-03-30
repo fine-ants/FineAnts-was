@@ -29,11 +29,11 @@ import co.fineants.api.global.common.authorized.service.WatchListAuthorizedServi
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
 import co.fineants.api.global.errors.errorcode.WatchListErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
+import co.fineants.api.global.errors.exception.temp.WatchListNotFoundException;
 import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 import lombok.RequiredArgsConstructor;
 
@@ -73,7 +73,7 @@ public class WatchListService {
 	@Secured("ROLE_USER")
 	public ReadWatchListResponse readWatchList(Long memberId, @ResourceId Long watchListId) {
 		WatchList watchList = watchListRepository.findById(watchListId)
-			.orElseThrow(() -> new NotFoundResourceException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
 
 		validateWatchListAuthorization(watchList, memberId);
 
@@ -99,7 +99,7 @@ public class WatchListService {
 	public void changeWatchListName(Long memberId, @ResourceId Long watchListId, ChangeWatchListNameRequest request) {
 		Member member = findMember(memberId);
 		WatchList watchList = watchListRepository.findById(watchListId)
-			.orElseThrow(() -> new NotFoundResourceException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
 		validateWatchListAuthorization(watchList, member.getId());
 
 		watchList.changeName(request.getName());
@@ -132,14 +132,14 @@ public class WatchListService {
 	@Secured("ROLE_USER")
 	public void createWatchStocks(Long memberId, @ResourceId Long watchListId, CreateWatchStockRequest request) {
 		WatchList watchList = watchListRepository.findById(watchListId)
-			.orElseThrow(() -> new NotFoundResourceException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
 
 		validateWatchListAuthorization(watchList, memberId);
 		validateAlreadyExistWatchStocks(watchList, request.getTickerSymbols());
 
 		request.getTickerSymbols().stream()
 			.map(tickerSymbol -> stockRepository.findByTickerSymbol(tickerSymbol)
-				.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK)))
+				.orElseThrow(() -> new StockNotFoundException(tickerSymbol)))
 			.map(stock -> WatchStock.newWatchStock(watchList, stock))
 			.forEach(watchStockRepository::save);
 
@@ -160,7 +160,7 @@ public class WatchListService {
 	@Secured("ROLE_USER")
 	public void deleteWatchStocks(Long memberId, @ResourceId Long watchListId, DeleteWatchStocksRequest request) {
 		WatchList watchList = watchListRepository.findById(watchListId)
-			.orElseThrow(() -> new NotFoundResourceException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
 		validateWatchListAuthorization(watchList, memberId);
 
 		watchStockRepository.deleteByWatchListAndStock_TickerSymbolIn(watchList, request.getTickerSymbols());
@@ -171,7 +171,7 @@ public class WatchListService {
 	@Secured("ROLE_USER")
 	public void deleteWatchStock(Long memberId, @ResourceId Long watchListId, String tickerSymbol) {
 		WatchList watchList = watchListRepository.findById(watchListId)
-			.orElseThrow(() -> new NotFoundResourceException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
 		validateWatchListAuthorization(watchList, memberId);
 
 		watchStockRepository.deleteByWatchListAndStock_TickerSymbolIn(watchList, List.of(tickerSymbol));
@@ -179,7 +179,7 @@ public class WatchListService {
 
 	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new NotFoundResourceException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	private void validateWatchListAuthorization(WatchList watchList, Long memberId) {

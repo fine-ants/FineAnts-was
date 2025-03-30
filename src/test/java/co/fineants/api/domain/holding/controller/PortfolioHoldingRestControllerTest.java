@@ -52,8 +52,7 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -168,9 +167,9 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readMyPortfolioStocksWithNotExistPortfolioId() throws Exception {
 		// given
-		long portfolioId = 9999L;
+		Long portfolioId = 9999L;
 		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong()))
-			.willThrow(new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.willThrow(new PortfolioNotFoundException(portfolioId.toString()));
 
 		// when & then
 		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolioId))

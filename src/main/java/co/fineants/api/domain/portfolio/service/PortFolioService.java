@@ -37,11 +37,11 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,7 +77,7 @@ public class PortFolioService {
 
 	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new NotFoundResourceException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	private void validateSecuritiesFirm(String securitiesFirm) {
@@ -159,7 +159,7 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	public Portfolio findPortfolio(@ResourceId Long portfolioId) {
 		return portfolioRepository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	@Secured("ROLE_USER")

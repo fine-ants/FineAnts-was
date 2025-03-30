@@ -20,8 +20,7 @@ import co.fineants.api.domain.stock.repository.StockQueryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +61,7 @@ public class StockService {
 	@Transactional(readOnly = true)
 	public StockResponse getDetailedStock(String tickerSymbol) {
 		Stock stock = stockRepository.findByTickerSymbol(tickerSymbol)
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK));
+			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		return StockResponse.of(stock, currentPriceRedisRepository, closingPriceRepository, localDateTimeService);
 	}
 

@@ -10,10 +10,9 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +53,7 @@ public class PortfolioNotificationService {
 
 	private Portfolio findPortfolio(Long portfolioId) {
 		return repository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	/**

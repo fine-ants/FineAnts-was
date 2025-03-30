@@ -46,13 +46,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.NotificationPreferenceErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.BadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -331,8 +330,7 @@ public class MemberService {
 	public ProfileResponse readProfile(Long memberId) {
 		Member member = findMember(memberId);
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
-			.orElseThrow(
-				() -> new NotFoundResourceException(NotificationPreferenceErrorCode.NOT_FOUND_NOTIFICATION_PREFERENCE));
+			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
 	}
 }
