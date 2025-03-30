@@ -49,15 +49,16 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailBadRequestException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.temp.PasswordBadRequestException;
+import co.fineants.api.global.errors.exception.temp.VerifyCodeBadRequestException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -289,7 +290,7 @@ public class MemberService {
 
 	private Member findMember(Long id) {
 		return memberRepository.findById(id)
-			.orElseThrow(() -> new TempBadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
 	}
 
 	@Transactional(readOnly = true)
@@ -297,7 +298,7 @@ public class MemberService {
 	public void checkVerifyCode(String email, String code) {
 		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new TempBadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
+			throw new VerifyCodeBadRequestException(code);
 		}
 	}
 

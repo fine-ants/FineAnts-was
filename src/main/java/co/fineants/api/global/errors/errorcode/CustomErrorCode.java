@@ -19,9 +19,11 @@ public enum CustomErrorCode {
 	EMAIL_BAD_REQUEST("M-006", "Bad Request Email"),
 	PASSWORD_BAD_REQUEST("M-007", "Not Match Password"),
 	PASSWORD_CONFIRM_BAD_REQUEST("M-008", "Not Match Password Confirm"),
+	VERIFY_CODE_BAD_REQUEST("M-009", "Not Match Verify Code"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
+	SECURITIES_FIRM_BAD_REQUEST("P-003", "Bad Request Securities Firm"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
