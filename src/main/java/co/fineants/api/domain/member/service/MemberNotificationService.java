@@ -13,8 +13,7 @@ import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.NotificationErrorCode;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.temp.NotificationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +62,7 @@ public class MemberNotificationService {
 		List<Notification> findNotifications = notificationRepository.findAllByMemberIdAndIds(memberId,
 			notificationIds);
 		if (notificationIds.size() != findNotifications.size()) {
-			throw new NotFoundResourceException(NotificationErrorCode.NOT_FOUND_NOTIFICATION);
+			throw new NotificationNotFoundException(notificationIds.toString());
 		}
 	}
 
