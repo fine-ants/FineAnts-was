@@ -59,6 +59,10 @@ public class ApiResponse<T> {
 		return new ApiResponse<>(errorCode.getHttpStatus(), errorCode.getMessage(), data);
 	}
 
+	public static <T> ApiResponse<T> error(HttpStatus httpStatus, String message, T data) {
+		return new ApiResponse<>(httpStatus, message, data);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s, %s(code=%d, status=%s, message=%s, data=%s)", "API 공통 응답",

@@ -1,5 +1,8 @@
 package co.fineants.api.global.errors.errorcode;
 
+import lombok.Getter;
+
+@Getter
 public enum CustomErrorCode {
 	// Business
 	DUPLICATE("B-001", "Duplicate Value"),

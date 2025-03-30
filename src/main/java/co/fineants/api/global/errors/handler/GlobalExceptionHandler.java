@@ -13,6 +13,11 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.AuthenticationException;
+import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.BusinessException;
+import co.fineants.api.global.errors.exception.temp.DuplicateException;
+import co.fineants.api.global.errors.exception.temp.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -55,5 +60,27 @@ public class GlobalExceptionHandler {
 		ApiResponse<Object> body = ApiResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(),
 			exception.toString());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException exception) {
+		HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		String message = exception.getErrorCode().getMessage();
+		String data = null;
+		if (exception instanceof DuplicateException duplicateException) {
+			httpStatus = HttpStatus.CONFLICT;
+			data = duplicateException.getValue();
+		} else if (exception instanceof AuthenticationException authenticationException) {
+			httpStatus = HttpStatus.UNAUTHORIZED;
+			data = authenticationException.getValue();
+		} else if (exception instanceof AuthorizationException authorizationException) {
+			httpStatus = HttpStatus.FORBIDDEN;
+			data = authorizationException.getValue();
+		} else if (exception instanceof NotFoundException notFoundException) {
+			httpStatus = HttpStatus.NOT_FOUND;
+			data = notFoundException.getValue();
+		}
+		ApiResponse<Object> body = ApiResponse.error(httpStatus, message, data);
+		return ResponseEntity.status(httpStatus).body(body);
 	}
 }
