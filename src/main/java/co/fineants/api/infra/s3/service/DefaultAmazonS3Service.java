@@ -17,7 +17,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import co.fineants.api.global.errors.exception.TempBadRequestException;
+import co.fineants.api.global.errors.exception.temp.BadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageEmptyBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageNameEmptyBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageSizeExceededBadRequestException;
@@ -39,7 +39,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 
 	@Transactional
 	@Override
-	public String upload(MultipartFile multipartFile) throws TempBadRequestException {
+	public String upload(MultipartFile multipartFile) throws BadRequestException {
 		File file = convertMultiPartFileToFile(multipartFile);
 		// random file name
 		String key = profilePath + UUID.randomUUID() + file.getName();
