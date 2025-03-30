@@ -23,6 +23,7 @@ public enum CustomErrorCode {
 	IMAGE_SIZE_EXCEEDED_BAD_REQUEST("M-010", "Image Size Exceeded"),
 	IMAGE_NAME_EMPTY_BAD_REQUEST("M-011", "Image Name Empty"),
 	IMAGE_WRITE_BAD_REQUEST("M-012", "Image Write Error"),
+	IMAGE_EMPTY_BAD_REQUEST("M-013", "Image Empty"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),

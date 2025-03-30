@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +17,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
+import co.fineants.api.global.errors.exception.temp.ImageEmptyBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageNameEmptyBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageSizeExceededBadRequestException;
 import co.fineants.api.global.errors.exception.temp.ImageWriteBadRequestException;
@@ -41,9 +40,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 	@Transactional
 	@Override
 	public String upload(MultipartFile multipartFile) throws TempBadRequestException {
-		// todo: refactoring the TempBadRequestExceptionL
-		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
-			() -> new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+		File file = convertMultiPartFileToFile(multipartFile);
 		// random file name
 		String key = profilePath + UUID.randomUUID() + file.getName();
 		// put S3
@@ -64,9 +61,9 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 		Files.delete(path);
 	}
 
-	private Optional<File> convertMultiPartFileToFile(MultipartFile file) {
+	private File convertMultiPartFileToFile(MultipartFile file) {
 		if (file == null || file.isEmpty()) {
-			return Optional.empty();
+			throw new ImageEmptyBadRequestException();
 		}
 		if (file.getSize() > MAX_FILE_SIZE) {
 			throw new ImageSizeExceededBadRequestException(file);
@@ -81,7 +78,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 		} catch (IOException e) {
 			throw new ImageWriteBadRequestException(convertedFile);
 		}
-		return Optional.of(convertedFile);
+		return convertedFile;
 	}
 
 	@Override
