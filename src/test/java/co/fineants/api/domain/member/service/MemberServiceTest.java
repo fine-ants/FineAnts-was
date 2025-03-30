@@ -53,9 +53,11 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.NicknameBadRequestException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -338,8 +340,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(MemberErrorCode.BAD_SIGNUP_INPUT.getMessage());
+			.isInstanceOf(NicknameBadRequestException.class)
+			.hasMessage(nickname);
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되어 에러를 받는다")
@@ -354,8 +356,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(nickname);
 	}
 
 	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
@@ -379,8 +381,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_EMAIL.getMessage());
+			.isInstanceOf(MailDuplicateException.class)
+			.hasMessage(email);
 	}
 
 	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
