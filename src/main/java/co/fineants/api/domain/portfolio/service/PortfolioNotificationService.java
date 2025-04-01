@@ -12,6 +12,7 @@ import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedServi
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
+import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,19 +37,15 @@ public class PortfolioNotificationService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationTargetGain(Boolean active,
-		@ResourceId Long portfolioId) {
+		@ResourceId Long portfolioId) throws PortfolioInvalidInputException {
 		log.info("change the Portfolio's targetGainIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeTargetGainNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
-	}
-
-	private void changeTargetGainNotification(Portfolio portfolio, Boolean isActive) {
 		try {
-			portfolio.changeTargetGainNotification(isActive);
+			portfolio.changeTargetGainNotification(active);
 		} catch (IllegalPortfolioStateException e) {
-			throw new TempBadRequestException(e.getErrorCode(), e);
+			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
+		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
 	}
 
 	private Portfolio findPortfolio(Long portfolioId) {

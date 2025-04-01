@@ -31,6 +31,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -106,8 +107,8 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioErrorCode.TARGET_GAIN_IS_ZERO_WITH_NOTIFY_UPDATE.getMessage());
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("회원은 다른 회원 포트폴리오의 목표 수익률 알림 상태를 변경할 수 없다")
