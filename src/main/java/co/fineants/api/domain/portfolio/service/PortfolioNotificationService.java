@@ -59,24 +59,20 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 최대손실금액 알림 활성화 설정 변경 결과
-	 * @throws TempBadRequestException 포트폴리오의 최대손실금액이 0원인 경우 예외 발생
+	 * @throws PortfolioInvalidInputException 포트폴리오의 최대손실금액이 0원인 경우 예외 발생
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationMaximumLoss(Boolean active,
-		@ResourceId Long portfolioId) {
+		@ResourceId Long portfolioId) throws PortfolioInvalidInputException {
 		log.info("change the portfolio's maximumIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeMaximumLossNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
-	}
-
-	private void changeMaximumLossNotification(Portfolio portfolio, Boolean active) {
 		try {
 			portfolio.changeMaximumLossNotification(active);
 		} catch (IllegalPortfolioStateException e) {
-			throw new TempBadRequestException(e.getErrorCode(), e);
+			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
+		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
 	}
 }
