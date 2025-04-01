@@ -34,6 +34,7 @@ import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -196,7 +197,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new TempBadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL));
+			.willThrow(new PasswordAuthenticationException("nemo1234@"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -214,10 +215,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("비밀번호가 일치하지 않습니다")));
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("code").value(equalTo(401)))
+			.andExpect(jsonPath("status").value(equalTo("Unauthorized")))
+			.andExpect(jsonPath("message").value(equalTo("Unauthenticated Password")))
+			.andExpect(jsonPath("data").value(equalTo("nemo1234@")));
 	}
 
 	@DisplayName("사용자는 signupData 필드 없이 회원가입 할 수 없다")
