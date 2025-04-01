@@ -32,6 +32,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
+import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
@@ -165,7 +166,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_EMAIL));
+			.willThrow(new EmailDuplicateException("dragonbead95@naver.com"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -183,10 +184,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("이메일이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("data").value(equalTo("dragonbead95@naver.com")));
 	}
 
 	@DisplayName("사용자는 비밀번호가 불일치하여 회원가입 할 수 없다")
