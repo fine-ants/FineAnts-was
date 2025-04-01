@@ -32,6 +32,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
+import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -134,7 +135,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME));
+			.willThrow(new NicknameDuplicateException("일개미1234"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -152,10 +153,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("닉네임이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
+			.andExpect(jsonPath("data").value(equalTo("일개미1234")));
 	}
 
 	@DisplayName("사용자는 중복된 이메일로는 회원가입 할 수 없다")
