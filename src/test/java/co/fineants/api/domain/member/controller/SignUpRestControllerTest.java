@@ -249,21 +249,22 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("message").value(equalTo("닉네임이 사용가능합니다")));
 	}
 
-	@DisplayName("사용자는 회원가입 과정중 닉네임이 중복되어 400 응답을 받는다")
+	@DisplayName("사용자는 회원가입 과정중 닉네임이 중복되어 409 응답을 받는다")
 	@Test
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		doThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_NICKNAME))
-			.when(mockedMemberService)
-			.checkNickname(anyString());
 		String nickname = "일개미1234";
+		doThrow(new NicknameDuplicateException(nickname))
+			.when(mockedMemberService)
+			.checkNickname(nickname);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("닉네임이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
+			.andExpect(jsonPath("data").value(equalTo(nickname)));
 	}
 
 	@DisplayName("사용자는 로컬 이메일이 중복되었는지 검사한다")
