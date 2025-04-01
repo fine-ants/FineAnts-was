@@ -54,8 +54,8 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
@@ -304,8 +304,9 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
+		MultipartFile profileFile = createProfileFile();
 		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
-			.willThrow(new TempBadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+			.willThrow(new ImageSizeExceededInvalidInputException(profileFile));
 
 		SignUpRequest request = new SignUpRequest(
 			"일개미4567",
@@ -320,8 +321,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL.getMessage());
+			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
+			.hasMessage(profileFile.toString());
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되었는지 체크한다")

@@ -61,7 +61,11 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 		Files.delete(path);
 	}
 
-	private File convertMultiPartFileToFile(MultipartFile file) {
+	private File convertMultiPartFileToFile(MultipartFile file) throws
+		ImageEmptyInvalidInputException,
+		ImageSizeExceededInvalidInputException,
+		ImageNameEmptyInvalidInputException,
+		ImageWriteInvalidInputException {
 		if (file == null || file.isEmpty()) {
 			throw new ImageEmptyInvalidInputException();
 		}
