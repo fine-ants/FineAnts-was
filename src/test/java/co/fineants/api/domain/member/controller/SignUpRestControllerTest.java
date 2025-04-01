@@ -1,7 +1,6 @@
 package co.fineants.api.domain.member.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,8 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
@@ -286,16 +283,17 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void emailDuplicationCheck_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		String email = "dragonbead95@naver.com";
-		doThrow(new TempBadRequestException(MemberErrorCode.REDUNDANT_EMAIL))
+		doThrow(new EmailDuplicateException(email))
 			.when(mockedMemberService)
-			.checkEmail(anyString());
+			.checkEmail(email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("이메일이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
 	@DisplayName("사용자는 이메일을 전달하고 이메일로 검증 코드를 받는다")
