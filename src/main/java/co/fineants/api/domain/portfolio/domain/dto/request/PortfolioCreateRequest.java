@@ -7,7 +7,6 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -15,10 +14,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class PortfolioCreateRequest {
 	@NotBlank(message = "포트폴리오 이름은 필수 정보입니다")
 	@Pattern(regexp = PortfolioDetail.NAME_REGEXP, message = "유효하지 않은 포트폴리오 이름입니다.")
@@ -47,15 +48,11 @@ public class PortfolioCreateRequest {
 	 * @param member 포트폴리오를 소유한 회원 객체
 	 * @param properties 증권사 목록을 포함하는 프로퍼티 객체
 	 * @return 포트폴리오 객체
-	 * @throws TempBadRequestException 포트폴리오의 상세 정보가 유효하지 않거나 금융 정보 조합이 유효하지 않으면 예외 발생
+	 * @throws IllegalPortfolioArgumentException 포트폴리오의 상세 정보가 유효하지 않거나 금융 정보 조합이 유효하지 않으면 예외 발생
 	 */
-	public Portfolio toEntity(Member member, PortfolioProperties properties) {
-		try {
-			PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
-			PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
-			return Portfolio.allInActive(detail, financial, member);
-		} catch (IllegalPortfolioArgumentException e) {
-			throw new TempBadRequestException(e.getErrorCode(), e);
-		}
+	public Portfolio toEntity(Member member, PortfolioProperties properties) throws IllegalPortfolioArgumentException {
+		PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
+		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
+		return Portfolio.allInActive(detail, financial, member);
 	}
 }

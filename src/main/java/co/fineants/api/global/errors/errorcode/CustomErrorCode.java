@@ -28,6 +28,7 @@ public enum CustomErrorCode {
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
 	SECURITIES_FIRM_BAD_REQUEST("P-003", "Bad Request Securities Firm"),
+	PORTFOLIO_BAD_REQUEST("P-004", "Bad Request Portfolio"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding

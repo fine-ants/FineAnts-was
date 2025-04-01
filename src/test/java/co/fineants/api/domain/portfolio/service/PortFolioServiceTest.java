@@ -47,6 +47,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -127,8 +128,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원은 포트폴리오를 추가할때 최대손실율이 예산보다 같거나 크면 안된다")
@@ -152,9 +153,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.extracting("message")
-			.isEqualTo("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원은 내가 가지고 있는 포트폴리오들중에서 동일한 이름을 가지는 포트폴리오를 추가할 수는 없다")

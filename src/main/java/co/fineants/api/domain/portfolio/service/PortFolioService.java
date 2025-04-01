@@ -37,7 +37,9 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
+import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
@@ -64,13 +66,19 @@ public class PortFolioService {
 	@Secured("ROLE_USER")
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) throws
-		PortfolioNameDuplicateException {
+		PortfolioNameDuplicateException,
+		PortfolioInvalidInputException {
 		validateSecuritiesFirm(request.getSecuritiesFirm());
 
 		Member member = findMember(memberId);
 
 		validateUniquePortfolioName(request.getName(), member);
-		Portfolio portfolio = request.toEntity(member, properties);
+		Portfolio portfolio;
+		try {
+			portfolio = request.toEntity(member, properties);
+		} catch (IllegalPortfolioArgumentException e) {
+			throw new PortfolioInvalidInputException(request.toString(), e);
+		}
 		return PortFolioCreateResponse.from(portfolioRepository.save(portfolio));
 	}
 
