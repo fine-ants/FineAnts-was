@@ -104,11 +104,16 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
-		Long memberId) throws PortfolioNameDuplicateException {
+		Long memberId) throws PortfolioNameDuplicateException, PortfolioInvalidInputException {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
-		Portfolio changePortfolio = request.toEntity(member, properties);
+		Portfolio changePortfolio;
+		try {
+			changePortfolio = request.toEntity(member, properties);
+		} catch (IllegalPortfolioArgumentException e) {
+			throw new PortfolioInvalidInputException(request.toString(), e);
+		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
 			validateUniquePortfolioName(changePortfolio.name(), member);

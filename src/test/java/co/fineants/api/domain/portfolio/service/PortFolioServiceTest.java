@@ -44,8 +44,6 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
@@ -342,8 +340,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오 정보 수정시 예산이 최대손실금액보다 같거나 작게 수정할 수 없다")
@@ -370,10 +368,9 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 			() -> service.updatePortfolio(request, portfolioId, member.getId()));
 
 		// then
-		log.error("fail update portfolio", throwable);
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("사용자가 나의 포트폴리오들을 처음 조회한다")

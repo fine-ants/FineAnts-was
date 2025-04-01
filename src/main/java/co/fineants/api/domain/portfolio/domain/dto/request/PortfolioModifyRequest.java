@@ -7,7 +7,6 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -32,14 +31,9 @@ public class PortfolioModifyRequest {
 	@MoneyNumberWithZero
 	private Money maximumLoss;
 
-	public Portfolio toEntity(Member member, PortfolioProperties properties) {
-
-		try {
-			PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
-			PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
-			return Portfolio.allInActive(detail, financial, member);
-		} catch (IllegalPortfolioArgumentException e) {
-			throw new TempBadRequestException(e.getErrorCode(), e);
-		}
+	public Portfolio toEntity(Member member, PortfolioProperties properties) throws IllegalPortfolioArgumentException {
+		PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
+		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
+		return Portfolio.allInActive(detail, financial, member);
 	}
 }
