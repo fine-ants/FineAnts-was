@@ -9,6 +9,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialArgumentException;
+import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,13 +44,13 @@ class FineAntsExceptionTest extends AbstractContainerBaseTest {
 			try {
 				PortfolioFinancial.of(budget, targetGain, maximumLoss);
 			} catch (IllegalPortfolioFinancialArgumentException e) {
-				throw new TempBadRequestException(e.getErrorCode(), e);
+				throw new PortfolioInvalidInputException(targetGain.toString(), e);
 			}
 		});
 		// then
-		log.error("not create PortfolioFinancial Instance", throwable);
 		Assertions.assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class);
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(targetGain.toString());
 	}
 
 }
