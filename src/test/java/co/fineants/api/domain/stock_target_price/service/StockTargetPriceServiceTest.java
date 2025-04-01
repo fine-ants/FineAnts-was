@@ -28,10 +28,10 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
+import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitExceededException;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
@@ -101,8 +101,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_LIMIT.getMessage());
+			.isInstanceOf(TargetPriceNotificationLimitExceededException.class)
+			.hasMessage("5");
 	}
 
 	@DisplayName("사용자는 한 종목의 지정가가 이미 존재하는 경우 추가할 수 없다")
@@ -124,8 +124,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST.getMessage());
+			.isInstanceOf(TargetPriceNotificationDuplicateException.class)
+			.hasMessage("tickerSymbol=005930, targetPrice=₩60,000");
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림 목록을 조회합니다")

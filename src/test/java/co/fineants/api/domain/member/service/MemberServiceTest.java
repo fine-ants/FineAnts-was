@@ -60,6 +60,7 @@ import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.temp.VerifyCodeInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -422,8 +423,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(TempBadRequestException.class)
-			.hasMessage(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL.getMessage());
+			.isInstanceOf(VerifyCodeInvalidInputException.class)
+			.hasMessage("234567");
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")
