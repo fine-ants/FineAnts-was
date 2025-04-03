@@ -16,6 +16,7 @@ import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.temp.ExchangeRateDuplicateException;
+import co.fineants.api.global.errors.exception.temp.ExchangeRateNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -100,7 +101,7 @@ public class ExchangeRateService {
 
 	private ExchangeRate findExchangeRateBy(String code) {
 		return exchangeRateRepository.findByCode(code)
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE));
+			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
 	}
 
 	@Transactional
