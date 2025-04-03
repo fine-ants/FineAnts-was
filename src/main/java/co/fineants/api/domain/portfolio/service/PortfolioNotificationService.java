@@ -10,7 +10,6 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.TempBadRequestException;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
@@ -31,7 +30,7 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 목표수익금액 활성화 알림 변경 결과
-	 * @throws TempBadRequestException 포트폴리오의 목표수익금액이 0원인 경우 예외 발생
+	 * @throws PortfolioInvalidInputException 포트폴리오의 목표수익금액이 0원인 경우 예외 발생
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
