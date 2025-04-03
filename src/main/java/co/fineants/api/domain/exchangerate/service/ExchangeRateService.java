@@ -14,6 +14,7 @@ import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.BaseExchangeRateDeleteInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.temp.ExchangeRateDuplicateException;
 import co.fineants.api.global.errors.exception.temp.ExchangeRateNotFoundException;
@@ -120,7 +121,7 @@ public class ExchangeRateService {
 		boolean match = codes.stream()
 			.anyMatch(base::equalCode);
 		if (match) {
-			throw new FineAntsException(ExchangeRateErrorCode.UNAVAILABLE_DELETE_BASE_EXCHANGE_RATE);
+			throw new BaseExchangeRateDeleteInvalidInputException(codes.toString());
 		}
 	}
 
