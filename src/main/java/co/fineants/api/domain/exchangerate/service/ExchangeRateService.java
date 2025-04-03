@@ -95,7 +95,7 @@ public class ExchangeRateService {
 		return rates.stream()
 			.filter(ExchangeRate::isBase)
 			.findFirst()
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_BASE));
+			.orElseThrow(() -> new BaseExchangeRateNotFoundException(rates.toString()));
 	}
 
 	private ExchangeRate findExchangeRateBy(String code) {
