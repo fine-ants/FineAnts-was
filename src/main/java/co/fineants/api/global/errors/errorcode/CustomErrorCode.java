@@ -53,7 +53,9 @@ public enum CustomErrorCode {
 	// Mail
 	MAIL_BAD_REQUEST("MAIL-001", "Mail Bad Request"),
 	// External API
-	EXTERNAL_API_GET_REQUEST("EX-001", "External API Get Request Error");
+	EXTERNAL_API_GET_REQUEST("EX-001", "External API Get Request Error"),
+	// Exchange Rate
+	EXCHANGE_RATE_DUPLICATE("EX-001", "Duplicate Exchange Rate");
 
 	private final String code;
 	private final String message;
