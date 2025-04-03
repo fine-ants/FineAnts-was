@@ -10,6 +10,7 @@ public enum CustomErrorCode {
 	AUTHORIZATION("B-003", "Authorization Error"),
 	NOT_FOUND("B-004", "Not Found"),
 	BAD_REQUEST("B-005", "Bad Request"),
+	EXTERNAL_API_REQUEST("B-006", "External API Request Error"),
 	// Member
 	EMAIL_DUPLICATE("M-001", "Duplicate Email"),
 	NICKNAME_DUPLICATE("M-002", "Duplicate Nickname"),
@@ -50,7 +51,9 @@ public enum CustomErrorCode {
 	// WatchList
 	WATCH_LIST_NOT_FOUND("WL-001", "WatchList Not Found"),
 	// Mail
-	MAIL_BAD_REQUEST("MAIL-001", "Mail Bad Request");
+	MAIL_BAD_REQUEST("MAIL-001", "Mail Bad Request"),
+	// External API
+	EXTERNAL_API_GET_REQUEST("EX-001", "External API Get Request Error");
 
 	private final String code;
 	private final String message;
