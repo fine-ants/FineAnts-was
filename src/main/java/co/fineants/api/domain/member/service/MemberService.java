@@ -47,7 +47,6 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.RoleErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
@@ -58,6 +57,7 @@ import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputExceptio
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.temp.PasswordInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.RoleNotFoundException;
 import co.fineants.api.global.errors.exception.temp.VerifyCodeInvalidInputException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -147,8 +147,9 @@ public class MemberService {
 		// 비밀번호 암호화
 		String encryptedPassword = request.encodePasswordBy(passwordEncoder);
 		// 역할 추가
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		member = request.toEntity(profileUrl, encryptedPassword);
 		member.addMemberRole(MemberRole.of(member, userRole));
 		// 알림 계정 설정 추가

@@ -64,7 +64,9 @@ public enum CustomErrorCode {
 	BASE_EXCHANGE_RATE_DELETE_BAD_REQUEST("EX-004", "Base Exchange Rate Delete Bad Request"),
 	// Fcm
 	FCM_DUPLICATE("FCM-001", "Duplicate FCM Token"),
-	FCM_BAD_REQUEST("FCM-002", "Bad Request FCM Token");
+	FCM_BAD_REQUEST("FCM-002", "Bad Request FCM Token"),
+	// Role
+	ROLE_NOT_FOUND("R-001", "Role Not Found");
 
 	private final String code;
 	private final String message;
