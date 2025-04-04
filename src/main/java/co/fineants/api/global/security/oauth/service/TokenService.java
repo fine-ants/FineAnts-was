@@ -117,7 +117,7 @@ public class TokenService {
 			}
 			return Token.create(accessToken, newRefreshToken);
 		}
-		throw new BadCredentialsException("expired refresh token");
+		throw new BadCredentialsException("expired refresh token.");
 	}
 
 	/**
