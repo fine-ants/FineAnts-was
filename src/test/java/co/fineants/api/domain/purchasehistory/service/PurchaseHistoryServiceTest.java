@@ -41,10 +41,9 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.PurchaseHistoryNotFoundException;
 import reactor.core.publisher.Mono;
 
 class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
@@ -377,8 +376,8 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PurchaseHistoryErrorCode.NOT_FOUND_PURCHASE_HISTORY.getMessage());
+			.isInstanceOf(PurchaseHistoryNotFoundException.class)
+			.hasMessage(purchaseHistoryId.toString());
 	}
 
 	@DisplayName("회원은 다른 회원의 매입 이력을 삭제할 수 없다")

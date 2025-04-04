@@ -52,11 +52,10 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
+import co.fineants.api.global.errors.exception.temp.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
@@ -190,8 +189,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.NO_PROFILE_CHANGES.getMessage());
+			.isInstanceOf(MemberProfileNotChangeException.class)
+			.hasMessage(serviceRequest.toString());
 	}
 
 	@DisplayName("사용자는 일반 회원가입한다")
