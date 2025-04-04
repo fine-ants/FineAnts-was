@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.util.Strings;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,9 +17,8 @@ import org.springframework.stereotype.Component;
 import co.fineants.api.global.common.authorized.service.AuthorizedService;
 import co.fineants.api.global.common.resource.ResourceIdParser;
 import co.fineants.api.global.errors.errorcode.CustomErrorCode;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.MemberAuthenticationException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +64,6 @@ public class AuthorizationAspect {
 		Object principal = authentication.getPrincipal();
 		MemberAuthentication memberAuthentication = (MemberAuthentication)principal;
 		return Optional.ofNullable(memberAuthentication).map(MemberAuthentication::getId)
-			.orElseThrow(() -> new FineAntsException(MemberErrorCode.UNAUTHORIZED_MEMBER));
+			.orElseThrow(() -> new MemberAuthenticationException(Strings.EMPTY));
 	}
 }

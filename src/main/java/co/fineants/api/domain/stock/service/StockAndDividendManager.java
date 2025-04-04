@@ -25,8 +25,7 @@ import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -218,6 +217,6 @@ public class StockAndDividendManager {
 
 	private Stock findStockBy(String tickerSymbol) {
 		return stockRepository.findByTickerSymbol(tickerSymbol)
-			.orElseThrow(() -> new FineAntsException(StockErrorCode.NOT_FOUND_STOCK));
+			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 }

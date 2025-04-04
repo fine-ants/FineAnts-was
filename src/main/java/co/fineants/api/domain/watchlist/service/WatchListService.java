@@ -29,10 +29,9 @@ import co.fineants.api.global.common.authorized.service.WatchListAuthorizedServi
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.WatchListErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
+import co.fineants.api.global.errors.exception.temp.WatchListAuthorizationException;
 import co.fineants.api.global.errors.exception.temp.WatchListNotFoundException;
 import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 import lombok.RequiredArgsConstructor;
@@ -122,7 +121,7 @@ public class WatchListService {
 	@Secured("ROLE_USER")
 	public void deleteWatchList(Long memberId, @ResourceId Long watchlistId) {
 		WatchList watchList = watchListRepository.findById(watchlistId)
-			.orElseThrow(() -> new FineAntsException(WatchListErrorCode.NOT_FOUND_WATCH_LIST));
+			.orElseThrow(() -> new WatchListNotFoundException(watchlistId.toString()));
 		validateWatchListAuthorization(watchList, memberId);
 		watchListRepository.deleteById(watchlistId);
 	}
@@ -184,7 +183,7 @@ public class WatchListService {
 
 	private void validateWatchListAuthorization(WatchList watchList, Long memberId) {
 		if (!watchList.hasAuthorization(memberId)) {
-			throw new FineAntsException(WatchListErrorCode.FORBIDDEN_WATCHLIST);
+			throw new WatchListAuthorizationException(memberId.toString());
 		}
 	}
 }

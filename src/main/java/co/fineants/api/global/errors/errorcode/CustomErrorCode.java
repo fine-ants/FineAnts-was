@@ -26,6 +26,7 @@ public enum CustomErrorCode {
 	IMAGE_WRITE_BAD_REQUEST("M-012", "Image Write Error"),
 	IMAGE_EMPTY_BAD_REQUEST("M-013", "Image Empty"),
 	MEMBER_PROFILE_NOT_CHANGE_BAD_REQUEST("M-014", "Member Profile Not Change"),
+	MEMBER_AUTHENTICATION("M-015", "Member Authentication Error"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
@@ -55,6 +56,7 @@ public enum CustomErrorCode {
 	TARGET_PRICE_NOTIFICATION_DUPLICATE("TPN-003", "TargetPriceNotification Duplicate"),
 	// WatchList
 	WATCH_LIST_NOT_FOUND("WL-001", "WatchList Not Found"),
+	WATCH_LIST_AUTHORIZATION("WL-002", "WatchList Authorization Error"),
 	// Mail
 	MAIL_BAD_REQUEST("MAIL-001", "Mail Bad Request"),
 	// External API
