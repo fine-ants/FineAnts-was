@@ -7,8 +7,8 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialArgumentException;
+import co.fineants.api.global.errors.exception.temp.domain.MaximumLossGreaterThanBudgetException;
 import co.fineants.api.global.errors.exception.temp.domain.MoneyNegativeException;
 import co.fineants.api.global.errors.exception.temp.domain.TargetGainLessThanBudgetException;
 import jakarta.persistence.Column;
@@ -57,8 +57,7 @@ public class PortfolioFinancial {
 		}
 		// 최대 손실 금액이 예산 보다 작은지 검증
 		if (!maximumLoss.hasZero() && budget.compareTo(maximumLoss) <= 0) {
-			throw new IllegalPortfolioFinancialArgumentException(budget, targetGain, maximumLoss,
-				PortfolioErrorCode.MAXIMUM_LOSS_IS_EQUAL_GREATER_THAN_BUDGET);
+			throw new MaximumLossGreaterThanBudgetException(maximumLoss, budget);
 		}
 	}
 

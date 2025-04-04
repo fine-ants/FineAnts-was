@@ -34,6 +34,7 @@ public enum CustomErrorCode {
 	PORTFOLIO_BAD_REQUEST("P-004", "Bad Request Portfolio"),
 	CASH_NOT_SUFFICIENT_FOR_PURCHASE("P-005", "Cash Not Sufficient For Purchase"),
 	TARGET_GAIN_LESS_THAN_BUDGET("P-006", "Target Gain Less Than Budget"),
+	MAXIMUM_LOSS_GREATER_THAN_BUDGET("P-007", "Maximum Loss Greater Than Budget"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
