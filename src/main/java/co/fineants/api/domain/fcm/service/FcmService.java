@@ -22,10 +22,10 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.FcmErrorCode;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.FcmDuplicateException;
+import co.fineants.api.global.errors.exception.temp.FcmInvalidInputException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,8 +67,7 @@ public class FcmService {
 		try {
 			firebaseMessaging.send(message, true);
 		} catch (FirebaseMessagingException e) {
-			log.info(e.getMessage(), e);
-			throw new FineAntsException(FcmErrorCode.BAD_REQUEST_FCM_TOKEN);
+			throw new FcmInvalidInputException(token, e);
 		}
 	}
 

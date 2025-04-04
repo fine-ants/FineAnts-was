@@ -4,6 +4,6 @@ import co.fineants.api.global.errors.errorcode.CustomErrorCode;
 
 public class FcmDuplicateException extends DuplicateException {
 	public FcmDuplicateException(String value, Throwable e) {
-		super(value, CustomErrorCode.DUPLICATE_FCM_TOKEN, e);
+		super(value, CustomErrorCode.FCM_DUPLICATE, e);
 	}
 }

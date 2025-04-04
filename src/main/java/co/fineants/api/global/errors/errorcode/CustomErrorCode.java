@@ -60,7 +60,8 @@ public enum CustomErrorCode {
 	EXCHANGE_RATE_NOT_FOUND("EX-003", "Exchange Rate Not Found"),
 	BASE_EXCHANGE_RATE_DELETE_BAD_REQUEST("EX-004", "Base Exchange Rate Delete Bad Request"),
 	// Fcm
-	DUPLICATE_FCM_TOKEN("FCM-001", "Duplicate FCM Token");
+	FCM_DUPLICATE("FCM-001", "Duplicate FCM Token"),
+	FCM_BAD_REQUEST("FCM-002", "Bad Request FCM Token");
 
 	private final String code;
 	private final String message;
