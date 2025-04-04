@@ -53,8 +53,7 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
-import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.RoleNotFoundException;
 import co.fineants.api.global.security.factory.CookieDomainProvider;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -172,8 +171,9 @@ public abstract class AbstractContainerBaseTest {
 	}
 
 	protected Member createMember(String nickname, String email) {
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
@@ -187,8 +187,9 @@ public abstract class AbstractContainerBaseTest {
 	}
 
 	protected Member createOauthMember() {
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
 			"profileUrl1");
 		// 회원 생성

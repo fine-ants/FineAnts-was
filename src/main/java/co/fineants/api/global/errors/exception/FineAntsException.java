@@ -11,12 +11,7 @@ public class FineAntsException extends RuntimeException {
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
 	}
-
-	public FineAntsException(ErrorCode errorCode, Throwable cause) {
-		super(errorCode.getMessage(), cause);
-		this.errorCode = errorCode;
-	}
-
+	
 	public int getHttpStatusCode() {
 		return getErrorCode().getHttpStatus().value();
 	}

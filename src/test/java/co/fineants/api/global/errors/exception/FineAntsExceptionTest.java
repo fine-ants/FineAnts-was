@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialArgumentException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,13 +23,14 @@ class FineAntsExceptionTest extends AbstractContainerBaseTest {
 		// when
 		Throwable throwable = Assertions.catchThrowable(
 			() -> {
-				throw new FineAntsException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO);
+				throw new PortfolioNotFoundException("1");
 			});
 		// then
 		log.error("fail find portfolio", throwable);
 		throwable.printStackTrace(System.out);
 		Assertions.assertThat(throwable)
-			.isInstanceOf(FineAntsException.class);
+			.isInstanceOf(PortfolioNotFoundException.class)
+			.hasMessage("1");
 	}
 
 	@DisplayName("예외 연쇄를 테스트한다")
