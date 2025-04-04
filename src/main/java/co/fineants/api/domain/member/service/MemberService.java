@@ -52,6 +52,7 @@ import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
 import co.fineants.api.global.errors.exception.temp.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.temp.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
@@ -242,7 +243,7 @@ public class MemberService {
 
 		// 변경할 정보가 없는 경우
 		if (profileImageFile == null && !request.hasNickname()) {
-			throw new FineAntsException(MemberErrorCode.NO_PROFILE_CHANGES);
+			throw new MemberProfileNotChangeException(request.toString());
 		}
 
 		// 기존 프로필 파일 유지
