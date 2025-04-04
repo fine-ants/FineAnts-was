@@ -35,6 +35,7 @@ public enum CustomErrorCode {
 	CASH_NOT_SUFFICIENT_FOR_PURCHASE("P-005", "Cash Not Sufficient For Purchase"),
 	TARGET_GAIN_LESS_THAN_BUDGET("P-006", "Target Gain Less Than Budget"),
 	MAXIMUM_LOSS_GREATER_THAN_BUDGET("P-007", "Maximum Loss Greater Than Budget"),
+	TARGET_GAIN_NOTIFICATION_ACTIVE_NOT_CHANGE("P-008", "Target Gain Notification Active Not Change"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
