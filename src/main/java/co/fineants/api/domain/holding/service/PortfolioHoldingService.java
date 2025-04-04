@@ -46,8 +46,7 @@ import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedServi
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
@@ -146,7 +145,7 @@ public class PortfolioHoldingService {
 		Expression purchasedAmount = request.getPurchaseHistory().getNumShares()
 			.multiply(request.getPurchaseHistory().getPurchasePricePerShare());
 		if (!portfolio.isCashSufficientForPurchase(purchasedAmount, calculator)) {
-			throw new FineAntsException(PortfolioErrorCode.TOTAL_INVESTMENT_PRICE_EXCEEDS_BUDGET);
+			throw new CashNotSufficientInvalidInputException(request.toString());
 		}
 	}
 

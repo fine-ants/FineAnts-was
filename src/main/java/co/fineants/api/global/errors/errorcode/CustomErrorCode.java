@@ -30,6 +30,7 @@ public enum CustomErrorCode {
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
 	SECURITIES_FIRM_BAD_REQUEST("P-003", "Bad Request Securities Firm"),
 	PORTFOLIO_BAD_REQUEST("P-004", "Bad Request Portfolio"),
+	CASH_NOT_SUFFICIENT_FOR_PURCHASE("P-005", "Cash Not Sufficient For Purchase"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
