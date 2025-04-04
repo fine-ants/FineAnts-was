@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -44,6 +42,6 @@ public class ExchangeRateUpdateService {
 		return rates.stream()
 			.filter(ExchangeRate::isBase)
 			.findFirst()
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_BASE));
+			.orElseThrow(() -> new BaseExchangeRateNotFoundException(rates.toString()));
 	}
 }
