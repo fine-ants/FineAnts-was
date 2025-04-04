@@ -47,7 +47,6 @@ import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthoriz
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
@@ -116,9 +115,7 @@ public class PortfolioHoldingService {
 		purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(List.of(portfolioHoldingId));
 
 		int deleted = portfolioHoldingRepository.deleteAllByIdIn(List.of(portfolioHoldingId));
-		if (deleted == 0) {
-			throw new FineAntsException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
-		}
+		log.info("포트폴리오 종목 삭제 개수 : {}", deleted);
 		return new PortfolioStockDeleteResponse(portfolioHoldingId);
 	}
 
