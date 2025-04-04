@@ -26,6 +26,8 @@ import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.BaseExchangeRateDeleteInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.ExchangeRateDuplicateException;
 
 @WithMockUser(roles = {"ADMIN"})
 class ExchangeRateServiceTest extends AbstractContainerBaseTest {
@@ -138,8 +140,8 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("이미 존재하는 통화입니다");
+			.isInstanceOf(ExchangeRateDuplicateException.class)
+			.hasMessage(usd);
 	}
 
 	@DisplayName("관리자는 환율을 조회한다")
@@ -216,8 +218,8 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.deleteExchangeRates(List.of(Currency.KRW.name())));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(ExchangeRateErrorCode.UNAVAILABLE_DELETE_BASE_EXCHANGE_RATE.getMessage());
+			.isInstanceOf(BaseExchangeRateDeleteInvalidInputException.class)
+			.hasMessage(List.of(Currency.KRW.name()).toString());
 	}
 
 	@DisplayName("관리자가 기준 통화를 제외한 모든 통화를 제거한다")

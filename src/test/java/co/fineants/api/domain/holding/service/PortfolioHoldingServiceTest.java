@@ -55,6 +55,7 @@ import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -596,9 +597,9 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
 
 		// then
-		assertThat(throwable).isInstanceOf(FineAntsException.class)
-			.extracting("message")
-			.isEqualTo("잘못된 입력 형식입니다.");
+		assertThat(throwable)
+			.isInstanceOf(PurchaseHistoryInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 존재하지 않는 종목을 추가할 수 없다")

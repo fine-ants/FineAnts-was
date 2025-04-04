@@ -41,10 +41,10 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
 import reactor.core.publisher.Mono;
 
 class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
@@ -217,8 +217,8 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioErrorCode.TOTAL_INVESTMENT_PRICE_EXCEEDS_BUDGET.getMessage());
+			.isInstanceOf(CashNotSufficientInvalidInputException.class)
+			.hasMessage(Money.won(1_500_000).toString());
 	}
 
 	@DisplayName("회원은 다른 회원의 포트폴리오에 매입 이력을 추가할 수 없다")
