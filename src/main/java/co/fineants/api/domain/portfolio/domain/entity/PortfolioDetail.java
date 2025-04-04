@@ -3,7 +3,6 @@ package co.fineants.api.domain.portfolio.domain.entity;
 import java.util.regex.Pattern;
 
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioSecuritiesFirmArgumentException;
 import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
 import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
 import jakarta.persistence.Column;
@@ -45,7 +44,7 @@ public class PortfolioDetail {
 	 * @param properties 증권사 목록이 담긴 포트폴리오 프로퍼티
 	 * @return 포트폴리오 상세 정보 객체
 	 * @throws PortfolioNameInvalidException 포트폴리오 이름이 유효하지 않으면 예외 발생
-	 * @throws IllegalPortfolioSecuritiesFirmArgumentException 증권사 이름이 목록(properties)에 없으면 예외 발생
+	 * @throws SecuritiesFirmNotContainException 증권사 목록에 없는 증권사 이름이면 예외 발생
 	 */
 	public static PortfolioDetail of(String name, String securitiesFirm, PortfolioProperties properties) {
 		return new PortfolioDetail(name, securitiesFirm, properties);

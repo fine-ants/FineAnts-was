@@ -10,9 +10,10 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.temp.domain.MaximumLossNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.temp.domain.TargetGainNotificationActiveNotChangeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +42,7 @@ public class PortfolioNotificationService {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		try {
 			portfolio.changeTargetGainNotification(active);
-		} catch (IllegalPortfolioStateException e) {
+		} catch (TargetGainNotificationActiveNotChangeException e) {
 			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
 		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
@@ -69,7 +70,7 @@ public class PortfolioNotificationService {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		try {
 			portfolio.changeMaximumLossNotification(active);
-		} catch (IllegalPortfolioStateException e) {
+		} catch (MaximumLossNotificationActiveNotChangeException e) {
 			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
 		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
