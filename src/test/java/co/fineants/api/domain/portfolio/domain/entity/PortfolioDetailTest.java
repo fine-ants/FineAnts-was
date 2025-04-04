@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
 
 class PortfolioDetailTest extends AbstractContainerBaseTest {
 
@@ -42,8 +44,8 @@ class PortfolioDetailTest extends AbstractContainerBaseTest {
 		Throwable throwable = Assertions.catchThrowable(() -> PortfolioDetail.of(name, securitiesFirm, properties));
 		// then
 		Assertions.assertThat(throwable)
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Unlisted securitiesFirm: " + securitiesFirm);
+			.isInstanceOf(SecuritiesFirmNotContainException.class)
+			.hasMessage(String.format("Unlisted securitiesFirm: %s", securitiesFirm));
 	}
 
 	@DisplayName("포트폴리오 이름 형식을 지키지 않으면 예외가 발생한다")
@@ -57,8 +59,8 @@ class PortfolioDetailTest extends AbstractContainerBaseTest {
 		Throwable throwable = Assertions.catchThrowable(() -> PortfolioDetail.of(name, securitiesFirm, properties));
 		// then
 		Assertions.assertThat(throwable)
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Invalid Portfolio name: " + name);
+			.isInstanceOf(PortfolioNameInvalidException.class)
+			.hasMessage(String.format("Invalid Portfolio name: %s", name));
 	}
 
 	private static Stream<Arguments> invalidPortfolioNames() {

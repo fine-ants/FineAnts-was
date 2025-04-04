@@ -24,7 +24,7 @@ public class CommonLoginAuthenticationEntryPoint implements AuthenticationEntryP
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException {
-		ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+		ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 		ApiResponse<String> body = ApiResponse.error(HttpStatus.UNAUTHORIZED, errorCode);
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
