@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
-import co.fineants.api.global.errors.errorcode.JwtErrorCode;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import io.jsonwebtoken.Claims;
@@ -118,7 +117,7 @@ public class TokenService {
 			}
 			return Token.create(accessToken, newRefreshToken);
 		}
-		throw new BadCredentialsException(JwtErrorCode.INVALID_TOKEN.getMessage());
+		throw new BadCredentialsException("expired refresh token");
 	}
 
 	/**
