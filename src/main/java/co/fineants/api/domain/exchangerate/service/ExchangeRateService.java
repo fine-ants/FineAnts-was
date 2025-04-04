@@ -3,6 +3,7 @@ package co.fineants.api.domain.exchangerate.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +13,6 @@ import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateItem;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.BaseExchangeRateDeleteInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.temp.ExchangeRateDuplicateException;
@@ -127,6 +126,6 @@ public class ExchangeRateService {
 
 	private ExchangeRate findBaseExchangeRate() {
 		return exchangeRateRepository.findBase()
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_BASE));
+			.orElseThrow(() -> new BaseExchangeRateNotFoundException(Strings.EMPTY));
 	}
 }
