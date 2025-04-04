@@ -9,6 +9,8 @@ import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialArgumentException;
+import co.fineants.api.global.errors.exception.temp.domain.MoneyNegativeException;
+import co.fineants.api.global.errors.exception.temp.domain.TargetGainLessThanBudgetException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
@@ -46,14 +48,12 @@ public class PortfolioFinancial {
 		// 음수가 아닌지 검증
 		for (Money money : List.of(budget, targetGain, maximumLoss)) {
 			if (isNegative(money)) {
-				throw new IllegalPortfolioFinancialArgumentException(budget, targetGain, maximumLoss,
-					PortfolioErrorCode.INVALID_PORTFOLIO_FINANCIAL_INFO);
+				throw new MoneyNegativeException(money);
 			}
 		}
 		// 목표 수익 금액이 0원이 아닌 상태에서 예산 보다 큰지 검증
 		if (!targetGain.hasZero() && budget.compareTo(targetGain) >= 0) {
-			throw new IllegalPortfolioFinancialArgumentException(budget, targetGain, maximumLoss,
-				PortfolioErrorCode.TARGET_GAIN_LOSS_IS_EQUAL_LESS_THAN_BUDGET);
+			throw new TargetGainLessThanBudgetException(targetGain, budget);
 		}
 		// 최대 손실 금액이 예산 보다 작은지 검증
 		if (!maximumLoss.hasZero() && budget.compareTo(maximumLoss) <= 0) {

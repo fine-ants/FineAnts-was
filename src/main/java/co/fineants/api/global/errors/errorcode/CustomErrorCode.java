@@ -33,6 +33,7 @@ public enum CustomErrorCode {
 	SECURITIES_FIRM_BAD_REQUEST("P-003", "Bad Request Securities Firm"),
 	PORTFOLIO_BAD_REQUEST("P-004", "Bad Request Portfolio"),
 	CASH_NOT_SUFFICIENT_FOR_PURCHASE("P-005", "Cash Not Sufficient For Purchase"),
+	TARGET_GAIN_LESS_THAN_BUDGET("P-006", "Target Gain Less Than Budget"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
@@ -70,7 +71,9 @@ public enum CustomErrorCode {
 	FCM_DUPLICATE("FCM-001", "Duplicate FCM Token"),
 	FCM_BAD_REQUEST("FCM-002", "Bad Request FCM Token"),
 	// Role
-	ROLE_NOT_FOUND("R-001", "Role Not Found");
+	ROLE_NOT_FOUND("R-001", "Role Not Found"),
+	// Money
+	MONEY_NEGATIVE("M-001", "Money cannot be negative");
 
 	private final String code;
 	private final String message;
