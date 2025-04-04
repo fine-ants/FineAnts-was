@@ -13,8 +13,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +35,7 @@ public class PortfolioCacheService {
 	@NotNull
 	private Set<String> getTickers(Long portfolioId) {
 		Portfolio portfolio = portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.orElseThrow(() -> new FineAntsException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 		return portfolio.getPortfolioHoldings().stream()
 			.map(PortfolioHolding::getStock)
 			.map(Stock::getTickerSymbol)
