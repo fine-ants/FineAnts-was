@@ -22,10 +22,10 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PurchaseHistoryAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
-import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PurchaseHistoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +54,7 @@ public class PurchaseHistoryService {
 		PortfolioHolding findHolding = portfolio.getPortfolioHoldings().stream()
 			.filter(holding -> holding.getId().equals(portfolioHoldingId))
 			.findAny()
-			.orElseThrow(() -> new FineAntsException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING));
+			.orElseThrow(() -> new HoldingNotFoundException(portfolioHoldingId.toString()));
 		PurchaseHistory history = request.toEntity(findHolding);
 
 		verifyCashSufficientForPurchase(portfolio, (Money)history.calInvestmentAmount());
@@ -68,12 +68,12 @@ public class PurchaseHistoryService {
 
 	private Portfolio findPortfolio(Long portfolioId) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.orElseThrow(() -> new FineAntsException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	private void verifyCashSufficientForPurchase(Portfolio portfolio, Money investmentAmount) {
 		if (!portfolio.isCashSufficientForPurchase(investmentAmount, calculator)) {
-			throw new FineAntsException(PortfolioErrorCode.TOTAL_INVESTMENT_PRICE_EXCEEDS_BUDGET);
+			throw new CashNotSufficientInvalidInputException(investmentAmount.toString());
 		}
 	}
 
@@ -117,11 +117,11 @@ public class PurchaseHistoryService {
 	private PortfolioHolding findPortfolioHolding(Long portfolioHoldingId, Long portfolioId) {
 		return portfolioHoldingRepository.findByPortfolioHoldingIdAndPortfolioIdWithPortfolio(portfolioHoldingId,
 				portfolioId)
-			.orElseThrow(() -> new FineAntsException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING));
+			.orElseThrow(() -> new HoldingNotFoundException(portfolioHoldingId.toString()));
 	}
 
 	private PurchaseHistory findPurchaseHistory(Long purchaseHistoryId) {
 		return repository.findById(purchaseHistoryId)
-			.orElseThrow(() -> new FineAntsException(PurchaseHistoryErrorCode.NOT_FOUND_PURCHASE_HISTORY));
+			.orElseThrow(() -> new PurchaseHistoryNotFoundException(purchaseHistoryId.toString()));
 	}
 }

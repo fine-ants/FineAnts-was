@@ -38,6 +38,7 @@ public enum CustomErrorCode {
 	HOLDING_NOT_FOUND("H-001", "Holding Not Found"),
 	// PurchaseHistory
 	PURCHASE_HISTORY_BAD_REQUEST("PH-001", "PurchaseHistory Bad Request"),
+	PURCHASE_HISTORY_NOT_FOUND("PH-002", "PurchaseHistory Not Found"),
 	// WatchStock
 	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),
 	// NotificationPreference
