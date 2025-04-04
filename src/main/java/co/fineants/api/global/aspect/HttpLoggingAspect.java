@@ -18,7 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,10 +63,10 @@ public class HttpLoggingAspect {
 		HttpServletRequest request =
 			((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
 		// 특정 비즈니스 예외 처리
-		if (ex instanceof FineAntsException fineAntsException) {
+		if (ex instanceof BusinessException businessException) {
 			log.warn(HTTP_RESPONSE_LOG_FORMAT,
-				request.getRequestURI(), fineAntsException.getHttpStatusCode(), fineAntsException.getMessage(), null,
-				ex);
+				request.getRequestURI(), businessException.getHttpStatus().value(), businessException.getMessage(),
+				businessException.getExceptionValue(), ex);
 		} else if (ex instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
 			String errorMessage = Objects.requireNonNull(methodArgumentNotValidException.getBindingResult()
 				.getFieldError()).getDefaultMessage();

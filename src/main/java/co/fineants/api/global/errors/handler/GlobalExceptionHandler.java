@@ -12,19 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-	@ExceptionHandler(FineAntsException.class)
-	public ResponseEntity<ApiResponse<Object>> handleFineANtsException(FineAntsException exception) {
-		ApiResponse<Object> body = ApiResponse.error(exception.getErrorCode());
-		return ResponseEntity.status(exception.getErrorCode().getHttpStatus()).body(body);
-	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValidException(
