@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import co.fineants.api.global.errors.errorcode.CustomErrorCode;
-import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.success.SuccessCode;
 import lombok.Getter;
 
@@ -50,14 +49,6 @@ public class ApiResponse<T> {
 
 	public static <T> ApiResponse<T> success(SuccessCode code, T data) {
 		return new ApiResponse<>(code.getHttpStatus(), code.getMessage(), data);
-	}
-
-	public static <T> ApiResponse<T> error(ErrorCode errorCode) {
-		return error(errorCode, null);
-	}
-
-	public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) {
-		return new ApiResponse<>(errorCode.getHttpStatus(), errorCode.getMessage(), data);
 	}
 
 	public static <T> ApiResponse<T> error(HttpStatus httpStatus, String message, T data) {
