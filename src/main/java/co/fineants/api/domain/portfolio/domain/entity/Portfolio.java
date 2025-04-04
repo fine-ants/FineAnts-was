@@ -23,8 +23,7 @@ import co.fineants.api.domain.notification.repository.NotificationSentRepository
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioFinancialStateException;
+import co.fineants.api.global.errors.exception.temp.domain.MaximumLossNotificationActiveNotChangeException;
 import co.fineants.api.global.errors.exception.temp.domain.TargetGainNotificationActiveNotChangeException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -183,12 +182,11 @@ public class Portfolio extends BaseEntity {
 	 * 포트폴리오의 최대손실금액이 0원인 경우 활성화 알림이 변경되지 않는다
 	 * </p>
 	 * @param active 변경하고자 하는 활성화 알림 여부, true: 알림 활성화, false: 알림 비활성화
-	 * @throws IllegalPortfolioFinancialStateException 최대손실금액이 0원인 경우 예외 발생
+	 * @throws MaximumLossNotificationActiveNotChangeException 최대손실금액이 0원인 경우 예외 발생
 	 */
 	public void changeMaximumLossNotification(Boolean active) {
 		if (this.financial.isMaximumLossZero()) {
-			throw new IllegalPortfolioFinancialStateException(this.financial,
-				PortfolioErrorCode.MAX_LOSS_IS_ZERO_WITH_NOTIFY_UPDATE);
+			throw new MaximumLossNotificationActiveNotChangeException(this.financial.getMaximumLoss());
 		}
 		this.preference.changeMaximumLoss(active);
 	}
