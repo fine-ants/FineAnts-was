@@ -11,6 +11,7 @@ import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,7 +36,7 @@ public class ExchangeRateUpdateService {
 	private void validateExistBase(List<ExchangeRate> rates) {
 		if (rates.stream()
 			.noneMatch(ExchangeRate::isBase)) {
-			throw new FineAntsException(ExchangeRateErrorCode.UNAVAILABLE_UPDATE_EXCHANGE_RATE);
+			throw new BaseExchangeRateNotFoundException(rates.toString());
 		}
 	}
 
