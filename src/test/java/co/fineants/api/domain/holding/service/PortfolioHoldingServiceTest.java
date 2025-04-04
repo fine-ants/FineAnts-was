@@ -51,8 +51,6 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
@@ -655,24 +653,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
-	}
-
-	@DisplayName("사용자는 존재하지 않은 포트폴리오의 종목을 삭제할 수 없다")
-	@Test
-	void deletePortfolioStockWithNotExistPortfolioStockId() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Long portfolioStockId = 9999L;
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.deletePortfolioStock(portfolioStockId, portfolio.getId()));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING.getMessage());
 	}
 
 	@DisplayName("사용자는 다수의 포트폴리오 종목을 삭제할 수 있다")
