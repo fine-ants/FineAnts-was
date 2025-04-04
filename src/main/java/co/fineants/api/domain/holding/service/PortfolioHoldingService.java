@@ -48,10 +48,10 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
-import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +95,7 @@ public class PortfolioHoldingService {
 			validateCashSufficientForPurchase(request, portfolio);
 			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
 		} else if (!request.isPurchaseHistoryAllNull()) {
-			throw new FineAntsException(PurchaseHistoryErrorCode.BAD_INPUT);
+			throw new PurchaseHistoryInvalidInputException(request.toString());
 		}
 
 		// 포트폴리오의 종목 캐시 업데이트

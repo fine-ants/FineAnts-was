@@ -34,6 +34,8 @@ public enum CustomErrorCode {
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
 	HOLDING_NOT_FOUND("H-001", "Holding Not Found"),
+	// PurchaseHistory
+	PURCHASE_HISTORY_BAD_REQUEST("PH-001", "PurchaseHistory Bad Request"),
 	// WatchStock
 	WATCH_STOCK_DUPLICATE("W-001", "Duplicate WatchStock"),
 	// NotificationPreference
