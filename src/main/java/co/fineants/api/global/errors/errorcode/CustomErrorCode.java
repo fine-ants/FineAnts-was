@@ -27,6 +27,7 @@ public enum CustomErrorCode {
 	IMAGE_EMPTY_BAD_REQUEST("M-013", "Image Empty"),
 	MEMBER_PROFILE_NOT_CHANGE_BAD_REQUEST("M-014", "Member Profile Not Change"),
 	MEMBER_AUTHENTICATION("M-015", "Member Authentication Error"),
+	LOGIN_FAIL("M-016", "Login Fail"),
 	// Portfolio
 	PORTFOLIO_NAME_DUPLICATE("P-001", "Duplicate Name"),
 	PORTFOLIO_NOT_FOUND("P-002", "Portfolio Not Found"),
