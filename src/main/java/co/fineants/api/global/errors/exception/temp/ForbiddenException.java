@@ -6,10 +6,10 @@ import co.fineants.api.global.errors.errorcode.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class AuthorizationException extends BusinessException {
+public class ForbiddenException extends BusinessException {
 	private final String value;
 
-	public AuthorizationException(String value, ErrorCode errorCode) {
+	public ForbiddenException(String value, ErrorCode errorCode) {
 		super(value, errorCode);
 		this.value = value;
 	}

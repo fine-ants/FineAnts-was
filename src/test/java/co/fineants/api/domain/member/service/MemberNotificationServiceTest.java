@@ -22,7 +22,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.NotificationNotFoundException;
 
 class MemberNotificationServiceTest extends AbstractContainerBaseTest {
@@ -97,7 +97,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class);
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	@DisplayName("사용자는 알림 모두 읽습니다")
@@ -168,7 +168,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class);
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	@DisplayName("사용자는 알림을 전체 삭제합니다")
@@ -231,7 +231,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class);
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	private List<Notification> createNotifications(Member member) {

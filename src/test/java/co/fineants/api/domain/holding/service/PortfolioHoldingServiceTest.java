@@ -51,7 +51,7 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
@@ -234,7 +234,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.readPortfolioHoldings(portfolio.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 
@@ -376,7 +376,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15)));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 
@@ -490,7 +490,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 
@@ -754,7 +754,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolioHolding2.toString());
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();

@@ -28,7 +28,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
@@ -125,7 +125,7 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 
@@ -200,7 +200,7 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 }

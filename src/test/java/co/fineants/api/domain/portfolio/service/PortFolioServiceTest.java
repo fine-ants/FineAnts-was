@@ -44,7 +44,7 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
@@ -311,7 +311,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(originPortfolio.toString());
 	}
 
@@ -497,7 +497,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 
@@ -553,7 +553,7 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
 

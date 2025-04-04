@@ -31,7 +31,7 @@ import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
-import co.fineants.api.global.errors.exception.temp.WatchListAuthorizationException;
+import co.fineants.api.global.errors.exception.temp.WatchListForbiddenException;
 import co.fineants.api.global.errors.exception.temp.WatchListNotFoundException;
 import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 import lombok.RequiredArgsConstructor;
@@ -183,7 +183,7 @@ public class WatchListService {
 
 	private void validateWatchListAuthorization(WatchList watchList, Long memberId) {
 		if (!watchList.hasAuthorization(memberId)) {
-			throw new WatchListAuthorizationException(memberId.toString());
+			throw new WatchListForbiddenException(memberId.toString());
 		}
 	}
 }

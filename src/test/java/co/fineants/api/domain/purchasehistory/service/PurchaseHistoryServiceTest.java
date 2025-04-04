@@ -41,8 +41,8 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.PurchaseHistoryNotFoundException;
 import reactor.core.publisher.Mono;
 
@@ -245,7 +245,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			() -> service.createPurchaseHistory(request, portfolio.getId(), holding.getId(), hacker.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(holding.toString());
 	}
 
@@ -316,7 +316,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 				hacker.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(history.toString());
 	}
 
@@ -404,7 +404,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(history.toString());
 	}
 }

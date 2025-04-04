@@ -30,8 +30,8 @@ import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
 import co.fineants.api.global.errors.exception.temp.FcmInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 
 class FcmServiceTest extends AbstractContainerBaseTest {
 
@@ -186,7 +186,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> fcmService.deleteToken(fcmToken.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(fcmToken.toString());
 	}
 }

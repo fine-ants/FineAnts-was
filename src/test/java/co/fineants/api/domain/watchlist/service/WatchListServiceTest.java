@@ -37,7 +37,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
@@ -152,7 +152,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> watchListService.readWatchList(hacker.getId(), watchList.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -199,7 +199,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.createWatchStocks(hacker.getId(), watchListId, request));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -286,7 +286,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchLists(hacker.getId(), List.of(watchListId)));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -326,7 +326,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -370,7 +370,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchStocks(hacker.getId(), watchListId, request));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -411,7 +411,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.deleteWatchStock(hacker.getId(), watchListId, stock.getTickerSymbol()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 
@@ -451,7 +451,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			() -> watchListService.changeWatchListName(hacker.getId(), watchListId, request));
 		//then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(watchList.toString());
 	}
 

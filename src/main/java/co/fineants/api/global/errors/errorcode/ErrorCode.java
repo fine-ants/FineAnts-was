@@ -6,8 +6,8 @@ import lombok.Getter;
 public enum ErrorCode {
 	// Business
 	DUPLICATE("B-001", "Duplicate Value"),
-	UNAUTHENTICATED("B-002", "Unauthenticated Value"),
-	AUTHORIZATION("B-003", "Authorization Error"),
+	UNAUTHORIZED("B-002", "Unauthorized Value"),
+	FORBIDDEN("B-003", "Forbidden Value"),
 	NOT_FOUND("B-004", "Not Found"),
 	BAD_REQUEST("B-005", "Bad Request"),
 	EXTERNAL_API_REQUEST("B-006", "External API Request Error"),

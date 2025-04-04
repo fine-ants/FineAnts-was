@@ -28,7 +28,7 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.exception.temp.AuthorizationException;
+import co.fineants.api.global.errors.exception.temp.ForbiddenException;
 import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
 import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
 import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitExceededException;
@@ -321,7 +321,7 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.deleteStockTargetPrice(stockTargetPrice.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(AuthorizationException.class)
+			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(stockTargetPrice.toString());
 	}
 }
