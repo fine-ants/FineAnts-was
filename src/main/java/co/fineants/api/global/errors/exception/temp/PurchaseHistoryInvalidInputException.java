@@ -1,9 +1,9 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class PurchaseHistoryInvalidInputException extends InvalidInputException {
 	public PurchaseHistoryInvalidInputException(String value) {
-		super(value, CustomErrorCode.PURCHASE_HISTORY_BAD_REQUEST);
+		super(value, ErrorCode.PURCHASE_HISTORY_BAD_REQUEST);
 	}
 }

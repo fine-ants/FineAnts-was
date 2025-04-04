@@ -2,10 +2,10 @@ package co.fineants.api.global.errors.exception.temp;
 
 import org.springframework.http.HttpStatus;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class ExternalApiGetRequestException extends ExternalApiRequestException {
 	public ExternalApiGetRequestException(String value, HttpStatus httpStatus) {
-		super(value, CustomErrorCode.EXTERNAL_API_GET_REQUEST, httpStatus);
+		super(value, ErrorCode.EXTERNAL_API_GET_REQUEST, httpStatus);
 	}
 }

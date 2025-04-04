@@ -2,10 +2,10 @@ package co.fineants.api.global.errors.exception.temp;
 
 import java.io.File;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class ImageWriteInvalidInputException extends InvalidInputException {
 	public ImageWriteInvalidInputException(File file) {
-		super(file.toString(), CustomErrorCode.IMAGE_WRITE_BAD_REQUEST);
+		super(file.toString(), ErrorCode.IMAGE_WRITE_BAD_REQUEST);
 	}
 }

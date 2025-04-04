@@ -10,7 +10,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class CommonLoginAuthenticationEntryPoint implements AuthenticationEntryP
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException {
-		CustomErrorCode errorCode = CustomErrorCode.UNAUTHENTICATED;
+		ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
 		ApiResponse<String> body = ApiResponse.error(HttpStatus.UNAUTHORIZED, errorCode);
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);

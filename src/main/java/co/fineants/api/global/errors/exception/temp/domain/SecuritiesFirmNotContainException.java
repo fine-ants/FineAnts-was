@@ -1,13 +1,13 @@
 package co.fineants.api.global.errors.exception.temp.domain;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class SecuritiesFirmNotContainException extends DomainException {
 	private final String securitiesFirm;
 
 	public SecuritiesFirmNotContainException(String securitiesFirm) {
 		super(String.format("Unlisted securitiesFirm: %s", securitiesFirm),
-			CustomErrorCode.SECURITIES_FIRM_NOT_CONTAIN);
+			ErrorCode.SECURITIES_FIRM_NOT_CONTAIN);
 		this.securitiesFirm = securitiesFirm;
 	}
 

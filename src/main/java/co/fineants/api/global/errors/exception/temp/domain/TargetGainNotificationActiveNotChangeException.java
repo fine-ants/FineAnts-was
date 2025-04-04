@@ -1,14 +1,14 @@
 package co.fineants.api.global.errors.exception.temp.domain;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class TargetGainNotificationActiveNotChangeException extends DomainException {
 	private final Money targetGain;
 
 	public TargetGainNotificationActiveNotChangeException(Money targetGain) {
 		super(String.format("Target gain notification active cannot be changed: %s", targetGain),
-			CustomErrorCode.TARGET_GAIN_NOTIFICATION_ACTIVE_NOT_CHANGE);
+			ErrorCode.TARGET_GAIN_NOTIFICATION_ACTIVE_NOT_CHANGE);
 		this.targetGain = targetGain;
 	}
 

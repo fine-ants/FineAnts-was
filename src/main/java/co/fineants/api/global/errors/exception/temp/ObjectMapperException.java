@@ -2,11 +2,11 @@ package co.fineants.api.global.errors.exception.temp;
 
 import org.springframework.http.HttpStatus;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class ObjectMapperException extends BusinessException {
 	public ObjectMapperException(String message, Throwable cause) {
-		super(message, CustomErrorCode.OBJECT_MAPPER_ERROR, cause);
+		super(message, ErrorCode.OBJECT_MAPPER_ERROR, cause);
 	}
 
 	@Override

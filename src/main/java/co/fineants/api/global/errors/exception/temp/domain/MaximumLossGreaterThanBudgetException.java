@@ -1,7 +1,7 @@
 package co.fineants.api.global.errors.exception.temp.domain;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class MaximumLossGreaterThanBudgetException extends DomainException {
 	private final Money maximumLoss;
@@ -9,7 +9,7 @@ public class MaximumLossGreaterThanBudgetException extends DomainException {
 
 	public MaximumLossGreaterThanBudgetException(Money maximumLoss, Money budget) {
 		super(String.format("Maximum loss cannot be greater than budget: %s > %s", maximumLoss, budget),
-			CustomErrorCode.MAXIMUM_LOSS_GREATER_THAN_BUDGET);
+			ErrorCode.MAXIMUM_LOSS_GREATER_THAN_BUDGET);
 		this.maximumLoss = maximumLoss;
 		this.budget = budget;
 	}

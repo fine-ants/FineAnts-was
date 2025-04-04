@@ -1,12 +1,12 @@
 package co.fineants.api.global.errors.exception.temp.domain;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class PortfolioNameInvalidException extends DomainException {
 	private final String name;
 
 	public PortfolioNameInvalidException(String name) {
-		super(String.format("Invalid Portfolio name: %s", name), CustomErrorCode.PORTFOLIO_NAME_INVALID);
+		super(String.format("Invalid Portfolio name: %s", name), ErrorCode.PORTFOLIO_NAME_INVALID);
 		this.name = name;
 	}
 

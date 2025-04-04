@@ -1,14 +1,14 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class MailInvalidInputException extends InvalidInputException {
 
 	public MailInvalidInputException(String mail) {
-		super(mail, CustomErrorCode.MAIL_BAD_REQUEST);
+		super(mail, ErrorCode.MAIL_BAD_REQUEST);
 	}
 
 	public MailInvalidInputException(String mail, Throwable throwable) {
-		super(mail, CustomErrorCode.MAIL_BAD_REQUEST, throwable);
+		super(mail, ErrorCode.MAIL_BAD_REQUEST, throwable);
 	}
 }

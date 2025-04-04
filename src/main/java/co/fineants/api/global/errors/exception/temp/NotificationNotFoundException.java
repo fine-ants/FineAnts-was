@@ -1,9 +1,9 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class NotificationNotFoundException extends NotFoundException {
 	public NotificationNotFoundException(String value) {
-		super(value, CustomErrorCode.NOTIFICATION_NOT_FOUND);
+		super(value, ErrorCode.NOTIFICATION_NOT_FOUND);
 	}
 }

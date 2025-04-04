@@ -1,13 +1,13 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class HoldingNotFoundException extends NotFoundException {
 	public HoldingNotFoundException(String value) {
-		super(value, CustomErrorCode.HOLDING_NOT_FOUND);
+		super(value, ErrorCode.HOLDING_NOT_FOUND);
 	}
 
 	public HoldingNotFoundException(String value, Throwable e) {
-		super(value, CustomErrorCode.HOLDING_NOT_FOUND, e);
+		super(value, ErrorCode.HOLDING_NOT_FOUND, e);
 	}
 }

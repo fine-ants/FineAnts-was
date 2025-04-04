@@ -1,7 +1,7 @@
 package co.fineants.api.global.errors.exception.temp.domain;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class TargetGainLessThanBudgetException extends DomainException {
 	private final Money targetGain;
@@ -9,7 +9,7 @@ public class TargetGainLessThanBudgetException extends DomainException {
 
 	public TargetGainLessThanBudgetException(Money targetGain, Money budget) {
 		super(String.format("Target gain cannot be less than budget: %s < %s", targetGain, budget),
-			CustomErrorCode.TARGET_GAIN_LESS_THAN_BUDGET);
+			ErrorCode.TARGET_GAIN_LESS_THAN_BUDGET);
 		this.targetGain = targetGain;
 		this.budget = budget;
 	}

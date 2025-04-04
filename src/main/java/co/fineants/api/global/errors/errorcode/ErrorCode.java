@@ -3,7 +3,7 @@ package co.fineants.api.global.errors.errorcode;
 import lombok.Getter;
 
 @Getter
-public enum CustomErrorCode {
+public enum ErrorCode {
 	// Business
 	DUPLICATE("B-001", "Duplicate Value"),
 	UNAUTHENTICATED("B-002", "Unauthenticated Value"),
@@ -84,7 +84,7 @@ public enum CustomErrorCode {
 	private final String code;
 	private final String message;
 
-	CustomErrorCode(String code, String message) {
+	ErrorCode(String code, String message) {
 		this.code = code;
 		this.message = message;
 	}

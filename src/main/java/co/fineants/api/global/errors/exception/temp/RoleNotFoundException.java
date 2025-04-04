@@ -1,9 +1,9 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class RoleNotFoundException extends NotFoundException {
 	public RoleNotFoundException(String value) {
-		super(value, CustomErrorCode.ROLE_NOT_FOUND);
+		super(value, ErrorCode.ROLE_NOT_FOUND);
 	}
 }

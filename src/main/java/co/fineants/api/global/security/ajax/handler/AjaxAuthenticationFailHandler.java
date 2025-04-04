@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class AjaxAuthenticationFailHandler implements AuthenticationFailureHandl
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException {
-		CustomErrorCode errorCode = CustomErrorCode.LOGIN_FAIL;
+		ErrorCode errorCode = ErrorCode.LOGIN_FAIL;
 		HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 		ApiResponse<String> body = ApiResponse.error(badRequest, errorCode);
 		response.setStatus(badRequest.value());

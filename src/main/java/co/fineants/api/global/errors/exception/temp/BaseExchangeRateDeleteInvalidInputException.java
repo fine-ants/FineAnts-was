@@ -1,9 +1,9 @@
 package co.fineants.api.global.errors.exception.temp;
 
-import co.fineants.api.global.errors.errorcode.CustomErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 
 public class BaseExchangeRateDeleteInvalidInputException extends InvalidInputException {
 	public BaseExchangeRateDeleteInvalidInputException(String value) {
-		super(value, CustomErrorCode.BASE_EXCHANGE_RATE_DELETE_BAD_REQUEST);
+		super(value, ErrorCode.BASE_EXCHANGE_RATE_DELETE_BAD_REQUEST);
 	}
 }
