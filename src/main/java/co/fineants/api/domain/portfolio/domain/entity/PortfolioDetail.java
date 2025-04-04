@@ -3,9 +3,9 @@ package co.fineants.api.domain.portfolio.domain.entity;
 import java.util.regex.Pattern;
 
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
 import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioSecuritiesFirmArgumentException;
 import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -31,8 +31,7 @@ public class PortfolioDetail {
 			throw new PortfolioNameInvalidException(name);
 		}
 		if (!properties.contains(securitiesFirm)) {
-			throw new IllegalPortfolioSecuritiesFirmArgumentException(securitiesFirm,
-				PortfolioErrorCode.UNLISTED_SECURITIES_FIRM);
+			throw new SecuritiesFirmNotContainException(securitiesFirm);
 		}
 		this.name = name;
 		this.securitiesFirm = securitiesFirm;

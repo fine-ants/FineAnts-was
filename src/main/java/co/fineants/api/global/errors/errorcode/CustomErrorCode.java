@@ -37,7 +37,8 @@ public enum CustomErrorCode {
 	MAXIMUM_LOSS_GREATER_THAN_BUDGET("P-007", "Maximum Loss Greater Than Budget"),
 	TARGET_GAIN_NOTIFICATION_ACTIVE_NOT_CHANGE("P-008", "Target Gain Notification Active Not Change"),
 	MAXIMUM_LOSS_NOTIFICATION_ACTIVE_NOT_CHANGE("P-009", "Maximum Loss Notification Active Not Change"),
-	PORTFOLIO_NAME_INVALID("PN-001", "Invalid Portfolio Name"),
+	PORTFOLIO_NAME_INVALID("P-010", "Invalid Portfolio Name"),
+	SECURITIES_FIRM_NOT_CONTAIN("P-011", "Unlisted Securities Firm"),
 	// Stock
 	STOCK_NOT_FOUND("S-001", "Stock Not Found"),
 	// Holding
