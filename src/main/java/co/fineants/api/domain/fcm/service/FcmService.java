@@ -25,6 +25,7 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.errorcode.FcmErrorCode;
 import co.fineants.api.global.errors.errorcode.MemberErrorCode;
 import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.temp.FcmDuplicateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +54,7 @@ public class FcmService {
 			log.info("FCM Token 저장 결과 : {}", response);
 			return response;
 		} catch (DataIntegrityViolationException e) {
-			throw new FineAntsException(FcmErrorCode.CONFLICT_FCM_TOKEN);
+			throw new FcmDuplicateException(fcmToken.toString(), e);
 		}
 	}
 

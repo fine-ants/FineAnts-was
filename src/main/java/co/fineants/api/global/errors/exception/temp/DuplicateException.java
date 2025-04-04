@@ -14,6 +14,11 @@ public class DuplicateException extends BusinessException {
 		this.value = value;
 	}
 
+	public DuplicateException(String value, CustomErrorCode errorCode, Throwable cause) {
+		super(value, errorCode, cause);
+		this.value = value;
+	}
+
 	@Override
 	public HttpStatus getHttpStatus() {
 		return HttpStatus.CONFLICT;
