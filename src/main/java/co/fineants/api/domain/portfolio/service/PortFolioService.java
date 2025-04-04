@@ -37,12 +37,12 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
 import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
 import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
+import co.fineants.api.global.errors.exception.temp.domain.DomainException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,7 +76,7 @@ public class PortFolioService {
 		Portfolio portfolio;
 		try {
 			portfolio = request.toEntity(member, properties);
-		} catch (IllegalPortfolioArgumentException e) {
+		} catch (DomainException e) {
 			throw new PortfolioInvalidInputException(request.toString(), e);
 		}
 		return PortFolioCreateResponse.from(portfolioRepository.save(portfolio));
@@ -111,7 +111,7 @@ public class PortFolioService {
 		Portfolio changePortfolio;
 		try {
 			changePortfolio = request.toEntity(member, properties);
-		} catch (IllegalPortfolioArgumentException e) {
+		} catch (DomainException e) {
 			throw new PortfolioInvalidInputException(request.toString(), e);
 		}
 

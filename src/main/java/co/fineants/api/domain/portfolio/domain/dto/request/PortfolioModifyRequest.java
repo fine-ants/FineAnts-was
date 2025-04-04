@@ -7,7 +7,11 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
+import co.fineants.api.global.errors.exception.temp.domain.MaximumLossGreaterThanBudgetException;
+import co.fineants.api.global.errors.exception.temp.domain.MoneyNegativeException;
+import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
+import co.fineants.api.global.errors.exception.temp.domain.TargetGainLessThanBudgetException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +35,9 @@ public class PortfolioModifyRequest {
 	@MoneyNumberWithZero
 	private Money maximumLoss;
 
-	public Portfolio toEntity(Member member, PortfolioProperties properties) throws IllegalPortfolioArgumentException {
+	public Portfolio toEntity(Member member, PortfolioProperties properties) throws PortfolioNameInvalidException,
+		SecuritiesFirmNotContainException, MoneyNegativeException, TargetGainLessThanBudgetException,
+		MaximumLossGreaterThanBudgetException {
 		PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
 		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
 		return Portfolio.allInActive(detail, financial, member);

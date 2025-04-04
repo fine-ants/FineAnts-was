@@ -75,7 +75,10 @@ public class PortfolioFinancial {
 	 * @throws TargetGainLessThanBudgetException 목표수익금액이 예산보다 작은 경우
 	 * @throws MaximumLossGreaterThanBudgetException 최대손실금액이 예산보다 큰 경우
 	 */
-	public static PortfolioFinancial of(Money budget, Money targetGain, Money maximumLoss) {
+	public static PortfolioFinancial of(Money budget, Money targetGain, Money maximumLoss) throws
+		MoneyNegativeException,
+		TargetGainLessThanBudgetException,
+		MaximumLossGreaterThanBudgetException {
 		return new PortfolioFinancial(budget, targetGain, maximumLoss);
 	}
 

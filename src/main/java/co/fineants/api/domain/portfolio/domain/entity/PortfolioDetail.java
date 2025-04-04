@@ -46,7 +46,9 @@ public class PortfolioDetail {
 	 * @throws PortfolioNameInvalidException 포트폴리오 이름이 유효하지 않으면 예외 발생
 	 * @throws SecuritiesFirmNotContainException 증권사 목록에 없는 증권사 이름이면 예외 발생
 	 */
-	public static PortfolioDetail of(String name, String securitiesFirm, PortfolioProperties properties) {
+	public static PortfolioDetail of(String name, String securitiesFirm, PortfolioProperties properties) throws
+		PortfolioNameInvalidException,
+		SecuritiesFirmNotContainException {
 		return new PortfolioDetail(name, securitiesFirm, properties);
 	}
 
