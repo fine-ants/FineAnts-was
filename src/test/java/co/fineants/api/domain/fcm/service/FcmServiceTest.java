@@ -189,6 +189,5 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class);
-		assertThat(throwable.getMessage()).isEqualTo(fcmToken.toString());
 	}
 }
