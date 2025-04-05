@@ -33,9 +33,9 @@ import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPric
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.CredentialsTypeKisException;
-import co.fineants.api.global.errors.exception.temp.ExpiredAccessTokenKisException;
-import co.fineants.api.global.errors.exception.temp.RequestLimitExceededKisException;
+import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
+import co.fineants.api.global.errors.exception.business.ExpiredAccessTokenKisException;
+import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Exceptions;

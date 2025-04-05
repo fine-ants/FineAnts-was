@@ -22,9 +22,9 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.temp.FcmDuplicateException;
-import co.fineants.api.global.errors.exception.temp.FcmInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
+import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

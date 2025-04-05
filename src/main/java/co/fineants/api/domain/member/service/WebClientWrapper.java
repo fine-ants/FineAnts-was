@@ -9,7 +9,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import co.fineants.api.global.errors.exception.temp.ExternalApiGetRequestException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 

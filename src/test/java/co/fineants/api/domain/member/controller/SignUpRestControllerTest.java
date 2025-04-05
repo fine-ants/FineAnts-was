@@ -29,9 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
-import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 

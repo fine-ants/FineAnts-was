@@ -37,8 +37,8 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.temp.ForbiddenException;
-import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
 

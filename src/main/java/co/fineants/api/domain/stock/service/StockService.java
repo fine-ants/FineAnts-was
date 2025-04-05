@@ -20,7 +20,7 @@ import co.fineants.api.domain.stock.repository.StockQueryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import lombok.RequiredArgsConstructor;

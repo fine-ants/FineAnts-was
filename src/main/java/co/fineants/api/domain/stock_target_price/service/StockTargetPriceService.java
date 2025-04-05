@@ -27,11 +27,11 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.StockTargetPriceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
-import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitExceededException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

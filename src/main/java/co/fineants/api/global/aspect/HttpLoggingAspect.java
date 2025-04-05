@@ -18,7 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.exception.temp.BusinessException;
+import co.fineants.api.global.errors.exception.business.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 

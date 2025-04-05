@@ -23,8 +23,8 @@ import co.fineants.api.domain.notification.repository.NotificationSentRepository
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.domain.MaximumLossNotificationActiveNotChangeException;
-import co.fineants.api.global.errors.exception.temp.domain.TargetGainNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.domain.MaximumLossNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.domain.TargetGainNotificationActiveNotChangeException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

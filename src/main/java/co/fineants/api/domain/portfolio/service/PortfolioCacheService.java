@@ -13,7 +13,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

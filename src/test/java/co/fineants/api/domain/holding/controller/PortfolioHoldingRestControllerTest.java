@@ -52,7 +52,7 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 

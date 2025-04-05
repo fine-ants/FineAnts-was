@@ -15,8 +15,8 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.TargetPriceNotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

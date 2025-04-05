@@ -17,11 +17,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import co.fineants.api.global.errors.exception.temp.ImageEmptyInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.ImageNameEmptyInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.ImageSizeExceededInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.ImageWriteInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.InvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageNameEmptyInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageWriteInvalidInputException;
+import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

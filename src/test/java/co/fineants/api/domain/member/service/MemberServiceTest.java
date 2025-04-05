@@ -52,14 +52,14 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.temp.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.temp.ImageSizeExceededInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.MailDuplicateException;
-import co.fineants.api.global.errors.exception.temp.MemberProfileNotChangeException;
-import co.fineants.api.global.errors.exception.temp.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.temp.NicknameInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.PasswordAuthenticationException;
-import co.fineants.api.global.errors.exception.temp.VerifyCodeInvalidInputException;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MailDuplicateException;
+import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 

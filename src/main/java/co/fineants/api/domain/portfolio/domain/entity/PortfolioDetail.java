@@ -3,8 +3,8 @@ package co.fineants.api.domain.portfolio.domain.entity;
 import java.util.regex.Pattern;
 
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
-import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
+import co.fineants.api.global.errors.exception.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.domain.SecuritiesFirmNotContainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

@@ -28,9 +28,9 @@ import co.fineants.api.domain.notificationpreference.domain.entity.NotificationP
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.NotFoundException;
-import co.fineants.api.global.errors.exception.temp.RoleNotFoundException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.NotFoundException;
+import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.RoleProperties;

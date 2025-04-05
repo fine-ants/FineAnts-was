@@ -15,8 +15,8 @@ import co.fineants.api.domain.notificationpreference.repository.NotificationPref
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.MemberNotificationPreferenceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.NotificationPreferenceNotFoundException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

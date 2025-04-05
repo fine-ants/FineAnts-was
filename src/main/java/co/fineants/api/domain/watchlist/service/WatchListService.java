@@ -29,11 +29,11 @@ import co.fineants.api.global.common.authorized.service.WatchListAuthorizedServi
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
-import co.fineants.api.global.errors.exception.temp.WatchListForbiddenException;
-import co.fineants.api.global.errors.exception.temp.WatchListNotFoundException;
-import co.fineants.api.global.errors.exception.temp.WatchStockDuplicateException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.WatchListForbiddenException;
+import co.fineants.api.global.errors.exception.business.WatchListNotFoundException;
+import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

@@ -28,10 +28,10 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.exception.temp.ForbiddenException;
-import co.fineants.api.global.errors.exception.temp.StockTargetPriceNotFoundException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationDuplicateException;
-import co.fineants.api.global.errors.exception.temp.TargetPriceNotificationLimitExceededException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 

@@ -53,7 +53,7 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
-import co.fineants.api.global.errors.exception.temp.RoleNotFoundException;
+import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.security.factory.CookieDomainProvider;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;

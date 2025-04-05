@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.exception.temp.BusinessException;
+import co.fineants.api.global.errors.exception.business.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

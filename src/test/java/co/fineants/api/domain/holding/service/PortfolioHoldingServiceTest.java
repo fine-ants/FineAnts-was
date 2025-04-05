@@ -51,10 +51,10 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.ForbiddenException;
-import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
-import co.fineants.api.global.errors.exception.temp.PurchaseHistoryInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.util.ObjectMapperUtil;

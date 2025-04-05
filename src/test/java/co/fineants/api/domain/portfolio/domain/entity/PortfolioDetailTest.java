@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.temp.domain.PortfolioNameInvalidException;
-import co.fineants.api.global.errors.exception.temp.domain.SecuritiesFirmNotContainException;
+import co.fineants.api.global.errors.exception.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.domain.SecuritiesFirmNotContainException;
 
 class PortfolioDetailTest extends AbstractContainerBaseTest {
 

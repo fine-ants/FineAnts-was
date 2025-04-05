@@ -22,8 +22,8 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.global.errors.exception.temp.ForbiddenException;
-import co.fineants.api.global.errors.exception.temp.NotificationNotFoundException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
 
 class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 

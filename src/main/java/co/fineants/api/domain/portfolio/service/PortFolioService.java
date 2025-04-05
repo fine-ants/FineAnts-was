@@ -37,12 +37,12 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
-import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.domain.DomainException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
+import co.fineants.api.global.errors.exception.domain.DomainException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

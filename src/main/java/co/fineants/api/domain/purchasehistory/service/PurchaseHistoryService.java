@@ -22,10 +22,10 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PurchaseHistoryAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.HoldingNotFoundException;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
-import co.fineants.api.global.errors.exception.temp.PurchaseHistoryNotFoundException;
+import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

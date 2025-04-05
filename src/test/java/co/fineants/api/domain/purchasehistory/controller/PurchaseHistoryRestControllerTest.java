@@ -31,7 +31,7 @@ import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistory
 import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistoryCreateResponse;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.api.global.errors.exception.temp.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 

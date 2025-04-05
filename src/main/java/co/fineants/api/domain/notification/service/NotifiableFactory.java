@@ -17,7 +17,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Component

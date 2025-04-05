@@ -29,7 +29,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

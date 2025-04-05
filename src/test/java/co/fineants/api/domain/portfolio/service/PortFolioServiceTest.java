@@ -44,10 +44,10 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.temp.ForbiddenException;
-import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.PortfolioNameDuplicateException;
-import co.fineants.api.global.errors.exception.temp.SecuritiesFirmInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
+import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 

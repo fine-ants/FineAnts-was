@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.global.config.jackson.JacksonConfig;
-import co.fineants.api.global.errors.exception.temp.ObjectMapperException;
+import co.fineants.api.global.errors.exception.business.ObjectMapperException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

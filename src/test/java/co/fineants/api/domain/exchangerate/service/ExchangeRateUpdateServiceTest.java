@@ -16,7 +16,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 
 class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 

@@ -48,7 +48,7 @@ import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPric
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.temp.KisApiRequestException;
+import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

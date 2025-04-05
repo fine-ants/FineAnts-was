@@ -10,10 +10,10 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.exception.temp.PortfolioInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.PortfolioNotFoundException;
-import co.fineants.api.global.errors.exception.temp.domain.MaximumLossNotificationActiveNotChangeException;
-import co.fineants.api.global.errors.exception.temp.domain.TargetGainNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.domain.MaximumLossNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.domain.TargetGainNotificationActiveNotChangeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

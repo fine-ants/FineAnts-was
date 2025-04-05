@@ -13,10 +13,10 @@ import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateItem;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.exception.temp.BaseExchangeRateDeleteInvalidInputException;
-import co.fineants.api.global.errors.exception.temp.BaseExchangeRateNotFoundException;
-import co.fineants.api.global.errors.exception.temp.ExchangeRateDuplicateException;
-import co.fineants.api.global.errors.exception.temp.ExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateDeleteInvalidInputException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
+import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
