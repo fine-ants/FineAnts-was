@@ -7,18 +7,23 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioArgumentException;
+import co.fineants.api.global.errors.exception.domain.MaximumLossGreaterThanBudgetException;
+import co.fineants.api.global.errors.exception.domain.MoneyNegativeException;
+import co.fineants.api.global.errors.exception.domain.PortfolioNameInvalidException;
+import co.fineants.api.global.errors.exception.domain.SecuritiesFirmNotContainException;
+import co.fineants.api.global.errors.exception.domain.TargetGainLessThanBudgetException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class PortfolioCreateRequest {
 	@NotBlank(message = "포트폴리오 이름은 필수 정보입니다")
 	@Pattern(regexp = PortfolioDetail.NAME_REGEXP, message = "유효하지 않은 포트폴리오 이름입니다.")
@@ -47,15 +52,20 @@ public class PortfolioCreateRequest {
 	 * @param member 포트폴리오를 소유한 회원 객체
 	 * @param properties 증권사 목록을 포함하는 프로퍼티 객체
 	 * @return 포트폴리오 객체
-	 * @throws BadRequestException 포트폴리오의 상세 정보가 유효하지 않거나 금융 정보 조합이 유효하지 않으면 예외 발생
+	 * @throws PortfolioNameInvalidException 포트폴리오 이름이 유효하지 않으면 예외 발생
+	 * @throws SecuritiesFirmNotContainException 증권사 목록에 없는 증권사 이름이면 예외 발생
+	 * @throws MoneyNegativeException 예산, 목표 수익, 최대 손실 금액이 음수이면 예외 발생
+	 * @throws TargetGainLessThanBudgetException 목표 수익 금액이 예산보다 크면 예외 발생
+	 * @throws MaximumLossGreaterThanBudgetException 최대 손실 금액이 예산보다 크면 예외 발생
 	 */
-	public Portfolio toEntity(Member member, PortfolioProperties properties) {
-		try {
-			PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
-			PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
-			return Portfolio.allInActive(detail, financial, member);
-		} catch (IllegalPortfolioArgumentException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
-		}
+	public Portfolio toEntity(Member member, PortfolioProperties properties) throws
+		PortfolioNameInvalidException,
+		SecuritiesFirmNotContainException,
+		MoneyNegativeException,
+		TargetGainLessThanBudgetException,
+		MaximumLossGreaterThanBudgetException {
+		PortfolioDetail detail = PortfolioDetail.of(name, securitiesFirm, properties);
+		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
+		return Portfolio.allInActive(detail, financial, member);
 	}
 }

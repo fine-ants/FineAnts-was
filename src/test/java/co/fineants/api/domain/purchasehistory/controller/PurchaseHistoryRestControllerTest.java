@@ -31,8 +31,7 @@ import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistory
 import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistoryCreateResponse;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -142,7 +141,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 			any(PurchaseHistoryCreateRequest.class),
 			anyLong(),
 			anyLong(),
-			anyLong())).willThrow(new FineAntsException(PortfolioErrorCode.TOTAL_INVESTMENT_PRICE_EXCEEDS_BUDGET));
+			anyLong())).willThrow(new CashNotSufficientInvalidInputException(Money.won(150_000).toString()));
 
 		// when & then
 		mockMvc.perform(post(url)
@@ -152,8 +151,8 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("code").value(equalTo(400)))
 			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("매입 실패, 현금이 부족합니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("message").value(equalTo("Cash Not Sufficient For Purchase")))
+			.andExpect(jsonPath("data").value(equalTo(Money.won(150_000).toString())));
 	}
 
 	@DisplayName("사용자가 매입 이력을 수정한다")

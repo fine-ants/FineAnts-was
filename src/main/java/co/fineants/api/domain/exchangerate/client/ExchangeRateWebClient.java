@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import co.fineants.api.domain.member.service.WebClientWrapper;
-import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import reactor.util.retry.Retry;
 
 @Component
@@ -37,7 +37,7 @@ public class ExchangeRateWebClient {
 			.filter(response -> response.containsBy(code))
 			.map(response -> response.getBy(code))
 			.blockOptional(TIMEOUT)
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE));
+			.orElseThrow(() -> new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST));
 	}
 
 	public Map<String, Double> fetchRates(String base) {

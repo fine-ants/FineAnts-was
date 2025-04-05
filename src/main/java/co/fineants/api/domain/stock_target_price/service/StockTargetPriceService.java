@@ -27,10 +27,11 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.StockTargetPriceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,7 +78,7 @@ public class StockTargetPriceService {
 			.mapToLong(id -> targetPriceNotificationRepository.findAllByStockTargetPriceId(id).size())
 			.sum();
 		if (size >= TARGET_PRICE_NOTIFICATION_LIMIT) {
-			throw new BadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_LIMIT);
+			throw new TargetPriceNotificationLimitExceededException(size);
 		}
 	}
 
@@ -93,18 +94,18 @@ public class StockTargetPriceService {
 			tickerSymbol,
 			targetPrice,
 			memberId).isPresent()) {
-			throw new BadRequestException(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST);
+			throw new TargetPriceNotificationDuplicateException(tickerSymbol, targetPrice);
 		}
 	}
 
 	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new NotFoundResourceException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	private Stock findStock(String tickerSymbol) {
 		return stockRepository.findByTickerSymbol(tickerSymbol)
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK));
+			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 
 	@Secured("ROLE_USER")
@@ -139,8 +140,7 @@ public class StockTargetPriceService {
 	public TargetPriceNotificationUpdateResponse updateStockTargetPrice(
 		TargetPriceNotificationUpdateRequest request, Long memberId) {
 		StockTargetPrice stockTargetPrice = repository.findByTickerSymbolAndMemberId(request.getTickerSymbol(),
-				memberId)
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK_TARGET_PRICE));
+			memberId).orElseThrow(() -> new StockTargetPriceNotFoundException(request.getTickerSymbol()));
 		stockTargetPrice.changeIsActive(request.getIsActive());
 		return TargetPriceNotificationUpdateResponse.from(stockTargetPrice);
 	}
@@ -150,7 +150,7 @@ public class StockTargetPriceService {
 	@Authorized(serviceClass = StockTargetPriceAuthorizedService.class)
 	public void deleteStockTargetPrice(@ResourceId Long stockTargetPriceId) {
 		StockTargetPrice stockTargetPrice = repository.findById(stockTargetPriceId)
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK_TARGET_PRICE));
+			.orElseThrow(() -> new StockTargetPriceNotFoundException(stockTargetPriceId.toString()));
 		targetPriceNotificationRepository.deleteAllByStockTargetPrices(List.of(stockTargetPrice));
 		repository.deleteById(stockTargetPriceId);
 	}

@@ -2,6 +2,7 @@ package co.fineants.api.global.security.ajax.handler;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -9,7 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,10 @@ public class AjaxAuthenticationFailHandler implements AuthenticationFailureHandl
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException {
-		log.info(exception.getMessage());
-		MemberErrorCode errorCode = MemberErrorCode.LOGIN_FAIL;
-		ApiResponse<String> body = ApiResponse.error(errorCode);
-		response.setStatus(errorCode.getHttpStatus().value());
+		ErrorCode errorCode = ErrorCode.LOGIN_FAIL;
+		HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+		ApiResponse<String> body = ApiResponse.error(badRequest, errorCode);
+		response.setStatus(badRequest.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("utf-8");
 		response.getWriter().write(objectMapper.writeValueAsString(body));

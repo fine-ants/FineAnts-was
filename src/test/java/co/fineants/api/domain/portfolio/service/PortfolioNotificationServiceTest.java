@@ -28,9 +28,8 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -106,8 +105,8 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioErrorCode.TARGET_GAIN_IS_ZERO_WITH_NOTIFY_UPDATE.getMessage());
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("회원은 다른 회원 포트폴리오의 목표 수익률 알림 상태를 변경할 수 없다")
@@ -126,8 +125,8 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오 최대손실금액 알림을 활성화한다")
@@ -180,8 +179,8 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioErrorCode.MAX_LOSS_IS_ZERO_WITH_NOTIFY_UPDATE.getMessage());
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("회원은 다른 회원 포트포리오의 최대손실금액 알림 상태를 수정할 수 없다")
@@ -201,7 +200,7 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 }

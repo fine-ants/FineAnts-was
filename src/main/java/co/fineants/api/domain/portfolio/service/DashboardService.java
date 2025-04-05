@@ -29,8 +29,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +49,7 @@ public class DashboardService {
 	public OverviewResponse getOverview(Long memberId) {
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberId(memberId);
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new BadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 		Expression totalValuation = Money.zero();
 		Expression totalCurrentValuation = Money.zero();
 		Expression totalInvestment = Money.zero();

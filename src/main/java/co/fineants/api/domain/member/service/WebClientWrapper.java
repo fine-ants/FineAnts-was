@@ -3,13 +3,13 @@ package co.fineants.api.domain.member.service;
 import java.util.function.Function;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import co.fineants.api.global.errors.errorcode.OauthErrorCode;
-import co.fineants.api.global.errors.exception.ApiRequestException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -56,7 +56,8 @@ public class WebClientWrapper {
 			if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
 				return clientResponse.bodyToMono(String.class).handle((body, sink) -> {
 					log.info("responseBody : {}", body);
-					sink.error(new ApiRequestException(OauthErrorCode.FAIL_REQUEST, body));
+					HttpStatus httpStatus = HttpStatus.valueOf(clientResponse.statusCode().value());
+					sink.error(new ExternalApiGetRequestException(body, httpStatus));
 				});
 			}
 			return clientResponse.bodyToMono(responseType);

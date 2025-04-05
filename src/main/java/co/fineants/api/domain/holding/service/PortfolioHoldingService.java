@@ -46,12 +46,11 @@ import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedServi
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
-import co.fineants.api.global.errors.errorcode.PurchaseHistoryErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
+import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +82,7 @@ public class PortfolioHoldingService {
 		Portfolio portfolio = findPortfolio(portfolioId);
 
 		Stock stock = stockRepository.findByTickerSymbol(request.getTickerSymbol())
-			.orElseThrow(() -> new NotFoundResourceException(StockErrorCode.NOT_FOUND_STOCK));
+			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
 
 		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
 				request.getTickerSymbol())
@@ -94,7 +93,7 @@ public class PortfolioHoldingService {
 			validateCashSufficientForPurchase(request, portfolio);
 			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
 		} else if (!request.isPurchaseHistoryAllNull()) {
-			throw new FineAntsException(PurchaseHistoryErrorCode.BAD_INPUT);
+			throw new PurchaseHistoryInvalidInputException(request.toString());
 		}
 
 		// 포트폴리오의 종목 캐시 업데이트
@@ -115,9 +114,7 @@ public class PortfolioHoldingService {
 		purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(List.of(portfolioHoldingId));
 
 		int deleted = portfolioHoldingRepository.deleteAllByIdIn(List.of(portfolioHoldingId));
-		if (deleted == 0) {
-			throw new FineAntsException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
-		}
+		log.info("포트폴리오 종목 삭제 개수 : {}", deleted);
 		return new PortfolioStockDeleteResponse(portfolioHoldingId);
 	}
 
@@ -134,21 +131,21 @@ public class PortfolioHoldingService {
 		try {
 			portfolioHoldingRepository.deleteAllByIdIn(portfolioHoldingIds);
 		} catch (EmptyResultDataAccessException e) {
-			throw new NotFoundResourceException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
+			throw new HoldingNotFoundException(portfolioHoldingIds.toString(), e);
 		}
 		return new PortfolioStockDeletesResponse(portfolioHoldingIds);
 	}
 
 	private Portfolio findPortfolio(Long portfolioId) {
 		return portfolioRepository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	private void validateCashSufficientForPurchase(PortfolioHoldingCreateRequest request, Portfolio portfolio) {
 		Expression purchasedAmount = request.getPurchaseHistory().getNumShares()
 			.multiply(request.getPurchaseHistory().getPurchasePricePerShare());
 		if (!portfolio.isCashSufficientForPurchase(purchasedAmount, calculator)) {
-			throw new FineAntsException(PortfolioErrorCode.TOTAL_INVESTMENT_PRICE_EXCEEDS_BUDGET);
+			throw new CashNotSufficientInvalidInputException(request.toString());
 		}
 	}
 
@@ -156,7 +153,7 @@ public class PortfolioHoldingService {
 		portfolioHoldingIds.stream()
 			.filter(portfolioHoldingId -> !portfolioHoldingRepository.existsById(portfolioHoldingId))
 			.forEach(portfolioHoldingId -> {
-				throw new NotFoundResourceException(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING);
+				throw new HoldingNotFoundException(portfolioHoldingId.toString());
 			});
 	}
 
@@ -182,7 +179,7 @@ public class PortfolioHoldingService {
 
 	private Portfolio findPortfolioUsingFetchJoin(Long portfolioId) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	@Transactional(readOnly = true)

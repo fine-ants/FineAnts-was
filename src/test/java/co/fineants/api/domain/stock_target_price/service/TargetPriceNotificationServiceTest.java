@@ -20,10 +20,9 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationNotFoundException;
 
 class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -86,8 +85,8 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(StockErrorCode.NOT_FOUND_TARGET_PRICE.getMessage());
+			.isInstanceOf(TargetPriceNotificationNotFoundException.class)
+			.hasMessage(List.of(id).toString());
 	}
 
 	@DisplayName("사용자는 다른 사용자의 지정가 알림을 삭제할 수 없습니다.")
@@ -109,8 +108,8 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(targetPriceNotification.toString());
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림 전체를 삭제합니다")
@@ -171,8 +170,8 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(StockErrorCode.NOT_FOUND_TARGET_PRICE.getMessage());
+			.isInstanceOf(TargetPriceNotificationNotFoundException.class)
+			.hasMessage(ids.toString());
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 전체 삭제할 때, 존재하지 않는 종목에 대해서 제거할 수 없습니다.")
@@ -199,8 +198,8 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(StockErrorCode.NOT_FOUND_STOCK.getMessage());
+			.isInstanceOf(StockNotFoundException.class)
+			.hasMessage("999999");
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 전체 삭제할 때, 다른 사용자의 지정가 알림을 삭제할 수 없습니다")
@@ -228,8 +227,8 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(targetPriceNotifications.get(0).toString());
 	}
 
 }

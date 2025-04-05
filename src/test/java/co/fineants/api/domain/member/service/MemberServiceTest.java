@@ -52,9 +52,14 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MailDuplicateException;
+import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -162,9 +167,10 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> memberService.changeProfile(serviceRequest));
 
 		// then
+		String expected = "nemo12345";
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(expected);
 	}
 
 	@DisplayName("사용자는 회원 프로필에서 변경할 정보가 없어서 실패한다")
@@ -183,8 +189,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.NO_PROFILE_CHANGES.getMessage());
+			.isInstanceOf(MemberProfileNotChangeException.class)
+			.hasMessage(serviceRequest.toString());
 	}
 
 	@DisplayName("사용자는 일반 회원가입한다")
@@ -244,8 +250,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(duplicatedNickname);
 	}
 
 	@DisplayName("사용자는 이메일이 중복되어 회원가입 할 수 없다")
@@ -267,8 +273,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_EMAIL.getMessage());
+			.isInstanceOf(EmailDuplicateException.class)
+			.hasMessage(duplicatedEmail);
 	}
 
 	@DisplayName("사용자는 비밀번호와 비밀번호 확인이 일치하지 않아 회원가입 할 수 없다")
@@ -289,16 +295,17 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.PASSWORD_CHECK_FAIL.getMessage());
+			.isInstanceOf(PasswordAuthenticationException.class)
+			.hasMessage("nemo1234@");
 	}
 
 	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
+		MultipartFile profileFile = createProfileFile();
 		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+			.willThrow(new ImageSizeExceededInvalidInputException(profileFile));
 
 		SignUpRequest request = new SignUpRequest(
 			"일개미4567",
@@ -313,8 +320,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL.getMessage());
+			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
+			.hasMessage(profileFile.toString());
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되었는지 체크한다")
@@ -334,8 +341,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.BAD_SIGNUP_INPUT.getMessage());
+			.isInstanceOf(NicknameInvalidInputException.class)
+			.hasMessage(nickname);
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되어 에러를 받는다")
@@ -350,8 +357,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_NICKNAME.getMessage());
+			.isInstanceOf(NicknameDuplicateException.class)
+			.hasMessage(nickname);
 	}
 
 	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
@@ -375,8 +382,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.REDUNDANT_EMAIL.getMessage());
+			.isInstanceOf(MailDuplicateException.class)
+			.hasMessage(email);
 	}
 
 	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
@@ -416,8 +423,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL.getMessage());
+			.isInstanceOf(VerifyCodeInvalidInputException.class)
+			.hasMessage("234567");
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")

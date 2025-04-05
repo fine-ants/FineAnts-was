@@ -44,32 +44,7 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
 		return Member.localMember(profile);
 	}
-
-	// public static Member createOauthMember() {
-	// 	Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-	// 		.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
-	// 	MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
-	// 		"profileUrl1");
-	// 	// 회원 생성
-	// 	Member member = Member.oauthMember(profile);
-	// 	// 역할 설정
-	// 	member.addMemberRole(MemberRole.of(member, userRole));
-	//
-	// 	// 계정 알림 설정
-	// 	member.setNotificationPreference(NotificationPreference.allActive());
-	// 	return member;
-	// }
-	//
-	// public static NotificationPreference createNotificationPreference(boolean browserNotify, boolean targetGainNotify,
-	// 	boolean maxLossNotify, boolean targetPriceNotify) {
-	// 	return NotificationPreference.create(
-	// 		browserNotify,
-	// 		targetGainNotify,
-	// 		maxLossNotify,
-	// 		targetPriceNotify
-	// 	);
-	// }
-	//
+	
 	public static Portfolio createPortfolio(Member member) {
 		return createPortfolio(
 			member,

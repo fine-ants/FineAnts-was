@@ -44,11 +44,10 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.ConflictException;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.ForBiddenException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
+import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -127,8 +126,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원은 포트폴리오를 추가할때 최대손실율이 예산보다 같거나 크면 안된다")
@@ -152,9 +151,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.extracting("message")
-			.isEqualTo("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원은 내가 가지고 있는 포트폴리오들중에서 동일한 이름을 가지는 포트폴리오를 추가할 수는 없다")
@@ -173,10 +171,10 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolio(request, member.getId()));
 
 		// then
+		String expected = "내꿈은 워렌버핏";
 		assertThat(throwable)
-			.isInstanceOf(ConflictException.class)
-			.extracting("message")
-			.isEqualTo("포트폴리오 이름이 중복되었습니다");
+			.isInstanceOf(PortfolioNameDuplicateException.class)
+			.hasMessage(expected);
 	}
 
 	@DisplayName("회원은 포트폴리오 추가시 목록에 없는 증권사를 입력하여 추가할 수 없다")
@@ -193,8 +191,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage("해당 증권사는 포함되어 있지 않습니다");
+			.isInstanceOf(SecuritiesFirmInvalidInputException.class)
+			.hasMessage("없는증권");
 	}
 
 	@DisplayName("회원이 포트폴리오를 수정한다")
@@ -288,8 +286,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ConflictException.class)
-			.hasMessage("포트폴리오 이름이 중복되었습니다");
+			.isInstanceOf(PortfolioNameDuplicateException.class)
+			.hasMessage(duplicatedName);
 	}
 
 	@DisplayName("회원은 다른사람의 포트폴리오 정보를 수정할 수 없다")
@@ -313,8 +311,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ForBiddenException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(originPortfolio.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오 정보 수정시 예산이 목표수익금액보다 같거나 작게 수정할 수 없다")
@@ -342,8 +340,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage("목표 수익금액은 예산보다 커야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오 정보 수정시 예산이 최대손실금액보다 같거나 작게 수정할 수 없다")
@@ -370,10 +368,9 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 			() -> service.updatePortfolio(request, portfolioId, member.getId()));
 
 		// then
-		log.error("fail update portfolio", throwable);
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage("최대 손실 금액은 예산 보다 작아야 합니다");
+			.isInstanceOf(PortfolioInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("사용자가 나의 포트폴리오들을 처음 조회한다")
@@ -500,8 +497,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(ForBiddenException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("회원이 포트폴리오들을 삭제한다")
@@ -556,8 +553,8 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	private static Stream<Arguments> invalidTargetGain() {

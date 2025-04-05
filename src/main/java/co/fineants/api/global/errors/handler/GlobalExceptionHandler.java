@@ -12,18 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-	@ExceptionHandler(FineAntsException.class)
-	public ResponseEntity<ApiResponse<Object>> handleFineANtsException(FineAntsException exception) {
-		ApiResponse<Object> body = ApiResponse.error(exception.getErrorCode());
-		return ResponseEntity.status(exception.getErrorCode().getHttpStatus()).body(body);
-	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValidException(
@@ -55,5 +49,14 @@ public class GlobalExceptionHandler {
 		ApiResponse<Object> body = ApiResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(),
 			exception.toString());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException exception) {
+		HttpStatus httpStatus = exception.getHttpStatus();
+		String errorCodeMessage = exception.getErrorCodeMessage();
+		String data = exception.getExceptionValue();
+		ApiResponse<Object> body = ApiResponse.error(httpStatus, errorCodeMessage, data);
+		return ResponseEntity.status(httpStatus).body(body);
 	}
 }

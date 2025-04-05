@@ -51,12 +51,12 @@ public class ApiResponse<T> {
 		return new ApiResponse<>(code.getHttpStatus(), code.getMessage(), data);
 	}
 
-	public static <T> ApiResponse<T> error(ErrorCode errorCode) {
-		return error(errorCode, null);
+	public static <T> ApiResponse<T> error(HttpStatus httpStatus, String message, T data) {
+		return new ApiResponse<>(httpStatus, message, data);
 	}
 
-	public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) {
-		return new ApiResponse<>(errorCode.getHttpStatus(), errorCode.getMessage(), data);
+	public static <T> ApiResponse<T> error(HttpStatus httpStatus, ErrorCode errorCode) {
+		return new ApiResponse<>(httpStatus, errorCode.getMessage(), null);
 	}
 
 	@Override

@@ -22,10 +22,8 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.NotificationErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
 
 class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -99,8 +97,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	@DisplayName("사용자는 알림 모두 읽습니다")
@@ -149,8 +146,8 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(NotificationErrorCode.NOT_FOUND_NOTIFICATION.getMessage());
+			.isInstanceOf(NotificationNotFoundException.class)
+			.hasMessage(notificationIds.toString());
 	}
 
 	@DisplayName("사용자는 다른 사용자의 알림을 읽음 처리할 수 없다")
@@ -171,8 +168,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	@DisplayName("사용자는 알림을 전체 삭제합니다")
@@ -213,8 +209,8 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(NotificationErrorCode.NOT_FOUND_NOTIFICATION.getMessage());
+			.isInstanceOf(NotificationNotFoundException.class)
+			.hasMessage(notificationIds.toString());
 	}
 
 	@DisplayName("사용자는 다른 사용자의 알림 메시지를 제거할 수 없습니다")
@@ -235,8 +231,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 	private List<Notification> createNotifications(Member member) {

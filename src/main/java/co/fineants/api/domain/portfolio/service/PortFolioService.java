@@ -37,11 +37,12 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.ConflictException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
+import co.fineants.api.global.errors.exception.domain.DomainException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,30 +65,37 @@ public class PortFolioService {
 	@Transactional
 	@Secured("ROLE_USER")
 	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
-	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) {
+	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) throws
+		PortfolioNameDuplicateException,
+		PortfolioInvalidInputException {
 		validateSecuritiesFirm(request.getSecuritiesFirm());
 
 		Member member = findMember(memberId);
 
 		validateUniquePortfolioName(request.getName(), member);
-		Portfolio portfolio = request.toEntity(member, properties);
+		Portfolio portfolio;
+		try {
+			portfolio = request.toEntity(member, properties);
+		} catch (DomainException e) {
+			throw new PortfolioInvalidInputException(request.toString(), e);
+		}
 		return PortFolioCreateResponse.from(portfolioRepository.save(portfolio));
 	}
 
 	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new NotFoundResourceException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	private void validateSecuritiesFirm(String securitiesFirm) {
 		if (!portfolioPropertiesRepository.contains(securitiesFirm)) {
-			throw new BadRequestException(PortfolioErrorCode.SECURITIES_FIRM_IS_NOT_CONTAINS);
+			throw new SecuritiesFirmInvalidInputException(securitiesFirm);
 		}
 	}
 
-	private void validateUniquePortfolioName(String name, Member member) {
+	private void validateUniquePortfolioName(String name, Member member) throws PortfolioNameDuplicateException {
 		if (portfolioRepository.findByNameAndMember(name, member).isPresent()) {
-			throw new ConflictException(PortfolioErrorCode.DUPLICATE_NAME);
+			throw new PortfolioNameDuplicateException(name);
 		}
 	}
 
@@ -96,11 +104,16 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
-		Long memberId) {
+		Long memberId) throws PortfolioNameDuplicateException, PortfolioInvalidInputException {
 		log.info("포트폴리오 수정 서비스 요청 : request={}, portfolioId={}, memberId={}", request, portfolioId, memberId);
 		Member member = findMember(memberId);
 		Portfolio originalPortfolio = findPortfolio(portfolioId);
-		Portfolio changePortfolio = request.toEntity(member, properties);
+		Portfolio changePortfolio;
+		try {
+			changePortfolio = request.toEntity(member, properties);
+		} catch (DomainException e) {
+			throw new PortfolioInvalidInputException(request.toString(), e);
+		}
 
 		if (!originalPortfolio.equalName(changePortfolio)) {
 			validateUniquePortfolioName(changePortfolio.name(), member);
@@ -158,7 +171,7 @@ public class PortFolioService {
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	public Portfolio findPortfolio(@ResourceId Long portfolioId) {
 		return portfolioRepository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	@Secured("ROLE_USER")

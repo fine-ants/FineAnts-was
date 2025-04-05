@@ -3,6 +3,7 @@ package co.fineants.api.domain.exchangerate.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +16,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 
 class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 
@@ -61,7 +61,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.updateExchangeRates());
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(ExchangeRateErrorCode.UNAVAILABLE_UPDATE_EXCHANGE_RATE.getMessage());
+			.isInstanceOf(BaseExchangeRateNotFoundException.class)
+			.hasMessage(Collections.EMPTY_LIST.toString());
 	}
 }

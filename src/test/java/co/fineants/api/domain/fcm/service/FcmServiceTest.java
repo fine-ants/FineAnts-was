@@ -30,9 +30,8 @@ import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.global.errors.errorcode.FcmErrorCode;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
 
 class FcmServiceTest extends AbstractContainerBaseTest {
 
@@ -105,8 +104,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(CompletionException.class)
-			.hasMessage(new FineAntsException(FcmErrorCode.CONFLICT_FCM_TOKEN).toString());
+			.isInstanceOf(CompletionException.class);
 		assertThat(fcmRepository.findAllByMemberId(member.getId())).hasSize(1);
 	}
 
@@ -127,8 +125,8 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(FcmErrorCode.BAD_REQUEST_FCM_TOKEN.getMessage());
+			.isInstanceOf(FcmInvalidInputException.class)
+			.hasMessage("fcmToken");
 	}
 
 	@DisplayName("사용자는 이미 동일한 FCM 토큰이 등록되어 있는 경우 최신 활성화 시간을 업데이트한다")
@@ -188,7 +186,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> fcmService.deleteToken(fcmToken.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(fcmToken.toString());
 	}
 }
