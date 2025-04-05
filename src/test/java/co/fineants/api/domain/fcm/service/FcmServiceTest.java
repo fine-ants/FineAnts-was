@@ -32,7 +32,9 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class FcmServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -185,8 +187,8 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 		// when
 		Throwable throwable = catchThrowable(() -> fcmService.deleteToken(fcmToken.getId()));
 		// then
-		System.out.println("throwable = " + throwable);
-		System.out.println("fcmToken = " + fcmToken);
+		log.info("throwable = {}", throwable);
+		log.info("fcmToken = {}", fcmToken);
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(fcmToken.toString());
