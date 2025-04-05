@@ -10,8 +10,8 @@ public class DomainException extends RuntimeException {
 		this.errorCode = errorCode;
 	}
 
-	protected DomainException(String message, ErrorCode errorCode, Throwable cause) {
-		super(message, cause);
-		this.errorCode = errorCode;
+	@Override
+	public String toString() {
+		return String.format("DomainException{message=%s, errorCode=%s}", getMessage(), errorCode);
 	}
 }
