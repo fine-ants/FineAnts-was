@@ -1,7 +1,6 @@
-package co.fineants.api.global.errors.exception.kis;
+package co.fineants.api.global.errors.exception.temp;
 
 import co.fineants.api.global.errors.errorcode.ErrorCode;
-import co.fineants.api.global.errors.exception.temp.KisApiRequestException;
 
 public class CredentialsTypeKisException extends KisApiRequestException {
 

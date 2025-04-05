@@ -42,7 +42,7 @@ import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
-import co.fineants.api.global.errors.exception.kis.RequestLimitExceededKisException;
+import co.fineants.api.global.errors.exception.temp.RequestLimitExceededKisException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import okhttp3.mockwebserver.MockWebServer;
 import reactor.core.publisher.Mono;

@@ -2,12 +2,12 @@ package co.fineants.api.domain.kis.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.global.errors.exception.kis.CredentialsTypeKisException;
-import co.fineants.api.global.errors.exception.kis.ExpiredAccessTokenKisException;
-import co.fineants.api.global.errors.exception.kis.RequestLimitExceededKisException;
-import co.fineants.api.global.errors.exception.kis.TokenIssuanceRetryLaterKisException;
+import co.fineants.api.global.errors.exception.temp.CredentialsTypeKisException;
 import co.fineants.api.global.errors.exception.temp.DefaultKisApiRequestException;
+import co.fineants.api.global.errors.exception.temp.ExpiredAccessTokenKisException;
 import co.fineants.api.global.errors.exception.temp.KisApiRequestException;
+import co.fineants.api.global.errors.exception.temp.RequestLimitExceededKisException;
+import co.fineants.api.global.errors.exception.temp.TokenIssuanceRetryLaterKisException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
