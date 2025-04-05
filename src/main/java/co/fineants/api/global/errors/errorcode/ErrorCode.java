@@ -79,7 +79,13 @@ public enum ErrorCode {
 	// Role
 	ROLE_NOT_FOUND("R-001", "Role Not Found"),
 	// Money
-	MONEY_NEGATIVE("M-001", "Money cannot be negative");
+	MONEY_NEGATIVE("M-001", "Money cannot be negative"),
+	// KIS
+	KIS_DEFAULT_ERROR("KIS-001", "KIS Default Error"),
+	KIS_CREDENTIALS_TYPE_ERROR("KIS-002", "KIS Credentials Type Error"),
+	KIS_REQUEST_LIMIT_EXCEEDED("KIS-003", "KIS Request Limit Exceeded"),
+	KIS_TOKEN_ISSUANCE_RETRY_LATER("KIS-004", "KIS Token Issuance Retry Later"),
+	KIS_EXPIRED_ACCESS_TOKEN("KIS-005", "KIS Expired Access Token");
 
 	private final String code;
 	private final String message;
