@@ -187,11 +187,8 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 		// when
 		Throwable throwable = catchThrowable(() -> fcmService.deleteToken(fcmToken.getId()));
 		// then
-		log.info("throwable = {}", throwable.getMessage());
-		log.info("fcmToken = {}", fcmToken);
-		throwable.printStackTrace();
 		assertThat(throwable)
-			.isInstanceOf(ForbiddenException.class)
-			.hasMessage(fcmToken.toString());
+			.isInstanceOf(ForbiddenException.class);
+		assertThat(throwable.getMessage()).isEqualTo(fcmToken.toString());
 	}
 }
