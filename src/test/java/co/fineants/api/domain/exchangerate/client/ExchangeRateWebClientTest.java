@@ -2,6 +2,7 @@ package co.fineants.api.domain.exchangerate.client;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -31,7 +32,11 @@ class ExchangeRateWebClientTest {
 	public static Stream<Arguments> errorResponseProvider() {
 		return Stream.of(
 			Arguments.of(ExchangeRateFetchResponse.invalidApiKey()),
-			Arguments.of(ExchangeRateFetchResponse.requestExceeded())
+			Arguments.of(ExchangeRateFetchResponse.requestExceeded()),
+			Arguments.of(ExchangeRateFetchResponse.invalidSign()),
+			Arguments.of(ExchangeRateFetchResponse.invalidCurrencyCode()),
+			Arguments.of(ExchangeRateFetchResponse.networkAnomaly()),
+			Arguments.of(ExchangeRateFetchResponse.queryFailed())
 		);
 	}
 
@@ -39,7 +44,7 @@ class ExchangeRateWebClientTest {
 	void setUp() {
 		this.webClient = Mockito.mock(WebClientWrapper.class);
 		this.key = "test-key";
-		exchangeRateWebClient = new ExchangeRateWebClient(webClient, key);
+		exchangeRateWebClient = new ExchangeRateWebClient(webClient, key, Duration.ofMillis(100));
 	}
 
 	@DisplayName("base가 주어지고 base 기준 환율들을 조회하면 환율을 조회한다")

@@ -44,6 +44,22 @@ public class ExchangeRateFetchResponse {
 		return new ExchangeRateFetchResponse("10002", "Request exceeded");
 	}
 
+	public static ExchangeRateFetchResponse invalidSign() {
+		return new ExchangeRateFetchResponse("10003", "Invalid sign");
+	}
+
+	public static ExchangeRateFetchResponse invalidCurrencyCode() {
+		return new ExchangeRateFetchResponse("200501", "Invalid currency code");
+	}
+
+	public static ExchangeRateFetchResponse networkAnomaly() {
+		return new ExchangeRateFetchResponse("200503", "Network anomaly");
+	}
+
+	public static ExchangeRateFetchResponse queryFailed() {
+		return new ExchangeRateFetchResponse("200504", "Query failed");
+	}
+
 	public boolean containsBy(String code) {
 		return rates.containsKey(code);
 	}
@@ -66,5 +82,10 @@ public class ExchangeRateFetchResponse {
 			case "200504" -> new QueryFailedExchangeRateRapidApiRequestException(code, msg);
 			default -> new UnknownExchangeRateRapidApiRequestException();
 		};
+	}
+
+	@Override
+	public String toString() {
+		return "(code=%s, msg=%s, base=%s)".formatted(code, msg, base);
 	}
 }
