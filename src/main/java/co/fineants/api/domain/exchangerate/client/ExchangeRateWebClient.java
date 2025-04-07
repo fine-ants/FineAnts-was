@@ -45,9 +45,11 @@ public class ExchangeRateWebClient {
 				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
 					.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
 				.blockOptional(timeout)
-				.orElseThrow(() -> new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST));
-		} catch (IllegalStateException e) {
-			throw new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST);
+				.orElseThrow(() -> new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base),
+					HttpStatus.BAD_REQUEST));
+		} catch (IllegalStateException | ExchangeRateRapidApiRequestException e) {
+			throw new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base), HttpStatus.BAD_REQUEST,
+				e);
 		}
 	}
 

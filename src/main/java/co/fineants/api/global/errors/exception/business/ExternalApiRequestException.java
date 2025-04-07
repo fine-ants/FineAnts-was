@@ -14,6 +14,12 @@ public class ExternalApiRequestException extends BusinessException {
 		this.httpStatus = httpStatus;
 	}
 
+	protected ExternalApiRequestException(String value, ErrorCode errorCode, HttpStatus httpStatus, Throwable cause) {
+		super(value, errorCode, cause);
+		this.value = value;
+		this.httpStatus = httpStatus;
+	}
+
 	@Override
 	public HttpStatus getHttpStatus() {
 		return httpStatus;
