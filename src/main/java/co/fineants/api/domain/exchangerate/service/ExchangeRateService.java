@@ -1,7 +1,6 @@
 package co.fineants.api.domain.exchangerate.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.annotation.Secured;
@@ -72,33 +71,7 @@ public class ExchangeRateService {
 		findExchangeRateBy(code).changeBase(true);
 		exchangeRateUpdateService.updateExchangeRates();
 	}
-
-	@Transactional
-	public void updateExchangeRates() {
-		List<ExchangeRate> originalRates = exchangeRateRepository.findAll();
-		validateExistBase(originalRates);
-		ExchangeRate baseRate = findBaseExchangeRate(originalRates);
-		Map<String, Double> rateMap = webClient.fetchRates(baseRate.getCode());
-
-		originalRates.stream()
-			.filter(rate -> rateMap.containsKey(rate.getCode()))
-			.forEach(rate -> rate.changeRate(rateMap.get(rate.getCode())));
-	}
-
-	private void validateExistBase(List<ExchangeRate> rates) {
-		if (rates.stream()
-			.noneMatch(ExchangeRate::isBase)) {
-			throw new BaseExchangeRateNotFoundException(rates.toString());
-		}
-	}
-
-	private ExchangeRate findBaseExchangeRate(List<ExchangeRate> rates) {
-		return rates.stream()
-			.filter(ExchangeRate::isBase)
-			.findFirst()
-			.orElseThrow(() -> new BaseExchangeRateNotFoundException(rates.toString()));
-	}
-
+	
 	private ExchangeRate findExchangeRateBy(String code) {
 		return exchangeRateRepository.findByCode(code)
 			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
