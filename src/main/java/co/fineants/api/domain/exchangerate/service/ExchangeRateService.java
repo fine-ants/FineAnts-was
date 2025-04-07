@@ -3,6 +3,7 @@ package co.fineants.api.domain.exchangerate.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +13,10 @@ import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateItem;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.global.errors.errorcode.ExchangeRateErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateDeleteInvalidInputException;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
+import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,7 +45,7 @@ public class ExchangeRateService {
 			.map(ExchangeRate::getCode)
 			.anyMatch(c -> c.equals(code));
 		if (match) {
-			throw new FineAntsException(ExchangeRateErrorCode.DUPLICATE_EXCHANGE_RATE);
+			throw new ExchangeRateDuplicateException(code);
 		}
 	}
 
@@ -85,7 +88,7 @@ public class ExchangeRateService {
 	private void validateExistBase(List<ExchangeRate> rates) {
 		if (rates.stream()
 			.noneMatch(ExchangeRate::isBase)) {
-			throw new FineAntsException(ExchangeRateErrorCode.UNAVAILABLE_UPDATE_EXCHANGE_RATE);
+			throw new BaseExchangeRateNotFoundException(rates.toString());
 		}
 	}
 
@@ -93,12 +96,12 @@ public class ExchangeRateService {
 		return rates.stream()
 			.filter(ExchangeRate::isBase)
 			.findFirst()
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_BASE));
+			.orElseThrow(() -> new BaseExchangeRateNotFoundException(rates.toString()));
 	}
 
 	private ExchangeRate findExchangeRateBy(String code) {
 		return exchangeRateRepository.findByCode(code)
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_EXCHANGE_RATE));
+			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
 	}
 
 	@Transactional
@@ -117,12 +120,12 @@ public class ExchangeRateService {
 		boolean match = codes.stream()
 			.anyMatch(base::equalCode);
 		if (match) {
-			throw new FineAntsException(ExchangeRateErrorCode.UNAVAILABLE_DELETE_BASE_EXCHANGE_RATE);
+			throw new BaseExchangeRateDeleteInvalidInputException(codes.toString());
 		}
 	}
 
 	private ExchangeRate findBaseExchangeRate() {
 		return exchangeRateRepository.findBase()
-			.orElseThrow(() -> new FineAntsException(ExchangeRateErrorCode.NOT_EXIST_BASE));
+			.orElseThrow(() -> new BaseExchangeRateNotFoundException(Strings.EMPTY));
 	}
 }

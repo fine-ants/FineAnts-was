@@ -48,7 +48,7 @@ import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPric
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.kis.KisException;
+import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -236,7 +236,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			.map(Stock::getTickerSymbol)
 			.toList();
 		tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
-			.willReturn(Mono.error(KisException.expiredAccessToken())));
+			.willReturn(Mono.error(KisApiRequestException.expiredAccessToken())));
 		// when
 		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
 		// then
@@ -251,7 +251,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			.map(Stock::getTickerSymbol)
 			.toList();
 		tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
-			.willReturn(Mono.error(KisException.requestLimitExceeded())));
+			.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded())));
 		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 		// when
 		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
@@ -271,7 +271,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
 		given(mockedKisClient.fetchCurrentPrice("005930"))
-			.willReturn(Mono.error(KisException.requestLimitExceeded()))
+			.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded()))
 			.willReturn(Mono.just(KisCurrentPrice.create("005930", 50000L)));
 		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
@@ -301,8 +301,8 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
 		given(mockedKisClient.fetchClosingPrice(anyString()))
-			.willThrow(KisException.requestLimitExceeded())
-			.willThrow(KisException.requestLimitExceeded())
+			.willThrow(KisApiRequestException.requestLimitExceeded())
+			.willThrow(KisApiRequestException.requestLimitExceeded())
 			.willReturn(Mono.just(KisClosingPrice.create("005930", 10000L)));
 		given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
 		List<String> tickerSymbols = stocks.stream()

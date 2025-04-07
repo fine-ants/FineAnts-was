@@ -22,9 +22,9 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.FcmErrorCode;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
+import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +53,7 @@ public class FcmService {
 			log.info("FCM Token 저장 결과 : {}", response);
 			return response;
 		} catch (DataIntegrityViolationException e) {
-			throw new FineAntsException(FcmErrorCode.CONFLICT_FCM_TOKEN);
+			throw new FcmDuplicateException(fcmToken.toString(), e);
 		}
 	}
 
@@ -66,14 +66,13 @@ public class FcmService {
 		try {
 			firebaseMessaging.send(message, true);
 		} catch (FirebaseMessagingException e) {
-			log.info(e.getMessage(), e);
-			throw new FineAntsException(FcmErrorCode.BAD_REQUEST_FCM_TOKEN);
+			throw new FcmInvalidInputException(token, e);
 		}
 	}
 
 	private Member findMember(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new FineAntsException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	@Transactional

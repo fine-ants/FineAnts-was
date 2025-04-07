@@ -28,11 +28,10 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.StockErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFoundException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
+import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
@@ -102,8 +101,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_LIMIT.getMessage());
+			.isInstanceOf(TargetPriceNotificationLimitExceededException.class)
+			.hasMessage("5");
 	}
 
 	@DisplayName("사용자는 한 종목의 지정가가 이미 존재하는 경우 추가할 수 없다")
@@ -125,8 +124,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(BadRequestException.class)
-			.hasMessage(StockErrorCode.BAD_REQUEST_TARGET_PRICE_NOTIFICATION_EXIST.getMessage());
+			.isInstanceOf(TargetPriceNotificationDuplicateException.class)
+			.hasMessage("tickerSymbol=005930, targetPrice=₩60,000");
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림 목록을 조회합니다")
@@ -283,8 +282,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage(StockErrorCode.NOT_FOUND_STOCK_TARGET_PRICE.getMessage());
+			.isInstanceOf(StockTargetPriceNotFoundException.class)
+			.hasMessage("999999");
 	}
 
 	@DisplayName("사용자는 단일 종목 지정가를 제거합니다")
@@ -322,7 +321,7 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.deleteStockTargetPrice(stockTargetPrice.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(stockTargetPrice.toString());
 	}
 }

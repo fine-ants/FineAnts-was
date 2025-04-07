@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.global.config.jackson.JacksonConfig;
-import co.fineants.api.global.errors.errorcode.ObjectMapperErrorCode;
-import co.fineants.api.global.errors.exception.ServerInternalException;
+import co.fineants.api.global.errors.exception.business.ObjectMapperException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ObjectMapperUtil {
 	private static final ObjectMapper objectMapper = new JacksonConfig().objectMapper();
-
+	
 	public static <T> String serialize(T obj) {
 		try {
 			return objectMapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			log.error("Serialization failed: {}", e.getMessage());
-			throw new ServerInternalException(ObjectMapperErrorCode.FAIL_SERIALIZE, e);
+			log.warn("Serialization failed: obj={}", obj);
+			throw new ObjectMapperException("Serialization failed", e);
 		}
 	}
 
@@ -28,8 +27,8 @@ public final class ObjectMapperUtil {
 		try {
 			return objectMapper.readValue(json, returnType);
 		} catch (JsonProcessingException e) {
-			log.error("Deserialization failed: {}", e.getMessage());
-			throw new ServerInternalException(ObjectMapperErrorCode.FAIL_DESERIALIZE, e);
+			log.warn("Deserialization failed: json={}", json);
+			throw new ObjectMapperException("Deserialization failed", e);
 		}
 	}
 }

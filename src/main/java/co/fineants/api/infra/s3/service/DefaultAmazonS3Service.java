@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +17,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageNameEmptyInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
+import co.fineants.api.global.errors.exception.business.ImageWriteInvalidInputException;
+import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +39,8 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 
 	@Transactional
 	@Override
-	public String upload(MultipartFile multipartFile) throws BadRequestException {
-		File file = convertMultiPartFileToFile(multipartFile).orElseThrow(
-			() -> new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL));
+	public String upload(MultipartFile multipartFile) throws InvalidInputException {
+		File file = convertMultiPartFileToFile(multipartFile);
 		// random file name
 		String key = profilePath + UUID.randomUUID() + file.getName();
 		// put S3
@@ -60,24 +61,28 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 		Files.delete(path);
 	}
 
-	private Optional<File> convertMultiPartFileToFile(MultipartFile file) {
+	private File convertMultiPartFileToFile(MultipartFile file) throws
+		ImageEmptyInvalidInputException,
+		ImageSizeExceededInvalidInputException,
+		ImageNameEmptyInvalidInputException,
+		ImageWriteInvalidInputException {
 		if (file == null || file.isEmpty()) {
-			return Optional.empty();
+			throw new ImageEmptyInvalidInputException();
 		}
 		if (file.getSize() > MAX_FILE_SIZE) {
-			throw new BadRequestException(MemberErrorCode.IMAGE_SIZE_EXCEEDED);
+			throw new ImageSizeExceededInvalidInputException(file);
 		}
 		String filename = file.getOriginalFilename();
 		if (filename == null) {
-			throw new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new ImageNameEmptyInvalidInputException(filename);
 		}
 		File convertedFile = new File(filename);
 		try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
 			fos.write(file.getBytes());
 		} catch (IOException e) {
-			throw new BadRequestException(MemberErrorCode.PROFILE_IMAGE_UPLOAD_FAIL);
+			throw new ImageWriteInvalidInputException(convertedFile);
 		}
-		return Optional.of(convertedFile);
+		return convertedFile;
 	}
 
 	@Override

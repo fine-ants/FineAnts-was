@@ -28,9 +28,9 @@ import co.fineants.api.domain.notificationpreference.domain.entity.NotificationP
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.NotFoundException;
+import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
@@ -109,8 +109,8 @@ public class SetupDataLoader {
 	}
 
 	@NotNull
-	private static Supplier<FineAntsException> supplierNotFoundRoleException() {
-		return () -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE);
+	private static Supplier<NotFoundException> supplierNotFoundRoleException() {
+		return () -> new RoleNotFoundException(Strings.EMPTY);
 	}
 
 	private void createMemberIfNotFound(String email, String nickname, String password,
@@ -148,7 +148,7 @@ public class SetupDataLoader {
 
 	private void setAdminAuthentication() {
 		Member admin = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
-			.orElseThrow(() -> new FineAntsException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(adminProperties.getEmail()));
 		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 			memberAuthentication,

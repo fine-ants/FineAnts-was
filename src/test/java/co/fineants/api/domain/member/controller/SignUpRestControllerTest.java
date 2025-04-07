@@ -1,7 +1,6 @@
 package co.fineants.api.domain.member.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,8 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
@@ -134,7 +134,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME));
+			.willThrow(new NicknameDuplicateException("일개미1234"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -152,10 +152,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("닉네임이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
+			.andExpect(jsonPath("data").value(equalTo("일개미1234")));
 	}
 
 	@DisplayName("사용자는 중복된 이메일로는 회원가입 할 수 없다")
@@ -163,7 +164,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL));
+			.willThrow(new EmailDuplicateException("dragonbead95@naver.com"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -181,10 +182,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("이메일이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("data").value(equalTo("dragonbead95@naver.com")));
 	}
 
 	@DisplayName("사용자는 비밀번호가 불일치하여 회원가입 할 수 없다")
@@ -192,7 +194,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
 		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL));
+			.willThrow(new PasswordAuthenticationException("nemo1234@"));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -210,10 +212,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)createMockMultipartFile())
 				.file(signupData))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("비밀번호가 일치하지 않습니다")));
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("code").value(equalTo(401)))
+			.andExpect(jsonPath("status").value(equalTo("Unauthorized")))
+			.andExpect(jsonPath("message").value(equalTo("Unauthenticated Password")))
+			.andExpect(jsonPath("data").value(equalTo("nemo1234@")));
 	}
 
 	@DisplayName("사용자는 signupData 필드 없이 회원가입 할 수 없다")
@@ -243,21 +246,22 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("message").value(equalTo("닉네임이 사용가능합니다")));
 	}
 
-	@DisplayName("사용자는 회원가입 과정중 닉네임이 중복되어 400 응답을 받는다")
+	@DisplayName("사용자는 회원가입 과정중 닉네임이 중복되어 409 응답을 받는다")
 	@Test
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME))
-			.when(mockedMemberService)
-			.checkNickname(anyString());
 		String nickname = "일개미1234";
+		doThrow(new NicknameDuplicateException(nickname))
+			.when(mockedMemberService)
+			.checkNickname(nickname);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("닉네임이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
+			.andExpect(jsonPath("data").value(equalTo(nickname)));
 	}
 
 	@DisplayName("사용자는 로컬 이메일이 중복되었는지 검사한다")
@@ -279,16 +283,17 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void emailDuplicationCheck_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
 		String email = "dragonbead95@naver.com";
-		doThrow(new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL))
+		doThrow(new EmailDuplicateException(email))
 			.when(mockedMemberService)
-			.checkEmail(anyString());
+			.checkEmail(email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("이메일이 중복되었습니다")));
+			.andExpect(status().isConflict())
+			.andExpect(jsonPath("code").value(equalTo(409)))
+			.andExpect(jsonPath("status").value(equalTo("Conflict")))
+			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
 	@DisplayName("사용자는 이메일을 전달하고 이메일로 검증 코드를 받는다")

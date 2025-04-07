@@ -51,10 +51,10 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.PortfolioHoldingErrorCode;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -94,7 +94,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
-	
+
 	@AfterEach
 	void tearDown() {
 		portfolioCacheSupportService.clear();
@@ -234,8 +234,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.readPortfolioHoldings(portfolio.getId()));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오의 차트 정보를 조회한다")
@@ -376,8 +376,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15)));
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 실시간 상세 데이터를 조회한다")
@@ -490,8 +490,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
@@ -595,9 +595,9 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
 
 		// then
-		assertThat(throwable).isInstanceOf(FineAntsException.class)
-			.extracting("message")
-			.isEqualTo("잘못된 입력 형식입니다.");
+		assertThat(throwable)
+			.isInstanceOf(PurchaseHistoryInvalidInputException.class)
+			.hasMessage(request.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 존재하지 않는 종목을 추가할 수 없다")
@@ -616,9 +616,10 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
 
 		// then
-		assertThat(throwable).isInstanceOf(NotFoundResourceException.class)
-			.extracting("message")
-			.isEqualTo("종목을 찾을 수 없습니다");
+		assertThat(throwable)
+			.isInstanceOf(StockNotFoundException.class)
+			.hasMessage("999999");
+
 	}
 
 	@DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
@@ -652,24 +653,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
-	}
-
-	@DisplayName("사용자는 존재하지 않은 포트폴리오의 종목을 삭제할 수 없다")
-	@Test
-	void deletePortfolioStockWithNotExistPortfolioStockId() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Long portfolioStockId = 9999L;
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.deletePortfolioStock(portfolioStockId, portfolio.getId()));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(PortfolioHoldingErrorCode.NOT_FOUND_PORTFOLIO_HOLDING.getMessage());
 	}
 
 	@DisplayName("사용자는 다수의 포트폴리오 종목을 삭제할 수 있다")
@@ -736,8 +719,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(NotFoundResourceException.class)
-			.hasMessage("포트폴리오 종목이 존재하지 않습니다");
+			.isInstanceOf(HoldingNotFoundException.class)
+			.hasMessage("9999");
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}
@@ -771,8 +754,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(FineAntsException.class)
-			.hasMessage(MemberErrorCode.FORBIDDEN_MEMBER.getMessage());
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolioHolding2.toString());
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();

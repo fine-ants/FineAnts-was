@@ -10,10 +10,10 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
-import co.fineants.api.global.errors.errorcode.PortfolioErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
-import co.fineants.api.global.errors.exception.portfolio.IllegalPortfolioStateException;
+import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.domain.MaximumLossNotificationActiveNotChangeException;
+import co.fineants.api.global.errors.exception.domain.TargetGainNotificationActiveNotChangeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,30 +31,26 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 목표수익금액 활성화 알림 변경 결과
-	 * @throws BadRequestException 포트폴리오의 목표수익금액이 0원인 경우 예외 발생
+	 * @throws PortfolioInvalidInputException 포트폴리오의 목표수익금액이 0원인 경우 예외 발생
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationTargetGain(Boolean active,
-		@ResourceId Long portfolioId) {
+		@ResourceId Long portfolioId) throws PortfolioInvalidInputException {
 		log.info("change the Portfolio's targetGainIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeTargetGainNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
-	}
-
-	private void changeTargetGainNotification(Portfolio portfolio, Boolean isActive) {
 		try {
-			portfolio.changeTargetGainNotification(isActive);
-		} catch (IllegalPortfolioStateException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
+			portfolio.changeTargetGainNotification(active);
+		} catch (TargetGainNotificationActiveNotChangeException e) {
+			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
+		return PortfolioNotificationUpdateResponse.targetGainIsActive(portfolioId, active);
 	}
 
 	private Portfolio findPortfolio(Long portfolioId) {
 		return repository.findById(portfolioId)
-			.orElseThrow(() -> new NotFoundResourceException(PortfolioErrorCode.NOT_FOUND_PORTFOLIO));
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
 	/**
@@ -63,24 +59,20 @@ public class PortfolioNotificationService {
 	 * @param active 알림 활성화 여부, true: 알림 활성화, false: 알림 비활성화
 	 * @param portfolioId 포트폴리오 식별 번호
 	 * @return 포트폴리오 최대손실금액 알림 활성화 설정 변경 결과
-	 * @throws BadRequestException 포트폴리오의 최대손실금액이 0원인 경우 예외 발생
+	 * @throws PortfolioInvalidInputException 포트폴리오의 최대손실금액이 0원인 경우 예외 발생
 	 */
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioNotificationUpdateResponse updateNotificationMaximumLoss(Boolean active,
-		@ResourceId Long portfolioId) {
+		@ResourceId Long portfolioId) throws PortfolioInvalidInputException {
 		log.info("change the portfolio's maximumIsActive, active={}, portfolioId={}", active, portfolioId);
 		Portfolio portfolio = findPortfolio(portfolioId);
-		changeMaximumLossNotification(portfolio, active);
-		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
-	}
-
-	private void changeMaximumLossNotification(Portfolio portfolio, Boolean active) {
 		try {
 			portfolio.changeMaximumLossNotification(active);
-		} catch (IllegalPortfolioStateException e) {
-			throw new BadRequestException(e.getErrorCode(), e);
+		} catch (MaximumLossNotificationActiveNotChangeException e) {
+			throw new PortfolioInvalidInputException(portfolio.toString(), e);
 		}
+		return PortfolioNotificationUpdateResponse.maximumLossIsActive(portfolio);
 	}
 }

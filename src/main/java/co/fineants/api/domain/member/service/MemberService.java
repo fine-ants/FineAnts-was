@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.http.ResponseCookie;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,12 +46,18 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.errorcode.MemberErrorCode;
-import co.fineants.api.global.errors.errorcode.NotificationPreferenceErrorCode;
-import co.fineants.api.global.errors.errorcode.RoleErrorCode;
-import co.fineants.api.global.errors.exception.BadRequestException;
-import co.fineants.api.global.errors.exception.FineAntsException;
-import co.fineants.api.global.errors.exception.NotFoundResourceException;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.MailDuplicateException;
+import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
+import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
+import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
+import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
+import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
+import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -121,7 +128,10 @@ public class MemberService {
 	}
 
 	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) {
+	public SignUpServiceResponse signup(SignUpServiceRequest request) throws
+		EmailDuplicateException,
+		NicknameDuplicateException,
+		PasswordAuthenticationException {
 		Member member = request.toEntity();
 		verifyEmail(member);
 		verifyNickname(member);
@@ -136,8 +146,9 @@ public class MemberService {
 		// 비밀번호 암호화
 		String encryptedPassword = request.encodePasswordBy(passwordEncoder);
 		// 역할 추가
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(() -> new FineAntsException(RoleErrorCode.NOT_EXIST_ROLE));
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		member = request.toEntity(profileUrl, encryptedPassword);
 		member.addMemberRole(MemberRole.of(member, userRole));
 		// 알림 계정 설정 추가
@@ -155,47 +166,47 @@ public class MemberService {
 			.orElse(null);
 	}
 
-	private void verifyEmail(Member member) {
+	private void verifyEmail(Member member) throws EmailDuplicateException {
 		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			throw new EmailDuplicateException(member.getEmail());
 		}
 	}
 
-	private void verifyNickname(Member member) {
+	private void verifyNickname(Member member) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNickname(member).isPresent()) {
-			throw new FineAntsException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(member.getNickname());
 		}
 	}
 
 	// memberId을 제외한 다른 nickname이 존재하는지 검증
-	private void verifyNickname(String nickname, Long memberId) {
+	private void verifyNickname(String nickname, Long memberId) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
-			throw new FineAntsException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(nickname);
 		}
 	}
 
-	private void verifyPassword(SignUpServiceRequest request) {
+	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new PasswordAuthenticationException(request.getPassword());
 		}
 	}
 
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void sendVerifyCode(VerifyEmailRequest request) {
-		String email = request.getEmail();
+		String to = request.getEmail();
 		String verifyCode = verifyCodeGenerator.generate();
 
 		// Redis에 생성한 검증 코드 임시 저장
-		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
+		verifyCodeManagementService.saveVerifyCode(to, verifyCode);
 
+		String subject = "Finants 회원가입 인증 코드";
+		String body = String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode);
 		try {
-			// 사용자에게 검증 코드 메일 전송
-			emailService.sendEmail(email,
-				"Finants 회원가입 인증 코드",
-				String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode));
-		} catch (Exception e) {
-			throw new BadRequestException(MemberErrorCode.SEND_EMAIL_VERIFY_CODE_FAIL);
+			emailService.sendEmail(to, subject, body);
+		} catch (MailException exception) {
+			String value = "to=%s, subject=%s, body=%s";
+			throw new MailInvalidInputException(value, exception);
 		}
 	}
 
@@ -203,22 +214,21 @@ public class MemberService {
 	@PermitAll
 	public void checkNickname(String nickname) {
 		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			throw new NicknameInvalidInputException(nickname);
 		}
 		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_NICKNAME);
+			throw new NicknameDuplicateException(nickname);
 		}
-
 	}
 
 	@Transactional
 	@PermitAll
 	public void checkEmail(String email) {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new BadRequestException(MemberErrorCode.BAD_SIGNUP_INPUT);
+			throw new MailInvalidInputException(email);
 		}
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
-			throw new BadRequestException(MemberErrorCode.REDUNDANT_EMAIL);
+			throw new MailDuplicateException(email);
 		}
 	}
 
@@ -231,7 +241,7 @@ public class MemberService {
 
 		// 변경할 정보가 없는 경우
 		if (profileImageFile == null && !request.hasNickname()) {
-			throw new FineAntsException(MemberErrorCode.NO_PROFILE_CHANGES);
+			throw new MemberProfileNotChangeException(request.toString());
 		}
 
 		// 기존 프로필 파일 유지
@@ -260,7 +270,7 @@ public class MemberService {
 
 	private Member findMemberById(Long memberId) {
 		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new FineAntsException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
 	}
 
 	@Transactional
@@ -268,10 +278,10 @@ public class MemberService {
 	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new BadRequestException(MemberErrorCode.PASSWORD_CHECK_FAIL);
+			throw new PasswordInvalidInputException(request.currentPassword());
 		}
 		if (!request.matchPassword()) {
-			throw new BadRequestException(MemberErrorCode.NEW_PASSWORD_CONFIRM_FAIL);
+			throw new PasswordInvalidInputException(request.currentPassword());
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
@@ -280,7 +290,7 @@ public class MemberService {
 
 	private Member findMember(Long id) {
 		return memberRepository.findById(id)
-			.orElseThrow(() -> new BadRequestException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
 	}
 
 	@Transactional(readOnly = true)
@@ -288,7 +298,7 @@ public class MemberService {
 	public void checkVerifyCode(String email, String code) {
 		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new BadRequestException(MemberErrorCode.VERIFICATION_CODE_CHECK_FAIL);
+			throw new VerifyCodeInvalidInputException(code);
 		}
 	}
 
@@ -325,8 +335,7 @@ public class MemberService {
 	public ProfileResponse readProfile(Long memberId) {
 		Member member = findMember(memberId);
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
-			.orElseThrow(
-				() -> new NotFoundResourceException(NotificationPreferenceErrorCode.NOT_FOUND_NOTIFICATION_PREFERENCE));
+			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
 	}
 }
