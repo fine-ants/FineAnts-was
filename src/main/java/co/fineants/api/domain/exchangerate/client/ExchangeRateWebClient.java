@@ -34,7 +34,7 @@ public class ExchangeRateWebClient {
 	}
 
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
-		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
+		String uri = createUri(base);
 		MultiValueMap<String, String> header = createHeader();
 		try {
 			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
@@ -43,13 +43,19 @@ public class ExchangeRateWebClient {
 				.map(response -> response.getBy(code))
 				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
 					.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
+				.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
 				.blockOptional(timeout)
 				.orElseThrow(() -> new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base),
 					HttpStatus.BAD_REQUEST));
-		} catch (IllegalStateException | ExchangeRateRapidApiRequestException e) {
+		} catch (IllegalStateException e) {
 			throw new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base), HttpStatus.BAD_REQUEST,
 				e);
 		}
+	}
+
+	@NotNull
+	private static String createUri(String base) {
+		return "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
 	}
 
 	@NotNull
@@ -61,7 +67,7 @@ public class ExchangeRateWebClient {
 	}
 
 	public Map<String, Double> fetchRates(String base) {
-		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
+		String uri = createUri(base);
 		MultiValueMap<String, String> header = createHeader();
 		try {
 			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
