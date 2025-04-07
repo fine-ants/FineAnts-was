@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
@@ -34,9 +35,7 @@ public class ExchangeRateWebClient {
 
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
 		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
-		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
-		header.add("X-RapidAPI-Key", key);
-		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
+		MultiValueMap<String, String> header = createHeader();
 		try {
 			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
@@ -53,11 +52,17 @@ public class ExchangeRateWebClient {
 		}
 	}
 
-	public Map<String, Double> fetchRates(String base) {
-		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
+	@NotNull
+	private MultiValueMap<String, String> createHeader() {
 		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
 		header.add("X-RapidAPI-Key", key);
 		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
+		return header;
+	}
+
+	public Map<String, Double> fetchRates(String base) {
+		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
+		MultiValueMap<String, String> header = createHeader();
 		try {
 			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
