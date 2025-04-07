@@ -12,8 +12,9 @@ import org.springframework.util.MultiValueMap;
 
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import co.fineants.api.domain.member.service.WebClientWrapper;
+import co.fineants.api.global.errors.exception.business.ExchangeRateRapidApiRequestException;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
-import co.fineants.api.global.errors.exception.business.RequestExceededExchangeRateRapidApiRequestException;
+import co.fineants.api.global.errors.exception.business.NetworkAnomalyExchangeRateRapidApiRequestException;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -50,8 +51,9 @@ public class ExchangeRateWebClient {
 		return webClient.get(uri, header, ExchangeRateFetchResponse.class)
 			.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 			.map(ExchangeRateFetchResponse::getRates)
-			.onErrorResume(RequestExceededExchangeRateRapidApiRequestException.class, throwable -> Mono.empty())
-			.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1)))
+			.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
+				.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
+			.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
 			.blockOptional(TIMEOUT)
 			.orElse(Collections.emptyMap());
 	}
