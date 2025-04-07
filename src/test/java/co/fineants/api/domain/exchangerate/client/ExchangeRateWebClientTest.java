@@ -3,10 +3,14 @@ package co.fineants.api.domain.exchangerate.client;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +27,13 @@ class ExchangeRateWebClientTest {
 	private WebClientWrapper webClient;
 
 	private String key;
+
+	public static Stream<Arguments> errorResponseProvider() {
+		return Stream.of(
+			Arguments.of(ExchangeRateFetchResponse.invalidApiKey()),
+			Arguments.of(ExchangeRateFetchResponse.requestExceeded())
+		);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -52,9 +63,10 @@ class ExchangeRateWebClientTest {
 			.isEqualTo(expected);
 	}
 
-	@DisplayName("base가 주어지고 외부 API 리소스가 고갈나 예외가 발생하면 빈 맵을 반환한다")
-	@Test
-	void fetchRates_ResourceExhausted() {
+	@DisplayName("base가 주어지고 외부 API로부터 에러 응답이 오면 빈 맵을 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "errorResponseProvider")
+	void fetchRates_ResourceExhausted(ExchangeRateFetchResponse response) {
 		// given
 		String base = "KRW";
 		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
@@ -63,7 +75,7 @@ class ExchangeRateWebClientTest {
 		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
 
 		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
-			.willReturn(Mono.just(ExchangeRateFetchResponse.requestExceeded()));
+			.willReturn(Mono.just(response));
 		// when
 		Map<String, Double> actual = exchangeRateWebClient.fetchRates("KRW");
 		// then
