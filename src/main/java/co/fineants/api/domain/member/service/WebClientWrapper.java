@@ -24,20 +24,12 @@ public class WebClientWrapper {
 			.build();
 	}
 
-	public <T> Mono<T> get(String uri, MultiValueMap<String, String> headerMap, Class<T> responseTYpe) {
+	public <T> Mono<T> get(String uri, MultiValueMap<String, String> headerMap, Class<T> responseType) {
 		return webClient.get()
 			.uri(uri)
 			.headers(header -> header.addAll(headerMap))
-			.exchangeToMono(getClientResponseMonoFunction(responseTYpe));
-	}
-
-	public <T> T get(String uri, MultiValueMap<String, String> headerMap,
-		ParameterizedTypeReference<T> reference) {
-		return webClient.get()
-			.uri(uri)
-			.headers(header -> header.addAll(headerMap))
-			.exchangeToMono(getClientResponseMonoFunction(reference))
-			.block();
+			.retrieve()
+			.bodyToMono(responseType);
 	}
 
 	public <T> T post(String uri, MultiValueMap<String, String> headerMap,

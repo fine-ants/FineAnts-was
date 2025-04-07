@@ -51,4 +51,22 @@ class ExchangeRateWebClientTest {
 			.usingRecursiveComparison()
 			.isEqualTo(expected);
 	}
+
+	@DisplayName("base가 주어지고 외부 API 리소스가 고갈나 예외가 발생하면 빈 맵을 반환한다")
+	@Test
+	void fetchRates_ResourceExhausted() {
+		// given
+		String base = "KRW";
+		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
+		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
+		header.add("X-RapidAPI-Key", key);
+		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
+
+		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
+			.willReturn(Mono.just(ExchangeRateFetchResponse.requestExceeded()));
+		// when
+		Map<String, Double> actual = exchangeRateWebClient.fetchRates("KRW");
+		// then
+		assertThat(actual).isEmpty();
+	}
 }
