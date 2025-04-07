@@ -32,16 +32,23 @@ public class ExchangeRateWebClient {
 		this.timeout = timeout;
 	}
 
-	public Double fetchRateBy(String code, String base) {
+	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
 		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
 		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
 		header.add("X-RapidAPI-Key", key);
 		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
-		return webClient.get(uri, header, ExchangeRateFetchResponse.class)
-			.filter(response -> response.containsBy(code))
-			.map(response -> response.getBy(code))
-			.blockOptional(timeout)
-			.orElseThrow(() -> new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST));
+		try {
+			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
+				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
+				.filter(response -> response.containsBy(code))
+				.map(response -> response.getBy(code))
+				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
+					.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
+				.blockOptional(timeout)
+				.orElseThrow(() -> new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST));
+		} catch (IllegalStateException e) {
+			throw new ExternalApiGetRequestException(base, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	public Map<String, Double> fetchRates(String base) {
