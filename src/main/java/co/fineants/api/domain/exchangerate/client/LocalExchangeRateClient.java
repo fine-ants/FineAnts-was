@@ -11,23 +11,24 @@ import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestExc
 @Profile("local")
 public class LocalExchangeRateClient implements ExchangeRateClient {
 
+	private static final String BASE = "USD";
 	private final Map<String, Double> rates;
 
 	public LocalExchangeRateClient() {
 		this.rates = new HashMap<>();
-		this.rates.put("KRW", 1.0);
-		this.rates.put("USD", 0.0008);
+		this.rates.put(BASE, 1.0);
+		this.rates.put("KRW", 1500.0);
 	}
 
 	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
-		if (base.equals("KRW") && rates.containsKey(code)) {
+		// base 환율을 기준으로 code에 대한 환율을 반환한다
+		if (base.equalsIgnoreCase(BASE) || base.equalsIgnoreCase(code)) {
 			return rates.get(code);
-		} else if (base.equals(code)) {
-			return rates.get(base);
-		} else {
-			throw new ExternalApiGetRequestException("Invalid base or code", HttpStatus.BAD_REQUEST);
 		}
+		double baseRate = rates.get(base);
+		double codeRate = rates.get(code);
+		return codeRate / baseRate;
 	}
 
 	@Override

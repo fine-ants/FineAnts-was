@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -13,7 +14,7 @@ import co.fineants.api.domain.exchangerate.client.ExchangeRateClientHelper;
 import co.fineants.api.domain.exchangerate.client.RapidApiExchangeRateClient;
 
 @Configuration
-@Profile(value = {"production", "release"})
+@Profile(value = {"real", "production", "release"})
 public class RealExchangeRateConfig {
 
 	@Bean
@@ -30,6 +31,7 @@ public class RealExchangeRateConfig {
 	}
 
 	@Bean
+	@Primary
 	public ExchangeRateClient rapidApiExchangeRateClient(ExchangeRateClientHelper webClient) {
 		return new RapidApiExchangeRateClient(webClient, Duration.ofSeconds(5));
 	}
