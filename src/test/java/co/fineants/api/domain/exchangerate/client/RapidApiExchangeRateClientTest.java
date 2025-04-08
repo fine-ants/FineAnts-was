@@ -19,7 +19,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
-import co.fineants.api.domain.member.service.WebClientWrapper;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import reactor.core.publisher.Mono;
 

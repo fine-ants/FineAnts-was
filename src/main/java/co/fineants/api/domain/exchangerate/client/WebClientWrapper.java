@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.api.domain.exchangerate.client;
 
 import java.util.function.Function;
 

@@ -1,5 +1,6 @@
 package co.fineants.config;
 
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -50,9 +51,6 @@ public class TestConfig {
 	@MockBean
 	private KisClient kisClient;
 
-	@MockBean
-	private ExchangeRateClient mockedExchangeRateClient;
-
 	@SpyBean
 	private DelayManager delayManager;
 
@@ -68,5 +66,10 @@ public class TestConfig {
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {
 		return new FileExDividendDateCalculator(new FileHolidayRepository(new HolidayFileReader()));
+	}
+
+	@Bean
+	public ExchangeRateClient mockedExchangeRateClient() {
+		return Mockito.mock(ExchangeRateClient.class);
 	}
 }
