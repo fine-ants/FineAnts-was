@@ -1,6 +1,8 @@
 package co.fineants.api.domain.exchangerate.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.annotation.Secured;
@@ -100,5 +102,24 @@ public class ExchangeRateService {
 	private ExchangeRate findBaseExchangeRate() {
 		return exchangeRateRepository.findBase()
 			.orElseThrow(() -> new BaseExchangeRateNotFoundException(Strings.EMPTY));
+	}
+
+	/**
+	 * 환율을 업데이트합니다.
+	 * @param code 환율 코드
+	 * @param newRate 업데이트할 환율
+	 * @return 기준 통화 및 변경한 환율 코드가 포함된 맵
+	 */
+	@Transactional
+	public Map<String, Double> updateRate(String code, Double newRate) {
+		ExchangeRate exchangeRate = exchangeRateRepository.findByCode(code)
+			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
+		exchangeRate.changeRate(newRate);
+
+		ExchangeRate baseExchangeRate = findBaseExchangeRate();
+		Map<String, Double> result = new HashMap<>();
+		result.put(baseExchangeRate.getCode(), baseExchangeRate.getRate().toDoubleValue());
+		result.put(exchangeRate.getCode(), exchangeRate.getRate().toDoubleValue());
+		return result;
 	}
 }

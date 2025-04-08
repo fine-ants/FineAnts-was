@@ -15,7 +15,10 @@ public class ExchangeRateScheduler {
 
 	private final ExchangeRateUpdateService service;
 
-	@Scheduled(cron = "0 0 * * * *") // 매일 자정에 한번씩 수행
+	/**
+	 * 매일 0시 0분에 환율을 업데이트합니다.
+	 */
+	@Scheduled(cron = "0 0 * * * *")
 	@Transactional
 	public void updateExchangeRates() {
 		service.updateExchangeRates();
