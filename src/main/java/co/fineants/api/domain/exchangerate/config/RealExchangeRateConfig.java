@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.client.RapidApiExchangeRateClient;
-import co.fineants.api.domain.exchangerate.client.WebClientWrapper;
+import co.fineants.api.domain.exchangerate.client.WebClientHelper;
 
 @Configuration
 @Profile(value = {"production", "release"})
@@ -22,7 +22,7 @@ public class RealExchangeRateConfig {
 	}
 
 	@Bean
-	public ExchangeRateClient rapidApiExchangeRateClient(WebClientWrapper webClient) {
+	public ExchangeRateClient rapidApiExchangeRateClient(WebClientHelper webClient) {
 		return new RapidApiExchangeRateClient(webClient, key, Duration.ofSeconds(5));
 	}
 }

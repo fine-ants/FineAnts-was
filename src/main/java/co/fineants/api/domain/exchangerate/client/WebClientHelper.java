@@ -9,10 +9,10 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class WebClientWrapper {
+public class WebClientHelper {
 	private final WebClient webClient;
 
-	public WebClientWrapper() {
+	public WebClientHelper() {
 		this.webClient = WebClient.builder()
 			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
 			.build();

@@ -26,7 +26,7 @@ class RapidApiExchangeRateClientTest {
 
 	private RapidApiExchangeRateClient rapidApiExchangeRateClient;
 
-	private WebClientWrapper webClient;
+	private WebClientHelper webClient;
 
 	private String key;
 
@@ -43,7 +43,7 @@ class RapidApiExchangeRateClientTest {
 
 	@BeforeEach
 	void setUp() {
-		this.webClient = Mockito.mock(WebClientWrapper.class);
+		this.webClient = Mockito.mock(WebClientHelper.class);
 		this.key = "test-key";
 		rapidApiExchangeRateClient = new RapidApiExchangeRateClient(webClient, key, Duration.ofMillis(100));
 	}
