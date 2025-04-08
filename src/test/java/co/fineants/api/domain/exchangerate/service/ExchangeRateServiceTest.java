@@ -20,7 +20,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.exchangerate.client.RapidApiExchangeRateClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
@@ -38,7 +38,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	private ExchangeRateRepository repository;
 
 	@Autowired
-	private RapidApiExchangeRateClient mockedRapidApiExchangeRateClient;
+	private ExchangeRateClient mockedExchangeRateClient;
 
 	@DisplayName("관리자는 환율을 저장한다")
 	@CsvSource(value = {
@@ -55,7 +55,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void createExchangeRate(String code, double rate, boolean base) {
 		// given
-		given(mockedRapidApiExchangeRateClient.fetchRateBy(code, code)).willReturn(rate);
+		given(mockedExchangeRateClient.fetchRateBy(code, code)).willReturn(rate);
 
 		// when
 		service.createExchangeRate(code);
@@ -78,7 +78,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				// given
 				String krw = Currency.KRW.name();
 
-				given(mockedRapidApiExchangeRateClient.fetchRateBy(krw, krw))
+				given(mockedExchangeRateClient.fetchRateBy(krw, krw))
 					.willReturn(1.0);
 				// when
 				service.createExchangeRate(krw);
@@ -95,7 +95,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 				String base = "KRW";
 				String usd = Currency.USD.name();
 				double rate = 0.0007322;
-				given(mockedRapidApiExchangeRateClient.fetchRateBy(usd, base))
+				given(mockedExchangeRateClient.fetchRateBy(usd, base))
 					.willReturn(rate);
 				// when
 				service.createExchangeRate(usd);
@@ -115,7 +115,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 	void createExchangeRate_whenNotExistCode_thenError() {
 		// given
 		String usd = "AAA";
-		given(mockedRapidApiExchangeRateClient.fetchRateBy(usd, usd))
+		given(mockedExchangeRateClient.fetchRateBy(usd, usd))
 			.willThrow(new ExchangeRateNotFoundException(usd));
 
 		// when
@@ -172,7 +172,7 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.base(Currency.KRW.name()));
 		repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
 
-		given(mockedRapidApiExchangeRateClient.fetchRates(Currency.USD.name()))
+		given(mockedExchangeRateClient.fetchRates(Currency.USD.name()))
 			.willReturn(Map.of("USD", 1.0, "KRW", 1300.0));
 		// when
 		service.patchBase("USD");
