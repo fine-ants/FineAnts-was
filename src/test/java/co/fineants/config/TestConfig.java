@@ -11,7 +11,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
-import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.fcm.service.FirebaseMessagingService;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
@@ -38,9 +38,6 @@ public class TestConfig {
 	@MockBean
 	private EmailService emailService;
 
-	@MockBean
-	private ExchangeRateWebClient mockedExchangeRateWebClient;
-
 	@SpyBean
 	private LocalDateTimeService spyLocalDateTimeService;
 
@@ -52,6 +49,9 @@ public class TestConfig {
 
 	@MockBean
 	private KisClient kisClient;
+
+	@MockBean
+	private ExchangeRateClient mockedExchangeRateClient;
 
 	@SpyBean
 	private DelayManager delayManager;

@@ -7,7 +7,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateItem;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class ExchangeRateService {
 
 	private final ExchangeRateRepository exchangeRateRepository;
-	private final ExchangeRateWebClient webClient;
+	private final ExchangeRateClient client;
 	private final ExchangeRateUpdateService exchangeRateUpdateService;
 
 	@Transactional
@@ -34,7 +34,7 @@ public class ExchangeRateService {
 
 		ExchangeRate base = findBaseExchangeRate(code);
 
-		Double rate = webClient.fetchRateBy(code, base.getCode());
+		Double rate = client.fetchRateBy(code, base.getCode());
 		ExchangeRate exchangeRate = ExchangeRate.of(code, rate, base.equalCode(code));
 		exchangeRateRepository.save(exchangeRate);
 	}
@@ -71,7 +71,7 @@ public class ExchangeRateService {
 		findExchangeRateBy(code).changeBase(true);
 		exchangeRateUpdateService.updateExchangeRates();
 	}
-	
+
 	private ExchangeRate findExchangeRateBy(String code) {
 		return exchangeRateRepository.findByCode(code)
 			.orElseThrow(() -> new ExchangeRateNotFoundException(code));

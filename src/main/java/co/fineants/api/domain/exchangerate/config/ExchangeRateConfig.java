@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
 import co.fineants.api.domain.member.service.WebClientWrapper;
 
@@ -21,7 +22,7 @@ public class ExchangeRateConfig {
 	}
 
 	@Bean
-	public ExchangeRateWebClient exchangeRateWebClient() {
+	public ExchangeRateClient exchangeRateWebClient() {
 		return new ExchangeRateWebClient(webClient, key, Duration.ofSeconds(5));
 	}
 }

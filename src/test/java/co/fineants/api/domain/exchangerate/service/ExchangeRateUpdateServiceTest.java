@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
@@ -25,7 +25,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private ExchangeRateRepository repository;
 	@Autowired
-	private ExchangeRateWebClient mockedExchangeRateWebClient;
+	private ExchangeRateClient mockedExchangeRateClient;
 
 	@Transactional
 	@DisplayName("환율을 최신화한다")
@@ -39,7 +39,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.of(usd, rate, false));
 
 		double usdRate = 0.2;
-		given(mockedExchangeRateWebClient.fetchRates(krw)).willReturn(Map.of(usd, usdRate));
+		given(mockedExchangeRateClient.fetchRates(krw)).willReturn(Map.of(usd, usdRate));
 		// when
 		service.updateExchangeRates();
 		// then
@@ -56,7 +56,7 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 	void updateExchangeRates_whenNoBase_thenError() {
 		// given
 		String baseCode = "KRW";
-		given(mockedExchangeRateWebClient.fetchRates(baseCode)).willReturn(Map.of(baseCode, 1.0));
+		given(mockedExchangeRateClient.fetchRates(baseCode)).willReturn(Map.of(baseCode, 1.0));
 		// when
 		Throwable throwable = catchThrowable(() -> service.updateExchangeRates());
 		// then

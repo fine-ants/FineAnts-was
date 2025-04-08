@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Slf4j
-public class ExchangeRateWebClient {
+public class ExchangeRateWebClient implements ExchangeRateClient {
 
 	private final WebClientWrapper webClient;
 	private final String key;
@@ -33,6 +33,7 @@ public class ExchangeRateWebClient {
 		this.timeout = timeout;
 	}
 
+	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
 		String uri = createUri(base);
 		MultiValueMap<String, String> header = createHeader();
@@ -66,6 +67,7 @@ public class ExchangeRateWebClient {
 		return header;
 	}
 
+	@Override
 	public Map<String, Double> fetchRates(String base) {
 		String uri = createUri(base);
 		MultiValueMap<String, String> header = createHeader();
