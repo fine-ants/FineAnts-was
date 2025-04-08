@@ -3,14 +3,26 @@ package co.fineants.api.domain.exchangerate.client;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class LocalExchangeRateClientTest {
 
 	private ExchangeRateClient client;
+
+	public static Stream<Arguments> fetchRateBySource() {
+		return Stream.of(
+			Arguments.of("USD", "KRW", 1.0 / 1500.0),
+			Arguments.of("USD", "USD", 1.0),
+			Arguments.of("KRW", "USD", 1500.0)
+		);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -22,14 +34,14 @@ class LocalExchangeRateClientTest {
 	}
 
 	@DisplayName("base가 KRW인 상태에서 USD의 환율을 조회한다")
-	@Test
-	void fetchRateBy() {
+	@ParameterizedTest
+	@MethodSource(value = "fetchRateBySource")
+	void fetchRateBy(String code, String base, Double expected) {
 		// given
 
 		// when
-		Double actual = client.fetchRateBy("USD", "KRW");
+		Double actual = client.fetchRateBy(code, base);
 		// then
-		Double expected = 1.0 / 1500.0;
 		assertThat(actual)
 			.usingRecursiveComparison()
 			.isEqualTo(expected);

@@ -19,11 +19,8 @@ public class LocalExchangeRateClient implements ExchangeRateClient {
 
 	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
-		if (base.equalsIgnoreCase(BASE) || base.equalsIgnoreCase(code)) {
-			return rates.get(code);
-		}
-		double baseRate = rates.get(base);
-		double codeRate = rates.get(code);
+		double baseRate = rates.get(base.toUpperCase());
+		double codeRate = rates.get(code.toUpperCase());
 		return codeRate / baseRate;
 	}
 
