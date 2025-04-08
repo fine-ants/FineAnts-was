@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.web.reactive.function.client.WebClient;
 
+import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -15,7 +16,7 @@ public class ExchangeRateClientHelper {
 		this.webClient = webClient;
 	}
 
-	public <T> Mono<T> get(String path, Map<String, String> queryParams, Class<T> responseType) {
+	public Mono<ExchangeRateFetchResponse> get(String path, Map<String, String> queryParams) {
 		return webClient.get()
 			.uri(uriBuilder -> {
 				uriBuilder.path(path);
@@ -23,6 +24,6 @@ public class ExchangeRateClientHelper {
 				return uriBuilder.build();
 			})
 			.retrieve()
-			.bodyToMono(responseType);
+			.bodyToMono(ExchangeRateFetchResponse.class);
 	}
 }

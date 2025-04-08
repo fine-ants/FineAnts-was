@@ -32,7 +32,7 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 		String path = "latest";
 		Map<String, String> queryParams = Map.of("base", base);
 		try {
-			return webClient.get(path, queryParams, ExchangeRateFetchResponse.class)
+			return webClient.get(path, queryParams)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.filter(response -> response.containsBy(code))
 				.map(response -> response.getBy(code))
@@ -53,7 +53,7 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 		String path = "latest";
 		Map<String, String> queryParams = Map.of("base", base);
 		try {
-			return webClient.get(path, queryParams, ExchangeRateFetchResponse.class)
+			return webClient.get(path, queryParams)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.map(ExchangeRateFetchResponse::getRates)
 				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
