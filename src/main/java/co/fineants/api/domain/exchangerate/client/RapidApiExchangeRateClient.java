@@ -19,10 +19,10 @@ import reactor.util.retry.Retry;
 @Profile(value = {"production", "release"})
 public class RapidApiExchangeRateClient implements ExchangeRateClient {
 
-	private final WebClientHelper webClient;
+	private final ExchangeRateClientHelper webClient;
 	private final Duration timeout;
 
-	public RapidApiExchangeRateClient(WebClientHelper webClient, Duration timeout) {
+	public RapidApiExchangeRateClient(ExchangeRateClientHelper webClient, Duration timeout) {
 		this.webClient = webClient;
 		this.timeout = timeout;
 	}

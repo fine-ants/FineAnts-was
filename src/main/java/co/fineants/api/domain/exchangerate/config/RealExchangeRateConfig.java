@@ -9,15 +9,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClientHelper;
 import co.fineants.api.domain.exchangerate.client.RapidApiExchangeRateClient;
-import co.fineants.api.domain.exchangerate.client.WebClientHelper;
 
 @Configuration
 @Profile(value = {"production", "release"})
 public class RealExchangeRateConfig {
-	
+
 	@Bean
-	public WebClientHelper webClientHelper(@Value("${rapid.exchange-rate.key}") String key) {
+	public ExchangeRateClientHelper webClientHelper(@Value("${rapid.exchange-rate.key}") String key) {
 		WebClient webClient = WebClient.builder()
 			.baseUrl("https://exchange-rate-api1.p.rapidapi.com")
 			.defaultHeaders(header -> {
@@ -26,11 +26,11 @@ public class RealExchangeRateConfig {
 			})
 			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
 			.build();
-		return new WebClientHelper(webClient);
+		return new ExchangeRateClientHelper(webClient);
 	}
 
 	@Bean
-	public ExchangeRateClient rapidApiExchangeRateClient(WebClientHelper webClient) {
+	public ExchangeRateClient rapidApiExchangeRateClient(ExchangeRateClientHelper webClient) {
 		return new RapidApiExchangeRateClient(webClient, Duration.ofSeconds(5));
 	}
 }

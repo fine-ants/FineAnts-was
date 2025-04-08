@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-public class WebClientHelper {
+public class ExchangeRateClientHelper {
 	private final WebClient webClient;
 
-	public WebClientHelper(WebClient webClient) {
+	public ExchangeRateClientHelper(WebClient webClient) {
 		this.webClient = webClient;
 	}
 

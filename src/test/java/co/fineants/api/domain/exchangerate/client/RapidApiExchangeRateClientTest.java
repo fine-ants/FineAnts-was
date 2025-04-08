@@ -23,7 +23,7 @@ class RapidApiExchangeRateClientTest {
 
 	private ExchangeRateClient client;
 
-	private WebClientHelper webClient;
+	private ExchangeRateClientHelper webClient;
 
 	public static Stream<Arguments> errorResponseProvider() {
 		return Stream.of(
@@ -38,7 +38,7 @@ class RapidApiExchangeRateClientTest {
 
 	@BeforeEach
 	void setUp() {
-		this.webClient = Mockito.mock(WebClientHelper.class);
+		this.webClient = Mockito.mock(ExchangeRateClientHelper.class);
 		client = new RapidApiExchangeRateClient(webClient, Duration.ofMillis(100));
 	}
 
