@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Slf4j
+@Profile(value = {"production", "release"})
 public class RapidApiExchangeRateClient implements ExchangeRateClient {
 
 	private final WebClientWrapper webClient;
