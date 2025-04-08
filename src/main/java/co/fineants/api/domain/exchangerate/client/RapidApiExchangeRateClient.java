@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 
@@ -21,13 +20,10 @@ import reactor.util.retry.Retry;
 public class RapidApiExchangeRateClient implements ExchangeRateClient {
 
 	private final WebClientHelper webClient;
-	private final String key;
 	private final Duration timeout;
 
-	public RapidApiExchangeRateClient(WebClientHelper webClient, @Value("${rapid.exchange-rate.key}") String key,
-		Duration timeout) {
+	public RapidApiExchangeRateClient(WebClientHelper webClient, Duration timeout) {
 		this.webClient = webClient;
-		this.key = key;
 		this.timeout = timeout;
 	}
 
