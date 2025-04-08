@@ -2,7 +2,6 @@ package co.fineants.api.domain.exchangerate.client;
 
 import java.util.function.Function;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
@@ -53,20 +52,6 @@ public class WebClientWrapper {
 				});
 			}
 			return clientResponse.bodyToMono(responseType);
-		};
-	}
-
-	private <T> Function<ClientResponse, Mono<T>> getClientResponseMonoFunction(
-		ParameterizedTypeReference<T> reference) {
-		return clientResponse -> {
-			log.info("statusCode : {}", clientResponse.statusCode());
-			if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
-				return clientResponse.bodyToMono(String.class).handle((body, sink) -> {
-					log.info("responseBody : {}", body);
-					sink.error(new IllegalStateException(body));
-				});
-			}
-			return clientResponse.bodyToMono(reference);
 		};
 	}
 }
