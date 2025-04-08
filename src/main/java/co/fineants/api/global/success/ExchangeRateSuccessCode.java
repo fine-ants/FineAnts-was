@@ -13,7 +13,7 @@ public enum ExchangeRateSuccessCode implements SuccessCode {
 	UPDATE_EXCHANGE_RATE(HttpStatus.OK, "환율 갱신을 완료하였습니다"),
 	DELETE_EXCHANGE_RATE(HttpStatus.OK, "환율 삭제를 완료하였습니다"),
 	PATCH_EXCHANGE_RATE(HttpStatus.OK, "기준 통화 변경을 완료하였습니다."),
-	UPDATE_EXCHANGE_RATE_BY_CODE(HttpStatus.OK, "환율 갱신을 완료하였습니다");
+	PATCH_EXCHANGE_RATE_BY_CODE(HttpStatus.OK, "환율 갱신을 완료하였습니다");
 
 	private final HttpStatus httpStatus;
 	private final String message;
