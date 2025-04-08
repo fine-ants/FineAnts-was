@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 
@@ -14,15 +13,12 @@ public class LocalExchangeRateClient implements ExchangeRateClient {
 	private static final String BASE = "USD";
 	private final Map<String, Double> rates;
 
-	public LocalExchangeRateClient() {
-		this.rates = new HashMap<>();
-		this.rates.put(BASE, 1.0);
-		this.rates.put("KRW", 1500.0);
+	public LocalExchangeRateClient(Map<String, Double> rates) {
+		this.rates = rates;
 	}
 
 	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
-		// base 환율을 기준으로 code에 대한 환율을 반환한다
 		if (base.equalsIgnoreCase(BASE) || base.equalsIgnoreCase(code)) {
 			return rates.get(code);
 		}
@@ -33,10 +29,13 @@ public class LocalExchangeRateClient implements ExchangeRateClient {
 
 	@Override
 	public Map<String, Double> fetchRates(String base) {
-		if (base.equals("KRW")) {
-			return rates;
-		} else {
-			throw new ExternalApiGetRequestException("Invalid base", HttpStatus.BAD_REQUEST);
+		Map<String, Double> result = new HashMap<>();
+		double baseRate = rates.get(base);
+		for (Map.Entry<String, Double> entry : rates.entrySet()) {
+			String code = entry.getKey();
+			double rate = entry.getValue();
+			result.put(code, rate / baseRate);
 		}
+		return result;
 	}
 }
