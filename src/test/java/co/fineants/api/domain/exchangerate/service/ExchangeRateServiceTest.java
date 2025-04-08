@@ -234,4 +234,25 @@ class ExchangeRateServiceTest extends AbstractContainerBaseTest {
 		List<ExchangeRate> rates = repository.findAll();
 		assertThat(rates).hasSize(1);
 	}
+
+	@DisplayName("USD 통화의 환율 값을 수정한다")
+	@Test
+	void updateRate() {
+		// given
+		repository.save(ExchangeRate.base(Currency.KRW.name()));
+		repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
+
+		String code = Currency.USD.name();
+		double newRate = 0.2;
+		// when
+		Map<String, Double> actual = service.updateRate(code, newRate);
+		// then
+		Map<String, Double> expected = Map.of(
+			"KRW", 1.0,
+			"USD", 0.2
+		);
+		assertThat(actual)
+			.usingRecursiveComparison()
+			.isEqualTo(expected);
+	}
 }
