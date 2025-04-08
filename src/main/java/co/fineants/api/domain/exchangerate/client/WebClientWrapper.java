@@ -30,17 +30,7 @@ public class WebClientWrapper {
 			.retrieve()
 			.bodyToMono(responseType);
 	}
-
-	public <T> T post(String uri, MultiValueMap<String, String> headerMap,
-		MultiValueMap<String, String> bodyMap, Class<T> responseTYpe) {
-		return webClient.post()
-			.uri(uri)
-			.headers(header -> header.addAll(headerMap))
-			.bodyValue(bodyMap)
-			.exchangeToMono(getClientResponseMonoFunction(responseTYpe))
-			.block();
-	}
-
+	
 	private <T> Function<ClientResponse, Mono<T>> getClientResponseMonoFunction(Class<T> responseType) {
 		return clientResponse -> {
 			log.info("statusCode : {}", clientResponse.statusCode());
