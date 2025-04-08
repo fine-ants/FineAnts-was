@@ -1,5 +1,7 @@
 package co.fineants.api.domain.exchangerate.client;
 
+import java.util.Map;
+
 import org.springframework.web.reactive.function.client.WebClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +15,13 @@ public class WebClientHelper {
 		this.webClient = webClient;
 	}
 
-	public <T> Mono<T> get(String path, String base, Class<T> responseType) {
+	public <T> Mono<T> get(String path, Map<String, String> queryParams, Class<T> responseType) {
 		return webClient.get()
-			.uri(uriBuilder -> uriBuilder.path(path).queryParam("base", base).build())
+			.uri(uriBuilder -> {
+				uriBuilder.path(path);
+				queryParams.forEach(uriBuilder::queryParam);
+				return uriBuilder.build();
+			})
 			.retrieve()
 			.bodyToMono(responseType);
 	}

@@ -49,7 +49,8 @@ class RapidApiExchangeRateClientTest {
 		String base = "KRW";
 		String code = "USD";
 		String path = "latest";
-		BDDMockito.given(webClient.get(path, base, ExchangeRateFetchResponse.class))
+		Map<String, String> queryParams = Map.of("base", base);
+		BDDMockito.given(webClient.get(path, queryParams, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
 		Double actual = client.fetchRateBy(code, base);
@@ -66,7 +67,8 @@ class RapidApiExchangeRateClientTest {
 		String base = "KRW";
 		String code = "USD";
 		String path = "latest";
-		BDDMockito.given(webClient.get(path, base, ExchangeRateFetchResponse.class))
+		Map<String, String> queryParams = Map.of("base", base);
+		BDDMockito.given(webClient.get(path, queryParams, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
 		Throwable throwable = catchThrowable(() -> client.fetchRateBy(code, base));
@@ -82,8 +84,8 @@ class RapidApiExchangeRateClientTest {
 		// given
 		String base = "KRW";
 		String path = "latest";
-
-		BDDMockito.given(webClient.get(path, base, ExchangeRateFetchResponse.class))
+		Map<String, String> queryParams = Map.of("base", base);
+		BDDMockito.given(webClient.get(path, queryParams, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
 		Map<String, Double> actual = client.fetchRates(base);
@@ -101,8 +103,8 @@ class RapidApiExchangeRateClientTest {
 		// given
 		String base = "KRW";
 		String path = "latest";
-
-		BDDMockito.given(webClient.get(path, base, ExchangeRateFetchResponse.class))
+		Map<String, String> queryParams = Map.of("base", base);
+		BDDMockito.given(webClient.get(path, queryParams, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
 		Map<String, Double> actual = client.fetchRates("KRW");
