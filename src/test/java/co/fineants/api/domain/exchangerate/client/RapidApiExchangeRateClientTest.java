@@ -15,8 +15,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
@@ -55,8 +53,7 @@ class RapidApiExchangeRateClientTest {
 		String base = "KRW";
 		String code = "USD";
 		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
-		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
+		BDDMockito.given(webClient.get(uri, base, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
 		Double actual = rapidApiExchangeRateClient.fetchRateBy(code, base);
@@ -73,8 +70,7 @@ class RapidApiExchangeRateClientTest {
 		String base = "KRW";
 		String code = "USD";
 		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
-		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
+		BDDMockito.given(webClient.get(uri, base, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
 		Throwable throwable = catchThrowable(() -> rapidApiExchangeRateClient.fetchRateBy(code, base));
@@ -90,12 +86,11 @@ class RapidApiExchangeRateClientTest {
 		// given
 		String base = "KRW";
 		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
 
-		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
+		BDDMockito.given(webClient.get(uri, base, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
-		Map<String, Double> actual = rapidApiExchangeRateClient.fetchRates("KRW");
+		Map<String, Double> actual = rapidApiExchangeRateClient.fetchRates(base);
 		// then
 		Map<String, Double> expected = Map.of("KRW", 1.0, "USD", 0.0006861);
 		assertThat(actual)
@@ -105,16 +100,7 @@ class RapidApiExchangeRateClientTest {
 
 	@NotNull
 	private static String createUri(String base) {
-		String uri = "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
-		return uri;
-	}
-
-	@NotNull
-	private MultiValueMap<String, String> createHeader() {
-		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
-		header.add("X-RapidAPI-Key", key);
-		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
-		return header;
+		return "latest";
 	}
 
 	@DisplayName("base가 주어지고 외부 API로부터 에러 응답이 오면 빈 맵을 반환한다")
@@ -124,9 +110,8 @@ class RapidApiExchangeRateClientTest {
 		// given
 		String base = "KRW";
 		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
 
-		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
+		BDDMockito.given(webClient.get(uri, base, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
 		Map<String, Double> actual = rapidApiExchangeRateClient.fetchRates("KRW");

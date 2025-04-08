@@ -4,12 +4,9 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import co.fineants.api.global.errors.exception.business.ExchangeRateRapidApiRequestException;
@@ -36,10 +33,9 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 
 	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
-		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
+		String path = "latest";
 		try {
-			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
+			return webClient.get(path, base, ExchangeRateFetchResponse.class)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.filter(response -> response.containsBy(code))
 				.map(response -> response.getBy(code))
@@ -55,25 +51,11 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 		}
 	}
 
-	@NotNull
-	private static String createUri(String base) {
-		return "https://exchange-rate-api1.p.rapidapi.com/latest?base=" + base.toUpperCase();
-	}
-
-	@NotNull
-	private MultiValueMap<String, String> createHeader() {
-		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
-		header.add("X-RapidAPI-Key", key);
-		header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
-		return header;
-	}
-
 	@Override
 	public Map<String, Double> fetchRates(String base) {
-		String uri = createUri(base);
-		MultiValueMap<String, String> header = createHeader();
+		String path = "latest";
 		try {
-			return webClient.get(uri, header, ExchangeRateFetchResponse.class)
+			return webClient.get(path, base, ExchangeRateFetchResponse.class)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.map(ExchangeRateFetchResponse::getRates)
 				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
