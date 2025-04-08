@@ -23,9 +23,9 @@ import co.fineants.api.domain.member.service.WebClientWrapper;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import reactor.core.publisher.Mono;
 
-class ExchangeRateWebClientTest {
+class RapidApiExchangeRateClientTest {
 
-	private ExchangeRateWebClient exchangeRateWebClient;
+	private RapidApiExchangeRateClient rapidApiExchangeRateClient;
 
 	private WebClientWrapper webClient;
 
@@ -46,7 +46,7 @@ class ExchangeRateWebClientTest {
 	void setUp() {
 		this.webClient = Mockito.mock(WebClientWrapper.class);
 		this.key = "test-key";
-		exchangeRateWebClient = new ExchangeRateWebClient(webClient, key, Duration.ofMillis(100));
+		rapidApiExchangeRateClient = new RapidApiExchangeRateClient(webClient, key, Duration.ofMillis(100));
 	}
 
 	@DisplayName("base와 code가 주어지고 외부 API에 code에 대한 환율이 존재하면 환율을 조회한다")
@@ -60,7 +60,7 @@ class ExchangeRateWebClientTest {
 		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
-		Double actual = exchangeRateWebClient.fetchRateBy(code, base);
+		Double actual = rapidApiExchangeRateClient.fetchRateBy(code, base);
 		// then
 		Double expected = 0.0006861;
 		assertThat(actual).isEqualTo(expected);
@@ -78,7 +78,7 @@ class ExchangeRateWebClientTest {
 		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
-		Throwable throwable = catchThrowable(() -> exchangeRateWebClient.fetchRateBy(code, base));
+		Throwable throwable = catchThrowable(() -> rapidApiExchangeRateClient.fetchRateBy(code, base));
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ExternalApiGetRequestException.class)
@@ -96,7 +96,7 @@ class ExchangeRateWebClientTest {
 		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(ExchangeRateFetchResponse.krw(Map.of("KRW", 1.0, "USD", 0.0006861))));
 		// when
-		Map<String, Double> actual = exchangeRateWebClient.fetchRates("KRW");
+		Map<String, Double> actual = rapidApiExchangeRateClient.fetchRates("KRW");
 		// then
 		Map<String, Double> expected = Map.of("KRW", 1.0, "USD", 0.0006861);
 		assertThat(actual)
@@ -130,7 +130,7 @@ class ExchangeRateWebClientTest {
 		BDDMockito.given(webClient.get(uri, header, ExchangeRateFetchResponse.class))
 			.willReturn(Mono.just(response));
 		// when
-		Map<String, Double> actual = exchangeRateWebClient.fetchRates("KRW");
+		Map<String, Double> actual = rapidApiExchangeRateClient.fetchRates("KRW");
 		// then
 		assertThat(actual).isEmpty();
 	}

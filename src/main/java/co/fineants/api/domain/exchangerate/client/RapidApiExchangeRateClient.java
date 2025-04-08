@@ -20,13 +20,13 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Slf4j
-public class ExchangeRateWebClient implements ExchangeRateClient {
+public class RapidApiExchangeRateClient implements ExchangeRateClient {
 
 	private final WebClientWrapper webClient;
 	private final String key;
 	private final Duration timeout;
 
-	public ExchangeRateWebClient(WebClientWrapper webClient, @Value("${rapid.exchange-rate.key}") String key,
+	public RapidApiExchangeRateClient(WebClientWrapper webClient, @Value("${rapid.exchange-rate.key}") String key,
 		Duration timeout) {
 		this.webClient = webClient;
 		this.key = key;
@@ -81,7 +81,7 @@ public class ExchangeRateWebClient implements ExchangeRateClient {
 				.blockOptional(timeout)
 				.orElse(Collections.emptyMap());
 		} catch (IllegalStateException e) {
-			log.warn("ExchangeRateWebClient fetchRates error", e);
+			log.warn("RapidApiExchangeRateClient fetchRates error", e);
 			return Collections.emptyMap();
 		}
 	}
