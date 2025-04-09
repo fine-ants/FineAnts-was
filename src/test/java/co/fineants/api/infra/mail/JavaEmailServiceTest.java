@@ -1,4 +1,4 @@
-package co.fineants.api.infra.mail.service;
+package co.fineants.api.infra.mail;
 
 import static org.mockito.BDDMockito.*;
 
@@ -11,8 +11,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.infra.mail.EmailService;
-import co.fineants.api.infra.mail.JavaEmailService;
 
 class JavaEmailServiceTest extends AbstractContainerBaseTest {
 
