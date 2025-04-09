@@ -6,8 +6,7 @@ import java.util.Map;
 import org.springframework.core.io.ClassPathResource;
 
 public class EmailTemplateProcessor {
-	public String processTemplate(String path, Map<String, String> placeholders) {
-		// Load the template from the specified path
+	public EmailTemplate processTemplate(String path, Map<String, String> placeholders) {
 		EmailTemplate emailTemplate = loadTemplate(path);
 		String processedTemplate = emailTemplate.getBody();
 		for (Map.Entry<String, String> entry : placeholders.entrySet()) {
@@ -15,7 +14,7 @@ public class EmailTemplateProcessor {
 			String value = entry.getValue();
 			processedTemplate = processedTemplate.replace("{{" + placeholder + "}}", value);
 		}
-		return processedTemplate;
+		return new EmailTemplate(emailTemplate.getSubject(), processedTemplate);
 	}
 
 	private EmailTemplate loadTemplate(String path) {

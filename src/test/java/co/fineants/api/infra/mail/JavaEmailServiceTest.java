@@ -11,6 +11,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 
 class JavaEmailServiceTest extends AbstractContainerBaseTest {
 
@@ -49,8 +50,9 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 	void sendExchangeRateErrorEmail() {
 		// given
 		willDoNothing().given(mockedJavaMailSender).send(any(SimpleMailMessage.class));
+		String errorMessage = ExchangeRateFetchResponse.requestExceeded().toException().getErrorCodeMessage();
 		// when
-		service.sendExchangeRateErrorEmail();
+		service.sendExchangeRateErrorEmail(errorMessage);
 		// then
 		verify(mockedJavaMailSender, times(1)).send(any(SimpleMailMessage.class));
 	}

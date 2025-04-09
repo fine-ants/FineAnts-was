@@ -1,6 +1,8 @@
 package co.fineants.api.infra.mail;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -35,14 +37,22 @@ public class JavaEmailService implements EmailService {
 	 * 환율 API 서버로부터 환율 정보를 가져오지 못했을 때 발송하는 메일
 	 */
 	@Override
-	public void sendExchangeRateErrorEmail() {
+	public void sendExchangeRateErrorEmail(String errorMessage) {
+		EmailTemplateProcessor processor = new EmailTemplateProcessor();
+		String path = "email/exchange-rate-fail-notification_template.txt";
+		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com";
+		Map<String, String> placeholders = Map.of(
+			"failedAt", LocalDateTime.now().toString(),
+			"apiUrl", apiUrl,
+			"errorMessage", errorMessage
+		);
+		EmailTemplate emailTemplate = processor.processTemplate(path, placeholders);
+
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(adminEmail);
-		EmailTemplate emailTemplate = loadTemplate("email/exchange-rate-fail-notification_template.txt");
 		message.setSubject(emailTemplate.getSubject());
 		message.setText(emailTemplate.getBody());
 		try {
-			log.info("message={}", message);
 			mailSender.send(message);
 		} catch (MailException e) {
 			log.warn("환율 API 서버 오류 메일 발송 실패, message=" + message, e);
