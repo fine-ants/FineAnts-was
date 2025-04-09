@@ -35,7 +35,6 @@ public class ExchangeRateUpdateService {
 			rateMap = client.fetchRates(baseRate.getCode());
 		} catch (ExternalApiGetRequestException e) {
 			log.warn("ExchangeRateUpdateService updateExchangeRates error", e);
-			// send mail to admin
 			emailService.sendExchangeRateErrorEmail();
 			rateMap = Collections.emptyMap();
 		}

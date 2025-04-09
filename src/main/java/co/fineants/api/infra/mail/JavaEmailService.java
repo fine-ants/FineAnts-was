@@ -1,6 +1,9 @@
 package co.fineants.api.infra.mail;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -35,12 +38,28 @@ public class JavaEmailService implements EmailService {
 	public void sendExchangeRateErrorEmail() {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(adminEmail);
-		message.setSubject("환율 API 서버 오류");
-		message.setText("환율 API 서버로부터 환율 정보를 가져오지 못했습니다. 서버 상태를 확인해주세요.");
+		EmailTemplate emailTemplate = loadTemplate("email/exchange-rate-fail-notification_template.txt");
+		message.setSubject(emailTemplate.getSubject());
+		message.setText(emailTemplate.getBody());
 		try {
 			mailSender.send(message);
 		} catch (MailException e) {
-			log.warn("환율 API 서버 오류 메일 발송 실패, adminEmail=" + adminEmail, e);
+			log.warn("환율 API 서버 오류 메일 발송 실패, message=" + message, e);
+			throw new IllegalArgumentException("Failed to send email", e);
 		}
+	}
+
+	private EmailTemplate loadTemplate(String path) throws IllegalArgumentException {
+		ClassPathResource resource = new ClassPathResource(path);
+		String content;
+		try {
+			content = new String(resource.getInputStream().readAllBytes());
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to load email template: " + path, e);
+		}
+		String[] parts = content.split("---BODY---");
+		String subject = parts[0].replace("---SUBJECT---", "").trim();
+		String body = parts.length > 1 ? parts[1].trim() : "";
+		return new EmailTemplate(subject, body);
 	}
 }
