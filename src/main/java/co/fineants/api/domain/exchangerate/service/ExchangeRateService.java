@@ -18,6 +18,7 @@ import co.fineants.api.global.errors.exception.business.BaseExchangeRateDeleteIn
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,9 +29,14 @@ public class ExchangeRateService {
 	private final ExchangeRateClient client;
 	private final ExchangeRateUpdateService exchangeRateUpdateService;
 
+	/**
+	 * 환율을 생성합니다.
+	 * @param code 환율 코드
+	 * @throws ExternalApiGetRequestException 외부 API로부터 환율을 조회를 실패하면 예외가 발생함
+	 */
 	@Transactional
 	@Secured("ROLE_ADMIN")
-	public void createExchangeRate(String code) {
+	public void createExchangeRate(String code) throws ExternalApiGetRequestException {
 		List<ExchangeRate> rates = exchangeRateRepository.findAll();
 		validateDuplicateExchangeRate(rates, code);
 

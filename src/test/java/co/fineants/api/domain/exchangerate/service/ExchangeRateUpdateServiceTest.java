@@ -17,6 +17,7 @@ import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 
 class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 
@@ -63,5 +64,24 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(BaseExchangeRateNotFoundException.class)
 			.hasMessage(Collections.EMPTY_LIST.toString());
+	}
+
+	@DisplayName("외부 API 호출에 실패하면 환율을 업데이트 하지 않는다")
+	@Test
+	void updateExchangeRates_whenExternalApiError_thenNotUpdate() {
+		// given
+		String krw = "KRW";
+		String usd = "USD";
+		double rate = 0.1;
+		repository.save(ExchangeRate.base(krw));
+		repository.save(ExchangeRate.of(usd, rate, false));
+
+		given(mockedExchangeRateClient.fetchRates(krw))
+			.willThrow(ExternalApiGetRequestException.class);
+		// when
+		service.updateExchangeRates();
+		// then
+		ExchangeRate actual = repository.findByCode(usd).orElseThrow();
+		assertThat(actual.getRate().toDoubleValue()).isEqualTo(rate);
 	}
 }
