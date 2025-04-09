@@ -50,7 +50,7 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 	}
 
 	@Override
-	public Map<String, Double> fetchRates(String base) {
+	public Map<String, Double> fetchRates(String base) throws ExternalApiGetRequestException {
 		String path = "latest";
 		Map<String, String> queryParams = Map.of("base", base);
 
@@ -59,12 +59,14 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.map(ExchangeRateFetchResponse::getRates)
 				.retryWhen(getRetryBackoffSpec())
-				.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
 				.blockOptional(timeout)
 				.orElse(Collections.emptyMap());
 		} catch (IllegalStateException e) {
+			log.warn("RapidApiExchangeRateClient fetchRates timeout error", e);
+			throw new ExternalApiGetRequestException("base=%s".formatted(base), HttpStatus.BAD_REQUEST, e);
+		} catch (ExchangeRateRapidApiRequestException e) {
 			log.warn("RapidApiExchangeRateClient fetchRates error", e);
-			return Collections.emptyMap();
+			throw new ExternalApiGetRequestException("base=%s".formatted(base), HttpStatus.BAD_REQUEST, e);
 		}
 	}
 

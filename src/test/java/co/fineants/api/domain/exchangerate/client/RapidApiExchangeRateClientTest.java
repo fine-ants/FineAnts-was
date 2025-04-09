@@ -96,10 +96,10 @@ class RapidApiExchangeRateClientTest {
 			.isEqualTo(expected);
 	}
 
-	@DisplayName("base가 주어지고 외부 API로부터 에러 응답이 오면 빈 맵을 반환한다")
+	@DisplayName("base가 주어지고 외부 API로부터 에러 응답이 오면 예외를 전파한다")
 	@ParameterizedTest
 	@MethodSource(value = "errorResponseProvider")
-	void fetchRates_ResourceExhausted(ExchangeRateFetchResponse response) {
+	void fetchRates_whenErrorResponse_thenThrowException(ExchangeRateFetchResponse response) {
 		// given
 		String base = "KRW";
 		String path = "latest";
@@ -107,8 +107,10 @@ class RapidApiExchangeRateClientTest {
 		BDDMockito.given(webClient.get(path, queryParams))
 			.willReturn(Mono.just(response));
 		// when
-		Map<String, Double> actual = client.fetchRates("KRW");
+		Throwable throwable = catchThrowable(() -> client.fetchRates("KRW"));
 		// then
-		assertThat(actual).isEmpty();
+		assertThat(throwable)
+			.isInstanceOf(ExternalApiGetRequestException.class)
+			.hasMessage("base=%s".formatted(base));
 	}
 }
