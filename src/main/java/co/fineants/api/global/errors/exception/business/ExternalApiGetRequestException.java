@@ -8,4 +8,8 @@ public class ExternalApiGetRequestException extends ExternalApiRequestException 
 	public ExternalApiGetRequestException(String value, HttpStatus httpStatus) {
 		super(value, ErrorCode.EXTERNAL_API_GET_REQUEST, httpStatus);
 	}
+
+	public ExternalApiGetRequestException(String value, HttpStatus httpStatus, Throwable cause) {
+		super(value, ErrorCode.EXTERNAL_API_GET_REQUEST, httpStatus, cause);
+	}
 }

@@ -73,6 +73,13 @@ public enum ErrorCode {
 	BASE_EXCHANGE_RATE_NOT_FOUND("EX-002", "Base Exchange Rate Not Found"),
 	EXCHANGE_RATE_NOT_FOUND("EX-003", "Exchange Rate Not Found"),
 	BASE_EXCHANGE_RATE_DELETE_BAD_REQUEST("EX-004", "Base Exchange Rate Delete Bad Request"),
+	EXCHANGE_RATE_RAPID_API_UNKNOWN("EX-005", "Exchange Rate Rapid API Unknown Error"),
+	EXCHANGE_RATE_RAPID_API_INVALID_API_KEY("EX-006", "Exchange Rate Rapid API Invalid API Key"),
+	EXCHANGE_RATE_RAPID_API_REQUEST_EXCEEDED("EX-007", "Exchange Rate Rapid API Request Exceeded"),
+	EXCHANGE_RATE_RAPID_API_INVALID_SIGN("EX-008", "Exchange Rate Rapid API Invalid Sign"),
+	EXCHANGE_RATE_RAPID_API_INVALID_CURRENCY_CODE("EX-009", "Exchange Rate Rapid API Invalid Currency Code"),
+	EXCHANGE_RATE_RAPID_API_NETWORK_ANOMALY("EX-010", "Exchange Rate Rapid API Network Anomaly"),
+	EXCHANGE_RATE_RAPID_API_QUERY_FAILED("EX-011", "Exchange Rate Rapid API Query Failed"),
 	// Fcm
 	FCM_DUPLICATE("FCM-001", "Duplicate FCM Token"),
 	FCM_BAD_REQUEST("FCM-002", "Bad Request FCM Token"),

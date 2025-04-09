@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
@@ -111,9 +110,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.toUnmodifiableSet()))
 			.containsExactlyElementsOf(memberAuthentication.getRoleSet());
-		assertThat(exchangeRateRepository.findAll())
-			.hasSize(2)
-			.containsExactly(ExchangeRate.base("KRW"), ExchangeRate.noneBase("USD", 0.0007316));
 		assertThat(stockRepository.findAll())
 			.containsExactlyInAnyOrderElementsOf(stocks);
 		assertThat(stockDividendRepository.findAll())

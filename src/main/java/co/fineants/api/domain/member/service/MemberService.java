@@ -205,7 +205,7 @@ public class MemberService {
 		try {
 			emailService.sendEmail(to, subject, body);
 		} catch (MailException exception) {
-			String value = "to=%s, subject=%s, body=%s";
+			String value = "to=%s, subject=%s, body=%s".formatted(to, subject, body);
 			throw new MailInvalidInputException(value, exception);
 		}
 	}
