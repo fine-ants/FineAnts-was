@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 
@@ -14,6 +15,7 @@ import co.fineants.api.global.errors.exception.business.NetworkAnomalyExchangeRa
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
 
 @Slf4j
 @Profile(value = {"production", "release"})
@@ -36,8 +38,7 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.filter(response -> response.containsBy(code))
 				.map(response -> response.getBy(code))
-				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
-					.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
+				.retryWhen(getRetryBackoffSpec())
 				.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
 				.blockOptional(timeout)
 				.orElseThrow(() -> new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base),
@@ -52,12 +53,12 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 	public Map<String, Double> fetchRates(String base) {
 		String path = "latest";
 		Map<String, String> queryParams = Map.of("base", base);
+
 		try {
 			return webClient.get(path, queryParams)
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.map(ExchangeRateFetchResponse::getRates)
-				.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(1))
-					.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance))
+				.retryWhen(getRetryBackoffSpec())
 				.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
 				.blockOptional(timeout)
 				.orElse(Collections.emptyMap());
@@ -65,5 +66,21 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 			log.warn("RapidApiExchangeRateClient fetchRates error", e);
 			return Collections.emptyMap();
 		}
+	}
+
+	/**
+	 * return The RetryBackoffSpec Object
+	 * - 3 times retry : 재시도 횟수
+	 * - 500ms backoff : 재시도 대기 시간, ex) 500ms, 1s, 2s
+	 * - max backoff 3s : 최대 재시도 대기 시간
+	 * - 20% jitter : 재시도 대기 시간에 20%의 랜덤한 시간 추가, ex) 500ms + 20% = 600ms
+	 * @return RetryBackoffSpec
+	 */
+	@NotNull
+	private RetryBackoffSpec getRetryBackoffSpec() {
+		return Retry.backoff(3, Duration.ofMillis(500))
+			.maxBackoff(Duration.ofSeconds(3))
+			.jitter(0.2)
+			.filter(NetworkAnomalyExchangeRateRapidApiRequestException.class::isInstance);
 	}
 }
