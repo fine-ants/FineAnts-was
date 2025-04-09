@@ -6,14 +6,18 @@ import static org.mockito.BDDMockito.*;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
+import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
@@ -27,6 +31,11 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 	private ExchangeRateRepository repository;
 	@Autowired
 	private ExchangeRateClient mockedExchangeRateClient;
+
+	@BeforeEach
+	void setUp() {
+		Mockito.reset(mockedExchangeRateClient);
+	}
 
 	@Transactional
 	@DisplayName("환율을 최신화한다")
@@ -77,7 +86,8 @@ class ExchangeRateUpdateServiceTest extends AbstractContainerBaseTest {
 		repository.save(ExchangeRate.of(usd, rate, false));
 
 		given(mockedExchangeRateClient.fetchRates(krw))
-			.willThrow(ExternalApiGetRequestException.class);
+			.willThrow(new ExternalApiGetRequestException("error", HttpStatus.SERVICE_UNAVAILABLE,
+				ExchangeRateFetchResponse.requestExceeded().toException()));
 		// when
 		service.updateExchangeRates();
 		// then
