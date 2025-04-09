@@ -42,6 +42,7 @@ public class JavaEmailService implements EmailService {
 		message.setSubject(emailTemplate.getSubject());
 		message.setText(emailTemplate.getBody());
 		try {
+			log.info("message={}", message);
 			mailSender.send(message);
 		} catch (MailException e) {
 			log.warn("환율 API 서버 오류 메일 발송 실패, message=" + message, e);

@@ -43,4 +43,15 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 		// then
 		verify(mockedJavaMailSender, times(1)).send(any(SimpleMailMessage.class));
 	}
+
+	@DisplayName("관리자에게 환율 API 서버 오류 메일을 전송한다")
+	@Test
+	void sendExchangeRateErrorEmail() {
+		// given
+		willDoNothing().given(mockedJavaMailSender).send(any(SimpleMailMessage.class));
+		// when
+		service.sendExchangeRateErrorEmail();
+		// then
+		verify(mockedJavaMailSender, times(1)).send(any(SimpleMailMessage.class));
+	}
 }
