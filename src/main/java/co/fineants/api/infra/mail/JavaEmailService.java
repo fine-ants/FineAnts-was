@@ -1,11 +1,9 @@
 package co.fineants.api.infra.mail;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -58,19 +56,5 @@ public class JavaEmailService implements EmailService {
 			log.warn("환율 API 서버 오류 메일 발송 실패, message=" + message, e);
 			throw new IllegalArgumentException("Failed to send email", e);
 		}
-	}
-
-	private EmailTemplate loadTemplate(String path) throws IllegalArgumentException {
-		ClassPathResource resource = new ClassPathResource(path);
-		String content;
-		try {
-			content = new String(resource.getInputStream().readAllBytes());
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Failed to load email template: " + path, e);
-		}
-		String[] parts = content.split("---BODY---");
-		String subject = parts[0].replace("---SUBJECT---", "").trim();
-		String body = parts.length > 1 ? parts[1].trim() : "";
-		return new EmailTemplate(subject, body);
 	}
 }

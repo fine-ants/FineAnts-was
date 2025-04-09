@@ -31,8 +31,8 @@ class EmailTemplateProcessorTest {
 			"errorMessage", errormessage
 		);
 		// when
-		String actual = emailTemplateProcessor.processTemplate(path, placeholders);
+		EmailTemplate actual = emailTemplateProcessor.processTemplate(path, placeholders);
 		// then
-		assertThat(actual).contains(failedAt, apiUrl, errormessage);
+		assertThat(actual.getBody()).contains(failedAt, apiUrl, errormessage);
 	}
 }
