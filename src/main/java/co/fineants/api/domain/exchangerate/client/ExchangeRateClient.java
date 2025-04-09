@@ -7,5 +7,5 @@ import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestExc
 public interface ExchangeRateClient {
 	Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException;
 
-	Map<String, Double> fetchRates(String base);
+	Map<String, Double> fetchRates(String base) throws ExternalApiGetRequestException;
 }

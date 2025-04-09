@@ -1,7 +1,6 @@
 package co.fineants.api.domain.exchangerate.client;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +28,13 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 		this.timeout = timeout;
 	}
 
+	/**
+	 * base를 기준으로 한 code의 환율을 조회한다.
+	 * @param code 환율 코드
+	 * @param base 환율 기준 통화 코드
+	 * @return 환율 정보. ex) base="USD", code="KRW", rate=1500.0
+	 * @throws ExternalApiGetRequestException 외부 API로부터 환율을 조회를 실패하면 예외가 발생함
+	 */
 	@Override
 	public Double fetchRateBy(String code, String base) throws ExternalApiGetRequestException {
 		String path = "latest";
@@ -39,16 +45,27 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 				.filter(response -> response.containsBy(code))
 				.map(response -> response.getBy(code))
 				.retryWhen(getRetryBackoffSpec())
-				.onErrorResume(ExchangeRateRapidApiRequestException.class::isInstance, throwable -> Mono.empty())
-				.blockOptional(timeout)
-				.orElseThrow(() -> new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base),
-					HttpStatus.BAD_REQUEST));
+				.block(timeout);
 		} catch (IllegalStateException e) {
-			throw new ExternalApiGetRequestException("code=%s, base=%s".formatted(code, base), HttpStatus.BAD_REQUEST,
-				e);
+			log.warn("RapidApiExchangeRateClient fetchRateBy timeout error", e);
+			throw new ExternalApiGetRequestException(getErrorMessage(code, base),
+				HttpStatus.SERVICE_UNAVAILABLE, e);
+		} catch (ExchangeRateRapidApiRequestException e) {
+			log.warn("RapidApiExchangeRateClient fetchRateBy error", e);
+			throw new ExternalApiGetRequestException(getErrorMessage(code, base), e.getHttpStatus(), e);
 		}
 	}
 
+	private String getErrorMessage(String code, String base) {
+		return "code=%s, base=%s".formatted(code, base);
+	}
+
+	/**
+	 * base를 기준으로 한 환율들을 조회한다.
+	 * @param base 환율 기준 통화 코드
+	 * @return 환율 정보 Map. ex) base="USD", rates={"KRW": 1500.0, "USD": 1.0}
+	 * @throws ExternalApiGetRequestException 외부 API로부터 환율을 조회를 실패하면 예외가 발생함
+	 */
 	@Override
 	public Map<String, Double> fetchRates(String base) throws ExternalApiGetRequestException {
 		String path = "latest";
@@ -59,14 +76,13 @@ public class RapidApiExchangeRateClient implements ExchangeRateClient {
 				.flatMap(response -> response.isSuccess() ? Mono.just(response) : Mono.error(response.toException()))
 				.map(ExchangeRateFetchResponse::getRates)
 				.retryWhen(getRetryBackoffSpec())
-				.blockOptional(timeout)
-				.orElse(Collections.emptyMap());
+				.block(timeout);
 		} catch (IllegalStateException e) {
 			log.warn("RapidApiExchangeRateClient fetchRates timeout error", e);
-			throw new ExternalApiGetRequestException("base=%s".formatted(base), HttpStatus.BAD_REQUEST, e);
+			throw new ExternalApiGetRequestException("base=%s".formatted(base), HttpStatus.SERVICE_UNAVAILABLE, e);
 		} catch (ExchangeRateRapidApiRequestException e) {
 			log.warn("RapidApiExchangeRateClient fetchRates error", e);
-			throw new ExternalApiGetRequestException("base=%s".formatted(base), HttpStatus.BAD_REQUEST, e);
+			throw new ExternalApiGetRequestException("base=%s".formatted(base), e.getHttpStatus(), e);
 		}
 	}
 
