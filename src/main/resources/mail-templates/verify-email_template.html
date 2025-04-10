@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>회원가입 인증 코드</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+<div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; padding: 30px; text-align: center; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #333;">회원가입 인증 코드</h2>
+    <p style="font-size: 16px; color: #555;">아래 인증 코드를 회원가입 페이지에 입력해주세요.</p>
+    <div style="margin-top: 20px; font-size: 24px; font-weight: bold; color: #2c3e50;">
+        <span th:text="${verifyCode}"></span>
+    </div>
+</div>
+</body>
+</html>

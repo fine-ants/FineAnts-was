@@ -203,7 +203,7 @@ public class MemberService {
 
 		String subject = "Finants 회원가입 인증 코드";
 		String body = String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode);
-		String templateName = "email/verify-email_template.txt";
+		String templateName = "mail-templates/verify-email_template";
 		Map<String, String> values = Map.of("verifyCode", verifyCode);
 		try {
 			emailService.sendEmail(to, subject, body, templateName, values);

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetchResponse;
@@ -22,12 +23,15 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private JavaMailSender mockedJavaMailSender;
 
+	@Autowired
+	private SpringTemplateEngine springTemplateEngine;
+
 	@Value("${admin.email}")
 	private String adminEmail;
 
 	@BeforeEach
 	void setUp() {
-		service = new JavaEmailService(mockedJavaMailSender, adminEmail);
+		service = new JavaEmailService(mockedJavaMailSender, springTemplateEngine, adminEmail);
 	}
 
 	@DisplayName("서버는 이메일을 전송한다")
