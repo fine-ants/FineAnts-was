@@ -54,7 +54,7 @@ public class TestConfig {
 	@SpyBean
 	private DelayManager delayManager;
 
-	@MockBean
+	@SpyBean
 	private JavaMailSender javaMailSender;
 
 	@MockBean

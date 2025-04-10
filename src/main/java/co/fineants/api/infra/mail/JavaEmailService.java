@@ -31,7 +31,7 @@ public class JavaEmailService implements EmailService {
 	}
 
 	@Override
-	public void sendEmail(String to, String subject, String body, String templateName, Map<String, String> values) {
+	public void sendEmail(String to, String subject, String templateName, Map<String, String> values) {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper;
 		try {
@@ -60,7 +60,7 @@ public class JavaEmailService implements EmailService {
 	@Override
 	public void sendExchangeRateErrorEmail(String errorMessage) {
 		EmailTemplateProcessor processor = new EmailTemplateProcessor();
-		String path = "email/exchange-rate-fail-notification_template.txt";
+		String path = "mail-templates/exchange-rate-fail-notification_template.txt";
 		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com";
 		Map<String, String> placeholders = Map.of(
 			"failedAt", LocalDateTime.now().toString(),
