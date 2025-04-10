@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>환율 업데이트 실패 알림</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+<div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+    <h2 style="color: #d32f2f;">환율 정보 업데이트 실패 알림</h2>
+    <p>안녕하세요, 관리자님.</p>
+    <p>금일 환율 정보를 업데이트하는 과정에서 아래와 같은 오류가 발생하였습니다.</p>
+
+    <ul style="line-height: 1.6; color: #333;">
+        <li><strong>실패 시각:</strong> <span th:text="${failedAt}">2025-04-10 12:34:56</span></li>
+        <li><strong>대상 API:</strong> <span th:text="${apiUrl}">https://api.example.com/rates</span></li>
+        <li><strong>오류 메시지:</strong> <span th:text="${errorMessage}">Internal Server Error</span></li>
+    </ul>
+
+    <p>해당 문제로 인해 서비스 내 환율 정보가 갱신되지 않았습니다.<br>
+        신속한 조치를 부탁드립니다.</p>
+
+
+    <div style="margin-top: 30px;">
+        <h3 style="color: #d32f2f;">에러 스택 트레이스</h3>
+        <pre style="background-color: #f8f8f8; padding: 15px; border-radius: 6px; color: #444; font-size: 13px; overflow-x: auto;"
+             th:text="${stackTrace}">
+            java.lang.RuntimeException: Example error
+                at com.fineants.exchange.Fetcher.fetchRates(Fetcher.java:42)
+                ...
+        </pre>
+    </div>
+
+    <p>감사합니다.</p>
+
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+    <p style="font-size: 14px; color: #888;">FineAnts 환율 시스템 모니터링 서비스</p>
+</div>
+</body>
+</html>

@@ -1,7 +1,9 @@
 package co.fineants.api.infra.mail;
 
-public interface EmailService {
-	void sendEmail(String to, String subject, String body);
+import java.util.Map;
 
-	void sendExchangeRateErrorEmail(String errorMessage);
+public interface EmailService {
+
+	void sendEmail(String to, String subject, String templateName, Map<String, String> values);
+
 }

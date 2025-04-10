@@ -2,6 +2,7 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -201,11 +202,12 @@ public class MemberService {
 		verifyCodeManagementService.saveVerifyCode(to, verifyCode);
 
 		String subject = "Finants 회원가입 인증 코드";
-		String body = String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode);
+		String templateName = "mail-templates/verify-email_template";
+		Map<String, String> values = Map.of("verifyCode", verifyCode);
 		try {
-			emailService.sendEmail(to, subject, body);
+			emailService.sendEmail(to, subject, templateName, values);
 		} catch (MailException exception) {
-			String value = "to=%s, subject=%s, body=%s".formatted(to, subject, body);
+			String value = "to=%s, subject=%s, templateName=%s, values=%s".formatted(to, subject, templateName, values);
 			throw new MailInvalidInputException(value, exception);
 		}
 	}
