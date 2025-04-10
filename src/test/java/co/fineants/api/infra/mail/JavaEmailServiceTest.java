@@ -2,6 +2,8 @@ package co.fineants.api.infra.mail;
 
 import static org.mockito.BDDMockito.*;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,12 +36,14 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 		// given
 		willDoNothing().given(mockedJavaMailSender).send(any(SimpleMailMessage.class));
 
+		String verifyCode = "123456";
 		String to = "dragonbead95@naver.com";
-		String subject = "스프링부트 메일 테스트";
-		String body = "스프링부트 메일 테스트 내용입니다.";
-
+		String subject = "Finants 회원가입 인증 코드";
+		String body = String.format("인증코드를 회원가입 페이지에 입력해주세요: %s", verifyCode);
+		String templateName = "email/verify-email_template.txt";
+		Map<String, String> values = Map.of("verifyCode", verifyCode);
 		// when
-		service.sendEmail(to, subject, body);
+		service.sendEmail(to, subject, body, templateName, values);
 
 		// then
 		verify(mockedJavaMailSender, times(1)).send(any(SimpleMailMessage.class));
