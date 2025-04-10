@@ -1,5 +1,6 @@
 package co.fineants.api.infra.mail;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,7 +28,7 @@ public class JavaEmailService implements EmailService {
 	public void sendEmail(String to, String subject, String templateName, Map<String, String> values) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 			// 수신자 설정
 			helper.setTo(to);
 			// 메일 제목 설정

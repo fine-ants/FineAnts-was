@@ -51,7 +51,7 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("관리자에게 환율 API 서버 오류 메일을 전송한다")
 	@Test
-	void sendExchangeRateErrorEmail() {
+	void sendExchangeRateErrorNotification() {
 		// given
 		willDoNothing().given(spyJavaMailSender).send(any(MimeMessage.class));
 		String to = "user1@gmail.com";
