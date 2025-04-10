@@ -18,14 +18,18 @@ import co.fineants.api.domain.exchangerate.client.RapidApiExchangeRateClient;
 public class RealExchangeRateConfig {
 
 	@Bean
-	public ExchangeRateClientHelper webClientHelper(@Value("${rapid.exchange-rate.key}") String key) {
+	public ExchangeRateClientHelper webClientHelper(
+		@Value("${rapid.exchange-rate.base-uri}") String baseUri,
+		@Value("${rapid.exchange-rate.key}") String key,
+		@Value("${rapid.exchange-rate.host}") String host,
+		@Value("${rapid.exchange-rate.max-in-memory-size}") int maxInMemorySize) {
 		WebClient webClient = WebClient.builder()
-			.baseUrl("https://exchange-rate-api1.p.rapidapi.com")
+			.baseUrl(baseUri)
 			.defaultHeaders(header -> {
 				header.add("X-RapidAPI-Key", key);
-				header.add("X-RapidAPI-Host", "exchange-rate-api1.p.rapidapi.com");
+				header.add("X-RapidAPI-Host", host);
 			})
-			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
+			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(maxInMemorySize))
 			.build();
 		return new ExchangeRateClientHelper(webClient);
 	}
