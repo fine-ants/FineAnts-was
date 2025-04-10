@@ -22,6 +22,17 @@
     <p>해당 문제로 인해 서비스 내 환율 정보가 갱신되지 않았습니다.<br>
         신속한 조치를 부탁드립니다.</p>
 
+
+    <div style="margin-top: 30px;">
+        <h3 style="color: #d32f2f;">에러 스택 트레이스</h3>
+        <pre style="background-color: #f8f8f8; padding: 15px; border-radius: 6px; color: #444; font-size: 13px; overflow-x: auto;"
+             th:text="${stackTrace}">
+            java.lang.RuntimeException: Example error
+                at com.fineants.exchange.Fetcher.fetchRates(Fetcher.java:42)
+                ...
+        </pre>
+    </div>
+
     <p>감사합니다.</p>
 
     <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
