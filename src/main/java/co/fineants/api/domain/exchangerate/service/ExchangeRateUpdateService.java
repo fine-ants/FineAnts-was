@@ -1,5 +1,6 @@
 package co.fineants.api.domain.exchangerate.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +36,26 @@ public class ExchangeRateUpdateService {
 			rateMap = client.fetchRates(baseRate.getCode());
 		} catch (ExternalApiGetRequestException e) {
 			log.warn("ExchangeRateUpdateService updateExchangeRates error", e);
-			emailService.sendExchangeRateErrorEmail(e.getErrorCodeMessage());
+			sendExchangeRateErrorNotification(e.getErrorCodeMessage());
 			rateMap = Collections.emptyMap();
 		}
 		Map<String, Double> finalRateMap = rateMap;
 		originalRates.stream()
 			.filter(rate -> finalRateMap.containsKey(rate.getCode()))
 			.forEach(rate -> rate.changeRate(finalRateMap.get(rate.getCode())));
+	}
+
+	private void sendExchangeRateErrorNotification(String errorMessage) {
+		String to = "fineants.co.2024@gmail.com";
+		String subject = "환율 API 서버 오류";
+		String templateName = "mail-templates/exchange-rate-fail-notification_template";
+		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com";
+		Map<String, String> values = Map.of(
+			"failedAt", LocalDateTime.now().toString(),
+			"apiUrl", apiUrl,
+			"errorMessage", errorMessage
+		);
+		emailService.sendEmail(to, subject, templateName, values);
 	}
 
 	private void validateExistBase(List<ExchangeRate> rates) throws BaseExchangeRateNotFoundException {
