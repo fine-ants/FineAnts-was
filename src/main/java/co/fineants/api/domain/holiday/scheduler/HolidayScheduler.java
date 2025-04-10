@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class HolidayScheduler {
 	 * 저장소에는 휴장하는 일정만 저장됩니다.
 	 * </p>
 	 */
+	@SchedulerLock(name = "holidayScheduler")
 	@Scheduled(cron = "${cron.expression.update-holidays:0 0 0 * * ?}")
 	@Transactional
 	public void updateHolidays() {

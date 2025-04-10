@@ -6,6 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class KisClosingPriceScheduler {
 	private final FileHolidayRepository fileHolidayRepository;
 
 	// start pm 15:30
+	@SchedulerLock(name = "kisClosingPriceScheduler")
 	@Scheduled(cron = "${cron.expression.closing-price:0 30 15 * * ?}")
 	@Transactional(readOnly = true)
 	public void scheduledRefreshAllClosingPrice() {

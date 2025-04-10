@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.service.KisService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class KisProductionScheduler {
 	private final HolidayService holidayService;
 	private final KisService kisService;
 
+	@SchedulerLock(name = "kisCurrentPriceScheduler")
 	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
 	@Transactional
 	public void refreshCurrentPrice() {

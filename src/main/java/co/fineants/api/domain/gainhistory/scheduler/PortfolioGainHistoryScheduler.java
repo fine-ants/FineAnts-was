@@ -4,6 +4,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.gainhistory.domain.dto.response.PortfolioGainHistoryCreateResponse;
 import co.fineants.api.domain.gainhistory.service.PortfolioGainHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ public class PortfolioGainHistoryScheduler {
 
 	private final PortfolioGainHistoryService service;
 
+	@SchedulerLock(name = "portfolioGainHistoryScheduler")
 	@Scheduled(cron = "0 0 16 * * ?") // 매일 16시에 실행
 	@Transactional
 	public void scheduledPortfolioGainHistory() {

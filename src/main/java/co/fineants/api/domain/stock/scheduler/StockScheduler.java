@@ -4,6 +4,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +15,7 @@ public class StockScheduler {
 
 	private final StockService stockService;
 
+	@SchedulerLock(name = "stockScheduler")
 	@Scheduled(cron = "${cron.expression.reload-stocks:0 0 8 * * ?}") // 매일 오전 8시 (초, 분, 시간)
 	@Transactional
 	public void scheduledReloadStocks() {

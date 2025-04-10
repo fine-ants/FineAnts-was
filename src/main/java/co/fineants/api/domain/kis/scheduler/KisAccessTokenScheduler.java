@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
@@ -27,7 +29,8 @@ public class KisAccessTokenScheduler {
 	private final LocalDateTimeService localDateTimeService;
 	private final DelayManager delayManager;
 	private final KisClient kisClient;
-
+	
+	@SchedulerLock(name = "kisAccessTokenScheduler")
 	@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	public void checkAndReissueAccessToken() {
 		LocalDateTime now = localDateTimeService.getLocalDateTimeWithNow();
