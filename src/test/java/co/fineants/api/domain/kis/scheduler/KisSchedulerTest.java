@@ -15,10 +15,10 @@ import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
 import reactor.core.publisher.Mono;
 
-class KisAccessTokenSchedulerTest extends AbstractContainerBaseTest {
+class KisSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private KisAccessTokenScheduler accessTokenScheduler;
+	private KisScheduler accessTokenScheduler;
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;

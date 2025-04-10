@@ -23,6 +23,12 @@ public class KisProductionScheduler {
 	private final HolidayService holidayService;
 	private final KisService kisService;
 
+	/**
+	 * 평일 09:00~16:00 시간 동안 5초 간격으로 KIS에서 주식 현재가를 업데이트합니다.
+	 * <p>
+	 * 휴장일 및 주말에는 실행하지 않습니다.
+	 * </p>
+	 */
 	@SchedulerLock(name = "kisCurrentPriceScheduler")
 	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
 	@Transactional
