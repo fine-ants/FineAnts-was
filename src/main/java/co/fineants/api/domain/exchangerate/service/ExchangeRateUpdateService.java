@@ -58,7 +58,7 @@ public class ExchangeRateUpdateService {
 	private void sendExchangeRateErrorNotification(ExternalApiGetRequestException e) {
 		String subject = "환율 API 서버 오류";
 		String templateName = "mail-templates/exchange-rate-fail-notification_template";
-		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com";
+		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com/latest";
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		String stackTrace = sw.toString();
