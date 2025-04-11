@@ -79,6 +79,17 @@ services:
       - ./prometheus/volume:/prometheus
     networks:
       - spring-net
+  alertmanager:
+    image: prom/alertmanager
+    container_name: fineAnts_alertmanager
+    volumes:
+      - ./secret/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    ports:
+      - "9093:9093"
+    networks:
+      - spring-net
 volumes:
   loki_data:
   grafana_data:
