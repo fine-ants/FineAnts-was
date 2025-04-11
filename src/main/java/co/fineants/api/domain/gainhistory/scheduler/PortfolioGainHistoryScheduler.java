@@ -18,6 +18,12 @@ public class PortfolioGainHistoryScheduler {
 
 	private final PortfolioGainHistoryService service;
 
+	/**
+	 * 매일 16시에 포트폴리오 수익 내역을 기록합니다.
+	 * <p>
+	 * 실행이 완료된 후에도 1분 동안 lock을 유지합니다.
+	 * </p>
+	 */
 	@SchedulerLock(name = "portfolioGainHistoryScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "0 0 16 * * ?") // 매일 16시에 실행
 	@Transactional
