@@ -26,11 +26,11 @@ public class ExchangeRateScheduler {
 	@SchedulerLock(name = "exchangeRateScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "0 0 * * * *")
 	@Transactional
-	public void updateExchangeRates() {
+	public void scheduledUpdateExchangeRates() {
 		try {
 			service.updateExchangeRates();
 		} catch (BaseExchangeRateNotFoundException e) {
-			log.error("환율 업데이트 실패", e);
+			log.warn("환율 업데이트 실패", e);
 		}
 	}
 }
