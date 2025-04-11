@@ -18,7 +18,7 @@ public class PortfolioGainHistoryScheduler {
 
 	private final PortfolioGainHistoryService service;
 
-	@SchedulerLock(name = "portfolioGainHistoryScheduler")
+	@SchedulerLock(name = "portfolioGainHistoryScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "0 0 16 * * ?") // 매일 16시에 실행
 	@Transactional
 	public void scheduledPortfolioGainHistory() {

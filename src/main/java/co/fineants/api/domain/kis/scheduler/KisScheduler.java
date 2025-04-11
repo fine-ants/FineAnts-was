@@ -42,7 +42,7 @@ public class KisScheduler {
 	 * 1시간 전에 만료되는 access token을 갱신합니다.
 	 * </p>
 	 */
-	@SchedulerLock(name = "kisAccessTokenScheduler")
+	@SchedulerLock(name = "kisAccessTokenScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	public void checkAndReissueAccessToken() {
 		LocalDateTime now = localDateTimeService.getLocalDateTimeWithNow();
@@ -74,7 +74,7 @@ public class KisScheduler {
 	 * 한국투자증권의 모든 종목의 종가를 갱신합니다.
 	 * </p>
 	 */
-	@SchedulerLock(name = "kisClosingPriceScheduler")
+	@SchedulerLock(name = "kisClosingPriceScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "${cron.expression.closing-price:0 30 15 * * ?}")
 	@Transactional(readOnly = true)
 	public void scheduledRefreshAllClosingPrice() {

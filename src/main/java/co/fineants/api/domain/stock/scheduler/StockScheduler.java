@@ -15,7 +15,7 @@ public class StockScheduler {
 
 	private final StockService stockService;
 
-	@SchedulerLock(name = "stockScheduler")
+	@SchedulerLock(name = "stockScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "${cron.expression.reload-stocks:0 0 8 * * ?}") // 매일 오전 8시 (초, 분, 시간)
 	@Transactional
 	public void scheduledReloadStocks() {

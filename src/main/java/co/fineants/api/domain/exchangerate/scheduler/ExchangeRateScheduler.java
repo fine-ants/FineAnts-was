@@ -20,7 +20,7 @@ public class ExchangeRateScheduler {
 	/**
 	 * 매일 0시 0분에 환율을 업데이트합니다.
 	 */
-	@SchedulerLock(name = "exchangeRateScheduler")
+	@SchedulerLock(name = "exchangeRateScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "0 0 * * * *")
 	@Transactional
 	public void updateExchangeRates() {

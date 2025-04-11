@@ -27,7 +27,7 @@ public class HolidayScheduler {
 	 * 저장소에는 휴장하는 일정만 저장됩니다.
 	 * </p>
 	 */
-	@SchedulerLock(name = "holidayScheduler")
+	@SchedulerLock(name = "holidayScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
 	@Scheduled(cron = "${cron.expression.update-holidays:0 0 0 * * ?}")
 	@Transactional
 	public void updateHolidays() {

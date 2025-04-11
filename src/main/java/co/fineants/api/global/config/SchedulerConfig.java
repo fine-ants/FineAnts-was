@@ -11,7 +11,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 
-@EnableSchedulerLock(defaultLockAtLeastFor = "40s", defaultLockAtMostFor = "50s")
+@EnableSchedulerLock(defaultLockAtLeastFor = "1m", defaultLockAtMostFor = "1m")
 @EnableScheduling
 @ConditionalOnProperty(value = "scheduling.enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
