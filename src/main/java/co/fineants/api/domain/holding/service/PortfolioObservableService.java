@@ -1,8 +1,5 @@
 package co.fineants.api.domain.holding.service;
 
-import java.util.Set;
-
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -10,9 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import co.fineants.api.domain.portfolio.reactive.PortfolioObservable;
 import co.fineants.api.domain.portfolio.reactive.PortfolioObserver;
 import co.fineants.api.domain.portfolio.reactive.StockMarketObserver;
-import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.price.domain.stockprice.service.StockPriceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,18 +20,6 @@ public class PortfolioObservableService {
 	private final PortfolioObservable portfolioObservable;
 	private final StockMarketChecker stockMarketChecker;
 	private final LocalDateTimeService localDateTimeService;
-	private final StockPriceService stockPriceService;
-	private final PortfolioCacheService portfolioCacheService;
-
-	@Async
-	@Transactional(readOnly = true)
-	public void pushStockTickersBy(Long portfolioId) {
-		if (!stockMarketChecker.isMarketOpen(localDateTimeService.getLocalDateTimeWithNow())) {
-			return;
-		}
-		Set<String> tickers = portfolioCacheService.getTickerSymbolsFromPortfolioBy(portfolioId);
-		stockPriceService.pushStocks(tickers);
-	}
 
 	public SseEmitter observePortfolioHoldings(Long portfolioId) {
 		SseEmitter emitter = createSseEmitter(portfolioId);

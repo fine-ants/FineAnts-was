@@ -188,6 +188,56 @@ class ExchangeRateRestControllerDocsTest extends RestDocsSupport {
 			);
 	}
 
+	@DisplayName("통화 환율 변경 API")
+	@Test
+	void updateRate() throws Exception {
+		// given
+		Map<String, Double> rates = Map.of(
+			"KRW", 1.0,
+			"USD", 0.2
+		);
+		BDDMockito.given(service.updateRate("USD", 0.2))
+			.willReturn(rates);
+		// when & then
+		mockMvc.perform(patch("/api/exchange-rates/rate")
+				.queryParam("code", "USD")
+				.queryParam("newRate", "0.2")
+				.cookie(createTokenCookies()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(
+				jsonPath("message").value(equalTo(ExchangeRateSuccessCode.PATCH_EXCHANGE_RATE_BY_CODE.getMessage())))
+			.andExpect(jsonPath("data.rates").value(equalToObject(rates)))
+			.andDo(
+				document(
+					"exchange-rate-patch-rate",
+					preprocessRequest(prettyPrint()),
+					preprocessResponse(prettyPrint()),
+					queryParameters(
+						parameterWithName("code").description("변경하고자 하는 통화 코드"),
+						parameterWithName("newRate").description("변경하고자 하는 환율")
+					),
+					responseFields(
+						fieldWithPath("code").type(JsonFieldType.NUMBER)
+							.description("코드"),
+						fieldWithPath("status").type(JsonFieldType.STRING)
+							.description("상태"),
+						fieldWithPath("message").type(JsonFieldType.STRING)
+							.description("메시지"),
+						fieldWithPath("data").type(JsonFieldType.OBJECT)
+							.description("응답 데이터"),
+						fieldWithPath("data.rates").type(JsonFieldType.OBJECT)
+							.description("환율 데이터 (통화 코드 - 환율 매핑)"),
+						fieldWithPath("data.rates.KRW").type(JsonFieldType.NUMBER)
+							.description("KRW에 대한 환율"),
+						fieldWithPath("data.rates.USD").type(JsonFieldType.NUMBER)
+							.description("USD에 대한 환율")
+					)
+				)
+			);
+	}
+
 	@DisplayName("환율 삭제 API")
 	@Test
 	void deleteExchangeRates() throws Exception {

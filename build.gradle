@@ -43,6 +43,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -113,6 +114,10 @@ dependencies {
 
     // Prometheus
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // ShedLock
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:6.3.1'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:6.3.1'
 }
 
 tasks.named('test') {

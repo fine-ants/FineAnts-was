@@ -1,5 +1,7 @@
 package co.fineants.api.domain.exchangerate.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.fineants.api.domain.exchangerate.domain.dto.request.ExchangeRateCreateRequest;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateDeleteRequest;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
+import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateUpdateResponse;
 import co.fineants.api.domain.exchangerate.service.ExchangeRateService;
 import co.fineants.api.domain.exchangerate.service.ExchangeRateUpdateService;
 import co.fineants.api.global.api.ApiResponse;
@@ -57,6 +60,14 @@ public class ExchangeRateRestController {
 	public ApiResponse<Void> patchBase(@RequestParam String code) {
 		service.patchBase(code);
 		return ApiResponse.success(ExchangeRateSuccessCode.PATCH_EXCHANGE_RATE);
+	}
+
+	@PatchMapping("/rate")
+	@Secured("ROLE_ADMIN")
+	public ApiResponse<ExchangeRateUpdateResponse> updateRate(@RequestParam String code, @RequestParam Double newRate) {
+		Map<String, Double> result = service.updateRate(code, newRate);
+		ExchangeRateUpdateResponse response = new ExchangeRateUpdateResponse(result);
+		return ApiResponse.success(ExchangeRateSuccessCode.UPDATE_EXCHANGE_RATE, response);
 	}
 
 	@DeleteMapping

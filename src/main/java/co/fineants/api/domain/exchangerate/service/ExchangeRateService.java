@@ -1,5 +1,6 @@
 package co.fineants.api.domain.exchangerate.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.exchangerate.client.ExchangeRateWebClient;
+import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateItem;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
@@ -17,6 +18,7 @@ import co.fineants.api.global.errors.exception.business.BaseExchangeRateDeleteIn
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
+import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,18 +26,23 @@ import lombok.RequiredArgsConstructor;
 public class ExchangeRateService {
 
 	private final ExchangeRateRepository exchangeRateRepository;
-	private final ExchangeRateWebClient webClient;
+	private final ExchangeRateClient client;
 	private final ExchangeRateUpdateService exchangeRateUpdateService;
 
+	/**
+	 * 환율을 생성합니다.
+	 * @param code 환율 코드
+	 * @throws ExternalApiGetRequestException 외부 API로부터 환율을 조회를 실패하면 예외가 발생함
+	 */
 	@Transactional
 	@Secured("ROLE_ADMIN")
-	public void createExchangeRate(String code) {
+	public void createExchangeRate(String code) throws ExternalApiGetRequestException {
 		List<ExchangeRate> rates = exchangeRateRepository.findAll();
 		validateDuplicateExchangeRate(rates, code);
 
 		ExchangeRate base = findBaseExchangeRate(code);
 
-		Double rate = webClient.fetchRateBy(code, base.getCode());
+		Double rate = client.fetchRateBy(code, base.getCode());
 		ExchangeRate exchangeRate = ExchangeRate.of(code, rate, base.equalCode(code));
 		exchangeRateRepository.save(exchangeRate);
 	}
@@ -73,32 +80,6 @@ public class ExchangeRateService {
 		exchangeRateUpdateService.updateExchangeRates();
 	}
 
-	@Transactional
-	public void updateExchangeRates() {
-		List<ExchangeRate> originalRates = exchangeRateRepository.findAll();
-		validateExistBase(originalRates);
-		ExchangeRate baseRate = findBaseExchangeRate(originalRates);
-		Map<String, Double> rateMap = webClient.fetchRates(baseRate.getCode());
-
-		originalRates.stream()
-			.filter(rate -> rateMap.containsKey(rate.getCode()))
-			.forEach(rate -> rate.changeRate(rateMap.get(rate.getCode())));
-	}
-
-	private void validateExistBase(List<ExchangeRate> rates) {
-		if (rates.stream()
-			.noneMatch(ExchangeRate::isBase)) {
-			throw new BaseExchangeRateNotFoundException(rates.toString());
-		}
-	}
-
-	private ExchangeRate findBaseExchangeRate(List<ExchangeRate> rates) {
-		return rates.stream()
-			.filter(ExchangeRate::isBase)
-			.findFirst()
-			.orElseThrow(() -> new BaseExchangeRateNotFoundException(rates.toString()));
-	}
-
 	private ExchangeRate findExchangeRateBy(String code) {
 		return exchangeRateRepository.findByCode(code)
 			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
@@ -127,5 +108,24 @@ public class ExchangeRateService {
 	private ExchangeRate findBaseExchangeRate() {
 		return exchangeRateRepository.findBase()
 			.orElseThrow(() -> new BaseExchangeRateNotFoundException(Strings.EMPTY));
+	}
+
+	/**
+	 * 환율을 업데이트합니다.
+	 * @param code 환율 코드
+	 * @param newRate 업데이트할 환율
+	 * @return 기준 통화 및 변경한 환율 코드가 포함된 맵
+	 */
+	@Transactional
+	public Map<String, Double> updateRate(String code, Double newRate) {
+		ExchangeRate exchangeRate = exchangeRateRepository.findByCode(code)
+			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
+		exchangeRate.changeRate(newRate);
+
+		ExchangeRate baseExchangeRate = findBaseExchangeRate();
+		Map<String, Double> result = new HashMap<>();
+		result.put(baseExchangeRate.getCode(), baseExchangeRate.getRate().toDoubleValue());
+		result.put(exchangeRate.getCode(), exchangeRate.getRate().toDoubleValue());
+		return result;
 	}
 }
