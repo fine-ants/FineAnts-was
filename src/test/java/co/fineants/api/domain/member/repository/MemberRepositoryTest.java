@@ -29,4 +29,15 @@ class MemberRepositoryTest extends AbstractDataJpaBaseTest {
 		Assertions.assertThat(findMember).isPresent();
 	}
 
+	@DisplayName("이메일과 provider과 동일한 회원이 없으면 false를 반환한다")
+	@Test
+	void findMemberByEmailAndProviderWithMember() {
+		// given
+		String email = "dragonbead95@naver.com";
+		String provider = "local";
+		// when
+		Optional<Member> actual = repository.findMemberByEmailAndProvider(email, provider);
+		// then
+		Assertions.assertThat(actual).isEmpty();
+	}
 }

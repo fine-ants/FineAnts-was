@@ -168,7 +168,7 @@ public class MemberService {
 	}
 
 	private void verifyEmail(Member member) throws EmailDuplicateException {
-		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
+		if (memberRepository.findMemberByEmailAndProvider(member.getEmail(), LOCAL_PROVIDER).isPresent()) {
 			throw new EmailDuplicateException(member.getEmail());
 		}
 	}
