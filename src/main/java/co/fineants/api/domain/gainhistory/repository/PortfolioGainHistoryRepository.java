@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,7 +16,10 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 	List<PortfolioGainHistory> findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
 		@Param("portfolioId") Long portfolioId, @Param("createAt") LocalDateTime createAt);
 
-	List<PortfolioGainHistory> findAllByPortfolioId(Long portfolioId);
+	@Query("select p from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
+	List<PortfolioGainHistory> findAllByPortfolioId(@Param("portfolioId") Long portfolioId);
 
-	int deleteAllByPortfolioId(Long portfolioId);
+	@Modifying
+	@Query("delete from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
+	int deleteAllByPortfolioId(@Param("portfolioId") Long portfolioId);
 }
