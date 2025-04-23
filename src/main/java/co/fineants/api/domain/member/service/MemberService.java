@@ -174,7 +174,7 @@ public class MemberService {
 	}
 
 	private void verifyNickname(Member member) throws NicknameDuplicateException {
-		if (memberRepository.findMemberByNickname(member).isPresent()) {
+		if (memberRepository.findMemberByNickname(member.getNickname()).isPresent()) {
 			throw new NicknameDuplicateException(member.getNickname());
 		}
 	}
