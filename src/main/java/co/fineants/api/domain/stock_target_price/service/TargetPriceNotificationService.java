@@ -52,7 +52,7 @@ public class TargetPriceNotificationService {
 	}
 
 	private void verifyExistStock(String tickerSymbol) {
-		if (stockRepository.findByTickerSymbol(tickerSymbol).isEmpty()) {
+		if (stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol).isEmpty()) {
 			throw new StockNotFoundException(tickerSymbol);
 		}
 	}

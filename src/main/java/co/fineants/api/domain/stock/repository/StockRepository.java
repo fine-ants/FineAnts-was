@@ -16,8 +16,9 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 	@Query("select s from Stock s where s.isDeleted = false")
 	List<Stock> findAllStocks();
 
-	Optional<Stock> findByTickerSymbol(String tickerSymbol);
-	
+	@Query("select s from Stock s where s.tickerSymbol = :tickerSymbol")
+	Optional<Stock> findByTickerSymbolIncludingDeleted(@Param("tickerSymbol") String tickerSymbol);
+
 	@Query("select distinct s from Stock s join fetch s.stockDividends sd where s.tickerSymbol in (:tickerSymbols)")
 	List<Stock> findAllWithDividends(@Param("tickerSymbols") List<String> tickerSymbols);
 
