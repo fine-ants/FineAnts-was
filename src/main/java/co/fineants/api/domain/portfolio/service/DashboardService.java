@@ -126,6 +126,7 @@ public class DashboardService {
 			.map(Portfolio::getId)
 			.toList();
 
+		// TODO: 이 부분을 개선할 필요가 있음
 		long startTime = System.currentTimeMillis();
 		Map<String, Expression> result = new HashMap<>();
 		for (Long portfolioId : portfolioIds) {

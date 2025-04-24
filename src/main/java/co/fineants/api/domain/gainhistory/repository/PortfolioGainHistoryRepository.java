@@ -2,7 +2,6 @@ package co.fineants.api.domain.gainhistory.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,9 +18,6 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 
 	@Query("select p from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
 	List<PortfolioGainHistory> findAllByPortfolioId(@Param("portfolioId") Long portfolioId);
-
-	@Query("select p from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
-	Stream<PortfolioGainHistory> streamAllByPortfolioId(@Param("portfolioId") Long portfolioId);
 
 	@Query(value = """
 		select date(p.create_at) as date, sum(p.cash + p.current_valuation) as totalValuation
