@@ -24,6 +24,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -130,11 +131,11 @@ public class DashboardService {
 		long startTime = System.currentTimeMillis();
 		Map<String, Expression> result = new HashMap<>();
 		for (Long portfolioId : portfolioIds) {
-			Map<String, Expression> map = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(
+			Map<String, Expression> map = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(
 					portfolioId).stream()
 				.collect(Collectors.toMap(
-					o -> o[0].toString(),
-					o -> Money.won(Double.parseDouble(o[1].toString())),
+					LineChartItem::getDate,
+					item -> Money.won(item.getTotalValuation()),
 					Expression::plus,
 					HashMap::new
 				));
