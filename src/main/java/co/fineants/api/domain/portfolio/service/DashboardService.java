@@ -1,8 +1,8 @@
 package co.fineants.api.domain.portfolio.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,7 +17,6 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -30,6 +29,8 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,8 @@ public class DashboardService {
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final PortfolioCalculator calculator;
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
@@ -119,18 +122,26 @@ public class DashboardService {
 	@Secured("ROLE_USER")
 	@Cacheable(value = "lineChartCache", key = "#memberId")
 	public List<DashboardLineChartResponse> getLineChart(Long memberId) {
-		List<PortfolioGainHistory> histories = portfolioRepository.findAllByMemberId(memberId).stream()
+		List<Long> portfolioIds = portfolioRepository.findAllByMemberId(memberId).stream()
 			.map(Portfolio::getId)
-			.map(portfolioGainHistoryRepository::findAllByPortfolioId)
-			.flatMap(Collection::stream)
 			.toList();
 
-		Map<String, Expression> result = histories.stream()
-			.collect(Collectors.toMap(
-				PortfolioGainHistory::getLineChartKey,
-				PortfolioGainHistory::calculateTotalPortfolioValue,
-				Expression::plus
-			));
+		long startTime = System.currentTimeMillis();
+		Map<String, Expression> result = new HashMap<>();
+		for (Long portfolioId : portfolioIds) {
+			Map<String, Expression> map = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(
+					portfolioId).stream()
+				.collect(Collectors.toMap(
+					o -> o[0].toString(),
+					o -> Money.won(Double.parseDouble(o[1].toString())),
+					Expression::plus,
+					HashMap::new
+				));
+			result.putAll(map);
+		}
+		long endTime = System.currentTimeMillis();
+		log.debug("executed time: {}ms", endTime - startTime);
+
 		return result.keySet()
 			.stream()
 			.sorted()
