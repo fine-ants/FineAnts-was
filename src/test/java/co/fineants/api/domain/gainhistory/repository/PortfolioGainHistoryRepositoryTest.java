@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 
@@ -104,5 +106,36 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 		// then
 		assertThat(result.getCurrentValuation()).isEqualByComparingTo(Money.won(120000L));
+	}
+
+	@DisplayName("포트폴리오의 일별 총 금액을 조회한다")
+	@Test
+	void findDailyTotalAmountByPortfolioId() {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+
+		PortfolioGainHistory portfolioGainHistory1 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio
+		);
+
+		PortfolioGainHistory portfolioGainHistory2 = PortfolioGainHistory.create(
+			Money.won(20000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(120000L),
+			portfolio
+		);
+		portfolioGainHistoryRepository.save(portfolioGainHistory1);
+		portfolioGainHistoryRepository.save(portfolioGainHistory2);
+		// when
+		List<LineChartItem> actual = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(
+			portfolio.getId());
+		// then
+		Assertions.assertThat(actual).hasSize(1);
 	}
 }

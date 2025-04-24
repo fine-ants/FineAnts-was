@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
+import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 
 public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioGainHistory, Long> {
 	@Query(value = "select p, p2 from PortfolioGainHistory p inner join Portfolio p2 on p.portfolio.id = p2.id "
@@ -27,6 +28,15 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 		order by date(p.create_at) desc
 		""", nativeQuery = true)
 	List<Object[]> findDailyTotalAmountByPortfolioId(@Param("portfolioId") Long portfolioId);
+
+	@Query(value = """
+		select date(p.create_at) as date, sum(p.cash + p.current_valuation) as totalValuation
+		from fineAnts.portfolio_gain_history p
+		where p.portfolio_id = :portfolioId
+		group by date(p.create_at)
+		order by date(p.create_at) desc
+		""", nativeQuery = true)
+	List<LineChartItem> findDailyTotalAmountByPortfolioId_temp(@Param("portfolioId") Long portfolioId);
 
 	@Modifying
 	@Query("delete from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
