@@ -60,7 +60,7 @@ public class StockService {
 
 	@Transactional(readOnly = true)
 	public StockResponse getDetailedStock(String tickerSymbol) {
-		Stock stock = stockRepository.findByTickerSymbol(tickerSymbol)
+		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		return StockResponse.of(stock, currentPriceRedisRepository, closingPriceRepository, localDateTimeService);
 	}

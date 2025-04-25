@@ -104,7 +104,7 @@ public class StockTargetPriceService {
 	}
 
 	private Stock findStock(String tickerSymbol) {
-		return stockRepository.findByTickerSymbol(tickerSymbol)
+		return stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 

@@ -96,7 +96,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 		// when
 		stockScheduler.scheduledReloadStocks();
 		// then
-		assertThat(stockRepository.findByTickerSymbol("000660")).isPresent();
+		assertThat(stockRepository.findByTickerSymbolIncludingDeleted("000660")).isPresent();
 		assertThat(amazonS3StockService.fetchStocks())
 			.as("Verify that the stock information in the stocks.csv file stored "
 				+ "in s3 matches the items in the database")

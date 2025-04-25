@@ -235,7 +235,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		assertThat(response.getAddedStocks()).hasSize(1);
 		assertThat(response.getDeletedStocks()).hasSize(1);
 
-		Stock deletedStock = stockRepository.findByTickerSymbol(nokwon.getTickerSymbol()).orElseThrow();
+		Stock deletedStock = stockRepository.findByTickerSymbolIncludingDeleted(nokwon.getTickerSymbol()).orElseThrow();
 		assertThat(deletedStock.isDeleted()).isTrue();
 
 		List<StockDividend> hynixDividends = stockDividendRepository.findStockDividendsByTickerSymbol(

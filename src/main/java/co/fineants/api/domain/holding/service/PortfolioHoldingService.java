@@ -81,7 +81,7 @@ public class PortfolioHoldingService {
 
 		Portfolio portfolio = findPortfolio(portfolioId);
 
-		Stock stock = stockRepository.findByTickerSymbol(request.getTickerSymbol())
+		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(request.getTickerSymbol())
 			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
 
 		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
