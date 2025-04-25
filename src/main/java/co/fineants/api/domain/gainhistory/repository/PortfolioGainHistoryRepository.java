@@ -12,22 +12,18 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 
 public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioGainHistory, Long> {
-	@Query(value = "select p, p2 from PortfolioGainHistory p inner join Portfolio p2 on p.portfolio.id = p2.id "
-		+ "where p.portfolio.id = :portfolioId and p.createAt <= :createAt order by p.createAt desc")
+
+	@Query(value = """
+		select p, p2 from PortfolioGainHistory p 
+		inner join Portfolio p2 on p.portfolio.id = p2.id
+		where p.portfolio.id = :portfolioId and p.createAt <= :createAt
+		order by p.createAt desc
+		""")
 	List<PortfolioGainHistory> findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
 		@Param("portfolioId") Long portfolioId, @Param("createAt") LocalDateTime createAt);
 
 	@Query("select p from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
 	List<PortfolioGainHistory> findAllByPortfolioId(@Param("portfolioId") Long portfolioId);
-
-	@Query(value = """
-		select date(p.create_at) as date, sum(p.cash + p.current_valuation) as totalValuation
-		from fineAnts.portfolio_gain_history p
-		where p.portfolio_id = :portfolioId
-		group by date(p.create_at)
-		order by date(p.create_at) desc
-		""", nativeQuery = true)
-	List<Object[]> findDailyTotalAmountByPortfolioId(@Param("portfolioId") Long portfolioId);
 
 	@Query(value = """
 		select date(p.create_at) as date, sum(p.cash + p.current_valuation) as totalValuation

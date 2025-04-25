@@ -30,8 +30,6 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,8 +43,6 @@ public class DashboardService {
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final PortfolioCalculator calculator;
-	@PersistenceContext
-	private EntityManager entityManager;
 
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
@@ -123,26 +119,21 @@ public class DashboardService {
 	@Secured("ROLE_USER")
 	@Cacheable(value = "lineChartCache", key = "#memberId")
 	public List<DashboardLineChartResponse> getLineChart(Long memberId) {
+		// 사용자의 모든 포트폴리오 아이디를 조회
 		List<Long> portfolioIds = portfolioRepository.findAllByMemberId(memberId).stream()
 			.map(Portfolio::getId)
 			.toList();
 
-		// TODO: 이 부분을 개선할 필요가 있음
-		long startTime = System.currentTimeMillis();
-		Map<String, Expression> result = new HashMap<>();
-		for (Long portfolioId : portfolioIds) {
-			Map<String, Expression> map = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(
-					portfolioId).stream()
-				.collect(Collectors.toMap(
-					LineChartItem::getDate,
-					item -> Money.won(item.getTotalValuation()),
-					Expression::plus,
-					HashMap::new
-				));
-			result.putAll(map);
-		}
-		long endTime = System.currentTimeMillis();
-		log.debug("executed time: {}ms", endTime - startTime);
+		// 일자별 포트폴리오 총 가치 금액 합계를 계산
+		Map<String, Expression> result = portfolioIds.stream()
+			.flatMap(portfolioId -> portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(portfolioId)
+				.stream())
+			.collect(Collectors.toMap(
+				LineChartItem::getDate,
+				item -> Money.won(item.getTotalValuation()),
+				Expression::plus,
+				HashMap::new
+			));
 
 		return result.keySet()
 			.stream()
