@@ -32,7 +32,7 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 		group by date(p.create_at)
 		order by date(p.create_at) desc
 		""", nativeQuery = true)
-	List<LineChartItem> findDailyTotalAmountByPortfolioId_temp(@Param("portfolioId") Long portfolioId);
+	List<LineChartItem> findDailyTotalAmountByPortfolioId(@Param("portfolioId") Long portfolioId);
 
 	@Modifying
 	@Query("delete from PortfolioGainHistory p where p.portfolio.id = :portfolioId")

@@ -126,7 +126,7 @@ public class DashboardService {
 
 		// 일자별 포트폴리오 총 가치 금액 합계를 계산
 		Map<String, Expression> result = portfolioIds.stream()
-			.flatMap(portfolioId -> portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(portfolioId)
+			.flatMap(portfolioId -> portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(portfolioId)
 				.stream())
 			.collect(Collectors.toMap(
 				LineChartItem::getDate,

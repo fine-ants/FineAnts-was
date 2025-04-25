@@ -133,7 +133,7 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 		portfolioGainHistoryRepository.save(portfolioGainHistory1);
 		portfolioGainHistoryRepository.save(portfolioGainHistory2);
 		// when
-		List<LineChartItem> actual = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId_temp(
+		List<LineChartItem> actual = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(
 			portfolio.getId());
 		// then
 		Assertions.assertThat(actual).hasSize(1);
