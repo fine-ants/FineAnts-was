@@ -32,22 +32,6 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 	@Autowired
 	private PortfolioRepository portfolioRepository;
 
-	@DisplayName("포트폴리오 등록번호를 가진 손익내역들을 조회한다")
-	@Test
-	void findAllByPortfolioId() {
-		// given
-		Member member = memberRepository.save(TestDataFactory.createMember());
-		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
-		portfolioGainHistoryRepository.save(PortfolioGainHistory.empty(portfolio));
-
-		// when
-		List<PortfolioGainHistory> histories = portfolioGainHistoryRepository.findAllByPortfolioId(
-			portfolio.getId());
-
-		// then
-		assertThat(histories).hasSize(1);
-	}
-
 	@DisplayName("사용자는 제일 최근의 포트폴리오 손익 내역을 조회합니다")
 	@Test
 	void findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc() {

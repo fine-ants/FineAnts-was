@@ -21,10 +21,7 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 		""")
 	List<PortfolioGainHistory> findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
 		@Param("portfolioId") Long portfolioId, @Param("createAt") LocalDateTime createAt);
-
-	@Query("select p from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
-	List<PortfolioGainHistory> findAllByPortfolioId(@Param("portfolioId") Long portfolioId);
-
+	
 	@Query(value = """
 		select date(p.create_at) as date, sum(p.cash + p.current_valuation) as totalValuation
 		from fineAnts.portfolio_gain_history p
