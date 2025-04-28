@@ -8,7 +8,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PortfolioDetailFactory {
 
-	private final CurrentPriceRedisRepository manager;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final PortfolioCalculator calculator;
