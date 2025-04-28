@@ -2,6 +2,7 @@ package co.fineants.api.domain.holding.domain.factory;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
@@ -23,8 +24,8 @@ public class PortfolioDetailFactory {
 
 	public PortfolioDetailResponse createPortfolioDetailItem(Portfolio portfolio) {
 		PortfolioGainHistory history =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
-					portfolio.getId(), LocalDateTime.now())
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
+					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
 				.findFirst()
 				.orElseGet(() -> PortfolioGainHistory.empty(portfolio));
@@ -33,8 +34,8 @@ public class PortfolioDetailFactory {
 
 	public PortfolioDetailRealTimeItem createPortfolioDetailRealTimeItem(Portfolio portfolio) {
 		PortfolioGainHistory history =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
-					portfolio.getId(), LocalDateTime.now())
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
+					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
 				.findFirst()
 				.orElseGet(() -> PortfolioGainHistory.empty(portfolio));

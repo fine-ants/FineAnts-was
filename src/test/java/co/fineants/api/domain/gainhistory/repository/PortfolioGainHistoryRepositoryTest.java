@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractDataJpaBaseTest;
@@ -43,9 +44,10 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 		// when
 		PortfolioGainHistory history =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(),
-					LocalDateTime.now())
+					LocalDateTime.now(),
+					PageRequest.of(0, 1))
 				.stream()
 				.findFirst()
 				.orElseThrow();
@@ -82,8 +84,8 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 		// when
 		PortfolioGainHistory result =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
-					portfolio.getId(), LocalDateTime.now())
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
+					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
 				.findFirst()
 				.orElseThrow();
