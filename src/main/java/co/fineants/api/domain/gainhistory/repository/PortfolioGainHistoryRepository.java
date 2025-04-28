@@ -37,4 +37,8 @@ public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioG
 	@Modifying
 	@Query("delete from PortfolioGainHistory p where p.portfolio.id = :portfolioId")
 	int deleteAllByPortfolioId(@Param("portfolioId") Long portfolioId);
+
+	@Modifying
+	@Query("delete from PortfolioGainHistory p where p.portfolio.id in (:portfolioIds)")
+	void deleteAllByPortfolioIds(@Param("portfolioIds") List<Long> portfolioIds);
 }

@@ -138,4 +138,34 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 		// then
 		Assertions.assertThat(actual).hasSize(1);
 	}
+
+	@DisplayName("여러개의 포트폴리오의 포트폴리오 손익 내역 데이터를 삭제한다")
+	@Test
+	void deleteAllByPortfolioIds() {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member, "포트폴리오1"));
+		Portfolio portfolio2 = portfolioRepository.save(TestDataFactory.createPortfolio(member, "포트폴리오2"));
+		PortfolioGainHistory portfolioGainHistory1 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio
+		);
+		PortfolioGainHistory portfolioGainHistory2 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio2
+		);
+		portfolioGainHistoryRepository.saveAll(List.of(portfolioGainHistory1, portfolioGainHistory2));
+		// when
+		portfolioGainHistoryRepository.deleteAllByPortfolioIds(List.of(portfolio.getId(), portfolio2.getId()));
+		// then
+		List<PortfolioGainHistory> actual = portfolioGainHistoryRepository.findAll();
+		Assertions.assertThat(actual).isEmpty();
+		;
+	}
 }
