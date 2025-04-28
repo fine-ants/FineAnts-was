@@ -315,7 +315,6 @@ public class MemberService {
 			.map(Portfolio::getId)
 			.toList();
 		portfolioGainHistoryRepository.deleteAllByPortfolioIds(portfolioIds);
-
 		purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(
 			portfolioHoldings.stream().map(PortfolioHolding::getId).toList());
 		portfolioHoldingRepository.deleteAll(portfolioHoldings);
