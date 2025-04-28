@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
@@ -311,12 +310,14 @@ public class MemberService {
 		List<PortfolioHolding> portfolioHoldings = new ArrayList<>();
 		portfolios.forEach(
 			portfolio -> portfolioHoldings.addAll(portfolioHoldingRepository.findAllByPortfolio(portfolio)));
-		List<PortfolioGainHistory> portfolioGainHistories = new ArrayList<>();
-		portfolios.forEach(portfolio -> portfolioGainHistories.addAll(
-			portfolioGainHistoryRepository.findAllByPortfolioId(portfolio.getId())));
+		// 포트폴리오에 속한 모든 포트폴리오 손익 내역 데이터 삭제
+		List<Long> portfolioIds = portfolios.stream()
+			.map(Portfolio::getId)
+			.toList();
+		portfolioGainHistoryRepository.deleteAllByPortfolioIds(portfolioIds);
+
 		purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(
 			portfolioHoldings.stream().map(PortfolioHolding::getId).toList());
-		portfolioGainHistoryRepository.deleteAll(portfolioGainHistories);
 		portfolioHoldingRepository.deleteAll(portfolioHoldings);
 		portfolioRepository.deleteAll(portfolios);
 		List<WatchList> watchList = watchListRepository.findByMember(member);
