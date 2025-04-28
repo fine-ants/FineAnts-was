@@ -27,7 +27,7 @@ public class PortfolioDetailFactory {
 			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
-				.findFirst()
+				.findAny()
 				.orElseGet(() -> PortfolioGainHistory.empty(portfolio));
 		return PortfolioDetailResponse.of(portfolio, history, localDateTimeService, calculator);
 	}
@@ -37,7 +37,7 @@ public class PortfolioDetailFactory {
 			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
-				.findFirst()
+				.findAny()
 				.orElseGet(() -> PortfolioGainHistory.empty(portfolio));
 		return PortfolioDetailRealTimeItem.of(portfolio, history, calculator);
 	}

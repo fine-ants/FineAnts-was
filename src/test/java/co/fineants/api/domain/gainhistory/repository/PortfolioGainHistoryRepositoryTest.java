@@ -47,9 +47,8 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(),
 					LocalDateTime.now(),
-					PageRequest.of(0, 1))
-				.stream()
-				.findFirst()
+					PageRequest.of(0, 1)).stream()
+				.findAny()
 				.orElseThrow();
 
 		// then
@@ -87,7 +86,7 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
-				.findFirst()
+				.findAny()
 				.orElseThrow();
 
 		// then

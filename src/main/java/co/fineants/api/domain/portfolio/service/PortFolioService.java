@@ -185,7 +185,7 @@ public class PortFolioService {
 					portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 							portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 						.stream()
-						.findFirst()
+						.findAny()
 						.orElseGet(() -> PortfolioGainHistory.empty(portfolio))
 			));
 
