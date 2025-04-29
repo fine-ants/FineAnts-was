@@ -15,7 +15,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 public interface PortfolioGainHistoryRepository extends JpaRepository<PortfolioGainHistory, Long> {
 
 	@Query(value = """
-		select p, p2 from PortfolioGainHistory p 
+		select p, p2 from PortfolioGainHistory p
 		inner join Portfolio p2 on p.portfolio.id = p2.id
 		where p.portfolio.id = :portfolioId and p.createAt <= :createAt
 		order by p.createAt desc
