@@ -122,9 +122,6 @@ create table if not exists portfolio_gain_history
         foreign key (portfolio_id) references portfolio (id)
 );
 
-create index idx_portfolio_id_create_at
-    on portfolio_gain_history (portfolio_id asc, create_at desc);
-
 create table if not exists role
 (
     role_id          bigint auto_increment
