@@ -1,5 +1,9 @@
 package co.fineants.api.domain.portfolio.controller;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +19,12 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateReques
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfoliosDeleteRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.common.page.CustomPageRequest;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioSuccessCode;
@@ -58,6 +64,18 @@ public class PortFolioRestController {
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES,
 			portFolioService.readMyAllPortfolioNames(authentication.getId()));
+	}
+
+	@GetMapping("/names_pageable")
+	public ApiResponse<Page<PortfolioNameItem>> searchMyAllPortfolioNames_Pageable(
+		CustomPageRequest pageable,
+		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		List<PortfolioNameItem> items = portFolioService.readMyAllPortfolioNamesUsingPaging(authentication.getId(),
+				pageable.of()).stream()
+			.map(PortfolioNameItem::from)
+			.toList();
+		Page<PortfolioNameItem> page = new PageImpl<>(items);
+		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, page);
 	}
 
 	// 포트폴리오 수정
