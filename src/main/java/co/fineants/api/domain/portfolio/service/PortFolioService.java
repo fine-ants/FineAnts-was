@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -201,5 +203,11 @@ public class PortFolioService {
 			.map(PortfolioNameItem::from)
 			.toList();
 		return PortfolioNameResponse.from(items);
+	}
+
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	public Page<Portfolio> readMyAllPortfolioNamesUsingPaging(@NotNull Long memberId, Pageable pageable) {
+		return portfolioRepository.findAllByMemberIdAndPageable(memberId, pageable);
 	}
 }
