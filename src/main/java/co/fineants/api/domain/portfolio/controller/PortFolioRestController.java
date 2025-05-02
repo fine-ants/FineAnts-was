@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,7 +63,7 @@ public class PortFolioRestController {
 	// 포트폴리오 이름 목록 조회
 	@GetMapping("/names")
 	public ApiResponse<CustomPageResponse<PortfolioNameItem>> searchMyAllPortfolioNames(
-		CustomPageRequest pageable,
+		@ModelAttribute CustomPageRequest pageable,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		Page<Portfolio> page = portFolioService.readMyAllPortfolioNamesUsingPaging(authentication.getId(),
 			pageable.of());
