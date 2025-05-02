@@ -211,7 +211,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Pageable pageable = new CustomPageRequest(0, 10, Sort.Direction.DESC).of();
-		given(portFolioService.readMyAllPortfolioNamesUsingPaging(member.getId(), pageable))
+		given(portFolioService.getPagedPortfolioNames(member.getId(), pageable))
 			.willReturn(new PageImpl<>(List.of(portfolio), pageable, 1));
 
 		// when & then
