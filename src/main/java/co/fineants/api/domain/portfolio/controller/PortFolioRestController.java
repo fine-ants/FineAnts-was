@@ -65,7 +65,7 @@ public class PortFolioRestController {
 	public ApiResponse<CustomPageResponse<PortfolioNameItem>> searchMyAllPortfolioNames(
 		@ModelAttribute CustomPageRequest pageable,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		Page<Portfolio> page = portFolioService.readMyAllPortfolioNamesUsingPaging(authentication.getId(),
+		Page<Portfolio> page = portFolioService.getPagedPortfolioNames(authentication.getId(),
 			pageable.of());
 		List<PortfolioNameItem> items = page.stream()
 			.map(PortfolioNameItem::from)
