@@ -252,7 +252,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 					queryParameters(
 						parameterWithName("page").description("페이지 번호(0부터 시작, 기본값: 0)").optional(),
 						parameterWithName("size").description("페이지 크기(한 페이지에 포함된 항목 개수, 기본값: 10)").optional(),
-						parameterWithName("direction").description("정렬 방향(ASC 또는 DESC, 기본값: DESC)").optional()
+						parameterWithName("direction").description("생성일자 기준 정렬 방향(ASC 또는 DESC, 기본값: DESC)").optional()
 					),
 					responseFields(
 						fieldWithPath("code").type(JsonFieldType.NUMBER)
