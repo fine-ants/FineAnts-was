@@ -36,4 +36,9 @@ public class CustomPageRequest {
 		Sort sort = Sort.by(direction, "createAt");
 		return PageRequest.of(page - 1, size, sort);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("CustomPageRequest [page=%s, size=%s, direction=%s]", page, size, direction);
+	}
 }
