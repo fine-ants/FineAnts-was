@@ -1,9 +1,8 @@
 package co.fineants.api.domain.portfolio.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +24,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.common.page.CustomPageDto;
 import co.fineants.api.global.common.page.CustomPageRequest;
 import co.fineants.api.global.common.page.CustomPageResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -65,13 +65,11 @@ public class PortFolioRestController {
 	public ApiResponse<CustomPageResponse<PortfolioNameItem>> searchMyAllPortfolioNames(
 		@ModelAttribute CustomPageRequest pageable,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		Page<Portfolio> page = portFolioService.getPagedPortfolioNames(authentication.getId(),
+		CustomPageDto<Portfolio, PortfolioNameItem> customPageDto = portFolioService.getPagedPortfolioNames(
+			authentication.getId(),
 			pageable.of());
-		List<PortfolioNameItem> items = page.stream()
-			.map(PortfolioNameItem::from)
-			.toList();
-		Page<PortfolioNameItem> data = new PageImpl<>(items, pageable.of(), page.getTotalElements());
-		CustomPageResponse<PortfolioNameItem> response = new CustomPageResponse<>(data, "portfolios");
+		Map<String, List<PortfolioNameItem>> content = customPageDto.newContentMap("portfolios");
+		CustomPageResponse<PortfolioNameItem> response = CustomPageResponse.of(customPageDto, content);
 		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, response);
 	}
 

@@ -1,6 +1,7 @@
 package co.fineants.api.global.common.page;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class CustomPageRequest {
 		this.direction = direction == null ? Sort.Direction.DESC : direction;
 	}
 
-	public PageRequest of() {
+	public Pageable of() {
 		Sort sort = Sort.by(direction, "createAt");
 		return PageRequest.of(page - 1, size, sort);
 	}

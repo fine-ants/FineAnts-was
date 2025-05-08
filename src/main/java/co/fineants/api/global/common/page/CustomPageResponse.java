@@ -3,10 +3,6 @@ package co.fineants.api.global.common.page;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,7 +10,7 @@ public class CustomPageResponse<T> {
 	@JsonAnyGetter
 	private final Map<String, List<T>> content;
 	@JsonProperty("pageable")
-	private final Pageable pageable;
+	private final CustomPageable pageable;
 	@JsonProperty("first")
 	private final boolean first;
 	@JsonProperty("last")
@@ -28,24 +24,53 @@ public class CustomPageResponse<T> {
 	@JsonProperty("number")
 	private final int number;
 	@JsonProperty("sort")
-	private final Sort sort;
+	private final CustomSort sort;
 	@JsonProperty("numberOfElements")
 	private final int numberOfElements;
 	@JsonProperty("empty")
 	private final boolean empty;
 
-	public CustomPageResponse(Page<T> page, String contentKeyName) {
-		this.content = Map.of(contentKeyName, page.getContent());
-		this.pageable = page.getPageable();
-		this.first = page.isFirst();
-		this.last = page.isLast();
-		this.totalElements = page.getTotalElements();
-		this.totalPages = page.getTotalPages();
-		this.size = page.getSize();
-		this.number = page.getNumber();
-		this.sort = page.getSort();
-		this.numberOfElements = page.getNumberOfElements();
-		this.empty = page.isEmpty();
+	public CustomPageResponse(
+		Map<String, List<T>> content,
+		CustomPageable pageable,
+		boolean first,
+		boolean last,
+		long totalElements,
+		int totalPages,
+		int size,
+		int number,
+		CustomSort sort,
+		int numberOfElements,
+		boolean empty
+	) {
+		this.content = content;
+		this.pageable = pageable;
+		this.first = first;
+		this.last = last;
+		this.totalElements = totalElements;
+		this.totalPages = totalPages;
+		this.size = size;
+		this.number = number;
+		this.sort = sort;
+		this.numberOfElements = numberOfElements;
+		this.empty = empty;
+	}
+
+	public static <T> CustomPageResponse<T> of(CustomPageDto customPageDto,
+		Map<String, List<T>> content) {
+		return new CustomPageResponse<>(
+			content,
+			customPageDto.getPageable(),
+			customPageDto.isFirst(),
+			customPageDto.isLast(),
+			customPageDto.getTotalElements(),
+			customPageDto.getTotalPages(),
+			customPageDto.getSize(),
+			customPageDto.getNumber(),
+			customPageDto.getSort(),
+			customPageDto.getNumberOfElements(),
+			customPageDto.isEmpty()
+		);
 	}
 
 	@Override

@@ -14,12 +14,16 @@ import java.util.stream.Stream;
 
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -36,6 +40,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -43,6 +48,8 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.api.global.common.page.CustomPageDto;
+import co.fineants.api.global.common.page.CustomPageRequest;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
@@ -433,6 +440,39 @@ class PortFolioServiceTest extends AbstractContainerBaseTest {
 				Money.won(-150000),
 				Percentage.from(-0.5556)
 			));
+	}
+
+	@DisplayName("사용자는 포트폴리오 이름 목록 10개를 조회하고 그 이후에 캐시된 데이터를 조회한다")
+	@TestFactory
+	Stream<DynamicTest> getPortfolioNames() {
+		// given
+		Member member = memberRepository.save(createMember());
+		for (int i = 0; i < 11; i++) {
+			portfolioRepository.save(createPortfolio(member, "portfolio" + i));
+		}
+		int pageNumber = 1;
+		int size = 10;
+		CustomPageRequest customPageRequest = new CustomPageRequest(pageNumber, size, Sort.Direction.DESC);
+		Pageable pageable = customPageRequest.of();
+
+		return Stream.of(
+			DynamicTest.dynamicTest("0페이지의 포트폴리오 이름 목록 10개를 조회한다",
+				() -> {
+					// when
+					CustomPageDto<Portfolio, PortfolioNameItem> customPageDto = service.getPagedPortfolioNames(
+						member.getId(), pageable);
+					// then
+					assertThat(customPageDto.getContent()).hasSize(size);
+				}),
+			DynamicTest.dynamicTest("캐시된 포트폴리오 이름 목록 10개를 조회한다",
+				() -> {
+					// when
+					CustomPageDto<Portfolio, PortfolioNameItem> customPageDto = service.getPagedPortfolioNames(
+						member.getId(), pageable);
+					// then
+					assertThat(customPageDto.getContent()).hasSize(size);
+				})
+		);
 	}
 
 	@DisplayName("회원이 포트폴리오를 삭제한다")
