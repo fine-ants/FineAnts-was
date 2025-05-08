@@ -67,7 +67,7 @@ public class PortFolioService {
 
 	@Transactional
 	@Secured("ROLE_USER")
-	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
+	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) throws
 		PortfolioNameDuplicateException,
 		PortfolioInvalidInputException {
@@ -103,7 +103,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
+	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
@@ -128,7 +128,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
+	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public void deletePortfolio(@ResourceId Long portfolioId, Long memberId) {
@@ -153,7 +153,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
+	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public void deletePortfolios(@ResourceIds List<Long> portfolioIds, @NotNull Long memberId) {
@@ -195,7 +195,7 @@ public class PortFolioService {
 	}
 
 	@Transactional(readOnly = true)
-	@Cacheable(value = "myAllPortfolioNames", key = "#memberId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+	@Cacheable(value = "myAllPortfolioNames", key = "#memberId")
 	@Secured("ROLE_USER")
 	public CustomPageDto<Portfolio, PortfolioNameItem> getPagedPortfolioNames(@NotNull Long memberId,
 		@NotNull Pageable pageable) {
