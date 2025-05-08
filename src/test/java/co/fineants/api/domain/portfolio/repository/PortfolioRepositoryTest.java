@@ -19,7 +19,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
-import co.fineants.api.global.common.page.CustomPageRequest;
+import co.fineants.api.global.common.paging.page.CustomPageRequest;
 
 class PortfolioRepositoryTest extends AbstractContainerBaseTest {
 

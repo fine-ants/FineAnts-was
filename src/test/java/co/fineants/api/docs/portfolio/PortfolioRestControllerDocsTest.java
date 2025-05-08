@@ -47,9 +47,9 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
-import co.fineants.api.global.common.page.CustomPageDto;
-import co.fineants.api.global.common.page.CustomPageRequest;
-import co.fineants.api.global.common.page.CustomPageable;
+import co.fineants.api.global.common.paging.page.CustomPageDto;
+import co.fineants.api.global.common.paging.page.CustomPageRequest;
+import co.fineants.api.global.common.paging.page.CustomPageable;
 import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
