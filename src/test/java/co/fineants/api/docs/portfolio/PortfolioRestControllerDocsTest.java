@@ -219,7 +219,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 		CustomPageable customPageable = CustomPageable.from(pageable);
 		Page<Portfolio> page = new PageImpl<>(List.of(portfolio), pageable, 1);
 		given(portFolioService.getPagedPortfolioNames(member.getId(), pageable))
-			.willReturn(CustomPageDto.of(customPageable, page, List.of(portfolioNameItem)));
+			.willReturn(new CustomPageDto<>(customPageable, page, List.of(portfolioNameItem)));
 
 		// when & then
 		mockMvc.perform(get("/api/portfolios/names")

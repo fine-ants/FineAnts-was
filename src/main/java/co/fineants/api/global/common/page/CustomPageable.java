@@ -20,7 +20,7 @@ public class CustomPageable {
 	private final boolean unpaged;
 
 	@JsonCreator
-	public CustomPageable(
+	private CustomPageable(
 		@JsonProperty("pageNumber") int pageNumber,
 		@JsonProperty("pageSize") int pageSize,
 		@JsonProperty("sort") CustomSort sort,
