@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateReques
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
@@ -34,6 +36,9 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
+import co.fineants.api.global.common.page.CustomPageDto;
+import co.fineants.api.global.common.page.CustomPageable;
+import co.fineants.api.global.common.page.CustomSort;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -63,7 +68,7 @@ public class PortFolioService {
 
 	@Transactional
 	@Secured("ROLE_USER")
-	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
+	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
 	public PortFolioCreateResponse createPortfolio(PortfolioCreateRequest request, Long memberId) throws
 		PortfolioNameDuplicateException,
 		PortfolioInvalidInputException {
@@ -99,7 +104,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
+	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public PortfolioModifyResponse updatePortfolio(PortfolioModifyRequest request, @ResourceId Long portfolioId,
@@ -124,7 +129,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
+	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public void deletePortfolio(@ResourceId Long portfolioId, Long memberId) {
@@ -149,7 +154,7 @@ public class PortFolioService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "myAllPortfolioNames", key = "#memberId")
+	@CacheEvict(value = "myAllPortfolioNames", allEntries = true)
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public void deletePortfolios(@ResourceIds List<Long> portfolioIds, @NotNull Long memberId) {
@@ -190,10 +195,19 @@ public class PortFolioService {
 		return PortfoliosResponse.of(portfolios, portfolioGainHistoryMap, currentPriceRedisRepository, calculator);
 	}
 
-	// TODO: 캐시 추가
 	@Transactional(readOnly = true)
+	@Cacheable(value = "myAllPortfolioNames", key = "#memberId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
 	@Secured("ROLE_USER")
-	public Page<Portfolio> getPagedPortfolioNames(@NotNull Long memberId, @NotNull Pageable pageable) {
-		return portfolioRepository.findAllByMemberIdAndPageable(memberId, pageable);
+	public CustomPageDto<Portfolio, PortfolioNameItem> getPagedPortfolioNames(@NotNull Long memberId,
+		@NotNull Pageable pageable) {
+		Page<Portfolio> page = portfolioRepository.findAllByMemberIdAndPageable(memberId, pageable);
+		List<PortfolioNameItem> items = page.stream()
+			.map(PortfolioNameItem::from)
+			.toList();
+
+		CustomPageable customPageable = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(),
+			CustomSort.from(pageable.getSort()), pageable.getOffset(), pageable.isPaged(), pageable.isUnpaged());
+
+		return CustomPageDto.of(customPageable, page, items);
 	}
 }

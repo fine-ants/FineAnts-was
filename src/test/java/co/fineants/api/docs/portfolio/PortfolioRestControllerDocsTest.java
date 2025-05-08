@@ -19,6 +19,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,10 +43,13 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyReques
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.global.common.page.CustomPageDto;
 import co.fineants.api.global.common.page.CustomPageRequest;
+import co.fineants.api.global.common.page.CustomPageable;
 import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
@@ -210,9 +214,12 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 		// given
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
+		PortfolioNameItem portfolioNameItem = PortfolioNameItem.from(portfolio);
 		Pageable pageable = new CustomPageRequest(0, 10, Sort.Direction.DESC).of();
+		CustomPageable customPageable = CustomPageable.from(pageable);
+		Page<Portfolio> page = new PageImpl<>(List.of(portfolio), pageable, 1);
 		given(portFolioService.getPagedPortfolioNames(member.getId(), pageable))
-			.willReturn(new PageImpl<>(List.of(portfolio), pageable, 1));
+			.willReturn(CustomPageDto.of(customPageable, page, List.of(portfolioNameItem)));
 
 		// when & then
 		mockMvc.perform(get("/api/portfolios/names")
