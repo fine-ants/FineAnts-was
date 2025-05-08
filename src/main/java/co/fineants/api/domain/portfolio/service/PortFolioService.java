@@ -38,7 +38,6 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.page.CustomPageDto;
 import co.fineants.api.global.common.page.CustomPageable;
-import co.fineants.api.global.common.page.CustomSort;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -204,10 +203,7 @@ public class PortFolioService {
 		List<PortfolioNameItem> items = page.stream()
 			.map(PortfolioNameItem::from)
 			.toList();
-
-		CustomPageable customPageable = new CustomPageable(pageable.getPageNumber(), pageable.getPageSize(),
-			CustomSort.from(pageable.getSort()), pageable.getOffset(), pageable.isPaged(), pageable.isUnpaged());
-
-		return CustomPageDto.of(customPageable, page, items);
+		CustomPageable customPageable = CustomPageable.from(pageable);
+		return new CustomPageDto<>(customPageable, page, items);
 	}
 }

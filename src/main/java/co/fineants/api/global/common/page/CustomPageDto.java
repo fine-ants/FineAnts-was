@@ -35,8 +35,27 @@ public class CustomPageDto<T, R> {
 	@JsonProperty("content")
 	private final List<R> content;
 
-	@JsonCreator
 	public CustomPageDto(
+		CustomPageable pageable,
+		Page<T> page,
+		List<R> content) {
+		this(
+			pageable,
+			page.isFirst(),
+			page.isLast(),
+			page.getTotalElements(),
+			page.getTotalPages(),
+			page.getSize(),
+			page.getNumber(),
+			CustomSort.from(page.getSort()),
+			page.getNumberOfElements(),
+			page.isEmpty(),
+			content
+		);
+	}
+
+	@JsonCreator
+	private CustomPageDto(
 		@JsonProperty("pageable") CustomPageable pageable,
 		@JsonProperty("first") boolean first,
 		@JsonProperty("last") boolean last,
@@ -59,31 +78,6 @@ public class CustomPageDto<T, R> {
 		this.numberOfElements = numberOfElements;
 		this.empty = empty;
 		this.content = content;
-	}
-
-	public CustomPageDto(
-		CustomPageable pageable,
-		Page<T> page,
-		List<R> content) {
-		this.pageable = pageable;
-		this.first = page.isFirst();
-		this.last = page.isLast();
-		this.totalElements = page.getTotalElements();
-		this.totalPages = page.getTotalPages();
-		this.size = page.getSize();
-		this.number = page.getNumber();
-		this.sort = CustomSort.from(page.getSort());
-		this.numberOfElements = page.getNumberOfElements();
-		this.empty = page.isEmpty();
-		this.content = content;
-	}
-
-	public static <T, R> CustomPageDto<T, R> of(CustomPageable customPageable, Page<T> page, List<R> content) {
-		return new CustomPageDto<>(
-			customPageable,
-			page,
-			content
-		);
 	}
 
 	public Map<String, List<R>> newContentMap(String contentKeyName) {
