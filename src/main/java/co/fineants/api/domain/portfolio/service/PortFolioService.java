@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,9 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
-import co.fineants.api.global.common.page.CustomPageDto;
-import co.fineants.api.global.common.page.CustomPageable;
+import co.fineants.api.global.common.paging.page.CustomPageDto;
+import co.fineants.api.global.common.paging.page.CustomPageable;
+import co.fineants.api.global.common.paging.slice.CustomSliceDto;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -205,5 +207,22 @@ public class PortFolioService {
 			.toList();
 		CustomPageable customPageable = CustomPageable.from(pageable);
 		return new CustomPageDto<>(customPageable, page, items);
+	}
+
+	@Cacheable(
+		value = "myFirstPagePortfolioNames",
+		key = "#memberId",
+		condition = "#pageable.pageNumber == 0"
+	)
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	public CustomSliceDto<Portfolio, PortfolioNameItem> getPagedPortfolioNames_withSlice(@NotNull Long memberId,
+		@NotNull Pageable pageable) {
+		Slice<Portfolio> slice = portfolioRepository.findAllByMemberIdAndPageable_withSlice(memberId, pageable);
+		List<PortfolioNameItem> items = slice.stream()
+			.map(PortfolioNameItem::from)
+			.toList();
+		CustomPageable customPageable = CustomPageable.from(pageable);
+		return new CustomSliceDto(customPageable, slice, items);
 	}
 }

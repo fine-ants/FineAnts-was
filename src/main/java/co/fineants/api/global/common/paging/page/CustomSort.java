@@ -1,4 +1,4 @@
-package co.fineants.api.global.common.page;
+package co.fineants.api.global.common.paging.page;
 
 import org.springframework.data.domain.Sort;
 

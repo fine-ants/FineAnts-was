@@ -24,9 +24,11 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.common.page.CustomPageDto;
-import co.fineants.api.global.common.page.CustomPageRequest;
-import co.fineants.api.global.common.page.CustomPageResponse;
+import co.fineants.api.global.common.paging.page.CustomPageDto;
+import co.fineants.api.global.common.paging.page.CustomPageRequest;
+import co.fineants.api.global.common.paging.page.CustomPageResponse;
+import co.fineants.api.global.common.paging.slice.CustomSliceDto;
+import co.fineants.api.global.common.paging.slice.CustomSliceResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioSuccessCode;
@@ -70,6 +72,18 @@ public class PortFolioRestController {
 			pageable.of());
 		Map<String, List<PortfolioNameItem>> content = customPageDto.newContentMap("portfolios");
 		CustomPageResponse<PortfolioNameItem> response = CustomPageResponse.of(customPageDto, content);
+		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, response);
+	}
+
+	@GetMapping("/names/slice")
+	public ApiResponse<CustomSliceResponse<PortfolioNameItem>> searchMyAllPortfolioNames_withSlice(
+		@ModelAttribute CustomPageRequest pageable,
+		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		CustomSliceDto<Portfolio, PortfolioNameItem> customSliceDto = portFolioService.getPagedPortfolioNames_withSlice(
+			authentication.getId(),
+			pageable.of());
+		Map<String, List<PortfolioNameItem>> content = customSliceDto.newContentMap("portfolios");
+		CustomSliceResponse<PortfolioNameItem> response = CustomSliceResponse.of(customSliceDto, content);
 		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, response);
 	}
 
