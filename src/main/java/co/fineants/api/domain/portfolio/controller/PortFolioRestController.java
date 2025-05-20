@@ -1,12 +1,8 @@
 package co.fineants.api.domain.portfolio.controller;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,16 +15,10 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateReques
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfoliosDeleteRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
-import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.common.paging.page.CustomPageDto;
-import co.fineants.api.global.common.paging.page.CustomPageRequest;
-import co.fineants.api.global.common.paging.page.CustomPageResponse;
-import co.fineants.api.global.common.paging.slice.CustomSliceDto;
-import co.fineants.api.global.common.paging.slice.CustomSliceResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioSuccessCode;
@@ -64,27 +54,10 @@ public class PortFolioRestController {
 
 	// 포트폴리오 이름 목록 조회
 	@GetMapping("/names")
-	public ApiResponse<CustomPageResponse<PortfolioNameItem>> searchMyAllPortfolioNames(
-		@ModelAttribute CustomPageRequest pageable,
+	public ApiResponse<PortfolioNameResponse> searchMyAllPortfolioNames(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		CustomPageDto<Portfolio, PortfolioNameItem> customPageDto = portFolioService.getPagedPortfolioNames(
-			authentication.getId(),
-			pageable.of());
-		Map<String, List<PortfolioNameItem>> content = customPageDto.newContentMap("portfolios");
-		CustomPageResponse<PortfolioNameItem> response = CustomPageResponse.of(customPageDto, content);
-		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, response);
-	}
-
-	@GetMapping("/names/slice")
-	public ApiResponse<CustomSliceResponse<PortfolioNameItem>> searchMyAllPortfolioNames_withSlice(
-		@ModelAttribute CustomPageRequest pageable,
-		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		CustomSliceDto<Portfolio, PortfolioNameItem> customSliceDto = portFolioService.getPagedPortfolioNames_withSlice(
-			authentication.getId(),
-			pageable.of());
-		Map<String, List<PortfolioNameItem>> content = customSliceDto.newContentMap("portfolios");
-		CustomSliceResponse<PortfolioNameItem> response = CustomSliceResponse.of(customSliceDto, content);
-		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES, response);
+		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIO_NAMES,
+			portFolioService.readMyAllPortfolioNames(authentication.getId()));
 	}
 
 	// 포트폴리오 수정
