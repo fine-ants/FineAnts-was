@@ -20,14 +20,12 @@
 
 - Java 17
 - Spring Boot 3.1
-- Gradle
 - Spring Data JPA
 - QueryDSL
-- Firebase-admin
-- Spring AWS
-- Test Container
 - MySQL 8.0
 - Redis
+- Test Container
+- Docker, Github Actions, AWS(EC2, S3, RDS)
 
 ## 3. 설계 및 구조
 ### 3.1 시스템 아키텍처
