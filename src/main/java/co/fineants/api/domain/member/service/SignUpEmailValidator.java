@@ -4,6 +4,7 @@ import static co.fineants.api.domain.member.service.MemberService.*;
 
 import org.apache.logging.log4j.util.Strings;
 
+import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
@@ -18,7 +19,8 @@ public class SignUpEmailValidator implements SignUpValidator {
 	}
 
 	@Override
-	public void validate(String email) throws EmailInvalidInputException, EmailDuplicateException {
+	public void validate(Member member) throws EmailInvalidInputException, EmailDuplicateException {
+		String email = member.getEmail();
 		if (Strings.isBlank(email)) {
 			throw new EmailInvalidInputException(email);
 		}
