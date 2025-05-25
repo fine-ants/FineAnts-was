@@ -54,6 +54,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
@@ -107,6 +108,17 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
+
+	public static Stream<Arguments> invalidEmailSource() {
+		return Stream.of(
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("invalidEmail"), // 잘못된 형식의 이메일
+			Arguments.of("invalid@Email"), // 도메인 부분이 없는 이메일
+			Arguments.of("invalidEmail@.com"), // 도메인 부분이 없는 이메일
+			Arguments.of("invalidEmail@domain..com"), // 도메인 부분에 '.'이 연속된 이메일
+			Arguments.of((Object)null) // null 값
+		);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -515,5 +527,19 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		int actual = memberRepository.findAll().size();
 		assertThat(actual).isEqualTo(1);
+	}
+
+	@DisplayName("사용자는 유효하지 않은 형식의 이메일이 주어졌을때 회원가입에 실패한다")
+	@ParameterizedTest
+	@MethodSource(value = "invalidEmailSource")
+	void givenInvalidEmail_whenValidateEmail_thenFailSignup(String email) {
+		// given
+		MemberProfile profile = MemberProfile.localMemberProfile(email, "ants1", "ants1234@", null);
+		Member member = Member.localMember(profile);
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.signup(member));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(EmailInvalidInputException.class);
 	}
 }

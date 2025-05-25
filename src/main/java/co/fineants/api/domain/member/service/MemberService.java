@@ -29,6 +29,7 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.EmailDuplicationRule;
+import co.fineants.api.domain.member.domain.entity.EmailFormatRule;
 import co.fineants.api.domain.member.domain.entity.EmailValidationRule;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
@@ -164,8 +165,11 @@ public class MemberService {
 
 	@Transactional
 	public void signup(Member member) {
+		// 이메일 형식 검증
+		EmailValidationRule emailFormatRule = new EmailFormatRule(EMAIL_PATTERN);
+		member.validateEmail(emailFormatRule);
+		// 이메일 중복 검증
 		EmailValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
-
 		member.validateEmail(emailDuplicationRule);
 		// todo: nickname 검증 필요
 		// todo: password match 검증 필요
