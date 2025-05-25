@@ -156,6 +156,10 @@ public class Member extends BaseEntity {
 		return Collections.unmodifiableSet(roles);
 	}
 
+	public void validateEmail(EmailValidationRule rule) {
+		profile.validateEmail(rule);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("Member(id=%d, nickname=%s, email=%s, roles=%s)", id, getNickname(), getEmail(),
