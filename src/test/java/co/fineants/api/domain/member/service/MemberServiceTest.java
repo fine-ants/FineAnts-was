@@ -40,6 +40,7 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -501,5 +502,18 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(memberRepository.findById(member.getId())).isEmpty();
+	}
+
+	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
+	@Test
+	void should_saveMember_whenSignup() {
+		// given
+		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", "ants1", "ants1234@", null);
+		Member member = Member.localMember(profile);
+		// when
+		memberService.signup(member);
+		// then
+		int actual = memberRepository.findAll().size();
+		assertThat(actual).isEqualTo(1);
 	}
 }

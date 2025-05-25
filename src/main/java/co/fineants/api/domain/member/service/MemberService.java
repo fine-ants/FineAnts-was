@@ -74,7 +74,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberService {
 
-	private static final String LOCAL_PROVIDER = "local";
+	public static final String LOCAL_PROVIDER = "local";
 	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
 	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
@@ -158,6 +158,20 @@ public class MemberService {
 
 		log.info("일반 회원가입 결과 : {}", saveMember);
 		return SignUpServiceResponse.from(saveMember);
+	}
+
+	@Transactional
+	public void signup(Member member) {
+		SignUpValidator signUpEmailValidator = new SignUpEmailValidator(memberRepository);
+		signUpEmailValidator.validate(member.getEmail());
+		// todo: nickname 검증 필요
+		// todo: password match 검증 필요
+		// todo: 프로필 이미지 업로드
+		// todo: 비밀번호 암호화
+		// todo: 역할 추가
+		// todo: 알림 계정 설정 추가
+
+		memberRepository.save(member);
 	}
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {
