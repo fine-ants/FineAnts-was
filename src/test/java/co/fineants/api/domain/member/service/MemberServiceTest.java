@@ -126,6 +126,35 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
+	public static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static MultipartFile createEmptyProfileImageFile() {
+		return new MockMultipartFile("profileImageFile", new byte[] {});
+	}
+
+	public static Stream<Arguments> signupMethodSource() {
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"dragonbead95@naver.com",
+			"nemo1234@",
+			"nemo1234@"
+		);
+		MultipartFile profileImageFile = createProfileFile();
+		return Stream.of(
+			Arguments.of(request, profileImageFile, "profileUrl")
+		);
+	}
+
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
 	@ParameterizedTest
 	@MethodSource(value = "validChangeProfileSource")
@@ -472,34 +501,5 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(memberRepository.findById(member.getId())).isEmpty();
-	}
-
-	public static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static MultipartFile createEmptyProfileImageFile() {
-		return new MockMultipartFile("profileImageFile", new byte[] {});
-	}
-
-	public static Stream<Arguments> signupMethodSource() {
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = createProfileFile();
-		return Stream.of(
-			Arguments.of(request, profileImageFile, "profileUrl")
-		);
 	}
 }
