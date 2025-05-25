@@ -28,6 +28,8 @@ import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
+import co.fineants.api.domain.member.domain.entity.EmailDuplicationRule;
+import co.fineants.api.domain.member.domain.entity.EmailValidationRule;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
@@ -162,8 +164,9 @@ public class MemberService {
 
 	@Transactional
 	public void signup(Member member) {
-		SignUpValidator signUpEmailValidator = new SignUpEmailValidator(memberRepository);
-		signUpEmailValidator.validate(member);
+		EmailValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
+
+		member.validateEmail(emailDuplicationRule);
 		// todo: nickname 검증 필요
 		// todo: password match 검증 필요
 		// todo: 프로필 이미지 업로드

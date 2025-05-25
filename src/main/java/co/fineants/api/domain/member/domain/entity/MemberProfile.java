@@ -66,4 +66,8 @@ public class MemberProfile {
 	public Optional<String> getProfileUrl() {
 		return Optional.ofNullable(profileUrl);
 	}
+
+	public void validateEmail(EmailValidationRule rule) {
+		rule.validate(email);
+	}
 }
