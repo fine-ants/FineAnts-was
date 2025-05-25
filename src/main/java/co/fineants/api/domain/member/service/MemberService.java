@@ -163,7 +163,7 @@ public class MemberService {
 	@Transactional
 	public void signup(Member member) {
 		SignUpValidator signUpEmailValidator = new SignUpEmailValidator(memberRepository);
-		signUpEmailValidator.validate(member.getEmail());
+		signUpEmailValidator.validate(member);
 		// todo: nickname 검증 필요
 		// todo: password match 검증 필요
 		// todo: 프로필 이미지 업로드
