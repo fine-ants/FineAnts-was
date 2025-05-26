@@ -24,6 +24,7 @@ import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SignUpRestController {
 
+	private final SignupService signupService;
 	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
 	private final AmazonS3Service amazonS3Service;
@@ -73,7 +75,7 @@ public class SignUpRestController {
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getNickname(), request.getEmail(),
 			encodedPassword, profileUrl);
 		Member member = memberFactory.localMember(profile);
-		memberService.signup(member);
+		signupService.signup(member);
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
 

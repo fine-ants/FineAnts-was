@@ -33,6 +33,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
@@ -47,12 +48,13 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 
 	@Override
 	protected Object initController() {
+		SignupService signupService = mock(SignupService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		AmazonS3Service amazonS3Service = mock(AmazonS3Service.class);
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
-		return new SignUpRestController(mockedMemberService, passwordEncoder, amazonS3Service, memberProfileFactory,
-			memberFactory);
+		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, amazonS3Service,
+			memberProfileFactory, memberFactory);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
