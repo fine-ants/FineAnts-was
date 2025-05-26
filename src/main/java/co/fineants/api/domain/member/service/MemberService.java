@@ -21,6 +21,7 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
+import co.fineants.api.domain.member.domain.DefaultNotificationPreferenceSettingRegister;
 import co.fineants.api.domain.member.domain.MemberAssociationRegistrar;
 import co.fineants.api.domain.member.domain.MemberRoleRegistrar;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
@@ -179,11 +180,14 @@ public class MemberService {
 		memberRepository.save(member);
 
 		// 회원-역할 관계 저장
-		MemberAssociationRegistrar registrar = new MemberRoleRegistrar(memberRoleFactory, memberRoleRepository);
-		registrar.register(member);
+		MemberAssociationRegistrar memberRoleRegistrar = new MemberRoleRegistrar(memberRoleFactory,
+			memberRoleRepository);
+		memberRoleRegistrar.register(member);
 
 		// 기본 알림 계정 저장
-		memberNotificationPreferenceService.registerDefaultNotificationPreference(member);
+		MemberAssociationRegistrar notificationPreferenceRegistrar = new DefaultNotificationPreferenceSettingRegister(
+			memberNotificationPreferenceService);
+		notificationPreferenceRegistrar.register(member);
 	}
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {
