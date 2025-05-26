@@ -28,6 +28,8 @@ import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.SignUpRestController;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
+import co.fineants.api.domain.member.domain.factory.MemberFactory;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
@@ -41,7 +43,10 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		memberService = Mockito.mock(MemberService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		AmazonS3Service amazonS3Service = Mockito.mock(AmazonS3Service.class);
-		return new SignUpRestController(memberService, passwordEncoder, amazonS3Service);
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		MemberFactory memberFactory = new MemberFactory();
+		return new SignUpRestController(memberService, passwordEncoder, amazonS3Service, memberProfileFactory,
+			memberFactory);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
