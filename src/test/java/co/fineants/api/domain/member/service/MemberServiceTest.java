@@ -599,7 +599,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("비밀번호를 암호화한다")
 	@Test
-	void givenRawPassword_whenEncodedPassword_thenReturnEncodedPassword() {
+	void givenRawPassword_whenEncodePassword_thenReturnEncodedPassword() {
 		// given
 		String password = "nemo1234@";
 		// when
