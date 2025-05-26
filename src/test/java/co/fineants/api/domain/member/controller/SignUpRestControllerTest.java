@@ -33,6 +33,7 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
@@ -49,6 +50,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	private MemberService mockedMemberService;
 
 	private NicknameValidator nicknameValidator;
+	private EmailValidator emailValidator;
 
 	@Override
 	protected Object initController() {
@@ -58,8 +60,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
 		nicknameValidator = Mockito.mock(NicknameValidator.class);
+		emailValidator = Mockito.mock(EmailValidator.class);
 		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, amazonS3Service,
-			memberProfileFactory, memberFactory, nicknameValidator);
+			memberProfileFactory, memberFactory, nicknameValidator, emailValidator);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
@@ -301,8 +304,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String email = "dragonbead95@naver.com";
 		doThrow(new EmailDuplicateException(email))
-			.when(mockedMemberService)
-			.checkEmail(email);
+			.when(emailValidator)
+			.validate(email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))

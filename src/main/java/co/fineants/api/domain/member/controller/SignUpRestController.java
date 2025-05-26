@@ -23,6 +23,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
@@ -47,6 +48,7 @@ public class SignUpRestController {
 	private final MemberProfileFactory memberProfileFactory;
 	private final MemberFactory memberFactory;
 	private final NicknameValidator nicknameValidator;
+	private final EmailValidator emailValidator;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -105,7 +107,7 @@ public class SignUpRestController {
 	@GetMapping("/auth/signup/duplicationcheck/email/{email}")
 	@PermitAll
 	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) {
-		memberService.checkEmail(email);
+		emailValidator.validate(email);
 		return ApiResponse.success(MemberSuccessCode.OK_EMAIL_CHECK);
 	}
 }

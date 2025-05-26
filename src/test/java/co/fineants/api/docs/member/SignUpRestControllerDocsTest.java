@@ -31,6 +31,7 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
@@ -43,7 +44,7 @@ import co.fineants.api.infra.s3.service.AmazonS3Service;
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
 	private MemberService memberService;
-	
+
 	@Override
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
@@ -56,8 +57,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		MemberRepository memberRepository = mock(MemberRepository.class);
 		ValidationRule nicknameDuplicationRule = new RuleConfig().nicknameDuplicationRule(memberRepository);
 		NicknameValidator nicknameValidator = new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
+		EmailValidator emailValidator = mock(EmailValidator.class);
 		return new SignUpRestController(signupService, memberService, passwordEncoder, amazonS3Service,
-			memberProfileFactory, memberFactory, nicknameValidator);
+			memberProfileFactory, memberFactory, nicknameValidator, emailValidator);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
