@@ -6,7 +6,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
-public class NicknameFormatRule implements NicknameValidationRule {
+public class NicknameFormatRule implements ValidationRule {
 
 	private final Pattern nicknamePattern;
 
@@ -24,4 +24,8 @@ public class NicknameFormatRule implements NicknameValidationRule {
 		}
 	}
 
+	@Override
+	public void validate(Member member) {
+		member.validateNickname(this);
+	}
 }

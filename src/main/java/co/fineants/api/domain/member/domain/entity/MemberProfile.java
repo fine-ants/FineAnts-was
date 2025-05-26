@@ -67,11 +67,11 @@ public class MemberProfile {
 		return Optional.ofNullable(profileUrl);
 	}
 
-	public void validateEmail(EmailValidationRule rule) {
+	public void validateEmail(ValidationRule rule) {
 		rule.validate(email);
 	}
 
-	public void validateNickname(NicknameValidationRule rule) {
+	public void validateNickname(ValidationRule rule) {
 		rule.validate(nickname);
 	}
 }

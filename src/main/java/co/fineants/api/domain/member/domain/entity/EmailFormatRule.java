@@ -6,7 +6,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 
-public class EmailFormatRule implements EmailValidationRule {
+public class EmailFormatRule implements ValidationRule {
 
 	private final Pattern emailRegexp;
 
@@ -25,5 +25,10 @@ public class EmailFormatRule implements EmailValidationRule {
 		if (!emailRegexp.matcher(email).matches()) { // 정규 표현식으로 이메일 형식 검증
 			throw new EmailInvalidInputException(email);
 		}
+	}
+
+	@Override
+	public void validate(Member member) {
+		member.validateEmail(this);
 	}
 }

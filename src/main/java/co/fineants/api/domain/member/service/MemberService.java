@@ -30,14 +30,14 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.EmailDuplicationRule;
 import co.fineants.api.domain.member.domain.entity.EmailFormatRule;
-import co.fineants.api.domain.member.domain.entity.EmailValidationRule;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.NicknameDuplicationRule;
 import co.fineants.api.domain.member.domain.entity.NicknameFormatRule;
-import co.fineants.api.domain.member.domain.entity.NicknameValidationRule;
 import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.domain.entity.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
@@ -105,6 +105,8 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
+	private final MemberRoleRepository memberRoleRepository;
+	private final MemberNotificationPreferenceService memberNotificationPreferenceService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -171,19 +173,26 @@ public class MemberService {
 	@Transactional
 	public void signup(Member member) {
 		// 이메일 형식 검증
-		EmailValidationRule emailFormatRule = new EmailFormatRule(EMAIL_PATTERN);
-		member.validateEmail(emailFormatRule);
+		ValidationRule emailFormatRule = new EmailFormatRule(EMAIL_PATTERN);
 		// 이메일 중복 검증
-		EmailValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
-		member.validateEmail(emailDuplicationRule);
+		ValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
 		// 닉네임 형식 검증
-		NicknameValidationRule nicknameFormatRule = new NicknameFormatRule(NICKNAME_PATTERN);
-		member.validateNickname(nicknameFormatRule);
+		ValidationRule nicknameFormatRule = new NicknameFormatRule(NICKNAME_PATTERN);
 		// 닉네임 중복 검증
-		NicknameValidationRule nicknameDuplicationRule = new NicknameDuplicationRule(memberRepository);
-		member.validateNickname(nicknameDuplicationRule);
+		ValidationRule nicknameDuplicationRule = new NicknameDuplicationRule(memberRepository);
+		member.validateRules(emailFormatRule, emailDuplicationRule, nicknameFormatRule, nicknameDuplicationRule);
 
 		memberRepository.save(member);
+
+		// 역할 추가
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
+		MemberRole memberRole = new MemberRole(member, userRole);
+		memberRoleRepository.save(memberRole);
+
+		// 알림 계정 설정 등록
+		memberNotificationPreferenceService.registerDefaultNotificationPreference(member);
 	}
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {

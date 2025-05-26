@@ -5,7 +5,7 @@ import static co.fineants.api.domain.member.service.MemberService.*;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 
-public class EmailDuplicationRule implements EmailValidationRule {
+public class EmailDuplicationRule implements ValidationRule {
 
 	private final MemberRepository memberRepository;
 
@@ -18,5 +18,10 @@ public class EmailDuplicationRule implements EmailValidationRule {
 		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
 			throw new EmailDuplicateException(email);
 		}
+	}
+
+	@Override
+	public void validate(Member member) {
+		member.validateEmail(this);
 	}
 }
