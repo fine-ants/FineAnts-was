@@ -21,9 +21,6 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.member.domain.DefaultNotificationPreferenceSettingRegister;
-import co.fineants.api.domain.member.domain.MemberAssociationRegistrar;
-import co.fineants.api.domain.member.domain.MemberRoleRegistrar;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
@@ -36,7 +33,6 @@ import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
@@ -104,11 +100,8 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final MemberRoleRepository memberRoleRepository;
-	private final MemberNotificationPreferenceService memberNotificationPreferenceService;
 	private final SignUpValidator signUpValidator;
-	private final RoleService roleService;
-	private final MemberRoleFactory memberRoleFactory;
+	private final MemberAssociationRegistrationService associationRegistrationService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -178,16 +171,8 @@ public class MemberService {
 		signUpValidator.validate(member);
 		// 회원 저장
 		memberRepository.save(member);
-
-		// 회원-역할 관계 저장
-		MemberAssociationRegistrar memberRoleRegistrar = new MemberRoleRegistrar(memberRoleFactory,
-			memberRoleRepository);
-		memberRoleRegistrar.register(member);
-
-		// 기본 알림 계정 저장
-		MemberAssociationRegistrar notificationPreferenceRegistrar = new DefaultNotificationPreferenceSettingRegister(
-			memberNotificationPreferenceService);
-		notificationPreferenceRegistrar.register(member);
+		// 회원 관련된 연관 데이터 등록
+		associationRegistrationService.registerAll(member);
 	}
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {
