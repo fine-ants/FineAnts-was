@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import co.fineants.api.domain.member.domain.rule.EmailDuplicationRule;
 import co.fineants.api.domain.member.domain.rule.EmailFormatRule;
+import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameDuplicationRule;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
@@ -59,5 +60,11 @@ public class RuleConfig {
 	public NicknameValidator nicknameValidator(NicknameFormatRule nicknameFormatRule,
 		NicknameDuplicationRule nicknameDuplicationRule) {
 		return new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
+	}
+
+	@Bean
+	public EmailValidator emailValidator(EmailFormatRule emailFormatRule,
+		EmailDuplicationRule emailDuplicationRule) {
+		return new EmailValidator(emailFormatRule, emailDuplicationRule);
 	}
 }

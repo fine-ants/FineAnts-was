@@ -1,7 +1,5 @@
 package co.fineants.api.domain.member.service;
 
-import static co.fineants.api.domain.member.config.RuleConfig.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
@@ -50,7 +49,6 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
-import co.fineants.api.global.errors.exception.business.MailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
@@ -99,6 +97,7 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
 	private final NicknameValidator nicknameValidator;
+	private final EmailValidator emailValidator;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -218,15 +217,9 @@ public class MemberService {
 		nicknameValidator.validate(nickname);
 	}
 
-	@Transactional
 	@PermitAll
 	public void checkEmail(String email) {
-		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new MailInvalidInputException(email);
-		}
-		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
-			throw new MailDuplicateException(email);
-		}
+		emailValidator.validate(email);
 	}
 
 	@Transactional
