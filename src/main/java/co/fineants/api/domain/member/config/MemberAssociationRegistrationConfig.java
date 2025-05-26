@@ -3,13 +3,13 @@ package co.fineants.api.domain.member.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import co.fineants.api.domain.member.domain.factory.MemberRoleFactory;
 import co.fineants.api.domain.member.domain.registrar.DefaultNotificationPreferenceSettingRegistrar;
 import co.fineants.api.domain.member.domain.registrar.MemberAssociationRegistrar;
 import co.fineants.api.domain.member.domain.registrar.MemberRoleRegistrar;
 import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.member.service.DefaultMemberAssociationRegistrationService;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
-import co.fineants.api.domain.member.service.MemberRoleFactory;
 
 @Configuration
 public class MemberAssociationRegistrationConfig {

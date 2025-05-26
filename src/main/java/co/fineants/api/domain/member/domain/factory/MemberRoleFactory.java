@@ -1,8 +1,9 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.api.domain.member.domain.factory;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.service.RoleService;
 
 public class MemberRoleFactory {
 

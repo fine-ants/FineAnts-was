@@ -4,8 +4,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
+import co.fineants.api.domain.member.domain.factory.MemberRoleFactory;
 import co.fineants.api.domain.member.repository.MemberRoleRepository;
-import co.fineants.api.domain.member.service.MemberRoleFactory;
 
 public class MemberRoleRegistrar implements MemberAssociationRegistrar {
 
