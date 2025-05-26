@@ -30,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
+import co.fineants.api.domain.member.domain.factory.MemberFactory;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -47,7 +49,10 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	protected Object initController() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		AmazonS3Service amazonS3Service = mock(AmazonS3Service.class);
-		return new SignUpRestController(mockedMemberService, passwordEncoder, amazonS3Service);
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		MemberFactory memberFactory = new MemberFactory();
+		return new SignUpRestController(mockedMemberService, passwordEncoder, amazonS3Service, memberProfileFactory,
+			memberFactory);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")

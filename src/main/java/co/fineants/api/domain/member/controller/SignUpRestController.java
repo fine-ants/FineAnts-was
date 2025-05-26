@@ -41,6 +41,8 @@ public class SignUpRestController {
 	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
 	private final AmazonS3Service amazonS3Service;
+	private final MemberProfileFactory memberProfileFactory;
+	private final MemberFactory memberFactory;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -68,10 +70,8 @@ public class SignUpRestController {
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 		String profileUrl = amazonS3Service.upload(profileImageFile);
 
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getNickname(), request.getEmail(),
 			encodedPassword, profileUrl);
-		MemberFactory memberFactory = new MemberFactory();
 		Member member = memberFactory.localMember(profile);
 		memberService.signup(member);
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
