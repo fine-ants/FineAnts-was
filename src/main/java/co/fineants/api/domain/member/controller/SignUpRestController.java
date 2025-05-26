@@ -18,6 +18,8 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.VerifyCodeRequest;
 import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
+import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
@@ -59,9 +61,11 @@ public class SignUpRestController {
 		memberService.verifyPasswordMatch(request.getPassword(), request.getPasswordConfirm());
 		String encodedPassword = memberService.encodePassword(request.getPassword());
 		String profileUrl = memberService.uploadProfile(profileImageFile);
-		// todo: 역할 추가, controller에서 수행
-		// todo: 알림 계정 설정 추가, controller에서 수행
-		// memberService.signup(member);
+
+		MemberProfile profile = MemberProfile.localMemberProfile(request.getEmail(), request.getNickname(),
+			encodedPassword, profileUrl);
+		Member member = Member.localMember(profile);
+		memberService.signup(member);
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
 
