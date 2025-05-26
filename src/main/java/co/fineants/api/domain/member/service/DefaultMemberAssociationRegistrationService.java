@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.MemberAssociationRegistrar;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.registrar.MemberAssociationRegistrar;
 
 public class DefaultMemberAssociationRegistrationService implements MemberAssociationRegistrationService {
 

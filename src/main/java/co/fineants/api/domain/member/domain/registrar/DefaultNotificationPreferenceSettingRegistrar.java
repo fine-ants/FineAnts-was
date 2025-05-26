@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain;
+package co.fineants.api.domain.member.domain.registrar;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
