@@ -21,6 +21,8 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
+import co.fineants.api.domain.member.domain.MemberAssociationRegistrar;
+import co.fineants.api.domain.member.domain.MemberRoleRegistrar;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
@@ -175,9 +177,11 @@ public class MemberService {
 		signUpValidator.validate(member);
 		// 회원 저장
 		memberRepository.save(member);
+
 		// 회원-역할 관계 저장
-		MemberRole memberRole = memberRoleFactory.userMemberRole(member);
-		memberRoleRepository.save(memberRole);
+		MemberAssociationRegistrar registrar = new MemberRoleRegistrar(memberRoleFactory, memberRoleRepository);
+		registrar.register(member);
+
 		// 기본 알림 계정 저장
 		memberNotificationPreferenceService.registerDefaultNotificationPreference(member);
 	}

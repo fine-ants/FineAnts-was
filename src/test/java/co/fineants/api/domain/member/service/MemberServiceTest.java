@@ -42,6 +42,8 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.repository.MemberRoleRepository;
+import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -108,6 +110,12 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
+
+	@Autowired
+	private MemberRoleRepository memberRoleRepository;
+
+	@Autowired
+	private NotificationPreferenceRepository notificationPreferenceRepository;
 
 	public static Stream<Arguments> invalidEmailSource() {
 		return Stream.of(
@@ -536,8 +544,14 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when
 		memberService.signup(member);
 		// then
-		int actual = memberRepository.findAll().size();
-		assertThat(actual).isEqualTo(1);
+		int memberSize = memberRepository.findAll().size();
+		assertThat(memberSize).isEqualTo(1);
+
+		int memberRoleSize = memberRoleRepository.findAll().size();
+		assertThat(memberRoleSize).isEqualTo(1);
+
+		int preferenceSize = notificationPreferenceRepository.findAll().size();
+		assertThat(preferenceSize).isEqualTo(1);
 	}
 
 	@DisplayName("사용자는 유효하지 않은 형식의 이메일이 주어졌을때 회원가입에 실패한다")
