@@ -351,31 +351,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.hasMessage(profileFile.toString());
 	}
 
-	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
-	@Test
-	void checkEmail() {
-		// given
-		String email = "dragonbead95@naver.com";
-		// when & then
-		assertDoesNotThrow(() -> memberService.checkEmail(email));
-	}
-
-	@DisplayName("사용자는 이메일 중복 검사 요청시 로컬 이메일이 존재하여 예외가 발생한다")
-	@Test
-	void checkEmail_whenDuplicatedLocalEmail_thenThrowBadRequestException() {
-		// given
-		Member member = memberRepository.save(createMember());
-		String email = member.getEmail();
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkEmail(email));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(EmailDuplicateException.class)
-			.hasMessage(email);
-	}
-
 	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
 	@Test
 	void sendVerifyCode() {

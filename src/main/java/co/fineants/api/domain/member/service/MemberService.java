@@ -212,11 +212,6 @@ public class MemberService {
 		}
 	}
 
-	@PermitAll
-	public void checkEmail(String email) {
-		emailValidator.validate(email);
-	}
-
 	@Transactional
 	@Secured("ROLE_USER")
 	public ProfileChangeResponse changeProfile(ProfileChangeServiceRequest request) {
