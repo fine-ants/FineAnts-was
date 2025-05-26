@@ -53,10 +53,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
+import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
@@ -180,11 +182,6 @@ public class MemberService {
 		// 닉네임 중복 검증
 		NicknameValidationRule nicknameDuplicationRule = new NicknameDuplicationRule(memberRepository);
 		member.validateNickname(nicknameDuplicationRule);
-		// todo: password match 검증 필요
-		// todo: 프로필 이미지 업로드
-		// todo: 비밀번호 암호화
-		// todo: 역할 추가
-		// todo: 알림 계정 설정 추가
 
 		memberRepository.save(member);
 	}
@@ -368,5 +365,23 @@ public class MemberService {
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
 			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
+	}
+
+	public void verifyPasswordMatch(String password, String passwordConfirm) throws PasswordAuthenticationException {
+		if (!password.equals(passwordConfirm)) {
+			throw new PasswordAuthenticationException(password);
+		}
+	}
+
+	public String encodePassword(String password) {
+		return passwordEncoder.encode(password);
+	}
+
+	public String uploadProfile(MultipartFile profileImageFile) throws MemberProfileUploadException {
+		try {
+			return amazonS3Service.upload(profileImageFile);
+		} catch (InvalidInputException e) {
+			throw new MemberProfileUploadException(profileImageFile, e);
+		}
 	}
 }
