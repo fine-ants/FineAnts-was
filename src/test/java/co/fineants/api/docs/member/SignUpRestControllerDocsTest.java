@@ -31,6 +31,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 
@@ -40,12 +41,14 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
+		SignupService signupService = mock(SignupService.class);
 		memberService = Mockito.mock(MemberService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		AmazonS3Service amazonS3Service = Mockito.mock(AmazonS3Service.class);
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
-		return new SignUpRestController(memberService, passwordEncoder, amazonS3Service, memberProfileFactory,
+		return new SignUpRestController(signupService, memberService, passwordEncoder, amazonS3Service,
+			memberProfileFactory,
 			memberFactory);
 	}
 

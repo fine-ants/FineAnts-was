@@ -31,7 +31,6 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
-import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
@@ -100,8 +99,6 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final SignUpValidator signUpValidator;
-	private final MemberAssociationRegistrationService associationRegistrationService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -163,16 +160,6 @@ public class MemberService {
 
 		log.info("일반 회원가입 결과 : {}", saveMember);
 		return SignUpServiceResponse.from(saveMember);
-	}
-
-	@Transactional
-	public void signup(Member member) {
-		// 회원 정보 검증
-		signUpValidator.validate(member);
-		// 회원 저장
-		memberRepository.save(member);
-		// 회원 관련된 연관 데이터 등록
-		associationRegistrationService.registerAll(member);
 	}
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {
