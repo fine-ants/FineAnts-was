@@ -41,8 +41,6 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -56,7 +54,6 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
-import co.fineants.api.global.errors.exception.business.MailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
@@ -108,34 +105,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
-
-	@Autowired
-	private MemberRoleRepository memberRoleRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository notificationPreferenceRepository;
-
-	public static Stream<Arguments> invalidEmailSource() {
-		return Stream.of(
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("invalidEmail"), // 잘못된 형식의 이메일
-			Arguments.of("invalid@Email"), // 도메인 부분이 없는 이메일
-			Arguments.of("invalidEmail@.com"), // 도메인 부분이 없는 이메일
-			Arguments.of("invalidEmail@domain..com"), // 도메인 부분에 '.'이 연속된 이메일
-			Arguments.of((Object)null) // null 값
-		);
-	}
-
-	public static Stream<Arguments> invalidNicknameSource() {
-		return Stream.of(
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("a"), // 너무 짧은 닉네임
-			Arguments.of("a".repeat(21)), // 너무 긴 닉네임
-			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
-			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
-			Arguments.of((Object)null) // null 값
-		);
-	}
 
 	@BeforeEach
 	void setUp() {
@@ -441,7 +410,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(throwable)
-			.isInstanceOf(MailDuplicateException.class)
+			.isInstanceOf(EmailDuplicateException.class)
 			.hasMessage(email);
 	}
 

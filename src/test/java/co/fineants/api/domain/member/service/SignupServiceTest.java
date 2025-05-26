@@ -2,9 +2,12 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,6 +34,28 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationPreferenceRepository notificationPreferenceRepository;
+
+	private static Stream<Arguments> invalidEmailSource() {
+		return Stream.of(
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("invalidEmail"), // 잘못된 형식의 이메일
+			Arguments.of("invalid@Email"), // 도메인 부분이 없는 이메일
+			Arguments.of("invalidEmail@.com"), // 도메인 부분이 없는 이메일
+			Arguments.of("invalidEmail@domain..com"), // 도메인 부분에 '.'이 연속된 이메일
+			Arguments.of((Object)null) // null 값
+		);
+	}
+
+	private static Stream<Arguments> invalidNicknameSource() {
+		return Stream.of(
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("a"), // 너무 짧은 닉네임
+			Arguments.of("a".repeat(21)), // 너무 긴 닉네임
+			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
+			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
+			Arguments.of((Object)null) // null 값
+		);
+	}
 
 	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
 	@Test
