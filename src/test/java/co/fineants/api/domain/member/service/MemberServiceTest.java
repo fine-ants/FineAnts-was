@@ -567,4 +567,23 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(NicknameInvalidInputException.class);
 	}
+
+	@DisplayName("사용자는 이미 존재하는 닉네임을 가지고 회원가입 할 수 없다.")
+	@Test
+	void givenDuplicatedNickname_whenValidateNickname_thenFailSignup() {
+		// given
+		String nickname = "ants1";
+		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
+		Member member = Member.localMember(profile);
+		memberRepository.save(member);
+
+		MemberProfile otherProfile = MemberProfile.localMemberProfile("ants4567@gmail.com", nickname, "ants4567@",
+			null);
+		Member otherMember = Member.localMember(otherProfile);
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.signup(otherMember));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(NicknameDuplicateException.class);
+	}
 }
