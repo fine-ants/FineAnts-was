@@ -15,8 +15,9 @@ public class MemberRoleFactory {
 	}
 
 	public MemberRole userMemberRole(Member member) {
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(() -> new RoleNotFoundException("ROLE_USER"));
+		String roleName = "ROLE_USER";
+		Role userRole = roleRepository.findRoleByRoleName(roleName)
+			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		return new MemberRole(member, userRole);
 	}
 }

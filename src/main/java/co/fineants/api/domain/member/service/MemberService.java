@@ -175,6 +175,7 @@ public class MemberService {
 		memberRepository.save(member);
 
 		// 역할 추가
+		// todo: MemberRoleFactory 객체지향적으로 리팩토링
 		MemberRoleFactory memberRoleFactory = new MemberRoleFactory(roleRepository);
 		MemberRole memberRole = memberRoleFactory.userMemberRole(member);
 		// 회원-역할 관계 저장
