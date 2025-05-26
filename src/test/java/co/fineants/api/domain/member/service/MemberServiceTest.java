@@ -56,7 +56,6 @@ import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -350,43 +349,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
-	}
-
-	@DisplayName("사용자는 닉네임이 중복되었는지 체크한다")
-	@Test
-	void checkNickname() {
-		// given
-		String nickname = "일개미1234";
-		// when & then
-		assertDoesNotThrow(() -> memberService.checkNickname(nickname));
-	}
-
-	@DisplayName("사용자가 닉네임 중복 체크시 입력형식이 잘못되어 실패한다")
-	@Test
-	void checkNickname_whenInvalidInput_thenThrowException() {
-		// given
-		String nickname = "일";
-		// when & then
-		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
-		assertThat(throwable)
-			.isInstanceOf(NicknameInvalidInputException.class)
-			.hasMessage(nickname);
-	}
-
-	@DisplayName("사용자는 닉네임이 중복되어 에러를 받는다")
-	@Test
-	void checkNickname_whenDuplicatedNickname_thenThrow400Error() {
-		// given
-		memberRepository.save(createMember("일개미1234"));
-		String nickname = "일개미1234";
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(NicknameDuplicateException.class)
-			.hasMessage(nickname);
 	}
 
 	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")

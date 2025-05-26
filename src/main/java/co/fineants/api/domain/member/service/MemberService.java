@@ -213,11 +213,6 @@ public class MemberService {
 	}
 
 	@PermitAll
-	public void checkNickname(String nickname) {
-		nicknameValidator.validate(nickname);
-	}
-
-	@PermitAll
 	public void checkEmail(String email) {
 		emailValidator.validate(email);
 	}

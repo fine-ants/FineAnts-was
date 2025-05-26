@@ -23,6 +23,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.api.ApiResponse;
@@ -45,6 +46,7 @@ public class SignUpRestController {
 	private final AmazonS3Service amazonS3Service;
 	private final MemberProfileFactory memberProfileFactory;
 	private final MemberFactory memberFactory;
+	private final NicknameValidator nicknameValidator;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -96,7 +98,7 @@ public class SignUpRestController {
 	@GetMapping("/auth/signup/duplicationcheck/nickname/{nickname}")
 	@PermitAll
 	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) {
-		memberService.checkNickname(nickname);
+		nicknameValidator.validate(nickname);
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
