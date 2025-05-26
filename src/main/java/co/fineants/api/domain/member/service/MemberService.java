@@ -32,6 +32,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
@@ -55,7 +56,6 @@ import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
@@ -98,6 +98,7 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
+	private final NicknameValidator nicknameValidator;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -212,15 +213,9 @@ public class MemberService {
 		}
 	}
 
-	@Transactional
 	@PermitAll
 	public void checkNickname(String nickname) {
-		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new NicknameInvalidInputException(nickname);
-		}
-		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new NicknameDuplicateException(nickname);
-		}
+		nicknameValidator.validate(nickname);
 	}
 
 	@Transactional

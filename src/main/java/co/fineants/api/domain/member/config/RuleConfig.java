@@ -9,6 +9,7 @@ import co.fineants.api.domain.member.domain.rule.EmailDuplicationRule;
 import co.fineants.api.domain.member.domain.rule.EmailFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameDuplicationRule;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
+import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
@@ -52,5 +53,11 @@ public class RuleConfig {
 			nicknameDuplicationRule
 		};
 		return new SignUpValidator(rules);
+	}
+
+	@Bean
+	public NicknameValidator nicknameValidator(NicknameFormatRule nicknameFormatRule,
+		NicknameDuplicationRule nicknameDuplicationRule) {
+		return new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
 	}
 }
