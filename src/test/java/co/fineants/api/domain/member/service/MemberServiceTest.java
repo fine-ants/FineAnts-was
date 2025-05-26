@@ -120,6 +120,17 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
+	public static Stream<Arguments> invalidNicknameSource() {
+		return Stream.of(
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("a"), // 너무 짧은 닉네임
+			Arguments.of("a".repeat(21)), // 너무 긴 닉네임
+			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
+			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
+			Arguments.of((Object)null) // null 값
+		);
+	}
+
 	@BeforeEach
 	void setUp() {
 		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
@@ -541,5 +552,19 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(EmailInvalidInputException.class);
+	}
+
+	@DisplayName("사용자는 유효하지 않은 형식의 닉네임이 주어졌을때 회원가입에 실패한다")
+	@ParameterizedTest
+	@MethodSource(value = "invalidNicknameSource")
+	void givenInvalidNickname_whenValidateNickname_thenFailSignup(String nickname) {
+		// given
+		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
+		Member member = Member.localMember(profile);
+		// when
+		Throwable throwable = catchThrowable(() -> memberService.signup(member));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(NicknameInvalidInputException.class);
 	}
 }

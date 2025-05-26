@@ -70,4 +70,8 @@ public class MemberProfile {
 	public void validateEmail(EmailValidationRule rule) {
 		rule.validate(email);
 	}
+
+	public void validateNickname(NicknameValidationRule rule) {
+		rule.validate(nickname);
+	}
 }

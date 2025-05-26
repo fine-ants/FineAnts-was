@@ -33,6 +33,8 @@ import co.fineants.api.domain.member.domain.entity.EmailFormatRule;
 import co.fineants.api.domain.member.domain.entity.EmailValidationRule;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
+import co.fineants.api.domain.member.domain.entity.NicknameFormatRule;
+import co.fineants.api.domain.member.domain.entity.NicknameValidationRule;
 import co.fineants.api.domain.member.domain.entity.Role;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
@@ -172,6 +174,9 @@ public class MemberService {
 		EmailValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
 		member.validateEmail(emailDuplicationRule);
 		// todo: nickname 검증 필요
+		// 닉네임 형식 검증
+		NicknameValidationRule nicknameFormatRule = new NicknameFormatRule(NICKNAME_PATTERN);
+		member.validateNickname(nicknameFormatRule);
 		// todo: password match 검증 필요
 		// todo: 프로필 이미지 업로드
 		// todo: 비밀번호 암호화
