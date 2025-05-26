@@ -586,4 +586,30 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
+
+	@DisplayName("두 비밀번호가 일치하여 예외가 발생하지 않는다")
+	@Test
+	void givenPassword_whenVerifyPasswordMatch_thenNotThrowException() {
+		// given
+		String password = "nemo1234@";
+		String passwordConfirm = "nemo1234@";
+		// when & then
+		assertDoesNotThrow(() -> memberService.verifyPasswordMatch(password, passwordConfirm));
+	}
+
+	@DisplayName("비밀번호를 암호화한다")
+	@Test
+	void givenRawPassword_whenEncodedPassword_thenReturnEncodedPassword() {
+		// given
+		String password = "nemo1234@";
+		// when
+		String actual = memberService.encodePassword(password);
+		// then
+		assertAll(
+			() -> assertThat(actual).isNotNull(),
+			() -> assertThat(actual).isNotEmpty(),
+			() -> assertThat(actual).isNotEqualTo(password),
+			() -> assertThat(actual).contains("$2a$10$") // BCrypt prefix
+		);
+	}
 }
