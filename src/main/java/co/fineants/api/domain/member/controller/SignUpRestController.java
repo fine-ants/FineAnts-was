@@ -21,6 +21,8 @@ import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.factory.MemberFactory;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
@@ -66,9 +68,11 @@ public class SignUpRestController {
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 		String profileUrl = amazonS3Service.upload(profileImageFile);
 
-		MemberProfile profile = MemberProfile.localMemberProfile(request.getEmail(), request.getNickname(),
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getNickname(), request.getEmail(),
 			encodedPassword, profileUrl);
-		Member member = Member.localMember(profile);
+		MemberFactory memberFactory = new MemberFactory();
+		Member member = memberFactory.localMember(profile);
 		memberService.signup(member);
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
