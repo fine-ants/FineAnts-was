@@ -30,8 +30,6 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
-import co.fineants.api.domain.member.domain.rule.EmailValidator;
-import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
@@ -48,11 +46,9 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
-import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
@@ -96,8 +92,6 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final NicknameValidator nicknameValidator;
-	private final EmailValidator emailValidator;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -323,14 +317,6 @@ public class MemberService {
 	public void verifyPasswordMatch(String password, String passwordConfirm) throws PasswordAuthenticationException {
 		if (!password.equals(passwordConfirm)) {
 			throw new PasswordAuthenticationException(password);
-		}
-	}
-
-	public String uploadProfile(MultipartFile profileImageFile) throws MemberProfileUploadException {
-		try {
-			return amazonS3Service.upload(profileImageFile);
-		} catch (InvalidInputException e) {
-			throw new MemberProfileUploadException(profileImageFile, e);
 		}
 	}
 }

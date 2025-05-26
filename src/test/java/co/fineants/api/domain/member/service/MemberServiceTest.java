@@ -448,15 +448,4 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		assertDoesNotThrow(() -> memberService.verifyPasswordMatch(password, passwordConfirm));
 	}
-
-	@DisplayName("사용자는 프로필 사진을 업로드한다")
-	@Test
-	void givenMultipartFile_whenUploadProfile_thenReturnProfileUrl() {
-		// given
-		MultipartFile profileImageFile = createProfileFile();
-		// when
-		String profileUrl = memberService.uploadProfile(profileImageFile);
-		// then
-		assertThat(profileUrl).isEqualTo("profileUrl");
-	}
 }
