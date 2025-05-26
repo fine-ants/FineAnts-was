@@ -33,6 +33,7 @@ import co.fineants.api.domain.member.domain.entity.EmailFormatRule;
 import co.fineants.api.domain.member.domain.entity.EmailValidationRule;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
+import co.fineants.api.domain.member.domain.entity.NicknameDuplicationRule;
 import co.fineants.api.domain.member.domain.entity.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.entity.NicknameValidationRule;
 import co.fineants.api.domain.member.domain.entity.Role;
@@ -173,10 +174,12 @@ public class MemberService {
 		// 이메일 중복 검증
 		EmailValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
 		member.validateEmail(emailDuplicationRule);
-		// todo: nickname 검증 필요
 		// 닉네임 형식 검증
 		NicknameValidationRule nicknameFormatRule = new NicknameFormatRule(NICKNAME_PATTERN);
 		member.validateNickname(nicknameFormatRule);
+		// 닉네임 중복 검증
+		NicknameValidationRule nicknameDuplicationRule = new NicknameDuplicationRule(memberRepository);
+		member.validateNickname(nicknameDuplicationRule);
 		// todo: password match 검증 필요
 		// todo: 프로필 이미지 업로드
 		// todo: 비밀번호 암호화
