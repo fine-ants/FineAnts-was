@@ -48,6 +48,25 @@ public class SignUpRestController {
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
 	}
 
+	@ResponseStatus(CREATED)
+	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
+		MediaType.MULTIPART_FORM_DATA_VALUE})
+	@PermitAll
+	public ApiResponse<Void> signup_temp(
+		@Valid @RequestPart(value = "signupData") SignUpRequest request,
+		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
+	) {
+		memberService.verifyPasswordMatch(request.getPassword(), request.getPasswordConfirm());
+		// todo: 비밀번호 암호화, controller에서 수행
+		String encodedPassword = memberService.encodePassword(request.getPassword());
+		// todo: 프로필 이미지 업로드, controller에서 수행
+		String profileUrl = memberService.uploadProfile(profileImageFile);
+		// todo: 역할 추가, controller에서 수행
+		// todo: 알림 계정 설정 추가, controller에서 수행
+		// memberService.signup(member);
+		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
+	}
+
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
 	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
