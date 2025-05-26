@@ -21,6 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.SignUpRestController;
@@ -28,6 +30,7 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
@@ -36,7 +39,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	@Override
 	protected Object initController() {
 		memberService = Mockito.mock(MemberService.class);
-		return new SignUpRestController(memberService);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		AmazonS3Service amazonS3Service = Mockito.mock(AmazonS3Service.class);
+		return new SignUpRestController(memberService, passwordEncoder, amazonS3Service);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

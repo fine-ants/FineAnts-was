@@ -3,6 +3,7 @@ package co.fineants.api.domain.member.controller;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SignUpRestController {
 
 	private final MemberService memberService;
+	private final PasswordEncoder passwordEncoder;
+	private final AmazonS3Service amazonS3Service;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -59,8 +63,8 @@ public class SignUpRestController {
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
 		memberService.verifyPasswordMatch(request.getPassword(), request.getPasswordConfirm());
-		String encodedPassword = memberService.encodePassword(request.getPassword());
-		String profileUrl = memberService.uploadProfile(profileImageFile);
+		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		String profileUrl = amazonS3Service.upload(profileImageFile);
 
 		MemberProfile profile = MemberProfile.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
