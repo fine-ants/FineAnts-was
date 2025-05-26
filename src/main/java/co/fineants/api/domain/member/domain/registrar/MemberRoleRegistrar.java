@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain;
+package co.fineants.api.domain.member.domain.registrar;
 
 import org.springframework.transaction.annotation.Transactional;
 
