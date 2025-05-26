@@ -105,6 +105,7 @@ public class MemberService {
 	private final MemberNotificationPreferenceService memberNotificationPreferenceService;
 	private final SignUpValidator signUpValidator;
 	private final RoleService roleService;
+	private final MemberRoleFactory memberRoleFactory;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -170,17 +171,13 @@ public class MemberService {
 
 	@Transactional
 	public void signup(Member member) {
+		// 회원 정보 검증
 		signUpValidator.validate(member);
 		// 회원 저장
 		memberRepository.save(member);
-
-		// 역할 추가
-		// todo: MemberRoleFactory 객체지향적으로 리팩토링
-		MemberRoleFactory memberRoleFactory = new MemberRoleFactory(roleRepository);
-		MemberRole memberRole = memberRoleFactory.userMemberRole(member);
 		// 회원-역할 관계 저장
+		MemberRole memberRole = memberRoleFactory.userMemberRole(member);
 		memberRoleRepository.save(memberRole);
-
 		// 기본 알림 계정 저장
 		memberNotificationPreferenceService.registerDefaultNotificationPreference(member);
 	}
