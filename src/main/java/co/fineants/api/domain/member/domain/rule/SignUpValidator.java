@@ -5,7 +5,7 @@ import java.util.List;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 
-public class SignUpValidator implements MemberValidator {
+public class SignUpValidator implements Validator<Member> {
 	private final List<ValidationRule> rules;
 
 	public SignUpValidator(ValidationRule... rules) {

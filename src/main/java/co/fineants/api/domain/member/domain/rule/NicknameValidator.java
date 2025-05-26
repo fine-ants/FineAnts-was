@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.domain.rule;
 import java.util.Arrays;
 import java.util.List;
 
-public class NicknameValidator {
+public class NicknameValidator implements Validator<String> {
 
 	private final List<ValidationRule> rules;
 
