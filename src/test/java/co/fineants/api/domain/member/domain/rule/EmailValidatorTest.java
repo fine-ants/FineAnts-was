@@ -20,18 +20,18 @@ class EmailValidatorTest extends AbstractContainerBaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
-	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
+	@DisplayName("이메일이 검증을 통과하면 예외가 발생하지 않는다")
 	@Test
-	void checkEmail() {
+	void givenEmail_whenValidateEmail_thenNotThrowException() {
 		// given
 		String email = "dragonbead95@naver.com";
 		// when & then
 		assertDoesNotThrow(() -> validator.validate(email));
 	}
 
-	@DisplayName("사용자는 이메일 중복 검사 요청시 로컬 이메일이 존재하여 예외가 발생한다")
+	@DisplayName("중복된 이메일이 주어지고 검증을 시도하면 예외가 발생한다")
 	@Test
-	void checkEmail_whenDuplicatedLocalEmail_thenThrowBadRequestException() {
+	void givenDuplicateEmail_whenValidateEmail_thenThrowException() {
 		// given
 		Member member = memberRepository.save(createMember());
 		String email = member.getEmail();
