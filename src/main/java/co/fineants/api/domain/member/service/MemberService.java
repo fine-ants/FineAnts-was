@@ -31,11 +31,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
-import co.fineants.api.domain.member.domain.rule.EmailDuplicationRule;
-import co.fineants.api.domain.member.domain.rule.EmailFormatRule;
-import co.fineants.api.domain.member.domain.rule.NicknameDuplicationRule;
-import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
-import co.fineants.api.domain.member.domain.rule.ValidationRule;
+import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
@@ -107,6 +103,7 @@ public class MemberService {
 	private final VerifyCodeManagementService verifyCodeManagementService;
 	private final MemberRoleRepository memberRoleRepository;
 	private final MemberNotificationPreferenceService memberNotificationPreferenceService;
+	private final SignUpValidator signUpValidator;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -172,16 +169,7 @@ public class MemberService {
 
 	@Transactional
 	public void signup(Member member) {
-		// 이메일 형식 검증
-		ValidationRule emailFormatRule = new EmailFormatRule(EMAIL_PATTERN);
-		// 이메일 중복 검증
-		ValidationRule emailDuplicationRule = new EmailDuplicationRule(memberRepository);
-		// 닉네임 형식 검증
-		ValidationRule nicknameFormatRule = new NicknameFormatRule(NICKNAME_PATTERN);
-		// 닉네임 중복 검증
-		ValidationRule nicknameDuplicationRule = new NicknameDuplicationRule(memberRepository);
-		member.validateRules(emailFormatRule, emailDuplicationRule, nicknameFormatRule, nicknameDuplicationRule);
-
+		signUpValidator.validate(member);
 		memberRepository.save(member);
 
 		// 역할 추가
