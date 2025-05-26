@@ -612,4 +612,15 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(actual).contains("$2a$10$") // BCrypt prefix
 		);
 	}
+
+	@DisplayName("사용자는 프로필 사진을 업로드한다")
+	@Test
+	void givenMultipartFile_whenUploadProfile_thenReturnProfileUrl() {
+		// given
+		MultipartFile profileImageFile = createProfileFile();
+		// when
+		String profileUrl = memberService.uploadProfile(profileImageFile);
+		// then
+		assertThat(profileUrl).isEqualTo("profileUrl");
+	}
 }
