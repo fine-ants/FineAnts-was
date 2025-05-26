@@ -361,7 +361,7 @@ public class MemberService {
 			throw new PasswordAuthenticationException(password);
 		}
 	}
-	
+
 	public String uploadProfile(MultipartFile profileImageFile) throws MemberProfileUploadException {
 		try {
 			return amazonS3Service.upload(profileImageFile);
