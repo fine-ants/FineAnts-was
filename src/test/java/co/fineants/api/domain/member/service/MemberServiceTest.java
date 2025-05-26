@@ -611,22 +611,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertDoesNotThrow(() -> memberService.verifyPasswordMatch(password, passwordConfirm));
 	}
 
-	@DisplayName("비밀번호를 암호화한다")
-	@Test
-	void givenRawPassword_whenEncodePassword_thenReturnEncodedPassword() {
-		// given
-		String password = "nemo1234@";
-		// when
-		String actual = memberService.encodePassword(password);
-		// then
-		assertAll(
-			() -> assertThat(actual).isNotNull(),
-			() -> assertThat(actual).isNotEmpty(),
-			() -> assertThat(actual).isNotEqualTo(password),
-			() -> assertThat(actual).contains("$2a$10$") // BCrypt prefix
-		);
-	}
-
 	@DisplayName("사용자는 프로필 사진을 업로드한다")
 	@Test
 	void givenMultipartFile_whenUploadProfile_thenReturnProfileUrl() {

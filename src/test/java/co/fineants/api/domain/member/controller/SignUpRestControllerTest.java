@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
@@ -33,6 +35,7 @@ import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.support.controller.ControllerTestSupport;
 
 public class SignUpRestControllerTest extends ControllerTestSupport {
@@ -42,7 +45,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 
 	@Override
 	protected Object initController() {
-		return new SignUpRestController(mockedMemberService);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		AmazonS3Service amazonS3Service = mock(AmazonS3Service.class);
+		return new SignUpRestController(mockedMemberService, passwordEncoder, amazonS3Service);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")

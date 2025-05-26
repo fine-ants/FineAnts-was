@@ -361,11 +361,7 @@ public class MemberService {
 			throw new PasswordAuthenticationException(password);
 		}
 	}
-
-	public String encodePassword(String password) {
-		return passwordEncoder.encode(password);
-	}
-
+	
 	public String uploadProfile(MultipartFile profileImageFile) throws MemberProfileUploadException {
 		try {
 			return amazonS3Service.upload(profileImageFile);
