@@ -104,6 +104,7 @@ public class MemberService {
 	private final MemberRoleRepository memberRoleRepository;
 	private final MemberNotificationPreferenceService memberNotificationPreferenceService;
 	private final SignUpValidator signUpValidator;
+	private final RoleService roleService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -170,16 +171,16 @@ public class MemberService {
 	@Transactional
 	public void signup(Member member) {
 		signUpValidator.validate(member);
+		// 회원 저장
 		memberRepository.save(member);
 
 		// 역할 추가
-		String roleName = "ROLE_USER";
-		Role userRole = roleRepository.findRoleByRoleName(roleName)
-			.orElseThrow(() -> new RoleNotFoundException(roleName));
-		MemberRole memberRole = new MemberRole(member, userRole);
+		MemberRoleFactory memberRoleFactory = new MemberRoleFactory(roleRepository);
+		MemberRole memberRole = memberRoleFactory.userMemberRole(member);
+		// 회원-역할 관계 저장
 		memberRoleRepository.save(memberRole);
 
-		// 알림 계정 설정 등록
+		// 기본 알림 계정 저장
 		memberNotificationPreferenceService.registerDefaultNotificationPreference(member);
 	}
 
