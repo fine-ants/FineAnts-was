@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.member.domain.DefaultNotificationPreferenceSettingRegister;
+import co.fineants.api.domain.member.domain.DefaultNotificationPreferenceSettingRegistrar;
 import co.fineants.api.domain.member.domain.MemberAssociationRegistrar;
 import co.fineants.api.domain.member.domain.MemberRoleRegistrar;
 import co.fineants.api.domain.member.repository.MemberRoleRepository;
@@ -22,18 +22,18 @@ public class MemberAssociationRegistrationConfig {
 	}
 
 	@Bean
-	public DefaultNotificationPreferenceSettingRegister defaultNotificationPreferenceSettingRegister(
+	public DefaultNotificationPreferenceSettingRegistrar defaultNotificationPreferenceSettingRegister(
 		MemberNotificationPreferenceService service) {
-		return new DefaultNotificationPreferenceSettingRegister(service);
+		return new DefaultNotificationPreferenceSettingRegistrar(service);
 	}
 
 	@Bean
 	public DefaultMemberAssociationRegistrationService defaultMemberAssociationRegistrationService(
 		MemberRoleRegistrar memberRoleRegistrar,
-		DefaultNotificationPreferenceSettingRegister defaultNotificationPreferenceSettingRegister) {
+		DefaultNotificationPreferenceSettingRegistrar defaultNotificationPreferenceSettingRegistrar) {
 		MemberAssociationRegistrar[] registrars = new MemberAssociationRegistrar[] {
 			memberRoleRegistrar,
-			defaultNotificationPreferenceSettingRegister
+			defaultNotificationPreferenceSettingRegistrar
 		};
 		return new DefaultMemberAssociationRegistrationService(registrars);
 	}
