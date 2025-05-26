@@ -1,5 +1,6 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.api.domain.member.domain.rule;
 
+import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 

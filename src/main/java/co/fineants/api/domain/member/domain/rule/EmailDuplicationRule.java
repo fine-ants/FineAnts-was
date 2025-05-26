@@ -1,7 +1,8 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.api.domain.member.domain.rule;
 
 import static co.fineants.api.domain.member.service.MemberService.*;
 
+import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 

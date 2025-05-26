@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 
 import co.fineants.api.domain.BaseEntity;
+import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
