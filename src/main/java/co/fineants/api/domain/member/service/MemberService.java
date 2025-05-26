@@ -1,10 +1,11 @@
 package co.fineants.api.domain.member.service;
 
+import static co.fineants.api.domain.member.config.RuleConfig.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.mail.MailException;
@@ -77,8 +78,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 
 	public static final String LOCAL_PROVIDER = "local";
-	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
-	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 	private final MemberRepository memberRepository;
 	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;

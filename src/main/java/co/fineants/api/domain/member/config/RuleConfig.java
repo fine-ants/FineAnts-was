@@ -1,5 +1,7 @@
 package co.fineants.api.domain.member.config;
 
+import java.util.regex.Pattern;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,14 +12,16 @@ import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.MemberService;
 
 @Configuration
 public class RuleConfig {
 
+	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
+	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
+
 	@Bean
 	public EmailFormatRule emailFormatRule() {
-		return new EmailFormatRule(MemberService.EMAIL_PATTERN);
+		return new EmailFormatRule(EMAIL_PATTERN);
 	}
 
 	@Bean
@@ -27,7 +31,7 @@ public class RuleConfig {
 
 	@Bean
 	public NicknameFormatRule nicknameFormatRule() {
-		return new NicknameFormatRule(MemberService.NICKNAME_PATTERN);
+		return new NicknameFormatRule(NICKNAME_PATTERN);
 	}
 
 	@Bean
