@@ -39,7 +39,6 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
@@ -50,7 +49,6 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		SignupService signupService = mock(SignupService.class);
 		memberService = Mockito.mock(MemberService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		AmazonS3Service amazonS3Service = Mockito.mock(AmazonS3Service.class);
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
 		ValidationRule nicknameFormatRule = new NicknameFormatRule(RuleConfig.NICKNAME_PATTERN);
@@ -58,8 +56,8 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		ValidationRule nicknameDuplicationRule = new RuleConfig().nicknameDuplicationRule(memberRepository);
 		NicknameValidator nicknameValidator = new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
 		EmailValidator emailValidator = mock(EmailValidator.class);
-		return new SignUpRestController(signupService, memberService, passwordEncoder, amazonS3Service,
-			memberProfileFactory, memberFactory, nicknameValidator, emailValidator);
+		return new SignUpRestController(signupService, memberService, passwordEncoder, memberProfileFactory,
+			memberFactory, nicknameValidator, emailValidator);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
