@@ -36,6 +36,7 @@ import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
+import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
@@ -62,8 +63,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		MemberFactory memberFactory = new MemberFactory();
 		nicknameValidator = Mockito.mock(NicknameValidator.class);
 		emailValidator = Mockito.mock(EmailValidator.class);
+		PasswordValidator passwordValidator = new PasswordValidator();
 		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, memberProfileFactory,
-			memberFactory, nicknameValidator, emailValidator);
+			memberFactory, nicknameValidator, emailValidator, passwordValidator);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
