@@ -27,6 +27,7 @@ import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
+import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -62,12 +63,12 @@ public class SignUpRestController {
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
 		Member member = memberFactory.localMember(profile);
-		// 만약 회원가입이 실패하여 예외가 발생하면 업로드된 프로필 파일은 삭제되어야 한다.
+
 		try {
 			signupService.signup(member);
 		} catch (BusinessException exception) {
 			signupService.deleteProfileImage(profileUrl);
-			throw exception;
+			throw new SignupException(member.toString(), exception);
 		}
 
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
