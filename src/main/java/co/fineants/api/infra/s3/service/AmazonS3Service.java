@@ -7,5 +7,5 @@ import co.fineants.api.global.errors.exception.business.InvalidInputException;
 public interface AmazonS3Service {
 	String upload(MultipartFile multipartFile) throws InvalidInputException;
 
-	void deleteProfileFile(String url);
+	void deleteProfileImageFile(String url);
 }

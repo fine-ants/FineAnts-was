@@ -67,7 +67,7 @@ public class SignUpRestController {
 		try {
 			signupService.signup(member);
 		} catch (BusinessException exception) {
-			signupService.deleteProfileImage(profileUrl);
+			signupService.deleteProfileImageFile(profileUrl);
 			throw new SignupException(member.toString(), exception);
 		}
 

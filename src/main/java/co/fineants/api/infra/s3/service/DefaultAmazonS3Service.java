@@ -87,7 +87,7 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 	}
 
 	@Override
-	public void deleteProfileFile(String url) {
+	public void deleteProfileImageFile(String url) {
 		if (Strings.isBlank(url)) {
 			return;
 		}

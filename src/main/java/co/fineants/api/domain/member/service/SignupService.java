@@ -50,7 +50,7 @@ public class SignupService {
 		}
 	}
 
-	public void deleteProfileImage(String profileUrl) {
-		amazonS3Service.deleteProfileFile(profileUrl);
+	public void deleteProfileImageFile(String profileUrl) {
+		amazonS3Service.deleteProfileImageFile(profileUrl);
 	}
 }
