@@ -196,7 +196,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		String key = extractKeyFromUrl(profileUrl);
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
 		// when
-		service.deleteProfileImage(profileUrl);
+		service.deleteProfileImageFile(profileUrl);
 		// then
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
 	}
@@ -217,7 +217,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		// when & then
 		assertThatCode(() -> {
 			// 테스트 대상 코드
-			service.deleteProfileImage(profileUrl);
+			service.deleteProfileImageFile(profileUrl);
 		}).doesNotThrowAnyException();
 	}
 }

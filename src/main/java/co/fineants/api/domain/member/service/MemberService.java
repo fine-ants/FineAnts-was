@@ -224,10 +224,10 @@ public class MemberService {
 		} else if (profileImageFile.isEmpty()) { // 기본 프로필 파일로 변경인 경우
 			// 회원의 기존 프로필 사진 제거
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileFile);
+			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
 		} else if (!profileImageFile.isEmpty()) { // 새로운 프로필 파일로 변경인 경우
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileFile);
+			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
 
 			// 새로운 프로필 파일 저장
 			profileUrl = amazonS3Service.upload(profileImageFile);
