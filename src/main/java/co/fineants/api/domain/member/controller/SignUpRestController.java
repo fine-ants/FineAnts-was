@@ -74,8 +74,8 @@ public class SignUpRestController {
 	) {
 		memberService.verifyPasswordMatch(request.getPassword(), request.getPasswordConfirm());
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
-		String profileUrl = amazonS3Service.upload(profileImageFile);
 
+		String profileUrl = signupService.upload(profileImageFile).orElse(null);
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getNickname(), request.getEmail(),
 			encodedPassword, profileUrl);
 		Member member = memberFactory.localMember(profile);
