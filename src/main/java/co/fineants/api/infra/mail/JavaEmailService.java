@@ -1,6 +1,7 @@
 package co.fineants.api.infra.mail;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,12 @@ public class JavaEmailService implements EmailService {
 	}
 
 	@Override
-	public void sendEmail(String to, String subject, String templateName, Map<String, String> values) {
+	public void sendEmail(MimeMessage message) {
+		mailSender.send(message);
+	}
+
+	@Override
+	public void sendEmail(String to, String subject, String templateName, Map<String, Object> values) {
 		MimeMessage message;
 		try {
 			message = createMimeMessage(to, subject, templateName, values);
@@ -39,19 +45,40 @@ public class JavaEmailService implements EmailService {
 
 	@NotNull
 	private MimeMessage createMimeMessage(String to, String subject, String templateName,
-		Map<String, String> values) throws MessagingException {
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-		// 수신자 설정
-		helper.setTo(to);
-		// 메일 제목 설정
-		helper.setSubject(subject);
+		Map<String, Object> variables) throws MessagingException {
 		// 템플릿에 전달할 데이터 설정
-		Context context = new Context();
-		values.forEach(context::setVariable);
-		// 메일 내용 설정: 템플릿 프로세스
-		String html = springTemplateEngine.process(templateName, context);
-		helper.setText(html, true);
-		return message;
+		Context context = new Context(Locale.KOREA, variables);
+		return mimeMessageBuilder(to, subject)
+			.html(springTemplateEngine.process(templateName, context)) // 메일 내용 설정: 템플릿 프로세스
+			.build();
+	}
+
+	private MimeMessageBuilder mimeMessageBuilder(String to, String subject) {
+		return new MimeMessageBuilder(to, subject);
+	}
+
+	private class MimeMessageBuilder {
+		private final String to;
+		private final String subject;
+		private String html;
+
+		public MimeMessageBuilder(String to, String subject) {
+			this.to = to;
+			this.subject = subject;
+		}
+
+		public MimeMessageBuilder html(String html) {
+			this.html = html;
+			return this;
+		}
+
+		public MimeMessage build() throws MessagingException {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+			helper.setTo(to);
+			helper.setSubject(subject);
+			helper.setText(html, true);
+			return message;
+		}
 	}
 }
