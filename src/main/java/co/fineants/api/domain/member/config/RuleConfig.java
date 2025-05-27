@@ -29,7 +29,7 @@ public class RuleConfig {
 
 	@Bean
 	public EmailDuplicationRule emailDuplicationRule(MemberRepository memberRepository) {
-		return new EmailDuplicationRule(memberRepository);
+		return new EmailDuplicationRule(memberRepository, "local");
 	}
 
 	@Bean
