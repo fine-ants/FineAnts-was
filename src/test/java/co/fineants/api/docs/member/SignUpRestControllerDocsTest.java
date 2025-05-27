@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -27,8 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.config.RuleConfig;
 import co.fineants.api.domain.member.controller.SignUpRestController;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
@@ -42,12 +39,10 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
-	private MemberService memberService;
-
 	@Override
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
-		memberService = Mockito.mock(MemberService.class);
+		MemberService memberService = Mockito.mock(MemberService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
@@ -64,9 +59,6 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void signup() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
