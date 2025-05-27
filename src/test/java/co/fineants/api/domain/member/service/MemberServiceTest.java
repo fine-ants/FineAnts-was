@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -59,7 +58,6 @@ import co.fineants.api.global.errors.exception.business.NicknameDuplicateExcepti
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -97,9 +95,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@Autowired
-	private AmazonS3Service mockAmazonS3Service;
-
-	@Autowired
 	private VerifyCodeManagementService mockedVerifyCodeManagementService;
 
 	@Autowired
@@ -107,8 +102,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
-			.willReturn("profileUrl");
 		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
@@ -116,11 +109,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	public static Stream<Arguments> validChangeProfileSource() {
 		return Stream.of(
-			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "profileUrl", "새 프로필 사진과 새 닉네임 변경"),
-			Arguments.of(createProfileFile(), null, "nemo1234", "profileUrl", "새 프로필 사진만 변경"),
-			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", null, "기본 프로필 사진으로만 변경"),
-			Arguments.of(null, "nemo12345", "nemo12345", "profileUrl", "닉네임만 변경"),
-			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "profileUrl", "프로필 사진과 닉네임을 그대로 유지")
+			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
+			Arguments.of(createProfileFile(), null, "nemo1234", "새 프로필 사진만 변경"),
+			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", "기본 프로필 사진으로만 변경"),
+			Arguments.of(null, "nemo12345", "nemo12345", "닉네임만 변경"),
+			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
 		);
 	}
 
@@ -136,6 +129,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		}
 	}
 
+	private static MultipartFile createOverSizeMockProfileFile() {
+		byte[] profile = new byte[3145728];
+		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
+	}
+
 	private static MultipartFile createEmptyProfileImageFile() {
 		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
@@ -149,7 +147,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 		MultipartFile profileImageFile = createProfileFile();
 		return Stream.of(
-			Arguments.of(request, profileImageFile, "profileUrl")
+			Arguments.of(request, profileImageFile)
 		);
 	}
 
@@ -159,8 +157,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(
 		MultipartFile profileImageFile,
 		String nickname,
-		String expectedNickname,
-		String expectedProfileUrl) {
+		String expectedNickname) {
 		// given
 		Member member = memberRepository.save(createMember());
 		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
@@ -174,8 +171,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(response)
 			.extracting("user")
-			.extracting("nickname", "profileUrl")
-			.containsExactlyInAnyOrder(expectedNickname, expectedProfileUrl);
+			.extracting("nickname")
+			.isEqualTo(expectedNickname);
 	}
 
 	@DisplayName("사용자는 회원 프로필에서 닉네임 변경시 중복되어 변경하지 못한다")
@@ -223,7 +220,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	@DisplayName("사용자는 일반 회원가입한다")
 	@MethodSource(value = "signupMethodSource")
 	@ParameterizedTest
-	void signup(SignUpRequest request, MultipartFile profileImageFile, String expectedProfileUrl) {
+	void signup(SignUpRequest request, MultipartFile profileImageFile) {
 		// given
 		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
 
@@ -232,8 +229,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(response)
-			.extracting("nickname", "email", "profileUrl", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", expectedProfileUrl, "local");
+			.extracting("nickname", "email", "provider")
+			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", "local");
+		assertThat(response)
+			.extracting("profileUrl")
+			.isNotNull();
 	}
 
 	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
@@ -330,17 +330,14 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
-		MultipartFile profileFile = createProfileFile();
-		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
-			.willThrow(new ImageSizeExceededInvalidInputException(profileFile));
-
+		MultipartFile profileFile = createOverSizeMockProfileFile(); // 3MB
 		SignUpRequest request = new SignUpRequest(
 			"일개미4567",
 			"nemo1234@naver.com",
 			"nemo1234@",
 			"nemo1234@"
 		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
+		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileFile);
 
 		// when
 		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
