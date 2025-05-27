@@ -76,7 +76,7 @@ public class SignUpRestController {
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
-		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getNickname(), request.getEmail(),
+		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
 		Member member = memberFactory.localMember(profile);
 		signupService.signup(member);
