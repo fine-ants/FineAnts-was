@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -218,7 +219,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
-		willThrow(new PasswordAuthenticationException("nemo1234@"))
+		willThrow(new PasswordAuthenticationException())
 			.given(signupService)
 			.signup(ArgumentMatchers.any(Member.class));
 
@@ -242,7 +243,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("code").value(equalTo(401)))
 			.andExpect(jsonPath("status").value(equalTo("Unauthorized")))
 			.andExpect(jsonPath("message").value(equalTo("Unauthenticated Password")))
-			.andExpect(jsonPath("data").value(equalTo("nemo1234@")));
+			.andExpect(jsonPath("data").value(equalTo(Strings.EMPTY)));
 	}
 
 	@DisplayName("사용자는 signupData 필드 없이 회원가입 할 수 없다")

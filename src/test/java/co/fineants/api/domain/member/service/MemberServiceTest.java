@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -323,7 +324,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(PasswordAuthenticationException.class)
-			.hasMessage("nemo1234@");
+			.hasMessage(Strings.EMPTY);
 	}
 
 	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")

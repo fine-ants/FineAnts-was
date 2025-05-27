@@ -6,7 +6,7 @@ public class PasswordValidator {
 
 	public void validateMatch(String password, String passwordConfirm) {
 		if (!password.equals(passwordConfirm)) {
-			throw new PasswordAuthenticationException(password);
+			throw new PasswordAuthenticationException();
 		}
 	}
 }
