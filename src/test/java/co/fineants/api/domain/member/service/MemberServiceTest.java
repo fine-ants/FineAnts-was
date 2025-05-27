@@ -117,7 +117,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	public static MultipartFile createProfileFile() {
+	private static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
 		try {
 			Path path = Paths.get(classPathResource.getURI());

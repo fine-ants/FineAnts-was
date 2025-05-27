@@ -2,7 +2,13 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
@@ -11,8 +17,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.amazonaws.services.s3.AmazonS3;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -37,6 +47,15 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationPreferenceRepository notificationPreferenceRepository;
+
+	@Autowired
+	private AmazonS3 amazonS3;
+
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+
+	@Value("${aws.s3.profile-path}")
+	private String profilePath;
 
 	private static Stream<Arguments> invalidEmailSource() {
 		return Stream.of(
@@ -66,6 +85,18 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 			Arguments.of((Object)null), // null 파일
 			Arguments.of(emptyFile)
 		);
+	}
+
+	private static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
@@ -143,5 +174,28 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		Optional<String> profileUrl = service.upload(file);
 		// then
 		assertThat(profileUrl).isEmpty();
+	}
+
+	@DisplayName("업로드된 파일의 URL이 주어지고 프로필 사진을 제거하면 S3에 해당 파일이 삭제된다")
+	@Test
+	void should_deleteProfileImage_whenUploadAndDelete() {
+		// given
+		MultipartFile profileFile = createProfileFile();
+		String profileUrl = service.upload(profileFile).orElseThrow();
+		String key = extractKeyFromUrl(profileUrl);
+		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
+		// when
+		service.deleteProfileImage(profileUrl);
+		// then
+		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
+	}
+
+	private String extractKeyFromUrl(String url) {
+		Pattern pattern = Pattern.compile(profilePath + "[0-9a-f\\-]+profile\\.jpeg");
+		Matcher matcher = pattern.matcher(url);
+		if (matcher.find()) {
+			return matcher.group();
+		}
+		throw new IllegalArgumentException("Invalid URL: " + url);
 	}
 }
