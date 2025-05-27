@@ -51,6 +51,6 @@ public class SignupService {
 	}
 
 	public void deleteProfileImage(String profileUrl) {
-		amazonS3Service.deleteFile(profileUrl);
+		amazonS3Service.deleteProfileFile(profileUrl);
 	}
 }
