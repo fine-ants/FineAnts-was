@@ -49,11 +49,7 @@ public class SignUpRequest {
 	public SignUpServiceRequest toSignUpServiceRequest(MultipartFile profileImageFile) {
 		return SignUpServiceRequest.create(nickname, email, password, passwordConfirm, profileImageFile);
 	}
-
-	public boolean isMatchPassword() {
-		return password.equals(passwordConfirm);
-	}
-
+	
 	@Override
 	public String toString() {
 		return String.format("SignUpRequest(nickname=%s, email=%s, password=%s, passwordConfirm=%s)", nickname, email,
