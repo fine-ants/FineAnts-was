@@ -52,7 +52,7 @@ public class SignUpRestController {
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
 		MediaType.MULTIPART_FORM_DATA_VALUE})
 	@PermitAll
-	public ApiResponse<Void> signup_temp(
+	public ApiResponse<Void> signup(
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
