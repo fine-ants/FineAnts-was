@@ -89,7 +89,8 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 	public void deleteFile(String url) {
 		try {
 			String fileName = extractFileName(url);
-			amazonS3.deleteObject(bucketName, fileName);
+			String key = profilePath + fileName;
+			amazonS3.deleteObject(bucketName, key);
 		} catch (AmazonServiceException e) {
 			log.error(e.getMessage());
 		}
