@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.VerifyCodeRequest;
 import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
@@ -52,20 +50,6 @@ public class SignUpRestController {
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
-		MediaType.MULTIPART_FORM_DATA_VALUE})
-	@PermitAll
-	public ApiResponse<Void> signup(
-		@Valid @RequestPart(value = "signupData") SignUpRequest request,
-		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
-	) {
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-		log.info("일반 회원 가입 컨트롤러 결과 : {}", response);
-		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
-	}
-
-	@ResponseStatus(CREATED)
-	@PostMapping(value = "/auth/signup_temp", consumes = {MediaType.APPLICATION_JSON_VALUE,
 		MediaType.MULTIPART_FORM_DATA_VALUE})
 	@PermitAll
 	public ApiResponse<Void> signup_temp(
