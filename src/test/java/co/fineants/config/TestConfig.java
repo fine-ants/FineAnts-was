@@ -23,12 +23,11 @@ import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.mail.EmailService;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 @TestConfiguration
 public class TestConfig {
-	@MockBean
-	private AmazonS3Service mockedAmazonS3Service;
+	// @MockBean
+	// private AmazonS3Service mockedAmazonS3Service;
 
 	@MockBean
 	private VerifyCodeManagementService verifyCodeManagementService;

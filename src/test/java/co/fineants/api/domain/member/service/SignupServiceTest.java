@@ -2,6 +2,7 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -54,6 +57,14 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
 			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
 			Arguments.of((Object)null) // null 값
+		);
+	}
+
+	public static Stream<Arguments> invalidProfileFileSource() {
+		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
+		return Stream.of(
+			Arguments.of((Object)null), // null 파일
+			Arguments.of(emptyFile)
 		);
 	}
 
@@ -123,4 +134,14 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
 
+	@DisplayName("파일이 없는 경우에는 비어있는 Optional을 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "invalidProfileFileSource")
+	void givenEmptyFile_whenUpload_thenReturnEmptyOfOptional(MultipartFile file) {
+		// given
+		// when
+		Optional<String> profileUrl = service.upload(file);
+		// then
+		assertThat(profileUrl).isEmpty();
+	}
 }

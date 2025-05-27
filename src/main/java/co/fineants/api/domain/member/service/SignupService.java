@@ -1,11 +1,18 @@
 package co.fineants.api.domain.member.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
+import co.fineants.api.global.errors.exception.business.InvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
+import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 @Service
 public class SignupService {
@@ -13,12 +20,14 @@ public class SignupService {
 	private final SignUpValidator signUpValidator;
 	private final MemberRepository memberRepository;
 	private final MemberAssociationRegistrationService associationRegistrationService;
+	private final AmazonS3Service amazonS3Service;
 
 	public SignupService(SignUpValidator signUpValidator, MemberRepository memberRepository,
-		MemberAssociationRegistrationService associationRegistrationService) {
+		MemberAssociationRegistrationService associationRegistrationService, AmazonS3Service amazonS3Service) {
 		this.signUpValidator = signUpValidator;
 		this.memberRepository = memberRepository;
 		this.associationRegistrationService = associationRegistrationService;
+		this.amazonS3Service = amazonS3Service;
 	}
 
 	@Transactional
@@ -29,5 +38,15 @@ public class SignupService {
 		memberRepository.save(member);
 		// 회원 관련된 연관 데이터 등록
 		associationRegistrationService.registerAll(member);
+	}
+
+	public Optional<String> upload(MultipartFile file) throws MemberProfileUploadException {
+		try {
+			return Optional.of(amazonS3Service.upload(file));
+		} catch (ImageEmptyInvalidInputException e) {
+			return Optional.empty();
+		} catch (InvalidInputException e) {
+			throw new MemberProfileUploadException(file, e);
+		}
 	}
 }
