@@ -197,7 +197,7 @@ public class MemberService {
 
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
-		Map<String, String> values = Map.of("verifyCode", verifyCode);
+		Map<String, Object> values = Map.of("verifyCode", verifyCode);
 		try {
 			emailService.sendEmail(to, subject, templateName, values);
 		} catch (MailException exception) {

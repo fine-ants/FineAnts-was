@@ -62,7 +62,7 @@ public class ExchangeRateUpdateService {
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		String stackTrace = sw.toString();
-		Map<String, String> values = Map.of(
+		Map<String, Object> values = Map.of(
 			"failedAt", LocalDateTime.now().toString(),
 			"apiUrl", apiUrl,
 			"errorMessage", e.getErrorCodeMessage(),

@@ -41,7 +41,7 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 		String to = "user1@gmail.com";
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
-		Map<String, String> values = Map.of("verifyCode", verifyCode);
+		Map<String, Object> values = Map.of("verifyCode", verifyCode);
 		// when
 		service.sendEmail(to, subject, templateName, values);
 
@@ -59,7 +59,7 @@ class JavaEmailServiceTest extends AbstractContainerBaseTest {
 		String templateName = "mail-templates/exchange-rate-fail-notification_template";
 		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com";
 		String errorMessage = ExchangeRateFetchResponse.requestExceeded().toException().getErrorCodeMessage();
-		Map<String, String> values = Map.of(
+		Map<String, Object> values = Map.of(
 			"failedAt", LocalDateTime.now().toString(),
 			"apiUrl", apiUrl,
 			"errorMessage", errorMessage
