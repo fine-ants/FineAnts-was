@@ -32,7 +32,7 @@ public class MemberRole {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Role role;
 
-	public MemberRole(Member member, Role role) {
+	MemberRole(Member member, Role role) {
 		this.member = member;
 		this.role = role;
 	}

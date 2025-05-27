@@ -16,6 +16,6 @@ public class MemberRoleFactory {
 	public MemberRole userMemberRole(Member member) {
 		String roleName = "ROLE_USER";
 		Role userRole = roleService.findRole(roleName);
-		return new MemberRole(member, userRole);
+		return MemberRole.of(member, userRole);
 	}
 }
