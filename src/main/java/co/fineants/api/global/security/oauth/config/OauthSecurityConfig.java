@@ -78,7 +78,6 @@ public class OauthSecurityConfig {
 						"/login/oauth2/code/**",
 						"/api/oauth/redirect",
 						"/api/auth/signup",
-						"/api/auth/signup_temp",
 						"/api/auth/signup/duplicationcheck/nickname/**",
 						"/api/auth/signup/duplicationcheck/email/**",
 						"/api/auth/signup/verifyEmail",
