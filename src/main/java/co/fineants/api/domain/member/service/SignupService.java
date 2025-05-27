@@ -49,4 +49,8 @@ public class SignupService {
 			throw new MemberProfileUploadException(file, e);
 		}
 	}
+
+	public void deleteProfileImage(String profileUrl) {
+		amazonS3Service.deleteFile(profileUrl);
+	}
 }
