@@ -182,7 +182,7 @@ public class MemberService {
 
 	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
 		if (!request.matchPassword()) {
-			throw new PasswordAuthenticationException(request.getPassword());
+			throw new PasswordAuthenticationException();
 		}
 	}
 
@@ -316,7 +316,7 @@ public class MemberService {
 
 	public void verifyPasswordMatch(String password, String passwordConfirm) throws PasswordAuthenticationException {
 		if (!password.equals(passwordConfirm)) {
-			throw new PasswordAuthenticationException(password);
+			throw new PasswordAuthenticationException();
 		}
 	}
 }
