@@ -27,7 +27,6 @@ import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,6 @@ public class SignUpRestController {
 	private final SignupService signupService;
 	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
-	private final AmazonS3Service amazonS3Service;
 	private final MemberProfileFactory memberProfileFactory;
 	private final MemberFactory memberFactory;
 	private final NicknameValidator nicknameValidator;
