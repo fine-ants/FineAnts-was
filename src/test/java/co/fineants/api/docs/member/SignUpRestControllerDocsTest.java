@@ -31,6 +31,7 @@ import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
+import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.MemberService;
@@ -51,8 +52,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		ValidationRule nicknameDuplicationRule = new RuleConfig().nicknameDuplicationRule(memberRepository);
 		NicknameValidator nicknameValidator = new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
 		EmailValidator emailValidator = mock(EmailValidator.class);
+		PasswordValidator passwordValidator = new PasswordValidator();
 		return new SignUpRestController(signupService, memberService, passwordEncoder, memberProfileFactory,
-			memberFactory, nicknameValidator, emailValidator);
+			memberFactory, nicknameValidator, emailValidator, passwordValidator);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

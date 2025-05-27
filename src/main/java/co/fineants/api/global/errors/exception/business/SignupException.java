@@ -2,19 +2,19 @@ package co.fineants.api.global.errors.exception.business;
 
 import org.springframework.http.HttpStatus;
 
-import co.fineants.api.global.errors.errorcode.ErrorCode;
-
 public class SignupException extends BusinessException {
 	private final String value;
+	private final HttpStatus httpStatus;
 
-	public SignupException(String value, Exception cause) {
-		super(value, ErrorCode.SIGNUP_FAIL, cause);
-		this.value = value;
+	public SignupException(BusinessException cause) {
+		super(cause.getMessage(), cause.getErrorCode(), cause);
+		this.value = cause.getMessage();
+		this.httpStatus = cause.getHttpStatus();
 	}
 
 	@Override
 	public HttpStatus getHttpStatus() {
-		return HttpStatus.BAD_REQUEST;
+		return httpStatus;
 	}
 
 	@Override

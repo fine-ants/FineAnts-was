@@ -11,6 +11,7 @@ import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameDuplicationRule;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
+import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
@@ -66,5 +67,10 @@ public class RuleConfig {
 	public EmailValidator emailValidator(EmailFormatRule emailFormatRule,
 		EmailDuplicationRule emailDuplicationRule) {
 		return new EmailValidator(emailFormatRule, emailDuplicationRule);
+	}
+
+	@Bean
+	public PasswordValidator passwordValidator() {
+		return new PasswordValidator();
 	}
 }

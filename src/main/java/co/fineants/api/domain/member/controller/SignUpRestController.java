@@ -23,6 +23,7 @@ import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
+import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.api.ApiResponse;
@@ -47,6 +48,7 @@ public class SignUpRestController {
 	private final MemberFactory memberFactory;
 	private final NicknameValidator nicknameValidator;
 	private final EmailValidator emailValidator;
+	private final PasswordValidator passwordValidator;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -56,7 +58,7 @@ public class SignUpRestController {
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
-		memberService.verifyPasswordMatch(request.getPassword(), request.getPasswordConfirm());
+		passwordValidator.validateMatch(request.getPassword(), request.getPasswordConfirm());
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
@@ -68,7 +70,7 @@ public class SignUpRestController {
 			signupService.signup(member);
 		} catch (BusinessException exception) {
 			signupService.deleteProfileImageFile(profileUrl);
-			throw new SignupException(member.toString(), exception);
+			throw new SignupException(exception);
 		}
 
 		return ApiResponse.success(MemberSuccessCode.OK_SIGNUP);
