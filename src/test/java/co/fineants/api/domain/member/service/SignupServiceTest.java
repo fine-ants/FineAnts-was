@@ -79,7 +79,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	public static Stream<Arguments> invalidProfileFileSource() {
+	private static Stream<Arguments> invalidProfileFileSource() {
 		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
 		return Stream.of(
 			Arguments.of((Object)null), // null 파일
@@ -97,6 +97,17 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static Stream<Arguments> invalidProfileUrlSource() {
+		return Stream.of(
+			Arguments.of((String)null), // null URL
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("invalidUrl"), // 잘못된 형식의 URL
+			Arguments.of("https://example.com/invalid/path/profile.jpeg"), // S3 경로가 아닌 URL
+			Arguments.of("https://fineants.s3.ap-northeast-2.amazonaws.com/invalid/path/profile.jpeg")
+			// S3 경로가 맞지만 잘못된 키
+		);
 	}
 
 	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
@@ -197,5 +208,16 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 			return matcher.group();
 		}
 		throw new IllegalArgumentException("Invalid URL: " + url);
+	}
+
+	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
+	@ParameterizedTest
+	@MethodSource(value = "invalidProfileUrlSource")
+	void givenInvalidProfileUrl_whenDelete_thenNotThrowException(String profileUrl) {
+		// when & then
+		assertThatCode(() -> {
+			// 테스트 대상 코드
+			service.deleteProfileImage(profileUrl);
+		}).doesNotThrowAnyException();
 	}
 }

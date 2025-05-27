@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,12 +88,15 @@ public class DefaultAmazonS3Service implements AmazonS3Service {
 
 	@Override
 	public void deleteProfileFile(String url) {
+		if (Strings.isBlank(url)) {
+			return;
+		}
+		String fileName = extractFileName(url);
+		String key = profilePath + fileName;
 		try {
-			String fileName = extractFileName(url);
-			String key = profilePath + fileName;
 			amazonS3.deleteObject(bucketName, key);
 		} catch (AmazonServiceException e) {
-			log.error(e.getMessage());
+			log.warn("Failed to delete file from S3: " + e.getMessage(), e);
 		}
 	}
 
