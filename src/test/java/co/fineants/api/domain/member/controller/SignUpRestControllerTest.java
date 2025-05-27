@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
+import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
@@ -45,6 +46,8 @@ import co.fineants.support.controller.ControllerTestSupport;
 
 public class SignUpRestControllerTest extends ControllerTestSupport {
 
+	private SignupService signupService;
+
 	@Autowired
 	private MemberService mockedMemberService;
 
@@ -53,7 +56,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 
 	@Override
 	protected Object initController() {
-		SignupService signupService = mock(SignupService.class);
+		signupService = mock(SignupService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
@@ -151,8 +154,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new NicknameDuplicateException("일개미1234"));
+		willThrow(new NicknameDuplicateException("일개미1234"))
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -181,8 +185,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new EmailDuplicateException("dragonbead95@naver.com"));
+		willThrow(new EmailDuplicateException("dragonbead95@naver.com"))
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -211,8 +216,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new PasswordAuthenticationException("nemo1234@"));
+		willThrow(new PasswordAuthenticationException("nemo1234@"))
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
