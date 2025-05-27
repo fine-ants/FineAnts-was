@@ -70,7 +70,9 @@ public class SignUpRestController {
 			signupService.signup(member);
 		} catch (BusinessException exception) {
 			log.warn("BusinessException occurred during signup: {}", exception.getMessage(), exception);
-			signupService.deleteProfileImageFile(profileUrl);
+			if (profileUrl != null) {
+				signupService.deleteProfileImageFile(profileUrl);
+			}
 			throw new SignupException(exception);
 		}
 
