@@ -32,10 +32,10 @@ public class JavaEmailService implements EmailService {
 	}
 
 	@Override
-	public void sendEmail(String to, String subject, String templateName, Map<String, Object> values) {
+	public void sendEmail(String to, String subject, String templateName, Map<String, Object> variables) {
 		MimeMessage message;
 		try {
-			message = createMimeMessage(to, subject, templateName, values);
+			message = createMimeMessage(to, subject, templateName, variables);
 		} catch (MessagingException e) {
 			throw new IllegalArgumentException("Failed to create MimeMessageHelper", e);
 		}
