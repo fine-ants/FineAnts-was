@@ -2,6 +2,8 @@ package co.fineants.api.domain.member.controller;
 
 import static org.springframework.http.HttpStatus.*;
 
+import java.util.Map;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,7 +97,8 @@ public class SignUpRestController {
 		String email = request.getEmail();
 		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
 		// 이메일 메시지 생성
-		MimeMessage message = mimeMessageFactory.create(email, verifyCode);
+		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
+		MimeMessage message = mimeMessageFactory.create(email, variables);
 		// 검증 코드 이메일 전송
 		emailService.sendEmail(message);
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
