@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -39,6 +38,7 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -58,7 +58,6 @@ import co.fineants.api.global.errors.exception.business.NicknameDuplicateExcepti
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
-import jakarta.mail.internet.MimeMessage;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -103,6 +102,9 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private EmailService mockedEmailService;
+
+	@Autowired
+	private MimeMessageFactory mimeMessageFactory;
 
 	@BeforeEach
 	void setUp() {
@@ -351,19 +353,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
 	}
-
-	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
-	@Test
-	void sendVerifyCode() {
-		// given
-		String email = "dragonbead95@naver.com";
-		String verifyCode = "123456";
-		// when
-		memberService.sendVerifyCode(email, verifyCode);
-		// then
-		then(mockedEmailService).should(times(1)).sendEmail(ArgumentMatchers.any(MimeMessage.class));
-	}
-
+	
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
 	@Test
 	void checkVerifyCode() {

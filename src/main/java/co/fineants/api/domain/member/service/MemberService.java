@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
-import org.springframework.mail.MailException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +44,6 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -60,7 +58,6 @@ import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -183,19 +180,6 @@ public class MemberService {
 	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
 		if (!request.matchPassword()) {
 			throw new PasswordAuthenticationException();
-		}
-	}
-
-	@Transactional(readOnly = true)
-	@PermitAll
-	public void sendVerifyCode(String email, String verifyCode) {
-		// MimeMessage 생성
-		MimeMessage message = mimeMessageFactory.create(email, verifyCode);
-		// 이메일 전송
-		try {
-			emailService.sendEmail(message);
-		} catch (MailException exception) {
-			throw new MailInvalidInputException(message.toString(), exception);
 		}
 	}
 

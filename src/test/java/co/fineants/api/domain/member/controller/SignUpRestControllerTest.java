@@ -35,6 +35,7 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
@@ -46,6 +47,7 @@ import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.mail.EmailService;
 import co.fineants.support.controller.ControllerTestSupport;
 
 public class SignUpRestControllerTest extends ControllerTestSupport {
@@ -69,9 +71,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		PasswordValidator passwordValidator = new PasswordValidator();
 		VerifyCodeGenerator verifyCodeGenerator = new VerifyCodeGenerator(6, 1000000);
 		VerifyCodeManagementService verifyCodeManagementService = mock(VerifyCodeManagementService.class);
+		MimeMessageFactory mimeMessageFactory = mock(MimeMessageFactory.class);
+		EmailService emailService = mock(EmailService.class);
 		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, memberProfileFactory,
 			memberFactory, nicknameValidator, emailValidator, passwordValidator, verifyCodeGenerator,
-			verifyCodeManagementService);
+			verifyCodeManagementService, mimeMessageFactory, emailService);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
