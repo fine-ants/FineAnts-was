@@ -26,6 +26,7 @@ spring:
       - ./secret/application-oauth.yml
       - ./secret/application-prometheus.yml
       - ./member.yml
+      - ./mail.yml
   application:
     name: fineAnts
   thymeleaf:
