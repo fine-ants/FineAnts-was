@@ -28,6 +28,7 @@ import co.fineants.api.domain.member.config.RuleConfig;
 import co.fineants.api.domain.member.controller.SignUpRestController;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
@@ -39,6 +40,7 @@ import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.domain.member.service.VerifyCodeManagementService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.mail.EmailService;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
@@ -57,9 +59,11 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		PasswordValidator passwordValidator = new PasswordValidator();
 		VerifyCodeGenerator verifyCodeGenerator = new VerifyCodeGenerator(6, 1000000);
 		VerifyCodeManagementService verifyCodeManagementService = mock(VerifyCodeManagementService.class);
+		MimeMessageFactory mimeMessageFactory = mock(MimeMessageFactory.class);
+		EmailService emailService = mock(EmailService.class);
 		return new SignUpRestController(signupService, memberService, passwordEncoder, memberProfileFactory,
 			memberFactory, nicknameValidator, emailValidator, passwordValidator, verifyCodeGenerator,
-			verifyCodeManagementService);
+			verifyCodeManagementService, mimeMessageFactory, emailService);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
