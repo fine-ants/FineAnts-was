@@ -2,7 +2,6 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
@@ -93,7 +92,6 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
 	private final MimeMessageFactory mimeMessageFactory;
-	private final MailHtmlRender mailHtmlRender;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -192,20 +190,13 @@ public class MemberService {
 	@PermitAll
 	public void sendVerifyCode(String email, String verifyCode) {
 		// MimeMessage 생성
-		String subject = "Finants 회원가입 인증 코드";
-		String html = renderMailHtml(verifyCode);
-		MimeMessage message = mimeMessageFactory.create(email, subject, html);
+		MimeMessage message = mimeMessageFactory.create(email, verifyCode);
 		// 이메일 전송
 		try {
 			emailService.sendEmail(message);
 		} catch (MailException exception) {
 			throw new MailInvalidInputException(message.toString(), exception);
 		}
-	}
-
-	private String renderMailHtml(String verifyCode) {
-		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
-		return mailHtmlRender.render(variables);
 	}
 
 	@Transactional

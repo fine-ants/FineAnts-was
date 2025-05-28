@@ -7,7 +7,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.factory.MemberRoleFactory;
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
+import co.fineants.api.domain.member.domain.factory.VerifyCodeMimeMessageFactory;
+import co.fineants.api.domain.member.service.MailHtmlRender;
 import co.fineants.api.domain.member.service.RoleService;
 
 @Configuration
@@ -28,7 +29,8 @@ public class MemberFactoryConfig {
 	}
 
 	@Bean
-	public MimeMessageFactory mimeMessageFactory(JavaMailSender mailSender) {
-		return new MimeMessageFactory(mailSender);
+	public VerifyCodeMimeMessageFactory verifyCodeMimeMessageFactory(MailHtmlRender render, JavaMailSender sender) {
+		String subject = "Finants 회원가입 인증 코드";
+		return new VerifyCodeMimeMessageFactory(render, sender, subject);
 	}
 }
