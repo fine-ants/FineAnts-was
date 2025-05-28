@@ -17,7 +17,6 @@ import co.fineants.api.domain.fcm.service.FirebaseMessagingService;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.domain.member.service.VerifyCodeManagementService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -28,9 +27,6 @@ import co.fineants.api.infra.mail.EmailService;
 public class TestConfig {
 	@MockBean
 	private VerifyCodeManagementService verifyCodeManagementService;
-
-	@MockBean
-	private VerifyCodeGenerator verifyCodeGenerator;
 
 	@MockBean
 	private EmailService emailService;
