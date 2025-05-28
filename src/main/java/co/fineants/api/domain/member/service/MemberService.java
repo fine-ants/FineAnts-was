@@ -2,6 +2,7 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
@@ -93,6 +96,7 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
 	private final MimeMessageFactory mimeMessageFactory;
+	private final SpringTemplateEngine springTemplateEngine;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -190,11 +194,13 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void sendVerifyCode(String email, String verifyCode) {
-		// 이메일 전송
+		// MimeMessage 생성
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
 		Map<String, Object> values = Map.of("verifyCode", verifyCode);
-		MimeMessage message = mimeMessageFactory.create(email, subject, templateName, values);
+		String html = springTemplateEngine.process(templateName, new Context(Locale.KOREA, values));
+		MimeMessage message = mimeMessageFactory.create(email, subject, html);
+		// 이메일 전송
 		try {
 			emailService.sendEmail(message);
 		} catch (MailException exception) {
