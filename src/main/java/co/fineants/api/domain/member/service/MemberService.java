@@ -2,7 +2,6 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
@@ -197,8 +195,9 @@ public class MemberService {
 		// MimeMessage 생성
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
-		Map<String, Object> values = Map.of("verifyCode", verifyCode);
-		String html = springTemplateEngine.process(templateName, new Context(Locale.KOREA, values));
+		MailHtmlRender mailHtmlRender = new VerifyCodeMailHtmlRender(subject, templateName, springTemplateEngine);
+		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
+		String html = mailHtmlRender.render(variables);
 		MimeMessage message = mimeMessageFactory.create(email, subject, html);
 		// 이메일 전송
 		try {
