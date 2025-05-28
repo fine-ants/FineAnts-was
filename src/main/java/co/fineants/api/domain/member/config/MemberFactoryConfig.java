@@ -3,7 +3,6 @@ package co.fineants.api.domain.member.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
@@ -29,7 +28,7 @@ public class MemberFactoryConfig {
 	}
 
 	@Bean
-	public MimeMessageFactory mimeMessageFactory(JavaMailSender mailSender, SpringTemplateEngine engine) {
-		return new MimeMessageFactory(mailSender, engine);
+	public MimeMessageFactory mimeMessageFactory(JavaMailSender mailSender) {
+		return new MimeMessageFactory(mailSender);
 	}
 }

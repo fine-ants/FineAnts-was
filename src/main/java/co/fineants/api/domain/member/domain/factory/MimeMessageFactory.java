@@ -1,13 +1,9 @@
 package co.fineants.api.domain.member.domain.factory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Map;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import jakarta.mail.MessagingException;
@@ -16,25 +12,12 @@ import jakarta.mail.internet.MimeMessage;
 public class MimeMessageFactory {
 
 	private final JavaMailSender mailSender;
-	private final SpringTemplateEngine springTemplateEngine;
 
-	public MimeMessageFactory(JavaMailSender mailSender, SpringTemplateEngine springTemplateEngine) {
+	public MimeMessageFactory(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
-		this.springTemplateEngine = springTemplateEngine;
 	}
 
 	public MimeMessage create(String to, String subject, String html) {
-		return mimeMessageBuilder(to, subject)
-			.html(html)
-			.build();
-	}
-
-	public MimeMessage create(String to, String subject, String templateName,
-		Map<String, Object> variables) {
-		// 템플릿에 전달할 데이터 설정
-		Context context = new Context(Locale.KOREA, variables);
-		// 메일 내용 설정: 템플릿 프로세스
-		String html = springTemplateEngine.process(templateName, context);
 		return mimeMessageBuilder(to, subject)
 			.html(html)
 			.build();
