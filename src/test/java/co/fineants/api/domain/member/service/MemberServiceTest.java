@@ -35,7 +35,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
@@ -58,7 +57,7 @@ import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeEx
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
-import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.mail.EmailService;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -100,6 +99,9 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
+
+	@Autowired
+	private EmailService mockedEmailService;
 
 	@BeforeEach
 	void setUp() {
@@ -353,15 +355,15 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void sendVerifyCode() {
 		// given
-		VerifyEmailRequest request = ObjectMapperUtil.deserialize(
-			ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com")),
-			VerifyEmailRequest.class);
-
+		String email = "dragonbead95@naver.com";
+		String subject = "Finants 회원가입 인증 코드";
+		String templateName = "mail-templates/verify-email_template";
+		String verifyCode = "123456";
+		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
 		// when
-		memberService.sendVerifyCode(request);
-
+		memberService.sendVerifyCode(email, verifyCode);
 		// then
-		verify(mockedVerifyCodeManagementService, times(1)).saveVerifyCode("dragonbead95@naver.com", "123456");
+		then(mockedEmailService).should(times(1)).sendEmail(email, subject, templateName, variables);
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
