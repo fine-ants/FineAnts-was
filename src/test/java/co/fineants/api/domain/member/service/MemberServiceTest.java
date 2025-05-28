@@ -38,7 +38,6 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -57,7 +56,6 @@ import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeEx
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
-import co.fineants.api.infra.mail.EmailService;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -99,12 +97,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator mockedVerifyCodeGenerator;
-
-	@Autowired
-	private EmailService mockedEmailService;
-
-	@Autowired
-	private MimeMessageFactory mimeMessageFactory;
 
 	@BeforeEach
 	void setUp() {
@@ -353,7 +345,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
 	}
-	
+
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
 	@Test
 	void checkVerifyCode() {

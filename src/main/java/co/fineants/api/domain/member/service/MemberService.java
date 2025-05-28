@@ -27,7 +27,6 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.domain.entity.Role;
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
@@ -55,7 +54,6 @@ import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputEx
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
-import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,7 +68,6 @@ public class MemberService {
 
 	public static final String LOCAL_PROVIDER = "local";
 	private final MemberRepository memberRepository;
-	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
@@ -88,7 +85,6 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final MimeMessageFactory mimeMessageFactory;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
