@@ -195,7 +195,7 @@ public class MemberService {
 		// MimeMessage 생성
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
-		MailHtmlRender mailHtmlRender = new VerifyCodeMailHtmlRender(subject, templateName, springTemplateEngine);
+		MailHtmlRender mailHtmlRender = new VerifyCodeMailHtmlRender(templateName, springTemplateEngine);
 		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
 		String html = mailHtmlRender.render(variables);
 		MimeMessage message = mimeMessageFactory.create(email, subject, html);

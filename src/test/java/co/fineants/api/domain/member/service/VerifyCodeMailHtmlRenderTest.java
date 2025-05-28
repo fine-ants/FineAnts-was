@@ -20,9 +20,8 @@ class VerifyCodeMailHtmlRenderTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
-		mailHtmlRender = new VerifyCodeMailHtmlRender(subject, templateName, engine);
+		mailHtmlRender = new VerifyCodeMailHtmlRender(templateName, engine);
 	}
 
 	@DisplayName("인증 코드가 주어지고 메일 내용에 해당하는 HTML을 생성한다.")

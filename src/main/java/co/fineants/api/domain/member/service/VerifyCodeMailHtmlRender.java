@@ -8,12 +8,10 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 public class VerifyCodeMailHtmlRender implements MailHtmlRender {
 
-	private final String subject;
 	private final String templateName;
 	private final SpringTemplateEngine engine;
 
-	public VerifyCodeMailHtmlRender(String subject, String templateName, SpringTemplateEngine engine) {
-		this.subject = subject;
+	public VerifyCodeMailHtmlRender(String templateName, SpringTemplateEngine engine) {
 		this.templateName = templateName;
 		this.engine = engine;
 	}
