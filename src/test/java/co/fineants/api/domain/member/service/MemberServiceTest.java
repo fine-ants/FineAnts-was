@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -58,6 +58,7 @@ import co.fineants.api.global.errors.exception.business.NicknameDuplicateExcepti
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
+import jakarta.mail.internet.MimeMessage;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -356,14 +357,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	void sendVerifyCode() {
 		// given
 		String email = "dragonbead95@naver.com";
-		String subject = "Finants 회원가입 인증 코드";
-		String templateName = "mail-templates/verify-email_template";
 		String verifyCode = "123456";
-		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
 		// when
 		memberService.sendVerifyCode(email, verifyCode);
 		// then
-		then(mockedEmailService).should(times(1)).sendEmail(email, subject, templateName, variables);
+		then(mockedEmailService).should(times(1)).sendEmail(ArgumentMatchers.any(MimeMessage.class));
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
