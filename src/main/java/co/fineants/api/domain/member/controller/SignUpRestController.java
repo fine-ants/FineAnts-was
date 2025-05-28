@@ -2,8 +2,6 @@ package co.fineants.api.domain.member.controller;
 
 import static org.springframework.http.HttpStatus.*;
 
-import java.util.Map;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,21 +21,17 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.domain.factory.VerifyCodeMimeMessageFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
-import co.fineants.api.domain.member.service.VerifyCodeGenerator;
-import co.fineants.api.domain.member.service.VerifyCodeManagementService;
+import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.api.infra.mail.EmailService;
 import jakarta.annotation.security.PermitAll;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,10 +50,7 @@ public class SignUpRestController {
 	private final NicknameValidator nicknameValidator;
 	private final EmailValidator emailValidator;
 	private final PasswordValidator passwordValidator;
-	private final VerifyCodeGenerator verifyCodeGenerator;
-	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final VerifyCodeMimeMessageFactory mimeMessageFactory;
-	private final EmailService emailService;
+	private final SignupVerificationService verificationService;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -91,16 +82,7 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
 	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
-		// 검증 코드 생성
-		String verifyCode = verifyCodeGenerator.generate();
-		// 검증 코드 임시 저장
-		String email = request.getEmail();
-		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
-		// 이메일 메시지 생성
-		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
-		MimeMessage message = mimeMessageFactory.create(email, variables);
-		// 검증 코드 이메일 전송
-		emailService.sendEmail(message);
+		verificationService.sendSignupVerification(request.getEmail());
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
