@@ -6,7 +6,7 @@ import jakarta.mail.internet.MimeMessage;
 
 public interface EmailService {
 
-	void sendEmail(String to, String subject, String templateName, Map<String, Object> values);
+	void sendEmail(String to, String subject, String templateName, Map<String, Object> variables);
 
 	void sendEmail(MimeMessage message);
 }
