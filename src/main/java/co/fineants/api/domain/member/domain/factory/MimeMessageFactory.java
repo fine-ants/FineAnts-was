@@ -23,6 +23,12 @@ public class MimeMessageFactory {
 		this.springTemplateEngine = springTemplateEngine;
 	}
 
+	public MimeMessage create(String to, String subject, String html) {
+		return mimeMessageBuilder(to, subject)
+			.html(html)
+			.build();
+	}
+
 	public MimeMessage create(String to, String subject, String templateName,
 		Map<String, Object> variables) {
 		// 템플릿에 전달할 데이터 설정
