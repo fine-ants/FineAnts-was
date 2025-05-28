@@ -9,9 +9,9 @@ import jakarta.mail.internet.MimeMessage;
 
 public class VerifyCodeMimeMessageFactory implements MimeMessageFactory {
 
-	private MailHtmlRender htmlRender;
-	private JavaMailSender mailSender;
-	private String subject;
+	private final MailHtmlRender htmlRender;
+	private final JavaMailSender mailSender;
+	private final String subject;
 
 	public VerifyCodeMimeMessageFactory(MailHtmlRender htmlRender, JavaMailSender mailSender, String subject) {
 		this.htmlRender = htmlRender;

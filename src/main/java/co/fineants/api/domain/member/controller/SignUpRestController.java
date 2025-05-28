@@ -94,10 +94,8 @@ public class SignUpRestController {
 		// 검증 코드 임시 저장
 		String email = request.getEmail();
 		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
-
 		// 이메일 메시지 생성
 		MimeMessage message = mimeMessageFactory.create(email, verifyCode);
-
 		// 검증 코드 이메일 전송
 		emailService.sendEmail(message);
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
