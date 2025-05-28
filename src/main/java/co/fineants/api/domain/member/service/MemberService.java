@@ -1,12 +1,17 @@
 package co.fineants.api.domain.member.service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +20,8 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
@@ -60,6 +67,8 @@ import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
 import jakarta.annotation.security.PermitAll;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +90,6 @@ public class MemberService {
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
-	private final VerifyCodeGenerator verifyCodeGenerator;
 	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final NotificationRepository notificationRepository;
 	private final FcmRepository fcmRepository;
@@ -91,6 +99,8 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
+	private final SpringTemplateEngine springTemplateEngine;
+	private final JavaMailSender mailSender;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -192,12 +202,55 @@ public class MemberService {
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
 		Map<String, Object> values = Map.of("verifyCode", verifyCode);
+		MimeMessage message = createMimeMessage(email, subject, templateName, values);
 		try {
-			emailService.sendEmail(email, subject, templateName, values);
+			emailService.sendEmail(message);
 		} catch (MailException exception) {
-			String value = "to=%s, subject=%s, templateName=%s, values=%s".formatted(email, subject, templateName,
-				values);
-			throw new MailInvalidInputException(value, exception);
+			throw new MailInvalidInputException(message.toString(), exception);
+		}
+	}
+
+	@NotNull
+	private MimeMessage createMimeMessage(String to, String subject, String templateName,
+		Map<String, Object> variables) {
+		// 템플릿에 전달할 데이터 설정
+		Context context = new Context(Locale.KOREA, variables);
+		return mimeMessageBuilder(to, subject)
+			.html(springTemplateEngine.process(templateName, context)) // 메일 내용 설정: 템플릿 프로세스
+			.build();
+	}
+
+	private MimeMessageBuilder mimeMessageBuilder(String to, String subject) {
+		return new MimeMessageBuilder(to, subject);
+	}
+
+	private class MimeMessageBuilder {
+		private final String to;
+		private final String subject;
+		private String html;
+
+		public MimeMessageBuilder(String to, String subject) {
+			this.to = to;
+			this.subject = subject;
+		}
+
+		public MimeMessageBuilder html(String html) {
+			this.html = html;
+			return this;
+		}
+
+		public MimeMessage build() {
+			MimeMessage message = mailSender.createMimeMessage();
+
+			try {
+				MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+				helper.setTo(to);
+				helper.setSubject(subject);
+				helper.setText(html, true);
+			} catch (MessagingException e) {
+				throw new MailInvalidInputException("to=%s, subject=%s, html=%s".formatted(to, subject, html), e);
+			}
+			return message;
 		}
 	}
 
