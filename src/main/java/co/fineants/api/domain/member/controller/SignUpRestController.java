@@ -23,7 +23,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
+import co.fineants.api.domain.member.domain.factory.VerifyCodeMimeMessageFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
@@ -58,7 +58,7 @@ public class SignUpRestController {
 	private final PasswordValidator passwordValidator;
 	private final VerifyCodeGenerator verifyCodeGenerator;
 	private final VerifyCodeManagementService verifyCodeManagementService;
-	private final MimeMessageFactory mimeMessageFactory;
+	private final VerifyCodeMimeMessageFactory mimeMessageFactory;
 	private final EmailService emailService;
 
 	@ResponseStatus(CREATED)
