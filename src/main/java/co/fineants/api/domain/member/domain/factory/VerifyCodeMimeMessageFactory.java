@@ -20,8 +20,7 @@ public class VerifyCodeMimeMessageFactory implements MimeMessageFactory {
 	}
 
 	@Override
-	public MimeMessage create(String to, String verifyCode) {
-		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
+	public MimeMessage create(String to, Map<String, Object> variables) {
 		String html = htmlRender.render(variables);
 		MimeMessage message = mailSender.createMimeMessage();
 		return MimeMessageBuilder.builder(message, to, subject)
