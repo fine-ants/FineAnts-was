@@ -94,15 +94,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeManagementService mockedVerifyCodeManagementService;
-
-	@Autowired
-	private VerifyCodeGenerator mockedVerifyCodeGenerator;
-
+	
 	@BeforeEach
 	void setUp() {
 		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
-		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
 	}
 
 	public static Stream<Arguments> validChangeProfileSource() {
