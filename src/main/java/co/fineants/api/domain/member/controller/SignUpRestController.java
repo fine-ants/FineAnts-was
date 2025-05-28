@@ -26,6 +26,8 @@ import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
+import co.fineants.api.domain.member.service.VerifyCodeManagementService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
@@ -49,6 +51,8 @@ public class SignUpRestController {
 	private final NicknameValidator nicknameValidator;
 	private final EmailValidator emailValidator;
 	private final PasswordValidator passwordValidator;
+	private final VerifyCodeGenerator verifyCodeGenerator;
+	private final VerifyCodeManagementService verifyCodeManagementService;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -80,7 +84,14 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
 	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
-		memberService.sendVerifyCode(request);
+		// 검증 코드 생성
+		String verifyCode = verifyCodeGenerator.generate();
+		// 검증 코드 임시 저장
+		String email = request.getEmail();
+		verifyCodeManagementService.saveVerifyCode(email, verifyCode);
+
+		// 검증 코드 이메일 전송
+		memberService.sendVerifyCode(email, verifyCode);
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
