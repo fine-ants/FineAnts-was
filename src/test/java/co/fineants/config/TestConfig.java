@@ -26,9 +26,6 @@ import co.fineants.api.infra.mail.EmailService;
 
 @TestConfiguration
 public class TestConfig {
-	// @MockBean
-	// private AmazonS3Service mockedAmazonS3Service;
-
 	@MockBean
 	private VerifyCodeManagementService verifyCodeManagementService;
 
