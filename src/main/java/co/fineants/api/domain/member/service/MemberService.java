@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
@@ -94,7 +93,7 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final VerifyCodeManagementService verifyCodeManagementService;
 	private final MimeMessageFactory mimeMessageFactory;
-	private final SpringTemplateEngine springTemplateEngine;
+	private final MailHtmlRender mailHtmlRender;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -194,10 +193,7 @@ public class MemberService {
 	public void sendVerifyCode(String email, String verifyCode) {
 		// MimeMessage 생성
 		String subject = "Finants 회원가입 인증 코드";
-		String templateName = "mail-templates/verify-email_template";
-		MailHtmlRender mailHtmlRender = new VerifyCodeMailHtmlRender(templateName, springTemplateEngine);
-		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
-		String html = mailHtmlRender.render(variables);
+		String html = renderMailHtml(verifyCode);
 		MimeMessage message = mimeMessageFactory.create(email, subject, html);
 		// 이메일 전송
 		try {
@@ -205,6 +201,11 @@ public class MemberService {
 		} catch (MailException exception) {
 			throw new MailInvalidInputException(message.toString(), exception);
 		}
+	}
+
+	private String renderMailHtml(String verifyCode) {
+		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
+		return mailHtmlRender.render(variables);
 	}
 
 	@Transactional
