@@ -36,6 +36,8 @@ import co.fineants.api.domain.member.domain.rule.ValidationRule;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
+import co.fineants.api.domain.member.service.VerifyCodeManagementService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
@@ -53,8 +55,11 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		NicknameValidator nicknameValidator = new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
 		EmailValidator emailValidator = mock(EmailValidator.class);
 		PasswordValidator passwordValidator = new PasswordValidator();
+		VerifyCodeGenerator verifyCodeGenerator = new VerifyCodeGenerator(6, 1000000);
+		VerifyCodeManagementService verifyCodeManagementService = mock(VerifyCodeManagementService.class);
 		return new SignUpRestController(signupService, memberService, passwordEncoder, memberProfileFactory,
-			memberFactory, nicknameValidator, emailValidator, passwordValidator);
+			memberFactory, nicknameValidator, emailValidator, passwordValidator, verifyCodeGenerator,
+			verifyCodeManagementService);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

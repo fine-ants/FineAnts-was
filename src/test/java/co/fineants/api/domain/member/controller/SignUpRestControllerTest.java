@@ -40,6 +40,8 @@ import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
+import co.fineants.api.domain.member.service.VerifyCodeManagementService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
@@ -65,8 +67,11 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		nicknameValidator = Mockito.mock(NicknameValidator.class);
 		emailValidator = Mockito.mock(EmailValidator.class);
 		PasswordValidator passwordValidator = new PasswordValidator();
+		VerifyCodeGenerator verifyCodeGenerator = new VerifyCodeGenerator(6, 1000000);
+		VerifyCodeManagementService verifyCodeManagementService = mock(VerifyCodeManagementService.class);
 		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, memberProfileFactory,
-			memberFactory, nicknameValidator, emailValidator, passwordValidator);
+			memberFactory, nicknameValidator, emailValidator, passwordValidator, verifyCodeGenerator,
+			verifyCodeManagementService);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
