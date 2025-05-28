@@ -23,7 +23,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
@@ -188,20 +187,16 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	@PermitAll
-	public void sendVerifyCode(VerifyEmailRequest request) {
-		String to = request.getEmail();
-		String verifyCode = verifyCodeGenerator.generate();
-
-		// Redis에 생성한 검증 코드 임시 저장
-		verifyCodeManagementService.saveVerifyCode(to, verifyCode);
-
+	public void sendVerifyCode(String email, String verifyCode) {
+		// 이메일 전송
 		String subject = "Finants 회원가입 인증 코드";
 		String templateName = "mail-templates/verify-email_template";
 		Map<String, Object> values = Map.of("verifyCode", verifyCode);
 		try {
-			emailService.sendEmail(to, subject, templateName, values);
+			emailService.sendEmail(email, subject, templateName, values);
 		} catch (MailException exception) {
-			String value = "to=%s, subject=%s, templateName=%s, values=%s".formatted(to, subject, templateName, values);
+			String value = "to=%s, subject=%s, templateName=%s, values=%s".formatted(email, subject, templateName,
+				values);
 			throw new MailInvalidInputException(value, exception);
 		}
 	}
