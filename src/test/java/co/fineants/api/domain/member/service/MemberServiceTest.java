@@ -93,8 +93,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@Autowired
-	private VerifyCodeManagementService mockedVerifyCodeManagementService;
-	
+	private VerifyCodeRepository mockedVerifyCodeManagementService;
+
 	@BeforeEach
 	void setUp() {
 		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))

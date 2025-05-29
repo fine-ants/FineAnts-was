@@ -84,7 +84,7 @@ public class MemberService {
 	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
-	private final VerifyCodeManagementService verifyCodeManagementService;
+	private final VerifyCodeRepository verifyCodeManagementService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication

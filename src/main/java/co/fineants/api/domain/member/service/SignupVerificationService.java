@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class SignupVerificationService {
 
 	private final VerifyCodeGenerator generator;
-	private final VerifyCodeManagementService codeService;
+	private final VerifyCodeRepository codeService;
 	private final MimeMessageFactory verifyCodeMimeMessageFactory;
 	private final EmailService emailService;
 
