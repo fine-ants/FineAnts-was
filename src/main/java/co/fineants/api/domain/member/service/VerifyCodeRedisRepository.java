@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RedisVerifyCodeManagementService implements VerifyCodeManagementService {
+public class VerifyCodeRedisRepository implements VerifyCodeRepository {
 	private final RedisTemplate<String, String> redisTemplate;
 
 	@Override
