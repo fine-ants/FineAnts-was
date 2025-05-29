@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class VerifyCodeRedisRepository implements VerifyCodeRepository {
+	private static final Duration TIMEOUT = Duration.ofMinutes(5);
 	private final RedisTemplate<String, String> redisTemplate;
 
 	@Override
@@ -20,7 +21,6 @@ public class VerifyCodeRedisRepository implements VerifyCodeRepository {
 
 	@Override
 	public void save(String email, String verifyCode) {
-		Duration timeout = Duration.ofMinutes(5);
-		redisTemplate.opsForValue().set(email, verifyCode, timeout);
+		redisTemplate.opsForValue().set(email, verifyCode, TIMEOUT);
 	}
 }
