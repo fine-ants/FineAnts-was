@@ -21,11 +21,9 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.domain.rule.EmailValidator;
-import co.fineants.api.domain.member.domain.rule.NicknameValidator;
-import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
@@ -47,10 +45,8 @@ public class SignUpRestController {
 	private final PasswordEncoder passwordEncoder;
 	private final MemberProfileFactory memberProfileFactory;
 	private final MemberFactory memberFactory;
-	private final NicknameValidator nicknameValidator;
-	private final EmailValidator emailValidator;
-	private final PasswordValidator passwordValidator;
 	private final SignupVerificationService verificationService;
+	private final SignupValidatorService signupValidatorService;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -60,9 +56,8 @@ public class SignUpRestController {
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
-		passwordValidator.validateMatch(request.getPassword(), request.getPasswordConfirm());
+		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
-
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
@@ -96,14 +91,14 @@ public class SignUpRestController {
 	@GetMapping("/auth/signup/duplicationcheck/nickname/{nickname}")
 	@PermitAll
 	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) {
-		nicknameValidator.validate(nickname);
+		signupValidatorService.validateNickname(nickname);
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
 	@GetMapping("/auth/signup/duplicationcheck/email/{email}")
 	@PermitAll
 	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) {
-		emailValidator.validate(email);
+		signupValidatorService.validateEmail(email);
 		return ApiResponse.success(MemberSuccessCode.OK_EMAIL_CHECK);
 	}
 }
