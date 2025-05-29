@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.service;
 import java.util.Optional;
 
 public interface VerifyCodeRepository {
-	Optional<String> getVerificationCode(String email);
+	Optional<String> get(String email);
 
-	void saveVerifyCode(String email, String verifyCode);
+	void save(String email, String verifyCode);
 }
