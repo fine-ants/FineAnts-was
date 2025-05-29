@@ -50,12 +50,10 @@ import co.fineants.api.global.errors.exception.business.NotificationPreferenceNo
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
-import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -238,15 +236,6 @@ public class MemberService {
 	private Member findMember(Long id) {
 		return memberRepository.findById(id)
 			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
-	}
-
-	@Transactional(readOnly = true)
-	@PermitAll
-	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = verifyCodeRedisRepository.get(email);
-		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new VerifyCodeInvalidInputException(code);
-		}
 	}
 
 	@Transactional
