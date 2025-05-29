@@ -21,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,12 +28,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
@@ -48,9 +44,6 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 
 	private SignupService signupService;
 
-	@Autowired
-	private MemberService mockedMemberService;
-
 	private SignupValidatorService signupValidatorService;
 
 	@Override
@@ -61,7 +54,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		MemberFactory memberFactory = new MemberFactory();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, memberProfileFactory,
+		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory,
 			memberFactory, signupVerificationService, signupValidatorService);
 	}
 
@@ -69,9 +62,6 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
@@ -98,9 +88,6 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenSkipProfileImageFile_then200OK() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
