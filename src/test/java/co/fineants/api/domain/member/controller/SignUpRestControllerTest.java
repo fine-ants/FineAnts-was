@@ -21,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -35,11 +34,9 @@ import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.domain.rule.EmailValidator;
-import co.fineants.api.domain.member.domain.rule.NicknameValidator;
-import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -54,8 +51,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Autowired
 	private MemberService mockedMemberService;
 
-	private NicknameValidator nicknameValidator;
-	private EmailValidator emailValidator;
+	private SignupValidatorService signupValidatorService;
 
 	@Override
 	protected Object initController() {
@@ -63,12 +59,10 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
-		nicknameValidator = Mockito.mock(NicknameValidator.class);
-		emailValidator = Mockito.mock(EmailValidator.class);
-		PasswordValidator passwordValidator = new PasswordValidator();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
+		signupValidatorService = mock(SignupValidatorService.class);
 		return new SignUpRestController(signupService, mockedMemberService, passwordEncoder, memberProfileFactory,
-			memberFactory, nicknameValidator, emailValidator, passwordValidator, signupVerificationService);
+			memberFactory, signupVerificationService, signupValidatorService);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
@@ -281,8 +275,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String nickname = "일개미1234";
 		doThrow(new NicknameDuplicateException(nickname))
-			.when(nicknameValidator)
-			.validate(nickname);
+			.when(signupValidatorService)
+			.validateNickname(nickname);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
@@ -313,8 +307,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String email = "dragonbead95@naver.com";
 		doThrow(new EmailDuplicateException(email))
-			.when(emailValidator)
-			.validate(email);
+			.when(signupValidatorService)
+			.validateEmail(email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
