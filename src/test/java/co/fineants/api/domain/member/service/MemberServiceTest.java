@@ -2,19 +2,15 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.util.Strings;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +51,6 @@ import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalid
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
-import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -91,16 +86,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
-
-	@Autowired
-	private VerifyCodeRepository mockedVerifyCodeRedisRepository;
-
-	@BeforeEach
-	void setUp() {
-		given(mockedVerifyCodeRedisRepository.get("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
-	}
-
+	
 	public static Stream<Arguments> validChangeProfileSource() {
 		return Stream.of(
 			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
@@ -340,32 +326,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
-	}
-
-	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
-	@Test
-	void checkVerifyCode() {
-		// given
-		String email = "dragonbead95@naver.com";
-		String code = "123456";
-		// when & then
-		Assertions.assertDoesNotThrow(() -> memberService.checkVerifyCode(email, code));
-	}
-
-	@DisplayName("사용자는 매치되지 않은 검증 코드를 전달하며 검사를 요청했을때 예외가 발생한다")
-	@Test
-	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
-		// given
-		String email = "dragonbead95@naver.com";
-		String code = "234567";
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkVerifyCode(email, code));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(VerifyCodeInvalidInputException.class)
-			.hasMessage("234567");
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")

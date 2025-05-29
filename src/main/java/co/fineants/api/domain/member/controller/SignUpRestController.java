@@ -84,7 +84,7 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyCode")
 	@PermitAll
 	public ApiResponse<Void> checkVerifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-		memberService.checkVerifyCode(request.email(), request.code());
+		verificationService.verifyCode(request.email(), request.code());
 		return ApiResponse.success(MemberSuccessCode.OK_VERIF_CODE);
 	}
 
