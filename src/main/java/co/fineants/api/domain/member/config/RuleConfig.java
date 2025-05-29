@@ -14,17 +14,20 @@ import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
 import co.fineants.api.domain.member.domain.rule.SignUpValidator;
 import co.fineants.api.domain.member.domain.rule.ValidationRule;
+import co.fineants.api.domain.member.properties.EmailProperties;
+import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class RuleConfig {
 
 	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
-	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 
 	@Bean
-	public EmailFormatRule emailFormatRule() {
-		return new EmailFormatRule(EMAIL_PATTERN);
+	public EmailFormatRule emailFormatRule(EmailProperties emailProperties) {
+		return new EmailFormatRule(emailProperties.getEmailPattern());
 	}
 
 	@Bean
@@ -33,8 +36,8 @@ public class RuleConfig {
 	}
 
 	@Bean
-	public NicknameFormatRule nicknameFormatRule() {
-		return new NicknameFormatRule(NICKNAME_PATTERN);
+	public NicknameFormatRule nicknameFormatRule(NicknameProperties nicknameProperties) {
+		return new NicknameFormatRule(nicknameProperties.getNicknamePattern());
 	}
 
 	@Bean
