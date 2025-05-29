@@ -26,7 +26,7 @@ import co.fineants.api.infra.mail.EmailService;
 @TestConfiguration
 public class TestConfig {
 	@MockBean
-	private VerifyCodeRepository verifyCodeManagementService;
+	private VerifyCodeRepository verifyCodeRedisRepository;
 
 	@MockBean
 	private EmailService emailService;

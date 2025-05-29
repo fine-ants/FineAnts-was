@@ -84,7 +84,7 @@ public class MemberService {
 	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
-	private final VerifyCodeRepository verifyCodeManagementService;
+	private final VerifyCodeRepository verifyCodeRedisRepository;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -243,7 +243,7 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
+		Optional<String> verifyCode = verifyCodeRedisRepository.getVerificationCode(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
 			throw new VerifyCodeInvalidInputException(code);
 		}

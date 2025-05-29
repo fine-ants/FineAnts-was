@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class SignupVerificationService {
 
 	private final VerifyCodeGenerator generator;
-	private final VerifyCodeRepository codeService;
+	private final VerifyCodeRepository verifyCodeRedisRepository;
 	private final MimeMessageFactory verifyCodeMimeMessageFactory;
 	private final EmailService emailService;
 
@@ -22,7 +22,7 @@ public class SignupVerificationService {
 		// 검증 코드 생성
 		String verifyCode = generator.generate();
 		// 검증 코드 임시 저장
-		codeService.saveVerifyCode(email, verifyCode);
+		verifyCodeRedisRepository.saveVerifyCode(email, verifyCode);
 		// 이메일 메시지 생성
 		Map<String, Object> variables = Map.of("verifyCode", verifyCode);
 		MimeMessage message = verifyCodeMimeMessageFactory.create(email, variables);

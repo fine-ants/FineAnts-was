@@ -93,11 +93,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@Autowired
-	private VerifyCodeRepository mockedVerifyCodeManagementService;
+	private VerifyCodeRepository mockedVerifyCodeRedisRepository;
 
 	@BeforeEach
 	void setUp() {
-		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
+		given(mockedVerifyCodeRedisRepository.getVerificationCode("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 	}
 
