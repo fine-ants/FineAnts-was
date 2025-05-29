@@ -243,7 +243,7 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	@PermitAll
 	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = verifyCodeRedisRepository.getVerificationCode(email);
+		Optional<String> verifyCode = verifyCodeRedisRepository.get(email);
 		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
 			throw new VerifyCodeInvalidInputException(code);
 		}

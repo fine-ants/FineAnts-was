@@ -97,7 +97,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		given(mockedVerifyCodeRedisRepository.getVerificationCode("dragonbead95@naver.com"))
+		given(mockedVerifyCodeRedisRepository.get("dragonbead95@naver.com"))
 			.willReturn(Optional.of("123456"));
 	}
 
