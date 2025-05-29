@@ -24,16 +24,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
-import co.fineants.api.domain.member.config.RuleConfig;
 import co.fineants.api.domain.member.controller.SignUpRestController;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.rule.EmailValidator;
-import co.fineants.api.domain.member.domain.rule.NicknameFormatRule;
 import co.fineants.api.domain.member.domain.rule.NicknameValidator;
 import co.fineants.api.domain.member.domain.rule.PasswordValidator;
-import co.fineants.api.domain.member.domain.rule.ValidationRule;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
@@ -48,12 +44,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		MemberFactory memberFactory = new MemberFactory();
-		ValidationRule nicknameFormatRule = new NicknameFormatRule(RuleConfig.NICKNAME_PATTERN);
-		MemberRepository memberRepository = mock(MemberRepository.class);
-		ValidationRule nicknameDuplicationRule = new RuleConfig().nicknameDuplicationRule(memberRepository);
-		NicknameValidator nicknameValidator = new NicknameValidator(nicknameFormatRule, nicknameDuplicationRule);
+		NicknameValidator nicknameValidator = mock(NicknameValidator.class);
 		EmailValidator emailValidator = mock(EmailValidator.class);
-		PasswordValidator passwordValidator = new PasswordValidator();
+		PasswordValidator passwordValidator = mock(PasswordValidator.class);
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		return new SignUpRestController(signupService, memberService, passwordEncoder, memberProfileFactory,
 			memberFactory, nicknameValidator, emailValidator, passwordValidator, signupVerificationService);

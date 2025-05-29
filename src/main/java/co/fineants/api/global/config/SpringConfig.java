@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
+import co.fineants.api.domain.member.properties.EmailProperties;
+import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
@@ -24,7 +26,10 @@ import co.fineants.api.global.security.ajax.config.ActuatorProperties;
 	RoleProperties.class,
 	UserProperties.class,
 	KisTrIdProperties.class,
-	ActuatorProperties.class}
+	ActuatorProperties.class,
+	NicknameProperties.class,
+	EmailProperties.class
+}
 )
 @Configuration
 public class SpringConfig {
