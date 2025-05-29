@@ -21,7 +21,6 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
@@ -41,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SignUpRestController {
 
 	private final SignupService signupService;
-	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberProfileFactory memberProfileFactory;
 	private final MemberFactory memberFactory;
