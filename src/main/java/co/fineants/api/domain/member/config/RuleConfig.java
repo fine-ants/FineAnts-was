@@ -1,7 +1,5 @@
 package co.fineants.api.domain.member.config;
 
-import java.util.regex.Pattern;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class RuleConfig {
-
-	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
 
 	@Bean
 	public EmailFormatRule emailFormatRule(EmailProperties emailProperties) {
