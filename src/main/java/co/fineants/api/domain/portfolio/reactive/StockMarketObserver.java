@@ -29,10 +29,14 @@ public class StockMarketObserver implements Observer<String> {
 
 	@Override
 	public void onNext(@NonNull String value) {
+		String id = String.valueOf(System.currentTimeMillis());
+		long reconnectTimeMillis = 3000;
 		try {
 			emitter.send(SseEmitter.event()
+				.id(id)
 				.data(value)
-				.name(COMPLETE_NAME));
+				.name(COMPLETE_NAME)
+				.reconnectTime(reconnectTimeMillis));
 		} catch (IOException e) {
 			onError(e);
 		}

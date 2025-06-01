@@ -30,10 +30,14 @@ public class PortfolioObserver implements Observer<PortfolioHoldingsRealTimeResp
 
 	@Override
 	public void onNext(@NonNull PortfolioHoldingsRealTimeResponse data) {
+		String id = String.valueOf(System.currentTimeMillis());
+		int reconnectTimeMillis = 3000;
 		try {
 			emitter.send(SseEmitter.event()
+				.id(id)
 				.data(data)
-				.name(EVENT_NAME));
+				.name(EVENT_NAME)
+				.reconnectTime(reconnectTimeMillis));
 		} catch (IOException e) {
 			onError(e);
 		}
