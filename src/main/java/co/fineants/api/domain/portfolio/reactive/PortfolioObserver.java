@@ -20,14 +20,13 @@ public class PortfolioObserver implements Observer<PortfolioHoldingsRealTimeResp
 	private final long reconnectTimeMillis;
 
 	@Override
-	public void onSubscribe(@NonNull Disposable d) {
+	public void onSubscribe(@NonNull Disposable disposable) {
 		log.info("subscribe portfolio emitter {}", emitter.toString());
 	}
 
 	@Override
 	public void onNext(@NonNull PortfolioHoldingsRealTimeResponse data) {
 		String id = String.valueOf(System.currentTimeMillis());
-		long reconnectTimeMillis = 3000;
 		try {
 			emitter.send(SseEmitter.event()
 				.id(id)
@@ -40,9 +39,9 @@ public class PortfolioObserver implements Observer<PortfolioHoldingsRealTimeResp
 	}
 
 	@Override
-	public void onError(@NonNull Throwable e) {
-		log.error(e.getMessage());
-		emitter.completeWithError(e);
+	public void onError(@NonNull Throwable error) {
+		log.error(error.getMessage());
+		emitter.completeWithError(error);
 	}
 
 	@Override

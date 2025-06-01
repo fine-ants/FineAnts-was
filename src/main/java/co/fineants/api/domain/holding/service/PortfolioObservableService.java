@@ -22,7 +22,7 @@ public class PortfolioObservableService {
 	private final LocalDateTimeService localDateTimeService;
 	private final ObserverFactory<PortfolioHoldingsRealTimeResponse> portfolioObserverFactory;
 	private final ObserverFactory<String> stockMarketObserverFactory;
-
+	
 	public SseEmitter observePortfolioHoldings(Long portfolioId) {
 		SseEmitter emitter = createSseEmitter(portfolioId);
 
