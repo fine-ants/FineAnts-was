@@ -1,0 +1,4 @@
+portfolio:
+  reconnectTimeMillis: 3000
+stockMarket:
+  reconnectTimeMillis: 3000
