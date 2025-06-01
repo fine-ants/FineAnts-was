@@ -8,20 +8,16 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealT
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class PortfolioObserver implements Observer<PortfolioHoldingsRealTimeResponse> {
 
 	public static final String EVENT_NAME = "portfolioDetails";
 	private final SseEmitter emitter;
-
-	public static PortfolioObserver create(SseEmitter emitter) {
-		return new PortfolioObserver(emitter);
-	}
+	private final long reconnectTimeMillis;
 
 	@Override
 	public void onSubscribe(@NonNull Disposable d) {
