@@ -40,7 +40,7 @@ public class PortfolioObserver implements Observer<PortfolioHoldingsRealTimeResp
 
 	@Override
 	public void onError(@NonNull Throwable error) {
-		log.error(error.getMessage());
+		log.error("Error in PortfolioObserver", error);
 		emitter.completeWithError(error);
 	}
 
