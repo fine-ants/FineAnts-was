@@ -6,7 +6,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.portfolio.domain.factory.ObserverFactory;
-import co.fineants.api.domain.portfolio.domain.factory.PortfolioObserverFactory;
 import co.fineants.api.domain.portfolio.reactive.PortfolioObservable;
 import co.fineants.api.domain.portfolio.reactive.StockMarketObserver;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -22,14 +21,14 @@ public class PortfolioObservableService {
 	private final PortfolioObservable portfolioObservable;
 	private final StockMarketChecker stockMarketChecker;
 	private final LocalDateTimeService localDateTimeService;
+	private final ObserverFactory<PortfolioHoldingsRealTimeResponse> portfolioObserverFactory;
 
 	public SseEmitter observePortfolioHoldings(Long portfolioId) {
 		SseEmitter emitter = createSseEmitter(portfolioId);
 
 		if (stockMarketChecker.isMarketOpen(localDateTimeService.getLocalDateTimeWithNow())) {
-			ObserverFactory<PortfolioHoldingsRealTimeResponse> observerFactory = new PortfolioObserverFactory(3000);
 			portfolioObservable.getPortfolioInfo(portfolioId)
-				.subscribe(observerFactory.create(emitter));
+				.subscribe(portfolioObserverFactory.create(emitter));
 			return emitter;
 		}
 		portfolioObservable.getCloseStockMarket()
