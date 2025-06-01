@@ -7,20 +7,16 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class StockMarketObserver implements Observer<String> {
 
 	private static final String COMPLETE_NAME = "complete";
 	private final SseEmitter emitter;
-
-	public static StockMarketObserver create(SseEmitter emitter) {
-		return new StockMarketObserver(emitter);
-	}
+	private final long reconnectTimeMillis;
 
 	@Override
 	public void onSubscribe(@NonNull Disposable d) {
@@ -30,7 +26,6 @@ public class StockMarketObserver implements Observer<String> {
 	@Override
 	public void onNext(@NonNull String value) {
 		String id = String.valueOf(System.currentTimeMillis());
-		long reconnectTimeMillis = 3000;
 		try {
 			emitter.send(SseEmitter.event()
 				.id(id)
