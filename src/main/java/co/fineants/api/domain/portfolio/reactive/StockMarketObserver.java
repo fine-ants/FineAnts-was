@@ -1,6 +1,7 @@
 package co.fineants.api.domain.portfolio.reactive;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -25,7 +26,7 @@ public class StockMarketObserver implements Observer<String> {
 
 	@Override
 	public void onNext(@NonNull String value) {
-		String id = String.valueOf(System.currentTimeMillis());
+		String id = UUID.randomUUID().toString();
 		try {
 			emitter.send(SseEmitter.event()
 				.id(id)
