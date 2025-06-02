@@ -3,9 +3,11 @@ package co.fineants.api.domain.holding.service;
 import java.time.Duration;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 public class ReactivePortfolioStreamer implements PortfolioStreamer {
 
 	private final PortfolioHoldingService portfolioHoldingService;

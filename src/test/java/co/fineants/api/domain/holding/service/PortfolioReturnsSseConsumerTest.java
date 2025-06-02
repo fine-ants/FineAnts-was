@@ -3,6 +3,7 @@ package co.fineants.api.domain.holding.service;
 import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,15 +12,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 
-class PortfolioReturnsSseSubscriberTest {
+class PortfolioReturnsSseConsumerTest {
 
 	private SseEmitter emitter;
-	private PortfolioReturnsSubscriber subscriber;
+	private Consumer<PortfolioHoldingsRealTimeResponse> consumer;
 
 	@BeforeEach
 	void setUp() {
 		emitter = mock(SseEmitter.class);
-		subscriber = new PortfolioReturnsSseSubscriber(emitter);
+		consumer = new PortfolioReturnsSseConsumer(emitter);
 	}
 
 	@DisplayName("data가 전달되면 SseEmitter에 이벤트를 전송한다.")
@@ -28,7 +29,7 @@ class PortfolioReturnsSseSubscriberTest {
 		// given
 		PortfolioHoldingsRealTimeResponse data = mock(PortfolioHoldingsRealTimeResponse.class);
 		// when
-		subscriber.accept(data);
+		consumer.accept(data);
 		// then
 		verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
 		verify(emitter, never()).completeWithError(any());
@@ -42,7 +43,7 @@ class PortfolioReturnsSseSubscriberTest {
 		willThrow(new IOException("Test Exception"))
 			.given(emitter).send(any(SseEmitter.SseEventBuilder.class));
 		// when
-		subscriber.accept(data);
+		consumer.accept(data);
 		// then
 		verify(emitter).completeWithError(any(IOException.class));
 	}

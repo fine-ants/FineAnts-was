@@ -21,6 +21,10 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRespo
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.PortfolioReturnsService;
+import co.fineants.api.domain.holding.service.PortfolioReturnsSseService;
+import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.ReactivePortfolioStreamer;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -57,7 +61,12 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 종목 실시간 조회
 	@GetMapping(value = "/holdings/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
-		return portfolioObservableService.observePortfolioHoldings(portfolioId);
+		// return portfolioObservableService.observePortfolioHoldings(portfolioId);
+		PortfolioStreamer streamer = new ReactivePortfolioStreamer(portfolioHoldingService, 5, 6);
+		PortfolioReturnsService portfolioReturnsService = new PortfolioReturnsSseService(streamer);
+		SseEmitter emitter = new SseEmitter(40000L);
+		portfolioReturnsService.streamReturns(portfolioId, emitter);
+		return emitter;
 	}
 
 	// 포트폴리오 차트 조회
