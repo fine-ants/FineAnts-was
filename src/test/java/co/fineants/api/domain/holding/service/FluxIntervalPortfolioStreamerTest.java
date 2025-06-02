@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import reactor.test.StepVerifier;
 
-class ReactivePortfolioStreamerTest {
+class FluxIntervalPortfolioStreamerTest {
 
 	private PortfolioStreamer service;
 
@@ -19,7 +19,7 @@ class ReactivePortfolioStreamerTest {
 		PortfolioHoldingService holdingService = Mockito.mock(PortfolioHoldingService.class);
 		int second = 5;
 		int maxCount = 6;
-		service = new ReactivePortfolioStreamer(holdingService, second, maxCount);
+		service = new FluxIntervalPortfolioStreamer(holdingService, second, maxCount);
 
 		PortfolioHoldingsRealTimeResponse response = Mockito.mock(PortfolioHoldingsRealTimeResponse.class);
 		Mockito.when(holdingService.readMyPortfolioStocksInRealTime(Mockito.anyLong()))

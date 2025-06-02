@@ -8,13 +8,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 @Slf4j
-public class ReactivePortfolioStreamer implements PortfolioStreamer {
+public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final Duration interval;
 	private final int maxCount;
 
-	public ReactivePortfolioStreamer(PortfolioHoldingService portfolioHoldingService, int second,
+	public FluxIntervalPortfolioStreamer(PortfolioHoldingService portfolioHoldingService, int second,
 		int maxCount) {
 		this.portfolioHoldingService = portfolioHoldingService;
 		this.interval = Duration.ofSeconds(second);
