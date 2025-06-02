@@ -1,6 +1,6 @@
 package co.fineants.api.domain.holding.service;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
 
@@ -32,5 +32,18 @@ class PortfolioReturnsSseSubscriberTest {
 		// then
 		verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
 		verify(emitter, never()).completeWithError(any());
+	}
+
+	@DisplayName("IOException이 발생하면 SseEmitter를 에러로 완료한다.")
+	@Test
+	void accept_ShouldCompleteWithError_WhenIOExceptionOccurs() throws IOException {
+		// given
+		PortfolioHoldingsRealTimeResponse data = mock(PortfolioHoldingsRealTimeResponse.class);
+		willThrow(new IOException("Test Exception"))
+			.given(emitter).send(any(SseEmitter.SseEventBuilder.class));
+		// when
+		subscriber.accept(data);
+		// then
+		verify(emitter).completeWithError(any(IOException.class));
 	}
 }
