@@ -17,7 +17,9 @@ class ReactivePortfolioStreamingServiceTest {
 	@BeforeEach
 	void setUp() {
 		PortfolioHoldingService holdingService = Mockito.mock(PortfolioHoldingService.class);
-		service = new ReactivePortfolioStreamingService(holdingService);
+		int second = 5;
+		int maxCount = 6;
+		service = new ReactivePortfolioStreamingService(holdingService, second, maxCount);
 
 		PortfolioHoldingsRealTimeResponse response = Mockito.mock(PortfolioHoldingsRealTimeResponse.class);
 		Mockito.when(holdingService.readMyPortfolioStocksInRealTime(Mockito.anyLong()))
