@@ -45,6 +45,8 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesR
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.PortfolioReturnsSseService;
+import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -72,7 +74,10 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 	@Override
 	protected Object initController() {
-		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, mockedPortfolioObservableService);
+		PortfolioStreamer portfolioStreamer = mock(PortfolioStreamer.class);
+		PortfolioReturnsSseService portfolioReturnsSseService = mock(PortfolioReturnsSseService.class);
+		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, mockedPortfolioObservableService,
+			portfolioStreamer, portfolioReturnsSseService);
 	}
 
 	@BeforeEach

@@ -20,7 +20,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -42,6 +41,8 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateRe
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.PortfolioReturnsSseService;
+import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -53,8 +54,8 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
-	private final PortfolioHoldingService service = Mockito.mock(PortfolioHoldingService.class);
-	private final PortfolioObservableService portfolioObservableService = Mockito.mock(
+	private final PortfolioHoldingService service = mock(PortfolioHoldingService.class);
+	private final PortfolioObservableService portfolioObservableService = mock(
 		PortfolioObservableService.class);
 
 	private PriceRepository currentPriceRepository;
@@ -63,13 +64,16 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		return new PortfolioHoldingRestController(service, portfolioObservableService);
+		PortfolioStreamer portfolioStreamer = mock(PortfolioStreamer.class);
+		PortfolioReturnsSseService portfolioReturnsSseService = mock(PortfolioReturnsSseService.class);
+		return new PortfolioHoldingRestController(service, portfolioObservableService, portfolioStreamer,
+			portfolioReturnsSseService);
 	}
 
 	@BeforeEach
 	void setUp() {
 		currentPriceRepository = new CurrentPriceMemoryRepository();
-		timeService = Mockito.mock(LocalDateTimeService.class);
+		timeService = mock(LocalDateTimeService.class);
 		calculator = new PortfolioCalculator(currentPriceRepository, timeService);
 
 		BDDMockito.given(timeService.getLocalDateWithNow())
