@@ -17,11 +17,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
-import co.fineants.api.domain.holding.service.PortfolioReturnsService;
+import co.fineants.api.domain.holding.service.PortfolioReturnsSseConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -30,6 +30,7 @@ import co.fineants.api.global.success.PortfolioStockSuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @RequestMapping("/api/portfolio/{portfolioId}")
@@ -38,9 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PortfolioHoldingRestController {
 
 	private final PortfolioHoldingService portfolioHoldingService;
-	private final PortfolioObservableService portfolioObservableService;
 	private final PortfolioStreamer fluxIntervalPortfolioStreamer;
-	private final PortfolioReturnsService portfolioReturnsSseService;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -61,8 +60,29 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 종목 실시간 조회
 	@GetMapping(value = "/holdings/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
+		// SSE 생성
+		SseEmitter emitter = createSseEmitter(portfolioId);
+		// Flux 생성
+		Flux<PortfolioHoldingsRealTimeResponse> flux = fluxIntervalPortfolioStreamer.streamReturns(portfolioId);
+		// Consumer 생성
+		PortfolioReturnsSseConsumer consumer = new PortfolioReturnsSseConsumer(emitter);
+		// Flux 구독
+		flux.subscribe(consumer);
+		// SSE 응답
+		return emitter;
+	}
+
+	private SseEmitter createSseEmitter(Long portfolioId) {
 		SseEmitter emitter = new SseEmitter(40000L);
-		portfolioReturnsSseService.streamReturns(portfolioId, emitter);
+		emitter.onTimeout(() -> {
+			log.info("emitter{} timeout으로 인한 제거", portfolioId);
+			emitter.complete();
+		});
+		emitter.onCompletion(() -> log.info("emitter{} completion으로 인한 제거", portfolioId));
+		emitter.onError(throwable -> {
+			log.error(throwable.getMessage());
+			emitter.completeWithError(throwable);
+		});
 		return emitter;
 	}
 
