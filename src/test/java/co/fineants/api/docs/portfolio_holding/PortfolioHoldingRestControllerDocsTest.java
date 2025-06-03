@@ -34,6 +34,7 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateR
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
@@ -41,7 +42,6 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateRe
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
-import co.fineants.api.domain.holding.service.PortfolioReturnsSseService;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -51,6 +51,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import reactor.core.publisher.Flux;
 
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
@@ -61,13 +62,12 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PriceRepository currentPriceRepository;
 	private LocalDateTimeService timeService;
 	private PortfolioCalculator calculator;
+	private PortfolioStreamer portfolioStreamer;
 
 	@Override
 	protected Object initController() {
-		PortfolioStreamer portfolioStreamer = mock(PortfolioStreamer.class);
-		PortfolioReturnsSseService portfolioReturnsSseService = mock(PortfolioReturnsSseService.class);
-		return new PortfolioHoldingRestController(service, portfolioObservableService, portfolioStreamer,
-			portfolioReturnsSseService);
+		portfolioStreamer = mock(PortfolioStreamer.class);
+		return new PortfolioHoldingRestController(service, portfolioStreamer);
 	}
 
 	@BeforeEach
@@ -339,6 +339,9 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 
+		Flux<PortfolioHoldingsRealTimeResponse> flux = Flux.just(mock(PortfolioHoldingsRealTimeResponse.class));
+		given(portfolioStreamer.streamReturns(anyLong()))
+			.willReturn(flux);
 		// when & then
 		mockMvc.perform(
 				get("/api/portfolio/{portfolioId}/holdings/realtime", portfolio.getId())
