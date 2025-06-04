@@ -23,7 +23,9 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateRe
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioReturnsSseConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.StockMarketChecker;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioStockSuccessCode;
@@ -40,6 +42,8 @@ public class PortfolioHoldingRestController {
 
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final PortfolioStreamer fluxIntervalPortfolioStreamer;
+	private final StockMarketChecker stockMarketChecker;
+	private final LocalDateTimeService localDateTimeService;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -62,13 +66,17 @@ public class PortfolioHoldingRestController {
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
 		SseEmitter emitter = createSseEmitter(portfolioId);
-		// Flux 생성
-		Flux<PortfolioHoldingsRealTimeResponse> flux = fluxIntervalPortfolioStreamer.streamReturns(portfolioId);
-		// Consumer 생성
-		PortfolioReturnsSseConsumer consumer = new PortfolioReturnsSseConsumer(emitter);
-		// Flux 구독
-		flux.subscribe(consumer);
-		// SSE 응답
+		// 장시간인 경우에는 Flux<Response> 생성, 장시간이 아닌 경우에는 Flux<String> 생성
+		if (stockMarketChecker.isMarketOpen(localDateTimeService.getLocalDateTimeWithNow())) {
+			// Flux 생성
+			Flux<PortfolioHoldingsRealTimeResponse> flux = fluxIntervalPortfolioStreamer.streamReturns(portfolioId);
+			// Consumer 생성
+			PortfolioReturnsSseConsumer consumer = new PortfolioReturnsSseConsumer(emitter);
+			// Flux 구독
+			flux.subscribe(consumer);
+			// SSE 응답
+		}
+
 		return emitter;
 	}
 

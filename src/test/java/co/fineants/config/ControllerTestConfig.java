@@ -7,6 +7,7 @@ import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.StockMarketChecker;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.member.service.MemberService;
@@ -77,4 +78,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private PortfolioStreamer portfolioStreamer;
+
+	@MockBean
+	private StockMarketChecker stockMarketChecker;
 }
