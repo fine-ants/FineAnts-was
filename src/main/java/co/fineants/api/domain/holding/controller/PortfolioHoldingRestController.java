@@ -1,6 +1,7 @@
 package co.fineants.api.domain.holding.controller;
 
 import java.time.LocalDate;
+import java.util.function.Consumer;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioReturnsSseConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
@@ -44,6 +46,7 @@ public class PortfolioHoldingRestController {
 	private final PortfolioStreamer fluxIntervalPortfolioStreamer;
 	private final StockMarketChecker stockMarketChecker;
 	private final LocalDateTimeService localDateTimeService;
+	private final PortfolioStreamerFactory marketStatusBasedPortfolioStreamerFactory;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -66,18 +69,14 @@ public class PortfolioHoldingRestController {
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
 		SseEmitter emitter = createSseEmitter(portfolioId);
-
-		// 장시간인 경우에는 Flux<Response> 생성, 장시간이 아닌 경우에는 Flux<String> 생성
-		if (stockMarketChecker.isMarketOpen(localDateTimeService.getLocalDateTimeWithNow())) {
-			// Flux 생성
-			Flux<PortfolioHoldingsRealTimeResponse> flux = fluxIntervalPortfolioStreamer.streamReturns(portfolioId);
-			// Consumer 생성
-			PortfolioReturnsSseConsumer consumer = new PortfolioReturnsSseConsumer(emitter);
-			// Flux 구독
-			flux.subscribe(consumer);
-			// SSE 응답
-		}
-
+		// 현재 시간에 맞는 PortfolioStreamer 가져오기
+		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
+		// Flux 생성
+		Flux<PortfolioHoldingsRealTimeResponse> flux = streamer.streamReturns(portfolioId);
+		// Consumer 생성
+		Consumer<PortfolioHoldingsRealTimeResponse> consumer = new PortfolioReturnsSseConsumer(emitter);
+		// Flux 구독
+		flux.subscribe(consumer);
 		return emitter;
 	}
 
