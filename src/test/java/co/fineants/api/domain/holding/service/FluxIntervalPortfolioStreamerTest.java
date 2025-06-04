@@ -20,9 +20,10 @@ class FluxIntervalPortfolioStreamerTest {
 	@BeforeEach
 	void setUp() {
 		PortfolioHoldingService holdingService = mock(PortfolioHoldingService.class);
+		StockMarketChecker stockMarketChecker = mock(StockMarketChecker.class);
 		intervalSecond = 5;
 		maxCount = 6;
-		service = new FluxIntervalPortfolioStreamer(holdingService, intervalSecond, maxCount);
+		service = new FluxIntervalPortfolioStreamer(holdingService, stockMarketChecker, intervalSecond, maxCount);
 
 		PortfolioHoldingsRealTimeResponse response = mock(PortfolioHoldingsRealTimeResponse.class);
 		when(holdingService.readMyPortfolioStocksInRealTime(anyLong()))

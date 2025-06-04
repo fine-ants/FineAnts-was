@@ -66,6 +66,7 @@ public class PortfolioHoldingRestController {
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
 		SseEmitter emitter = createSseEmitter(portfolioId);
+
 		// 장시간인 경우에는 Flux<Response> 생성, 장시간이 아닌 경우에는 Flux<String> 생성
 		if (stockMarketChecker.isMarketOpen(localDateTimeService.getLocalDateTimeWithNow())) {
 			// Flux 생성
