@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.MarketStatusChecker;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.StockMarketChecker;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -14,12 +14,12 @@ import reactor.core.scheduler.Schedulers;
 public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 
 	private final PortfolioHoldingService portfolioHoldingService;
-	private final StockMarketChecker stockMarketChecker;
+	private final MarketStatusChecker stockMarketChecker;
 	private final Duration interval;
 	private final long maxCount;
 
 	public FluxIntervalPortfolioStreamer(PortfolioHoldingService portfolioHoldingService,
-		StockMarketChecker stockMarketChecker, long second, long maxCount) {
+		MarketStatusChecker stockMarketChecker, long second, long maxCount) {
 		this.portfolioHoldingService = portfolioHoldingService;
 		this.stockMarketChecker = stockMarketChecker;
 		this.interval = Duration.ofSeconds(second);

@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StockMarketChecker {
+public class MarketStatusChecker {
 	private static final LocalTime MARKET_OPEN_TIME = LocalTime.of(9, 0);
 	private static final LocalTime MARKET_CLOSE_TIME = LocalTime.of(15, 30);
 
