@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import co.fineants.api.domain.holding.domain.factory.MarketStatusBasedPortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.service.ClosedMarketPortfolioStreamer;
 import co.fineants.api.domain.holding.service.FluxIntervalPortfolioStreamer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
@@ -20,5 +21,10 @@ public class PortfolioStreamerFactoryConfig {
 		ClosedMarketPortfolioStreamer closedMarketPortfolioStreamer, LocalDateTimeService localDateTimeService) {
 		List<PortfolioStreamer> streamers = List.of(fluxIntervalPortfolioStreamer, closedMarketPortfolioStreamer);
 		return new MarketStatusBasedPortfolioStreamerFactory(streamers, localDateTimeService);
+	}
+
+	@Bean
+	public PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory() {
+		return new PortfolioStreamMessageConsumerFactory();
 	}
 }

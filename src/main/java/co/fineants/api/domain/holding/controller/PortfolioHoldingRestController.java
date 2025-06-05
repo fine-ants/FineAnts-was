@@ -19,10 +19,10 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRe
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioStreamMessageConsumer;
-import co.fineants.api.domain.holding.service.PortfolioStreamMessageSseSender;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -40,6 +40,7 @@ public class PortfolioHoldingRestController {
 
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final PortfolioStreamerFactory marketStatusBasedPortfolioStreamerFactory;
+	private final PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -65,7 +66,8 @@ public class PortfolioHoldingRestController {
 		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Consumer 생성
-		PortfolioStreamMessageConsumer consumer = new PortfolioStreamMessageSseSender(emitter);
+		PortfolioStreamMessageConsumer consumer = portfolioStreamMessageConsumerFactory.portfolioStreamMessageSseSender(
+			emitter);
 		// 메시지 생성 및 구독
 		streamer.streamMessages(portfolioId)
 			.subscribe(consumer);
