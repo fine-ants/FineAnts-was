@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import reactor.test.StepVerifier;
 
 class FluxIntervalPortfolioStreamerTest {
@@ -25,7 +25,7 @@ class FluxIntervalPortfolioStreamerTest {
 		maxCount = 6;
 		service = new FluxIntervalPortfolioStreamer(holdingService, stockMarketChecker, intervalSecond, maxCount);
 
-		PortfolioStreamMessage portfolioStreamMessage = mock(PortfolioStreamMessage.class);
+		StreamMessage portfolioStreamMessage = mock(StreamMessage.class);
 		when(holdingService.getPortfolioReturns(anyLong()))
 			.thenReturn(portfolioStreamMessage);
 	}

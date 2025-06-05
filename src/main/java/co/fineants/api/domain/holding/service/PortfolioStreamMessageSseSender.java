@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class PortfolioStreamMessageSseSender implements PortfolioStreamMessageConsumer {
+public class PortfolioStreamMessageSseSender implements StreamMessageConsumer {
 
 	private final SseEmitter emitter;
 	private final long reconnectTimeMillis;
@@ -19,7 +19,7 @@ public class PortfolioStreamMessageSseSender implements PortfolioStreamMessageCo
 	}
 
 	@Override
-	public void accept(PortfolioStreamMessage message) {
+	public void accept(StreamMessage message) {
 		String id = UUID.randomUUID().toString();
 		SseEmitter.SseEventBuilder builder = SseEmitter.event()
 			.id(id)

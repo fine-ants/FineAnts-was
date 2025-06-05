@@ -43,10 +43,10 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioStreamMessageConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.StreamMessageConsumer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -349,20 +349,20 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 
-		PortfolioStreamMessage portfolioStreamMessage = mock(PortfolioStreamMessage.class);
+		StreamMessage portfolioStreamMessage = mock(StreamMessage.class);
 		given(portfolioStreamMessage.getEventName())
 			.willReturn("portfolioDetails");
 		given(portfolioStreamMessage.getData())
 			.willReturn(mock(PortfolioHoldingsRealTimeResponse.class));
-		Flux<PortfolioStreamMessage> flux = Flux.just();
+		Flux<StreamMessage> flux = Flux.just();
 		given(portfolioStreamer.streamMessages(anyLong()))
 			.willReturn(flux);
 
 		SseEmitter emitter = mock(SseEmitter.class);
 		given(portfolioSseEmitterFactory.create())
 			.willReturn(emitter);
-		given(portfolioStreamMessageConsumerFactory.portfolioStreamMessageSseSender(emitter))
-			.willReturn(mock(PortfolioStreamMessageConsumer.class));
+		given(portfolioStreamMessageConsumerFactory.createConsumer(emitter))
+			.willReturn(mock(StreamMessageConsumer.class));
 		// when & then
 		mockMvc.perform(
 				get("/api/portfolio/{portfolioId}/holdings/realtime", portfolio.getId())

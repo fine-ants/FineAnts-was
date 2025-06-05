@@ -3,7 +3,7 @@ package co.fineants.api.domain.holding.domain.message;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public class PortfolioCompleteStreamMessage implements PortfolioStreamMessage {
+public class PortfolioCompleteStreamMessage implements StreamMessage {
 	private final String message;
 
 	public PortfolioCompleteStreamMessage() {
