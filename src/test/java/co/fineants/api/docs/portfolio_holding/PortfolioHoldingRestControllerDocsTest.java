@@ -45,7 +45,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.sender.StreamMessageSender;
+import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -362,7 +362,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		given(portfolioSseEmitterFactory.create())
 			.willReturn(emitter);
 		given(portfolioStreamMessageConsumerFactory.createConsumer(portfolioStreamer, emitter))
-			.willReturn(mock(StreamMessageSender.class));
+			.willReturn(mock(StreamSseMessageSender.class));
 		// when & then
 		mockMvc.perform(
 				get("/api/portfolio/{portfolioId}/holdings/realtime", portfolio.getId())

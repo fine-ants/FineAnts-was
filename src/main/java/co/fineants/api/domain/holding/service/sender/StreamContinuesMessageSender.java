@@ -8,12 +8,12 @@ import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StreamMessageSseSender implements StreamMessageSender {
+public class StreamContinuesMessageSender implements StreamSseMessageSender {
 
 	private final SseEmitter emitter;
 	private final long reconnectTimeMillis;
 
-	public StreamMessageSseSender(SseEmitter emitter, long reconnectTimeMillis) {
+	public StreamContinuesMessageSender(SseEmitter emitter, long reconnectTimeMillis) {
 		this.emitter = emitter;
 		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
