@@ -23,7 +23,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.StreamMessageConsumer;
+import co.fineants.api.domain.holding.service.StreamMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -68,7 +68,7 @@ public class PortfolioHoldingRestController {
 		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Consumer 생성
-		StreamMessageConsumer consumer = portfolioStreamMessageConsumerFactory.createConsumer(
+		StreamMessageSender consumer = portfolioStreamMessageConsumerFactory.createConsumer(
 			emitter);
 		// 메시지 생성 및 구독
 		streamer.streamMessages(portfolioId)
