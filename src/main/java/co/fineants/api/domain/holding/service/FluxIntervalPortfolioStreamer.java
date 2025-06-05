@@ -3,7 +3,7 @@ package co.fineants.api.domain.holding.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -25,7 +25,7 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 	}
 
 	@Override
-	public Flux<PortfolioStreamMessage> streamMessages(Long portfolioId) {
+	public Flux<StreamMessage> streamMessages(Long portfolioId) {
 		return Flux.interval(interval)
 			.take(maxCount)
 			.publishOn(Schedulers.boundedElastic())

@@ -37,7 +37,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateRe
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -411,7 +411,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		closingPriceRepository.addPrice("035720", 50000);
 
 		// when
-		PortfolioStreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
+		StreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
 
 		// then
 		assertAll(

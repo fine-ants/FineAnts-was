@@ -6,7 +6,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailRealTim
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 
-public class PortfolioReturnsStreamMessage implements PortfolioStreamMessage {
+public class PortfolioReturnsStreamMessage implements StreamMessage {
 	private final PortfolioDetailRealTimeItem portfolioDetails;
 	private final List<PortfolioHoldingRealTimeItem> portfolioHoldings;
 

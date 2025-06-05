@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
-import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -26,7 +26,7 @@ class ClosedMarketPortfolioStreamerTest {
 		// given
 		Long portfolioId = 1L;
 		// when
-		Flux<PortfolioStreamMessage> flux = portfolioStreamer.streamMessages(portfolioId);
+		Flux<StreamMessage> flux = portfolioStreamer.streamMessages(portfolioId);
 		// then
 		PortfolioCompleteStreamMessage expected = new PortfolioCompleteStreamMessage();
 		StepVerifier.create(flux)
