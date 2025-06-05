@@ -11,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PortfolioStreamMessageSseSender implements PortfolioStreamMessageConsumer {
 
 	private final SseEmitter emitter;
+	private final long reconnectTimeMillis;
 
-	public PortfolioStreamMessageSseSender(SseEmitter emitter) {
+	public PortfolioStreamMessageSseSender(SseEmitter emitter, long reconnectTimeMillis) {
 		this.emitter = emitter;
+		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
 
 	@Override
@@ -23,7 +25,7 @@ public class PortfolioStreamMessageSseSender implements PortfolioStreamMessageCo
 			.id(id)
 			.data(message.getData())
 			.name(message.getEventName())
-			.reconnectTime(3000L);
+			.reconnectTime(reconnectTimeMillis);
 		try {
 			emitter.send(builder);
 		} catch (Exception exception) {
