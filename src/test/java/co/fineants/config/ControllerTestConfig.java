@@ -8,7 +8,6 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.holding.service.StockMarketChecker;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
@@ -45,9 +44,6 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private PortfolioHoldingService portfolioHoldingService;
-
-	@MockBean
-	private PortfolioObservableService portfolioObservableService;
 
 	@MockBean
 	private LocalDateTimeService localDateTimeService;
