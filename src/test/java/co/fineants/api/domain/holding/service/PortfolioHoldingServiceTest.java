@@ -31,13 +31,13 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -411,11 +411,11 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		closingPriceRepository.addPrice("035720", 50000);
 
 		// when
-		PortfolioHoldingsRealTimeResponse response = service.readMyPortfolioStocksInRealTime(portfolio.getId());
+		PortfolioStreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
 
 		// then
 		assertAll(
-			() -> assertThat(response)
+			() -> assertThat(portfolioStreamMessage)
 				.extracting("portfolioDetails")
 				.extracting("currentValuation", "totalGain", "totalGainRate", "dailyGain", "dailyGainRate",
 					"provisionalLossBalance")
@@ -424,7 +424,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 				.containsExactlyInAnyOrder(Money.won(720000L), Money.won(120000L), Percentage.from(0.2),
 					Money.won(120000L), Percentage.from(0.2), Money.zero()),
 
-			() -> assertThat(response).extracting(PortfolioHoldingsRealTimeResponse::getPortfolioHoldings)
+			() -> assertThat(portfolioStreamMessage)
+				.extracting("portfolioHoldings")
 				.asList()
 				.hasSize(2)
 				.extracting("currentValuation", "dailyChange", "dailyChangeRate", "totalGain",
