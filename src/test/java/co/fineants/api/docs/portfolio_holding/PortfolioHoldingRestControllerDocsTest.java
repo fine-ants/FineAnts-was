@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -41,6 +40,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartIt
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
@@ -69,7 +69,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	protected Object initController() {
 		portfolioStreamer = mock(PortfolioStreamer.class);
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
-		BDDMockito.given(portfolioStreamerFactory.getStreamer())
+		given(portfolioStreamerFactory.getStreamer())
 			.willReturn(portfolioStreamer);
 		return new PortfolioHoldingRestController(service, portfolioStreamerFactory);
 	}
@@ -343,8 +343,13 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 
-		Flux<PortfolioHoldingsRealTimeResponse> flux = Flux.just(mock(PortfolioHoldingsRealTimeResponse.class));
-		given(portfolioStreamer.streamReturns(anyLong()))
+		PortfolioStreamMessage portfolioStreamMessage = mock(PortfolioStreamMessage.class);
+		given(portfolioStreamMessage.getEventName())
+			.willReturn("portfolioDetails");
+		given(portfolioStreamMessage.getData())
+			.willReturn(mock(PortfolioHoldingsRealTimeResponse.class));
+		Flux<PortfolioStreamMessage> flux = Flux.just();
+		given(portfolioStreamer.streamMessages(anyLong()))
 			.willReturn(flux);
 		// when & then
 		mockMvc.perform(
