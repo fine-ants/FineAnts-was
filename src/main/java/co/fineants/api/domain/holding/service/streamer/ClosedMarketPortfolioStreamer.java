@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
-import co.fineants.api.domain.holding.service.StockMarketChecker;
+import co.fineants.api.domain.holding.service.MarketStatusChecker;
 import reactor.core.publisher.Flux;
 
 public class ClosedMarketPortfolioStreamer implements PortfolioStreamer {
 
-	private final StockMarketChecker stockMarketChecker;
+	private final MarketStatusChecker stockMarketChecker;
 
-	public ClosedMarketPortfolioStreamer(StockMarketChecker stockMarketChecker) {
+	public ClosedMarketPortfolioStreamer(MarketStatusChecker stockMarketChecker) {
 		this.stockMarketChecker = stockMarketChecker;
 	}
 
