@@ -1,4 +1,4 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.market_status_checker;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WeekdayMarketStatusChecker implements MarketStatusChecker {
+public class WeekdayMarketStatusCheckerRule implements MarketStatusCheckerRule {
 
 	@Override
 	public boolean isOpen(LocalDateTime dateTime) {

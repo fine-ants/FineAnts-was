@@ -1,14 +1,14 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.market_status_checker;
 
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
-public class HolidayMarketStatusChecker implements MarketStatusChecker {
+public class HolidayMarketStatusCheckerRule implements MarketStatusCheckerRule {
 	private final HolidayRepository repository;
 
-	public HolidayMarketStatusChecker(HolidayRepository repository) {
+	public HolidayMarketStatusCheckerRule(HolidayRepository repository) {
 		this.repository = repository;
 	}
 

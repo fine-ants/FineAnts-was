@@ -1,8 +1,8 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.market_status_checker;
 
 import java.time.LocalDateTime;
 
-public interface MarketStatusChecker {
+public interface MarketStatusCheckerRule {
 	boolean isOpen(LocalDateTime dateTime);
 
 	default boolean isClose(LocalDateTime dateTime) {

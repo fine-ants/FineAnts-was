@@ -10,19 +10,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.holding.service.market_status_checker.HolidayMarketStatusCheckerRule;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
-class HolidayMarketStatusCheckerTest extends AbstractContainerBaseTest {
+class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 
-	private MarketStatusChecker checker;
+	private MarketStatusCheckerRule checker;
 
 	@Autowired
 	private HolidayRepository holidayRepository;
 
 	@BeforeEach
 	void setUp() {
-		checker = new HolidayMarketStatusChecker(holidayRepository);
+		checker = new HolidayMarketStatusCheckerRule(holidayRepository);
 	}
 
 	@DisplayName("휴장일이 아니면 true를 반환한다")

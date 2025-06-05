@@ -1,5 +1,7 @@
 package co.fineants.api.domain.holding.domain.factory;
 
+import static org.mockito.Mockito.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
-import co.fineants.api.domain.holding.service.MarketStatusChecker;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.WeekdayMarketStatusChecker;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
 import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -25,11 +26,13 @@ class MarketStatusBasedPortfolioStreamerFactoryTest {
 	@BeforeEach
 	void setUp() {
 		PortfolioHoldingService portfolioHoldingService = Mockito.mock(PortfolioHoldingService.class);
-		MarketStatusChecker stockMarketChecker = new WeekdayMarketStatusChecker();
+		MarketStatusChecker marketStatusChecker = mock(MarketStatusChecker.class);
+		BDDMockito.given(marketStatusChecker.isOpen(any(LocalDateTime.class)))
+			.willReturn(true); // Assume market is open for this test
 		int intervalSecond = 5;
 		int maxCount = 6;
 		List<PortfolioStreamer> streamers = List.of(
-			new FluxIntervalPortfolioStreamer(portfolioHoldingService, stockMarketChecker, intervalSecond, maxCount)
+			new FluxIntervalPortfolioStreamer(portfolioHoldingService, marketStatusChecker, intervalSecond, maxCount)
 		);
 		localDateTimeService = Mockito.mock(LocalDateTimeService.class);
 		factory = new MarketStatusBasedPortfolioStreamerFactory(streamers, localDateTimeService);

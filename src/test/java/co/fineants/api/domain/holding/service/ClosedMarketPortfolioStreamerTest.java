@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 
 import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
 import co.fineants.api.domain.holding.service.streamer.ClosedMarketPortfolioStreamer;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import reactor.core.publisher.Flux;
@@ -18,8 +19,8 @@ class ClosedMarketPortfolioStreamerTest {
 
 	@BeforeEach
 	void setUp() {
-		MarketStatusChecker stockMarketChecker = Mockito.mock(WeekdayMarketStatusChecker.class);
-		portfolioStreamer = new ClosedMarketPortfolioStreamer(stockMarketChecker);
+		MarketStatusChecker marketStatusChecker = Mockito.mock(MarketStatusChecker.class);
+		portfolioStreamer = new ClosedMarketPortfolioStreamer(marketStatusChecker);
 	}
 
 	@DisplayName("장시간이 아닌 경우에는 완료 메시지를 스트리밍한다")
