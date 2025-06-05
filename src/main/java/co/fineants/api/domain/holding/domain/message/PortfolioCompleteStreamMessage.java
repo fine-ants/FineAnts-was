@@ -11,6 +11,16 @@ public class PortfolioCompleteStreamMessage implements PortfolioStreamMessage {
 	}
 
 	@Override
+	public Object getData() {
+		return message;
+	}
+
+	@Override
+	public String getEventName() {
+		return "complete";
+	}
+
+	@Override
 	public String toString() {
 		return String.format("포트폴리오 완료 메시지 - %s", message);
 	}

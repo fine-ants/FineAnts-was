@@ -1,7 +1,6 @@
 package co.fineants.api.domain.holding.controller;
 
 import java.time.LocalDate;
-import java.util.function.Consumer;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,12 +17,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioReturnsSseConsumer;
+import co.fineants.api.domain.holding.service.PortfolioStreamMessageConsumer;
+import co.fineants.api.domain.holding.service.PortfolioStreamMessageSseSender;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -32,7 +31,6 @@ import co.fineants.api.global.success.PortfolioStockSuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 
 @Slf4j
 @RequestMapping("/api/portfolio/{portfolioId}")
@@ -64,15 +62,13 @@ public class PortfolioHoldingRestController {
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
 		SseEmitter emitter = createSseEmitter(portfolioId);
-		// 현재 시간에 맞는 PortfolioStreamer 가져오기
+		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
-		// Flux 생성
-		// todo: Flux 제네릭 타입을 추상화 리팩토링하기
-		Flux<PortfolioHoldingsRealTimeResponse> flux = streamer.streamReturns(portfolioId);
 		// Consumer 생성
-		Consumer<PortfolioHoldingsRealTimeResponse> consumer = new PortfolioReturnsSseConsumer(emitter);
-		// Flux 구독
-		flux.subscribe(consumer);
+		PortfolioStreamMessageConsumer consumer = new PortfolioStreamMessageSseSender(emitter);
+		// 메시지 생성 및 구독
+		streamer.streamMessages(portfolioId)
+			.subscribe(consumer);
 		return emitter;
 	}
 
