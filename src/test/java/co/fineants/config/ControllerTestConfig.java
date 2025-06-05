@@ -4,6 +4,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import co.fineants.api.domain.fcm.service.FcmService;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
@@ -81,4 +82,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private StockMarketChecker stockMarketChecker;
+
+	@MockBean
+	private PortfolioStreamerFactory portfolioStreamerFactory;
 }

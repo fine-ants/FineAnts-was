@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
+import co.fineants.api.domain.holding.domain.message.PortfolioReturnsStreamMessage;
+import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -30,6 +32,18 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 			.take(maxCount)
 			.publishOn(Schedulers.boundedElastic())
 			.map(i -> portfolioHoldingService.readMyPortfolioStocksInRealTime(portfolioId));
+	}
+
+	@Override
+	public Flux<PortfolioStreamMessage> streamMessages(Long portfolioId) {
+		return Flux.interval(interval)
+			.take(maxCount)
+			.publishOn(Schedulers.boundedElastic())
+			.map(i -> portfolioHoldingService.readMyPortfolioStocksInRealTime(portfolioId))
+			.map(response -> new PortfolioReturnsStreamMessage(
+				response.getPortfolioDetails(),
+				response.getPortfolioHoldings())
+			);
 	}
 
 	@Override

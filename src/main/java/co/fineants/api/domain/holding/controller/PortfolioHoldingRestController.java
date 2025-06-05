@@ -25,9 +25,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioReturnsSseConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
-import co.fineants.api.domain.holding.service.StockMarketChecker;
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioStockSuccessCode;
@@ -43,9 +41,6 @@ import reactor.core.publisher.Flux;
 public class PortfolioHoldingRestController {
 
 	private final PortfolioHoldingService portfolioHoldingService;
-	private final PortfolioStreamer fluxIntervalPortfolioStreamer;
-	private final StockMarketChecker stockMarketChecker;
-	private final LocalDateTimeService localDateTimeService;
 	private final PortfolioStreamerFactory marketStatusBasedPortfolioStreamerFactory;
 
 	// 포트폴리오 종목 생성
@@ -72,6 +67,7 @@ public class PortfolioHoldingRestController {
 		// 현재 시간에 맞는 PortfolioStreamer 가져오기
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Flux 생성
+		// todo: Flux 제네릭 타입을 추상화 리팩토링하기
 		Flux<PortfolioHoldingsRealTimeResponse> flux = streamer.streamReturns(portfolioId);
 		// Consumer 생성
 		Consumer<PortfolioHoldingsRealTimeResponse> consumer = new PortfolioReturnsSseConsumer(emitter);
