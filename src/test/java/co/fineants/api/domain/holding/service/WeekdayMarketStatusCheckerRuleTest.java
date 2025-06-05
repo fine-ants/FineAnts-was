@@ -11,9 +11,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class WeekdayMarketStatusCheckerTest {
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
+import co.fineants.api.domain.holding.service.market_status_checker.WeekdayMarketStatusCheckerRule;
 
-	private MarketStatusChecker checker;
+class WeekdayMarketStatusCheckerRuleTest {
+
+	private MarketStatusCheckerRule checker;
 
 	public static Stream<Arguments> weekdayDateTimeSource() {
 		return Stream.of(
@@ -34,7 +37,7 @@ class WeekdayMarketStatusCheckerTest {
 
 	@BeforeEach
 	void setUp() {
-		checker = new WeekdayMarketStatusChecker();
+		checker = new WeekdayMarketStatusCheckerRule();
 	}
 
 	@DisplayName("주말이 아닌 평일이면 true를 반환한다")

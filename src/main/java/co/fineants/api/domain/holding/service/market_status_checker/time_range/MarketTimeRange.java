@@ -1,4 +1,4 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.market_status_checker.time_range;
 
 import java.time.LocalTime;
 

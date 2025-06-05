@@ -10,9 +10,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class TimeMarketStatusCheckerTest {
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
+import co.fineants.api.domain.holding.service.market_status_checker.TimeMarketStatusCheckerRule;
+import co.fineants.api.domain.holding.service.market_status_checker.time_range.MarketTimeRange;
+import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
 
-	private MarketStatusChecker checker;
+class TimeMarketStatusCheckerRuleTest {
+
+	private MarketStatusCheckerRule checker;
 
 	public static Stream<Arguments> dateTimeSource() {
 		return Stream.of(
@@ -35,7 +40,7 @@ class TimeMarketStatusCheckerTest {
 	@BeforeEach
 	void setUp() {
 		TimeRange timeRange = new MarketTimeRange();
-		checker = new TimeMarketStatusChecker(timeRange);
+		checker = new TimeMarketStatusCheckerRule(timeRange);
 	}
 
 	@DisplayName("정규장 중이면 true를 반환한다")
