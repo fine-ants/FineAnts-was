@@ -50,7 +50,7 @@ class FluxIntervalPortfolioStreamerTest {
 		long portfolioId = 1L;
 		long totalTime = intervalSecond * maxCount;
 		// when & then
-		StepVerifier.withVirtualTime(() -> service.streamReturns(portfolioId))
+		StepVerifier.withVirtualTime(() -> service.streamMessages(portfolioId))
 			.thenAwait(Duration.ofSeconds(totalTime))
 			.expectNextCount(maxCount)
 			.verifyComplete();
