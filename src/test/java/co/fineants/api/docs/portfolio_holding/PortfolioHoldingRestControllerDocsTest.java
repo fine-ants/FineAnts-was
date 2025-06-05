@@ -22,6 +22,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
@@ -39,10 +40,12 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.PortfolioStreamMessageConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -57,21 +60,24 @@ import reactor.core.publisher.Flux;
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
 	private final PortfolioHoldingService service = mock(PortfolioHoldingService.class);
-	private final PortfolioObservableService portfolioObservableService = mock(
-		PortfolioObservableService.class);
-
 	private PriceRepository currentPriceRepository;
 	private LocalDateTimeService timeService;
 	private PortfolioCalculator calculator;
 	private PortfolioStreamer portfolioStreamer;
+	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
+	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
 
 	@Override
 	protected Object initController() {
+
 		portfolioStreamer = mock(PortfolioStreamer.class);
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
 		given(portfolioStreamerFactory.getStreamer())
 			.willReturn(portfolioStreamer);
-		return new PortfolioHoldingRestController(service, portfolioStreamerFactory);
+		portfolioStreamMessageConsumerFactory = mock(PortfolioStreamMessageConsumerFactory.class);
+		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
+		return new PortfolioHoldingRestController(service, portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory);
 	}
 
 	@BeforeEach
@@ -351,6 +357,12 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Flux<PortfolioStreamMessage> flux = Flux.just();
 		given(portfolioStreamer.streamMessages(anyLong()))
 			.willReturn(flux);
+
+		SseEmitter emitter = mock(SseEmitter.class);
+		given(portfolioSseEmitterFactory.create())
+			.willReturn(emitter);
+		given(portfolioStreamMessageConsumerFactory.portfolioStreamMessageSseSender(emitter))
+			.willReturn(mock(PortfolioStreamMessageConsumer.class));
 		// when & then
 		mockMvc.perform(
 				get("/api/portfolio/{portfolioId}/holdings/realtime", portfolio.getId())

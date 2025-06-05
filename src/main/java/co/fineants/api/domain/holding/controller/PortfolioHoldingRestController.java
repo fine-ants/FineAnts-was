@@ -21,6 +21,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRespo
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.PortfolioStreamMessageConsumer;
 import co.fineants.api.domain.holding.service.PortfolioStreamer;
@@ -41,6 +42,7 @@ public class PortfolioHoldingRestController {
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final PortfolioStreamerFactory marketStatusBasedPortfolioStreamerFactory;
 	private final PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
+	private final SseEmitterFactory portfolioSseEmitterFactory;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -62,7 +64,7 @@ public class PortfolioHoldingRestController {
 	@GetMapping(value = "/holdings/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
-		SseEmitter emitter = createSseEmitter();
+		SseEmitter emitter = portfolioSseEmitterFactory.create();
 		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Consumer 생성
@@ -71,22 +73,6 @@ public class PortfolioHoldingRestController {
 		// 메시지 생성 및 구독
 		streamer.streamMessages(portfolioId)
 			.subscribe(consumer);
-		return emitter;
-	}
-
-	private SseEmitter createSseEmitter() {
-		SseEmitter emitter = new SseEmitter(40000L);
-		emitter.onTimeout(() -> {
-			log.info("SseEmitter timeout, removing emitter");
-			emitter.complete();
-		});
-		emitter.onCompletion(() -> {
-			log.info("SseEmitter completed, removing emitter");
-		});
-		emitter.onError(throwable -> {
-			log.error("SseEmitter error: {}", throwable.getMessage(), throwable);
-			emitter.completeWithError(throwable);
-		});
 		return emitter;
 	}
 
