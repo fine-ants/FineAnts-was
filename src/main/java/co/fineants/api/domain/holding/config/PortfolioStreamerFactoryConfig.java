@@ -2,6 +2,7 @@ package co.fineants.api.domain.holding.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,7 +25,8 @@ public class PortfolioStreamerFactoryConfig {
 	}
 
 	@Bean
-	public PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory() {
-		return new PortfolioStreamMessageConsumerFactory();
+	public PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory(
+		@Value("${portfolio.reconnectTimeMillis:3000}") long reconnectTimeMillis) {
+		return new PortfolioStreamMessageConsumerFactory(reconnectTimeMillis);
 	}
 }
