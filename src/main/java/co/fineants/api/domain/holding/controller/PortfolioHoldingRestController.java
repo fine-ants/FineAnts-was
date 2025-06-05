@@ -62,7 +62,7 @@ public class PortfolioHoldingRestController {
 	@GetMapping(value = "/holdings/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter observePortfolioHoldings(@PathVariable Long portfolioId) {
 		// SSE 생성
-		SseEmitter emitter = createSseEmitter(portfolioId);
+		SseEmitter emitter = createSseEmitter();
 		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Consumer 생성
@@ -74,15 +74,17 @@ public class PortfolioHoldingRestController {
 		return emitter;
 	}
 
-	private SseEmitter createSseEmitter(Long portfolioId) {
+	private SseEmitter createSseEmitter() {
 		SseEmitter emitter = new SseEmitter(40000L);
 		emitter.onTimeout(() -> {
-			log.info("emitter{} timeout으로 인한 제거", portfolioId);
+			log.info("SseEmitter timeout, removing emitter");
 			emitter.complete();
 		});
-		emitter.onCompletion(() -> log.info("emitter{} completion으로 인한 제거", portfolioId));
+		emitter.onCompletion(() -> {
+			log.info("SseEmitter completed, removing emitter");
+		});
 		emitter.onError(throwable -> {
-			log.error(throwable.getMessage());
+			log.error("SseEmitter error: {}", throwable.getMessage(), throwable);
 			emitter.completeWithError(throwable);
 		});
 		return emitter;
