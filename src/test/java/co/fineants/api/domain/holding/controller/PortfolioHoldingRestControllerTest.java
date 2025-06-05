@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,9 +42,8 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartIt
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioStreamer;
-import co.fineants.api.domain.holding.service.StockMarketChecker;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -70,15 +68,8 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 	@Override
 	protected Object initController() {
-		PortfolioStreamer portfolioStreamer = mock(PortfolioStreamer.class);
-		StockMarketChecker stockMarketChecker = mock(StockMarketChecker.class);
-		given(stockMarketChecker.isMarketOpen(ArgumentMatchers.any(LocalDateTime.class)))
-			.willReturn(true);
-		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
-		given(localDateTimeService.getLocalDateTimeWithNow())
-			.willReturn(LocalDateTime.of(2025, 6, 4, 9, 0));
-		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamer, stockMarketChecker,
-			localDateTimeService);
+		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
+		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamerFactory);
 	}
 
 	@BeforeEach
