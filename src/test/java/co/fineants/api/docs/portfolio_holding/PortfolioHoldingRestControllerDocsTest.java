@@ -361,7 +361,9 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		SseEmitter emitter = mock(SseEmitter.class);
 		given(portfolioSseEmitterFactory.create())
 			.willReturn(emitter);
-		given(portfolioStreamMessageConsumerFactory.createConsumer(portfolioStreamer, emitter))
+		given(portfolioStreamer.createStreamSseMessageSender(emitter, portfolioStreamMessageConsumerFactory))
+			.willReturn(mock(StreamSseMessageSender.class));
+		given(portfolioStreamMessageConsumerFactory.createStreamContinuesMessageSender(emitter))
 			.willReturn(mock(StreamSseMessageSender.class));
 		// when & then
 		mockMvc.perform(
