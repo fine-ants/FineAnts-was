@@ -68,7 +68,7 @@ public class PortfolioHoldingRestController {
 		// 현재 시간에 맞는 PortfolioStreamer 생성
 		PortfolioStreamer streamer = marketStatusBasedPortfolioStreamerFactory.getStreamer();
 		// Consumer 생성
-		StreamMessageSender sender = portfolioStreamMessageConsumerFactory.createConsumer(emitter);
+		StreamMessageSender sender = portfolioStreamMessageConsumerFactory.createConsumer(streamer, emitter);
 		// 메시지 생성 및 구독
 		streamer.streamMessages(portfolioId)
 			.subscribe(sender);

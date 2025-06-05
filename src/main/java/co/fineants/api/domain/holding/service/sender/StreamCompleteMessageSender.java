@@ -8,19 +8,18 @@ import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StreamMessageSseSender implements StreamMessageSender {
+public class StreamCompleteMessageSender implements StreamMessageSender {
 
 	private final SseEmitter emitter;
 	private final long reconnectTimeMillis;
 
-	public StreamMessageSseSender(SseEmitter emitter, long reconnectTimeMillis) {
+	public StreamCompleteMessageSender(SseEmitter emitter, long reconnectTimeMillis) {
 		this.emitter = emitter;
 		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
 
 	@Override
 	public void accept(StreamMessage message) {
-		// todo: 구현체별 중복 제거
 		String id = UUID.randomUUID().toString();
 		SseEmitter.SseEventBuilder builder = SseEmitter.event()
 			.id(id)
@@ -33,5 +32,6 @@ public class StreamMessageSseSender implements StreamMessageSender {
 			log.error("Error sending data to SseEmitter: {}", exception.getMessage(), exception);
 			emitter.completeWithError(exception);
 		}
+		emitter.complete();
 	}
 }
