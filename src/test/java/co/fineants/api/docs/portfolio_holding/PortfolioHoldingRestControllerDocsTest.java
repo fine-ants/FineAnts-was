@@ -45,7 +45,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.StreamMessageSender;
+import co.fineants.api.domain.holding.service.sender.StreamMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
