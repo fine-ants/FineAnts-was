@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
+import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import reactor.test.StepVerifier;
 
 class FluxIntervalPortfolioStreamerTest {
@@ -28,6 +29,9 @@ class FluxIntervalPortfolioStreamerTest {
 		PortfolioHoldingsRealTimeResponse response = mock(PortfolioHoldingsRealTimeResponse.class);
 		when(holdingService.readMyPortfolioStocksInRealTime(anyLong()))
 			.thenReturn(response);
+		PortfolioStreamMessage portfolioStreamMessage = mock(PortfolioStreamMessage.class);
+		when(holdingService.getPortfolioReturns(anyLong()))
+			.thenReturn(portfolioStreamMessage);
 	}
 
 	@DisplayName("포트폴리오의 수익률 데이터를 스트리밍한다.")

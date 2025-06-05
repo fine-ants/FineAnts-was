@@ -31,6 +31,8 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesR
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioDetailFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioHoldingDetailFactory;
+import co.fineants.api.domain.holding.domain.message.PortfolioReturnsStreamMessage;
+import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
@@ -180,6 +182,16 @@ public class PortfolioHoldingService {
 	private Portfolio findPortfolioUsingFetchJoin(Long portfolioId) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
 			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
+	}
+
+	@Transactional(readOnly = true)
+	public PortfolioStreamMessage getPortfolioReturns(Long portfolioId) {
+		Portfolio portfolio = findPortfolioUsingFetchJoin(portfolioId);
+		PortfolioDetailRealTimeItem portfolioDetail = portfolioDetailFactory.createPortfolioDetailRealTimeItem(
+			portfolio);
+		List<PortfolioHoldingRealTimeItem> portfolioHoldingDetails =
+			portfolioHoldingDetailFactory.createPortfolioHoldingRealTimeItems(portfolio, calculator);
+		return new PortfolioReturnsStreamMessage(portfolioDetail, portfolioHoldingDetails);
 	}
 
 	@Transactional(readOnly = true)
