@@ -22,7 +22,7 @@ class FluxIntervalPortfolioStreamerTest {
 	@BeforeEach
 	void setUp() {
 		PortfolioHoldingService holdingService = mock(PortfolioHoldingService.class);
-		MarketStatusChecker stockMarketChecker = mock(MarketStatusChecker.class);
+		MarketStatusChecker stockMarketChecker = mock(WeekdayMarketStatusChecker.class);
 		intervalSecond = 5;
 		maxCount = 6;
 		service = new FluxIntervalPortfolioStreamer(holdingService, stockMarketChecker, intervalSecond, maxCount);

@@ -18,7 +18,7 @@ class ClosedMarketPortfolioStreamerTest {
 
 	@BeforeEach
 	void setUp() {
-		MarketStatusChecker stockMarketChecker = Mockito.mock(MarketStatusChecker.class);
+		MarketStatusChecker stockMarketChecker = Mockito.mock(WeekdayMarketStatusChecker.class);
 		portfolioStreamer = new ClosedMarketPortfolioStreamer(stockMarketChecker);
 	}
 
