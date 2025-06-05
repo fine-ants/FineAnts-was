@@ -36,6 +36,6 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 
 	@Override
 	public boolean supports(LocalDateTime time) {
-		return stockMarketChecker.isMarketOpen(time);
+		return stockMarketChecker.isOpen(time);
 	}
 }
