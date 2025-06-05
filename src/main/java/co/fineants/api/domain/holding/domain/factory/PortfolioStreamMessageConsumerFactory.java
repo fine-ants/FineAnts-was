@@ -5,8 +5,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import co.fineants.api.domain.holding.service.sender.StreamCompleteMessageSender;
 import co.fineants.api.domain.holding.service.sender.StreamContinuesMessageSender;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
-import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
-import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 
 public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsumerFactory {
 
@@ -17,10 +15,12 @@ public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsu
 	}
 
 	@Override
-	public StreamSseMessageSender createConsumer(PortfolioStreamer streamer, SseEmitter emitter) {
-		if (streamer instanceof FluxIntervalPortfolioStreamer) {
-			return new StreamContinuesMessageSender(emitter, reconnectTimeMillis);
-		}
+	public StreamSseMessageSender createStreamContinuesMessageSender(SseEmitter emitter) {
+		return new StreamContinuesMessageSender(emitter, reconnectTimeMillis);
+	}
+
+	@Override
+	public StreamSseMessageSender createStreamCompleteMessageSender(SseEmitter emitter) {
 		return new StreamCompleteMessageSender(emitter, reconnectTimeMillis);
 	}
 }

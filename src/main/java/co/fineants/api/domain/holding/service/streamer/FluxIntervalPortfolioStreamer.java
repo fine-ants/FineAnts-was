@@ -3,9 +3,13 @@ package co.fineants.api.domain.holding.service.streamer;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import co.fineants.api.domain.holding.domain.factory.StreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
+import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -37,5 +41,11 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 	@Override
 	public boolean supports(LocalDateTime time) {
 		return marketStatusChecker.isOpen(time);
+	}
+
+	@Override
+	public StreamSseMessageSender createStreamSseMessageSender(SseEmitter emitter,
+		StreamMessageConsumerFactory factory) {
+		return factory.createStreamContinuesMessageSender(emitter);
 	}
 }
