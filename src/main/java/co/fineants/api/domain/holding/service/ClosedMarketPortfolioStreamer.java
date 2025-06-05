@@ -3,6 +3,7 @@ package co.fineants.api.domain.holding.service;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
+import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
 import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import reactor.core.publisher.Flux;
 
@@ -21,7 +22,7 @@ public class ClosedMarketPortfolioStreamer implements PortfolioStreamer {
 
 	@Override
 	public Flux<PortfolioStreamMessage> streamMessages(Long portfolioId) {
-		return Flux.empty();
+		return Flux.just(new PortfolioCompleteStreamMessage());
 	}
 
 	@Override
