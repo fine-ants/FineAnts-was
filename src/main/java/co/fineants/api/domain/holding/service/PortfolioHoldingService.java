@@ -21,7 +21,6 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingRealTimeItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
@@ -167,16 +166,6 @@ public class PortfolioHoldingService {
 		List<PortfolioHoldingItem> portfolioHoldingItems = portfolioHoldingDetailFactory.createPortfolioHoldingItems(
 			portfolio);
 		return PortfolioHoldingsResponse.of(portfolioDetail, portfolioHoldingItems);
-	}
-
-	@Transactional(readOnly = true)
-	public PortfolioHoldingsRealTimeResponse readMyPortfolioStocksInRealTime(Long portfolioId) {
-		Portfolio portfolio = findPortfolioUsingFetchJoin(portfolioId);
-		PortfolioDetailRealTimeItem portfolioDetail = portfolioDetailFactory.createPortfolioDetailRealTimeItem(
-			portfolio);
-		List<PortfolioHoldingRealTimeItem> portfolioHoldingDetails =
-			portfolioHoldingDetailFactory.createPortfolioHoldingRealTimeItems(portfolio, calculator);
-		return PortfolioHoldingsRealTimeResponse.of(portfolioDetail, portfolioHoldingDetails);
 	}
 
 	private Portfolio findPortfolioUsingFetchJoin(Long portfolioId) {
