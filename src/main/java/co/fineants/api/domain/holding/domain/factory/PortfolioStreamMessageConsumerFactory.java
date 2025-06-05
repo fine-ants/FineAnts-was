@@ -2,8 +2,8 @@ package co.fineants.api.domain.holding.domain.factory;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.service.StreamMessageSender;
-import co.fineants.api.domain.holding.service.StreamMessageSseSender;
+import co.fineants.api.domain.holding.service.sender.StreamMessageSender;
+import co.fineants.api.domain.holding.service.sender.StreamMessageSseSender;
 
 public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsumerFactory {
 
