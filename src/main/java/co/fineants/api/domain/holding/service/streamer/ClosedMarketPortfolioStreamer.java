@@ -1,9 +1,10 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.streamer;
 
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.StockMarketChecker;
 import reactor.core.publisher.Flux;
 
 public class ClosedMarketPortfolioStreamer implements PortfolioStreamer {

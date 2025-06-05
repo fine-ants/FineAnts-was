@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import reactor.test.StepVerifier;
 
 class FluxIntervalPortfolioStreamerTest {

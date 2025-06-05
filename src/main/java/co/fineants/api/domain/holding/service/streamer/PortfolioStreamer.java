@@ -1,4 +1,4 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.streamer;
 
 import java.time.LocalDateTime;
 
