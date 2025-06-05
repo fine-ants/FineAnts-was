@@ -2,8 +2,8 @@ package co.fineants.api.domain.holding.domain.factory;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.service.PortfolioStreamMessageSseSender;
-import co.fineants.api.domain.holding.service.StreamMessageConsumer;
+import co.fineants.api.domain.holding.service.StreamMessageSender;
+import co.fineants.api.domain.holding.service.StreamMessageSseSender;
 
 public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsumerFactory {
 
@@ -13,7 +13,7 @@ public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsu
 		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
 
-	public StreamMessageConsumer createConsumer(SseEmitter emitter) {
-		return new PortfolioStreamMessageSseSender(emitter, reconnectTimeMillis);
+	public StreamMessageSender createConsumer(SseEmitter emitter) {
+		return new StreamMessageSseSender(emitter, reconnectTimeMillis);
 	}
 }
