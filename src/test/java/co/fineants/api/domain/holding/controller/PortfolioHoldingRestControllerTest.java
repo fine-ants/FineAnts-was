@@ -42,6 +42,8 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartIt
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
@@ -69,7 +71,11 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Override
 	protected Object initController() {
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
-		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamerFactory);
+		PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory = mock(
+			PortfolioStreamMessageConsumerFactory.class);
+		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
+		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory);
 	}
 
 	@BeforeEach
