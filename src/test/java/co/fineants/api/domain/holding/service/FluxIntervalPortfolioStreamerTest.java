@@ -33,20 +33,7 @@ class FluxIntervalPortfolioStreamerTest {
 		when(holdingService.getPortfolioReturns(anyLong()))
 			.thenReturn(portfolioStreamMessage);
 	}
-
-	@DisplayName("포트폴리오의 수익률 데이터를 스트리밍한다.")
-	@Test
-	void streamPortfolioReturns() {
-		// given
-		long portfolioId = 1L;
-		long totalTime = intervalSecond * maxCount;
-		// when & then
-		StepVerifier.withVirtualTime(() -> service.streamReturns(portfolioId))
-			.thenAwait(Duration.ofSeconds(totalTime))
-			.expectNextCount(maxCount)
-			.verifyComplete();
-	}
-
+	
 	@DisplayName("포트폴리오의 수익률 메시지를 스트리밍한다.")
 	@Test
 	void streamPortfolioMessages() {

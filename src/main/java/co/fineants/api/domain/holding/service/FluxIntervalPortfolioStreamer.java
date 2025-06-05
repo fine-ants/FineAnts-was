@@ -3,7 +3,6 @@ package co.fineants.api.domain.holding.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.message.PortfolioStreamMessage;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -23,14 +22,6 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 		this.stockMarketChecker = stockMarketChecker;
 		this.interval = Duration.ofSeconds(second);
 		this.maxCount = maxCount;
-	}
-
-	@Override
-	public Flux<PortfolioHoldingsRealTimeResponse> streamReturns(Long portfolioId) {
-		return Flux.interval(interval)
-			.take(maxCount)
-			.publishOn(Schedulers.boundedElastic())
-			.map(i -> portfolioHoldingService.readMyPortfolioStocksInRealTime(portfolioId));
 	}
 
 	@Override
