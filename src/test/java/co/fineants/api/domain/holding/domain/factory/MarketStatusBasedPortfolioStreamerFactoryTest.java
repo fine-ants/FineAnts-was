@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
-import co.fineants.api.domain.holding.service.FluxIntervalPortfolioStreamer;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioStreamer;
 import co.fineants.api.domain.holding.service.StockMarketChecker;
+import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 class MarketStatusBasedPortfolioStreamerFactoryTest {

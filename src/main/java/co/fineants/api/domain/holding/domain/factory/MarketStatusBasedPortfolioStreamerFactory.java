@@ -3,7 +3,7 @@ package co.fineants.api.domain.holding.domain.factory;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 public class MarketStatusBasedPortfolioStreamerFactory implements PortfolioStreamerFactory {

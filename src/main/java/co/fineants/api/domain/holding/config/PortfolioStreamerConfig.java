@@ -3,10 +3,10 @@ package co.fineants.api.domain.holding.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.holding.service.ClosedMarketPortfolioStreamer;
-import co.fineants.api.domain.holding.service.FluxIntervalPortfolioStreamer;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.StockMarketChecker;
+import co.fineants.api.domain.holding.service.streamer.ClosedMarketPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
 
 @Configuration
 public class PortfolioStreamerConfig {

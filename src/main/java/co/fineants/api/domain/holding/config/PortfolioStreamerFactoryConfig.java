@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 import co.fineants.api.domain.holding.domain.factory.MarketStatusBasedPortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
-import co.fineants.api.domain.holding.service.ClosedMarketPortfolioStreamer;
-import co.fineants.api.domain.holding.service.FluxIntervalPortfolioStreamer;
-import co.fineants.api.domain.holding.service.PortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.ClosedMarketPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.FluxIntervalPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 @Configuration

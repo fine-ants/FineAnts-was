@@ -1,9 +1,11 @@
-package co.fineants.api.domain.holding.service;
+package co.fineants.api.domain.holding.service.streamer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.PortfolioHoldingService;
+import co.fineants.api.domain.holding.service.StockMarketChecker;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;

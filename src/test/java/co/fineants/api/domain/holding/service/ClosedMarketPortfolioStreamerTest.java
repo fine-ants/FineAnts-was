@@ -7,6 +7,8 @@ import org.mockito.Mockito;
 
 import co.fineants.api.domain.holding.domain.message.PortfolioCompleteStreamMessage;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.service.streamer.ClosedMarketPortfolioStreamer;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
