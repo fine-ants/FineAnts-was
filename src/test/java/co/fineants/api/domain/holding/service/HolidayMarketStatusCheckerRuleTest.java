@@ -27,7 +27,7 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 		checker = new HolidayMarketStatusCheckerRule(holidayRepository);
 	}
 
-	@DisplayName("휴장일이 아니면 true를 반환한다")
+	@DisplayName("휴장일이 아니면 false를 반환한다")
 	@Test
 	void givenDateTime_whenNotHoliday_thenReturnTrue() {
 		// given
