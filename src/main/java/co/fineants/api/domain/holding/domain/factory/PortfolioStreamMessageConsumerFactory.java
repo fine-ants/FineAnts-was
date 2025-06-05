@@ -13,6 +13,7 @@ public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsu
 		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
 
+	@Override
 	public StreamMessageSender createConsumer(SseEmitter emitter) {
 		return new StreamMessageSseSender(emitter, reconnectTimeMillis);
 	}
