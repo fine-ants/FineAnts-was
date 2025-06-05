@@ -23,9 +23,19 @@ class TimeMarketStatusCheckerTest {
 		);
 	}
 
+	public static Stream<Arguments> closeDateTimeSource() {
+		return Stream.of(
+			Arguments.of(LocalDateTime.of(2023, 10, 1, 8, 59)),   // 정규장 시작 전
+			Arguments.of(LocalDateTime.of(2023, 10, 1, 15, 31)),  // 정규장 종료 후
+			Arguments.of(LocalDateTime.of(2023, 10, 2, 8, 0)),    // 다음 날 정규장 시작 전
+			Arguments.of(LocalDateTime.of(2023, 10, 2, 16, 0))    // 다음 날 정규장 종료 후
+		);
+	}
+
 	@BeforeEach
 	void setUp() {
-		checker = new TimeMarketStatusChecker();
+		TimeRange timeRange = new MarketTimeRange();
+		checker = new TimeMarketStatusChecker(timeRange);
 	}
 
 	@DisplayName("정규장 중이면 true를 반환한다")
@@ -38,5 +48,17 @@ class TimeMarketStatusCheckerTest {
 		boolean isOpen = checker.isOpen(dateTime);
 		// then
 		Assertions.assertThat(isOpen).isTrue();
+	}
+
+	@DisplayName("정규장이 아니면 false 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "closeDateTimeSource")
+	void isNotOpenOutsideRegularHours(LocalDateTime dateTime) {
+		// given
+
+		// when
+		boolean isClose = checker.isClose(dateTime);
+		// then
+		Assertions.assertThat(isClose).isTrue();
 	}
 }
