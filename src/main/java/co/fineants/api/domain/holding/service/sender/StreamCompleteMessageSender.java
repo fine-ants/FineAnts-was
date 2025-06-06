@@ -2,7 +2,6 @@ package co.fineants.api.domain.holding.service.sender;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.domain.factory.PortfolioSseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -11,17 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 public class StreamCompleteMessageSender implements StreamSseMessageSender {
 
 	private final SseEmitter emitter;
-	private final long reconnectTimeMillis;
+	private final SseEventBuilderFactory sseEventBuilderFactory;
 
-	public StreamCompleteMessageSender(SseEmitter emitter, long reconnectTimeMillis) {
+	public StreamCompleteMessageSender(SseEmitter emitter,
+		SseEventBuilderFactory sseEventBuilderFactory) {
 		this.emitter = emitter;
-		this.reconnectTimeMillis = reconnectTimeMillis;
+		this.sseEventBuilderFactory = sseEventBuilderFactory;
 	}
 
 	@Override
 	public void accept(StreamMessage message) {
-		SseEventBuilderFactory factory = new PortfolioSseEventBuilderFactory(reconnectTimeMillis);
-		SseEmitter.SseEventBuilder builder = factory.create(message);
+		SseEmitter.SseEventBuilder builder = sseEventBuilderFactory.create(message);
 		try {
 			emitter.send(builder);
 		} catch (Exception exception) {

@@ -21,6 +21,7 @@ public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsu
 
 	@Override
 	public StreamSseMessageSender createStreamCompleteMessageSender(SseEmitter emitter) {
-		return new StreamCompleteMessageSender(emitter, reconnectTimeMillis);
+		SseEventBuilderFactory sseEventBuilderFactory = new PortfolioSseEventBuilderFactory(reconnectTimeMillis);
+		return new StreamCompleteMessageSender(emitter, sseEventBuilderFactory);
 	}
 }
