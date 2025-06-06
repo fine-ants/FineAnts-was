@@ -1,9 +1,9 @@
 package co.fineants.api.domain.holding.service.sender;
 
-import java.util.UUID;
-
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEventBuilderFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,13 +20,8 @@ public class StreamContinuesMessageSender implements StreamSseMessageSender {
 
 	@Override
 	public void accept(StreamMessage message) {
-		// todo: 구현체별 중복 제거
-		String id = UUID.randomUUID().toString();
-		SseEmitter.SseEventBuilder builder = SseEmitter.event()
-			.id(id)
-			.data(message.getData())
-			.name(message.getEventName())
-			.reconnectTime(reconnectTimeMillis);
+		SseEventBuilderFactory factory = new PortfolioSseEventBuilderFactory(reconnectTimeMillis);
+		SseEmitter.SseEventBuilder builder = factory.create(message);
 		try {
 			emitter.send(builder);
 		} catch (Exception exception) {
