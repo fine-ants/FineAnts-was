@@ -45,6 +45,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -74,8 +75,9 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory = mock(
 			PortfolioStreamMessageConsumerFactory.class);
 		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
+		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
 		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamerFactory,
-			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory);
+			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory, portfolioSseEventBuilderFactory);
 	}
 
 	@BeforeEach
