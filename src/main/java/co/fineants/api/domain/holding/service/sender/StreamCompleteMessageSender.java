@@ -4,25 +4,19 @@ import java.io.IOException;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
-import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StreamCompleteMessageSender implements StreamSseMessageSender {
 
 	private final SseEmitter emitter;
-	private final SseEventBuilderFactory sseEventBuilderFactory;
 
-	public StreamCompleteMessageSender(SseEmitter emitter,
-		SseEventBuilderFactory sseEventBuilderFactory) {
+	public StreamCompleteMessageSender(SseEmitter emitter) {
 		this.emitter = emitter;
-		this.sseEventBuilderFactory = sseEventBuilderFactory;
 	}
 
 	@Override
-	public void accept(StreamMessage message) {
-		SseEmitter.SseEventBuilder builder = sseEventBuilderFactory.create(message);
+	public void accept(SseEmitter.SseEventBuilder builder) {
 		try {
 			emitter.send(builder);
 		} catch (IOException exception) {

@@ -4,9 +4,6 @@ import java.io.IOException;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import co.fineants.api.domain.holding.domain.factory.PortfolioSseEventBuilderFactory;
-import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
-import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,9 +18,7 @@ public class StreamContinuesMessageSender implements StreamSseMessageSender {
 	}
 
 	@Override
-	public void accept(StreamMessage message) {
-		SseEventBuilderFactory factory = new PortfolioSseEventBuilderFactory(reconnectTimeMillis);
-		SseEmitter.SseEventBuilder builder = factory.create(message);
+	public void accept(SseEmitter.SseEventBuilder builder) {
 		try {
 			emitter.send(builder);
 		} catch (IOException exception) {
