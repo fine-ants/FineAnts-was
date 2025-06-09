@@ -47,7 +47,7 @@ class StreamContinuesMessageSenderTest {
 
 	@DisplayName("StreamMessage가 주어지고 IO 예외가 발생하면 SseEmitter를 에러로 완료한다.")
 	@Test
-	void givenStreamMessage_whenRaisedIOEError_thenCompleteWithError() throws IOException {
+	void givenStreamMessage_whenRaisedInputOutputError_thenCompleteWithError() throws IOException {
 		// given
 		StreamMessage message = Mockito.mock(PortfolioReturnsStreamMessage.class);
 		SseEmitter.SseEventBuilder builder = Mockito.mock(SseEmitter.SseEventBuilder.class);
