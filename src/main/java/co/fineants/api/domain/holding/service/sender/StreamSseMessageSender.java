@@ -2,10 +2,10 @@ package co.fineants.api.domain.holding.service.sender;
 
 import java.util.function.Consumer;
 
-import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-public interface StreamSseMessageSender extends Consumer<StreamMessage> {
+public interface StreamSseMessageSender extends Consumer<SseEmitter.SseEventBuilder> {
 
 	@Override
-	void accept(StreamMessage message);
+	void accept(SseEmitter.SseEventBuilder builder);
 }
