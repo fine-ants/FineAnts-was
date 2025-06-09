@@ -3,6 +3,7 @@ package co.fineants.api.domain.holding.service.streamer;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,5 +68,17 @@ class AlwaysOpenPortfolioStreamerTest {
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@DisplayName("구현체 타입이 AlwaysOpenPortfolioStreamer인 경우 일자, 시간, 공휴일 상관없이 언제나 true를 반환한다")
+	@Test
+	void givenPortfolioStreamer_whenAlwaysOpenPortfolioStreamer_thenReturnTrue() {
+		// given
+		long maxCount = 6L;
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		// when
+		boolean supports = streamer.supports(LocalDateTime.now());
+		// then
+		Assertions.assertThat(supports).isTrue();
 	}
 }
