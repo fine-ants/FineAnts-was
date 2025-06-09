@@ -1,5 +1,7 @@
 package co.fineants.api.domain.holding.service.sender;
 
+import java.io.IOException;
+
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import co.fineants.api.domain.holding.domain.factory.PortfolioSseEventBuilderFactory;
@@ -24,7 +26,7 @@ public class StreamContinuesMessageSender implements StreamSseMessageSender {
 		SseEmitter.SseEventBuilder builder = factory.create(message);
 		try {
 			emitter.send(builder);
-		} catch (Exception exception) {
+		} catch (IOException exception) {
 			log.error("Error sending data to SseEmitter: {}", exception.getMessage(), exception);
 			emitter.completeWithError(exception);
 		}
