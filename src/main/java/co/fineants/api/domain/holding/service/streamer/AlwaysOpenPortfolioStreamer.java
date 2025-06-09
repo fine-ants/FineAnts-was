@@ -18,6 +18,9 @@ public class AlwaysOpenPortfolioStreamer implements PortfolioStreamer {
 		this.portfolioHoldingService = portfolioHoldingService;
 		this.interval = interval;
 		this.maxCount = maxCount;
+		if (this.maxCount < 0) {
+			throw new IllegalArgumentException("maxCount must be non-negative");
+		}
 	}
 
 	@Override
