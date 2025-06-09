@@ -44,4 +44,21 @@ class StreamContinuesMessageSenderTest {
 		BDDMockito.verify(emitter, never()).complete();
 		BDDMockito.verify(emitter, never()).completeWithError(any());
 	}
+
+	@DisplayName("StreamMessage가 주어지고 IO 예외가 발생하면 SseEmitter를 에러로 완료한다.")
+	@Test
+	void givenStreamMessage_whenRaisedIOEError_thenCompleteWithError() throws IOException {
+		// given
+		StreamMessage message = Mockito.mock(PortfolioReturnsStreamMessage.class);
+		SseEmitter.SseEventBuilder builder = Mockito.mock(SseEmitter.SseEventBuilder.class);
+		given(sseEventBuilderFactory.create(message))
+			.willReturn(builder);
+		IOException exception = new IOException("Test exception");
+		willThrow(exception)
+			.given(emitter).send(ArgumentMatchers.any(SseEmitter.SseEventBuilder.class));
+		// when
+		sender.accept(message);
+		// then
+		BDDMockito.verify(emitter).completeWithError(exception);
+	}
 }
