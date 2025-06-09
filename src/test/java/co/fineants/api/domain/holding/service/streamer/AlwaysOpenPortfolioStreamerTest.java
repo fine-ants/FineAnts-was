@@ -24,7 +24,7 @@ class AlwaysOpenPortfolioStreamerTest {
 
 	private PortfolioHoldingService portfolioHoldingService;
 	private Long portfolioId;
-	private Duration interval;
+	private long second;
 	private long maxCount;
 
 	@BeforeEach
@@ -34,7 +34,7 @@ class AlwaysOpenPortfolioStreamerTest {
 		StreamMessage message = Mockito.mock(StreamMessage.class);
 		BDDMockito.given(portfolioHoldingService.getPortfolioReturns(portfolioId))
 			.willReturn(message);
-		interval = Duration.ofSeconds(5);
+		second = 5;
 		maxCount = 6L;
 	}
 
@@ -42,10 +42,10 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void streamMessages_ShouldReturnStreamOfMessages() {
 		// given
-		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, second, maxCount);
 		// when & then
 		StepVerifier.withVirtualTime(() -> streamer.streamMessages(portfolioId))
-			.thenAwait(interval.multipliedBy(maxCount))
+			.thenAwait(Duration.ofSeconds(second * maxCount))
 			.expectNextCount(maxCount)
 			.verifyComplete();
 	}
@@ -55,7 +55,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	void givenPortfolioStreamer_whenMaxCountIsZero_thenReturnEmptyFlux() {
 		// given
 		maxCount = 0L;
-		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, second, maxCount);
 		// when & then
 		StepVerifier.withVirtualTime(() -> streamer.streamMessages(portfolioId))
 			.expectNextCount(0L)
@@ -69,7 +69,7 @@ class AlwaysOpenPortfolioStreamerTest {
 		maxCount = -1;
 		// when
 		Throwable throwable = catchThrowable(
-			() -> new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount));
+			() -> new AlwaysOpenPortfolioStreamer(portfolioHoldingService, second, maxCount));
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(IllegalArgumentException.class);
@@ -79,7 +79,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void givenPortfolioStreamer_whenAlwaysOpenPortfolioStreamer_thenReturnTrue() {
 		// given
-		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, second, maxCount);
 		// when
 		boolean supports = streamer.supports(LocalDateTime.now());
 		// then
@@ -90,7 +90,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void givenPortfolioStreamer_whenAlwaysOpenPortfolioStreamer_thenReturnStreamContinuesMessageSender() {
 		// given
-		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, second, maxCount);
 		SseEmitter emitter = Mockito.mock(SseEmitter.class);
 		StreamMessageConsumerFactory factory = Mockito.mock(StreamMessageConsumerFactory.class);
 		BDDMockito.given(factory.createStreamContinuesMessageSender(emitter))
