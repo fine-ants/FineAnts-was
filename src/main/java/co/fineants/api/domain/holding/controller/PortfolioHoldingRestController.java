@@ -19,7 +19,6 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRe
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
-import co.fineants.api.domain.holding.domain.factory.PortfolioSseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
@@ -45,6 +44,7 @@ public class PortfolioHoldingRestController {
 	private final PortfolioStreamerFactory marketStatusBasedPortfolioStreamerFactory;
 	private final PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private final SseEmitterFactory portfolioSseEmitterFactory;
+	private final SseEventBuilderFactory portfolioSseEventBuilderFactory;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -73,9 +73,8 @@ public class PortfolioHoldingRestController {
 		StreamSseMessageSender sender = streamer.createStreamSseMessageSender(emitter,
 			portfolioStreamMessageConsumerFactory);
 		// 메시지 생성 및 구독
-		SseEventBuilderFactory sseEventBuilderFactory = new PortfolioSseEventBuilderFactory(3000L);
 		streamer.streamMessages(portfolioId)
-			.map(sseEventBuilderFactory::create)
+			.map(portfolioSseEventBuilderFactory::create)
 			.subscribe(sender);
 		return emitter;
 	}
