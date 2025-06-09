@@ -11,9 +11,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import co.fineants.api.domain.holding.domain.factory.StreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
+import co.fineants.api.domain.holding.service.sender.StreamContinuesMessageSender;
+import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import reactor.test.StepVerifier;
 
 class AlwaysOpenPortfolioStreamerTest {
@@ -21,6 +25,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	private PortfolioHoldingService portfolioHoldingService;
 	private Long portfolioId;
 	private Duration interval;
+	private long maxCount;
 
 	@BeforeEach
 	void setUp() {
@@ -30,13 +35,13 @@ class AlwaysOpenPortfolioStreamerTest {
 		BDDMockito.given(portfolioHoldingService.getPortfolioReturns(portfolioId))
 			.willReturn(message);
 		interval = Duration.ofSeconds(5);
+		maxCount = 6L;
 	}
 
 	@DisplayName("반드시 열려있는 포트폴리오 스트리머는 주어진 간격과 최대 개수에 따라 메시지를 스트리밍한다.")
 	@Test
 	void streamMessages_ShouldReturnStreamOfMessages() {
 		// given
-		long maxCount = 6L;
 		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
 		// when & then
 		StepVerifier.withVirtualTime(() -> streamer.streamMessages(portfolioId))
@@ -49,7 +54,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void givenPortfolioStreamer_whenMaxCountIsZero_thenReturnEmptyFlux() {
 		// given
-		long maxCount = 0L;
+		maxCount = 0L;
 		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
 		// when & then
 		StepVerifier.withVirtualTime(() -> streamer.streamMessages(portfolioId))
@@ -61,7 +66,7 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void givenNegativeMaxCount_whenCreateInstance_thenThrowException() {
 		// given
-		long maxCount = -1;
+		maxCount = -1;
 		// when
 		Throwable throwable = catchThrowable(
 			() -> new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount));
@@ -74,11 +79,26 @@ class AlwaysOpenPortfolioStreamerTest {
 	@Test
 	void givenPortfolioStreamer_whenAlwaysOpenPortfolioStreamer_thenReturnTrue() {
 		// given
-		long maxCount = 6L;
 		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
 		// when
 		boolean supports = streamer.supports(LocalDateTime.now());
 		// then
 		Assertions.assertThat(supports).isTrue();
+	}
+
+	@DisplayName("AlwaysOpenPortfolioStreamer 객체가 StreamSseMessageSender 객체를 생성시 StreamContinuesMessageSender를 반환한다")
+	@Test
+	void givenPortfolioStreamer_whenAlwaysOpenPortfolioStreamer_thenReturnStreamContinuesMessageSender() {
+		// given
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		SseEmitter emitter = Mockito.mock(SseEmitter.class);
+		StreamMessageConsumerFactory factory = Mockito.mock(StreamMessageConsumerFactory.class);
+		BDDMockito.given(factory.createStreamContinuesMessageSender(emitter))
+			.willReturn(Mockito.mock(StreamContinuesMessageSender.class));
+		// when
+		StreamSseMessageSender sender = streamer.createStreamSseMessageSender(emitter, factory);
+		// then
+		Assertions.assertThat(sender)
+			.isInstanceOf(StreamContinuesMessageSender.class);
 	}
 }
