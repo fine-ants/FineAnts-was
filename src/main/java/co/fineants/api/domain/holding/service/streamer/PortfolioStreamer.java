@@ -15,5 +15,8 @@ public interface PortfolioStreamer {
 
 	boolean supports(LocalDateTime time);
 
-	StreamSseMessageSender createStreamSseMessageSender(SseEmitter emitter, StreamMessageConsumerFactory factory);
+	default StreamSseMessageSender createStreamSseMessageSender(SseEmitter emitter,
+		StreamMessageConsumerFactory factory) {
+		return factory.createStreamContinuesMessageSender(emitter);
+	}
 }
