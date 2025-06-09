@@ -31,4 +31,22 @@ class AlwaysOpenPortfolioStreamerTest {
 			.expectNextCount(maxCount)
 			.verifyComplete();
 	}
+
+	@DisplayName("개수가 0개인 경우 빈 Flux를 반환한다")
+	@Test
+	void givenPortfolioStreamer_whenMaxCountIsZero_thenReturnEmptyFlux() {
+		// given
+		PortfolioHoldingService portfolioHoldingService = Mockito.mock(PortfolioHoldingService.class);
+		Long portfolioId = 1L;
+		StreamMessage message = Mockito.mock(StreamMessage.class);
+		BDDMockito.given(portfolioHoldingService.getPortfolioReturns(portfolioId))
+			.willReturn(message);
+		Duration interval = Duration.ofSeconds(5);
+		long maxCount = 0L;
+		PortfolioStreamer streamer = new AlwaysOpenPortfolioStreamer(portfolioHoldingService, interval, maxCount);
+		// when & then
+		StepVerifier.withVirtualTime(() -> streamer.streamMessages(portfolioId))
+			.expectNextCount(0L)
+			.verifyComplete();
+	}
 }
