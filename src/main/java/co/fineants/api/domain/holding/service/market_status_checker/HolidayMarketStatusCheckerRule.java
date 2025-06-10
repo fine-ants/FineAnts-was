@@ -18,7 +18,7 @@ public class HolidayMarketStatusCheckerRule implements MarketStatusCheckerRule {
 	 * Holiday 테이블의 isOpen 컬럼값은 무조건 false로 저장되어 있다
 	 */
 	@Override
-	@Cacheable(value = "holidayCache", key = "#dateTime.toLocalDate().toString()")
+	@Cacheable(value = "holidayMarketStatus", key = "#dateTime.toLocalDate().toString()")
 	public boolean isOpen(LocalDateTime dateTime) {
 		return repository.findByBaseDate(dateTime.toLocalDate())
 			.isEmpty();
