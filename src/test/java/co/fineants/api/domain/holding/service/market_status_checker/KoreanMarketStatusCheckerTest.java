@@ -121,7 +121,7 @@ class KoreanMarketStatusCheckerTest {
 		// given
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
 		// when
-		boolean isClose = checker.isClose(dateTime);
+		boolean isClose = checker.isClosed(dateTime);
 		// then
 		Assertions.assertThat(isClose).isTrue();
 	}
@@ -133,7 +133,7 @@ class KoreanMarketStatusCheckerTest {
 		// given
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
 		// when
-		boolean isClose = checker.isClose(dateTime);
+		boolean isClose = checker.isClosed(dateTime);
 		// then
 		Assertions.assertThat(isClose).isFalse();
 	}
@@ -195,7 +195,7 @@ class KoreanMarketStatusCheckerTest {
 		MarketStatusCheckerRule holidayRule = new HolidayMarketStatusCheckerRule(holidayRepository);
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule, holidayRule);
 		// when
-		boolean isClose = checker.isClose(dateTime);
+		boolean isClose = checker.isClosed(dateTime);
 		// then
 		Assertions.assertThat(isClose).isTrue();
 	}
