@@ -22,6 +22,7 @@ import co.fineants.api.domain.holiday.repository.HolidayRepository;
 class KoreanMarketStatusCheckerTest {
 
 	private MarketStatusCheckerRule rule;
+	private MarketStatusCheckerRule weekdayRule;
 
 	public static Stream<Arguments> invalidMarketStatusCheckerRules() {
 		return Stream.of(
@@ -73,6 +74,7 @@ class KoreanMarketStatusCheckerTest {
 	void setUp() {
 		TimeRange regularTimeRange = new KoreanMarketTimeRange();
 		rule = new TimeMarketStatusCheckerRule(regularTimeRange);
+		weekdayRule = new WeekdayMarketStatusCheckerRule();
 	}
 
 	@DisplayName("정규시간 내에서는 true를 반환한다.")
@@ -142,7 +144,6 @@ class KoreanMarketStatusCheckerTest {
 	void isOpen_shouldReturnTrue_whenWeekDayAndDateTimeIsInRegularTime(LocalDateTime dateTime,
 		String ignoredDescription) {
 		// given
-		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule);
 		// when
 		boolean isOpen = checker.isOpen(dateTime);
@@ -156,7 +157,6 @@ class KoreanMarketStatusCheckerTest {
 	void isOpen_shouldReturnFalse_whenWeekendAndDateTimeIsInRegularTime(LocalDateTime dateTime,
 		String ignoredDescription) {
 		// given
-		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule);
 		// when
 		boolean isOpen = checker.isOpen(dateTime);
@@ -169,7 +169,6 @@ class KoreanMarketStatusCheckerTest {
 	@MethodSource(value = "regularDateTimeSource")
 	void isOpen_shouldReturnFalse_whenHoliday(LocalDateTime dateTime) {
 		// given
-		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
 		HolidayRepository holidayRepository = Mockito.mock(HolidayRepository.class);
 		LocalDate holidayDate = dateTime.toLocalDate();
 		Holiday holiday = Holiday.close(holidayDate);
@@ -188,7 +187,6 @@ class KoreanMarketStatusCheckerTest {
 	@MethodSource(value = "regularDateTimeSource")
 	void isClose_shouldReturnTrue_whenHoliday(LocalDateTime dateTime) {
 		// given
-		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
 		HolidayRepository holidayRepository = Mockito.mock(HolidayRepository.class);
 		LocalDate holidayDate = dateTime.toLocalDate();
 		Holiday holiday = Holiday.close(holidayDate);
