@@ -182,4 +182,23 @@ class KoreanMarketStatusCheckerTest {
 		// then
 		Assertions.assertThat(isOpen).isFalse();
 	}
+
+	@DisplayName("공휴일인 경우에는 true를 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "regularDateTimeSource")
+	void isClose_shouldReturnTrue_whenHoliday(LocalDateTime dateTime) {
+		// given
+		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
+		HolidayRepository holidayRepository = Mockito.mock(HolidayRepository.class);
+		LocalDate holidayDate = dateTime.toLocalDate();
+		Holiday holiday = Holiday.close(holidayDate);
+		BDDMockito.given(holidayRepository.findByBaseDate(holidayDate))
+			.willReturn(Optional.of(holiday));
+		MarketStatusCheckerRule holidayRule = new HolidayMarketStatusCheckerRule(holidayRepository);
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule, holidayRule);
+		// when
+		boolean isClose = checker.isClose(dateTime);
+		// then
+		Assertions.assertThat(isClose).isTrue();
+	}
 }
