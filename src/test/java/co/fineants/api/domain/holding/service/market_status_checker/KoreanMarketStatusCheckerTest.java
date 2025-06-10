@@ -1,6 +1,8 @@
 package co.fineants.api.domain.holding.service.market_status_checker;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
@@ -9,9 +11,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.KoreanMarketTimeRange;
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
+import co.fineants.api.domain.holiday.domain.entity.Holiday;
+import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
 class KoreanMarketStatusCheckerTest {
 
@@ -152,6 +158,25 @@ class KoreanMarketStatusCheckerTest {
 		// given
 		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule);
+		// when
+		boolean isOpen = checker.isOpen(dateTime);
+		// then
+		Assertions.assertThat(isOpen).isFalse();
+	}
+
+	@DisplayName("공휴일인 경우에는 false를 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "regularDateTimeSource")
+	void isOpen_shouldReturnFalse_whenHoliday(LocalDateTime dateTime) {
+		// given
+		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
+		HolidayRepository holidayRepository = Mockito.mock(HolidayRepository.class);
+		LocalDate holidayDate = dateTime.toLocalDate();
+		Holiday holiday = Holiday.close(holidayDate);
+		BDDMockito.given(holidayRepository.findByBaseDate(holidayDate))
+			.willReturn(Optional.of(holiday));
+		MarketStatusCheckerRule holidayRule = new HolidayMarketStatusCheckerRule(holidayRepository);
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule, holidayRule);
 		// when
 		boolean isOpen = checker.isOpen(dateTime);
 		// then
