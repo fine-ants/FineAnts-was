@@ -22,7 +22,8 @@ public class StreamCompleteMessageSender implements StreamSseMessageSender {
 		} catch (IOException exception) {
 			log.error("Error sending data to SseEmitter: {}", exception.getMessage(), exception);
 			emitter.completeWithError(exception);
+		} finally {
+			emitter.complete();
 		}
-		emitter.complete();
 	}
 }
