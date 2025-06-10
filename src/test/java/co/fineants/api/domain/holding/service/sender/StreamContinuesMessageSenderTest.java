@@ -20,7 +20,7 @@ class StreamContinuesMessageSenderTest {
 	@BeforeEach
 	void setUp() {
 		emitter = Mockito.mock(SseEmitter.class);
-		sender = new StreamContinuesMessageSender(emitter, 3000L);
+		sender = new StreamContinuesMessageSender(emitter);
 	}
 
 	@DisplayName("StreamMessage가 주어지고 메시지를 접수하면 SseEmitter에 SseEventBuilder를 전송한다.")

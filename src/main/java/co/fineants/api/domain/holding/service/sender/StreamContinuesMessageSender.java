@@ -10,11 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 public class StreamContinuesMessageSender implements StreamSseMessageSender {
 
 	private final SseEmitter emitter;
-	private final long reconnectTimeMillis;
 
-	public StreamContinuesMessageSender(SseEmitter emitter, long reconnectTimeMillis) {
+	public StreamContinuesMessageSender(SseEmitter emitter) {
 		this.emitter = emitter;
-		this.reconnectTimeMillis = reconnectTimeMillis;
 	}
 
 	@Override

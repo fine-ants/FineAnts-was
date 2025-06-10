@@ -7,16 +7,10 @@ import co.fineants.api.domain.holding.service.sender.StreamContinuesMessageSende
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 
 public class PortfolioStreamMessageConsumerFactory implements StreamMessageConsumerFactory {
-
-	private final long reconnectTimeMillis;
-
-	public PortfolioStreamMessageConsumerFactory(long reconnectTimeMillis) {
-		this.reconnectTimeMillis = reconnectTimeMillis;
-	}
-
+	
 	@Override
 	public StreamSseMessageSender createStreamContinuesMessageSender(SseEmitter emitter) {
-		return new StreamContinuesMessageSender(emitter, reconnectTimeMillis);
+		return new StreamContinuesMessageSender(emitter);
 	}
 
 	@Override
