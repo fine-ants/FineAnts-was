@@ -16,7 +16,7 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 	@Autowired
 	private HolidayRepository repository;
 
-	@DisplayName("dateTime이 휴장일인 경우에는 false를 반환한다")
+	@DisplayName("dateTime이 공휴일인 경우에는 false를 반환한다")
 	@Test
 	void isOpen_shouldReturnFalse_whenDateTimeIsHoliday() {
 		// given
@@ -30,7 +30,7 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(isOpen).isFalse();
 	}
 
-	@DisplayName("dateTime이 휴장일아닌 경우에는 true를 반환한다")
+	@DisplayName("dateTime이 공휴일이 아닌 경우에는 true를 반환한다")
 	@Test
 	void isOpen_shouldReturnTrue_whenDateTimeIsNotHoliday() {
 		// given
