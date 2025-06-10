@@ -85,7 +85,7 @@ class KoreanMarketStatusCheckerTest {
 			.hasMessage("At least one rule must be provided");
 	}
 
-	@DisplayName("정규시간 내에서는 true를 반환한다.")
+	@DisplayName("정규시간 외에서는 true를 반환한다.")
 	@ParameterizedTest(name = "{index} : {0} ({1})")
 	@MethodSource(value = "notRegularDateTimeSource")
 	void isClose_shouldReturnFalse_whenDateTimeIsNotInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
@@ -95,5 +95,17 @@ class KoreanMarketStatusCheckerTest {
 		boolean isClose = checker.isClose(dateTime);
 		// then
 		Assertions.assertThat(isClose).isTrue();
+	}
+
+	@DisplayName("정규시간 내에서는 false를 반환한다.")
+	@ParameterizedTest(name = "{index} : {0} ({1})")
+	@MethodSource(value = "regularDateTimeSource")
+	void isClose_shouldReturnFalse_whenDateTimeIsInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
+		// given
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
+		// when
+		boolean isClose = checker.isClose(dateTime);
+		// then
+		Assertions.assertThat(isClose).isFalse();
 	}
 }
