@@ -27,7 +27,7 @@ public class KoreanMarketStatusChecker implements MarketStatusChecker {
 	}
 
 	@Override
-	public boolean isClose(LocalDateTime dateTime) {
+	public boolean isClosed(LocalDateTime dateTime) {
 		return rules.stream().anyMatch(rule -> rule.isClose(dateTime));
 	}
 }
