@@ -101,10 +101,10 @@ class KoreanMarketStatusCheckerTest {
 		Assertions.assertThat(isOpen).isFalse();
 	}
 
-	@DisplayName("MarketStatusChecker 생성시 빈 배열이나 null을 전달하면 객체 생성시 인스턴스가 발생한다")
+	@DisplayName("MarketStatusChecker 생성시 빈 배열이나 null을 전달하면 객체 생성시 예외가 발생한다")
 	@ParameterizedTest
 	@MethodSource(value = "invalidMarketStatusCheckerRules")
-	void created_shouldReturnFalse_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
+	void created_shouldThrowException_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
 		// given
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> new KoreanMarketStatusChecker(rules));
@@ -117,7 +117,7 @@ class KoreanMarketStatusCheckerTest {
 	@DisplayName("정규시간 외에서는 true를 반환한다.")
 	@ParameterizedTest(name = "{index} : {0} ({1})")
 	@MethodSource(value = "notRegularDateTimeSource")
-	void isClose_shouldReturnFalse_whenDateTimeIsNotInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
+	void isClose_shouldReturnTrue_whenDateTimeIsNotInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
 		// given
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
 		// when
