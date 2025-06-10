@@ -7,7 +7,7 @@ import co.fineants.api.domain.holding.service.market_status_checker.HolidayMarke
 import co.fineants.api.domain.holding.service.market_status_checker.KoreanMarketStatusChecker;
 import co.fineants.api.domain.holding.service.market_status_checker.TimeMarketStatusCheckerRule;
 import co.fineants.api.domain.holding.service.market_status_checker.WeekdayMarketStatusCheckerRule;
-import co.fineants.api.domain.holding.service.market_status_checker.time_range.MarketTimeRange;
+import co.fineants.api.domain.holding.service.market_status_checker.time_range.KoreanMarketTimeRange;
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
@@ -15,7 +15,7 @@ import co.fineants.api.domain.holiday.repository.HolidayRepository;
 public class MarketStatusCheckerConfig {
 	@Bean
 	public TimeMarketStatusCheckerRule timeMarketStatusCheckerRule() {
-		TimeRange timeRange = new MarketTimeRange();
+		TimeRange timeRange = new KoreanMarketTimeRange();
 		return new TimeMarketStatusCheckerRule(timeRange);
 	}
 

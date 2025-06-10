@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import co.fineants.api.domain.holding.service.market_status_checker.time_range.MarketTimeRange;
+import co.fineants.api.domain.holding.service.market_status_checker.time_range.KoreanMarketTimeRange;
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
 
 class KoreanMarketStatusCheckerTest {
@@ -15,7 +15,7 @@ class KoreanMarketStatusCheckerTest {
 	@Test
 	void shouldReturnTrue_whenDateTimeIsInRegularTime() {
 		// given
-		TimeRange regularTimeRange = new MarketTimeRange();
+		TimeRange regularTimeRange = new KoreanMarketTimeRange();
 		MarketStatusCheckerRule rule = new TimeMarketStatusCheckerRule(regularTimeRange);
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
 		LocalDateTime dateTime = LocalDateTime.of(2025, 6, 10, 9, 0);
