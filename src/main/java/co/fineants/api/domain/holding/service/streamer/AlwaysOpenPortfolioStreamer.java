@@ -13,10 +13,10 @@ public class AlwaysOpenPortfolioStreamer implements PortfolioStreamer {
 	private final Duration interval;
 	private final long maxCount;
 
-	public AlwaysOpenPortfolioStreamer(PortfolioHoldingService portfolioHoldingService, long second,
+	public AlwaysOpenPortfolioStreamer(PortfolioHoldingService portfolioHoldingService, long intervalSeconds,
 		long maxCount) {
 		this.portfolioHoldingService = portfolioHoldingService;
-		this.interval = Duration.ofSeconds(second);
+		this.interval = Duration.ofSeconds(intervalSeconds);
 		this.maxCount = maxCount;
 		if (this.maxCount < 0) {
 			throw new IllegalArgumentException("maxCount must be non-negative");
