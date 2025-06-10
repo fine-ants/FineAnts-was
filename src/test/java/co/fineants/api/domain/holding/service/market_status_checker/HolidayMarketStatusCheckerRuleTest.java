@@ -30,4 +30,15 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(isOpen).isFalse();
 	}
 
+	@DisplayName("dateTime이 휴장일아닌 경우에는 true를 반환한다")
+	@Test
+	void isOpen_shouldReturnTrue_whenDateTimeIsNotHoliday() {
+		// given
+		MarketStatusCheckerRule rule = new HolidayMarketStatusCheckerRule(repository);
+		LocalDateTime dateTime = LocalDateTime.of(2025, 7, 6, 9, 0);
+		// when
+		boolean isOpen = rule.isOpen(dateTime);
+		// then
+		Assertions.assertThat(isOpen).isTrue();
+	}
 }
