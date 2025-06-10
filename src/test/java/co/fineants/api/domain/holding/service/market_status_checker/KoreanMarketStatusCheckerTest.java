@@ -42,6 +42,27 @@ class KoreanMarketStatusCheckerTest {
 		);
 	}
 
+	public static Stream<Arguments> weekendDateTimeSource() {
+		return Stream.of(
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 8, 59), "토요일 정규시간 이전"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 15, 31), "토요일 정규시간 이후"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 0, 0), "토요일 정규시간 이전 (자정)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 23, 59), "토요일 정규시간 이후 (23시59분)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 8, 59), "일요일 정규시간 이전"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 15, 31), "일요일 정규시간 이후"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 0, 0), "일요일 정규시간 이전 (자정)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 23, 59), "일요일 정규시간 이후 (23시59분)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 8, 59), "토요일 정규시간 이전"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 15, 31), "토요일 정규시간 이후"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 0, 0), "토요일 정규시간 이전 (자정)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 23, 59), "토요일 정규시간 이후 (23시59분)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 8, 59), "일요일 정규시간 이전"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 15, 31), "일요일 정규시간 이후"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 0, 0), "일요일 정규시간 이전 (자정)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 23, 59), "일요일 정규시간 이후 (23시59분)")
+		);
+	}
+
 	@BeforeEach
 	void setUp() {
 		TimeRange regularTimeRange = new KoreanMarketTimeRange();
@@ -121,5 +142,19 @@ class KoreanMarketStatusCheckerTest {
 		boolean isOpen = checker.isOpen(dateTime);
 		// then
 		Assertions.assertThat(isOpen).isTrue();
+	}
+
+	@DisplayName("주말시간에서는 false를 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "weekendDateTimeSource")
+	void isOpen_shouldReturnFalse_whenWeekendAndDateTimeIsInRegularTime(LocalDateTime dateTime,
+		String ignoredDescription) {
+		// given
+		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule);
+		// when
+		boolean isOpen = checker.isOpen(dateTime);
+		// then
+		Assertions.assertThat(isOpen).isFalse();
 	}
 }
