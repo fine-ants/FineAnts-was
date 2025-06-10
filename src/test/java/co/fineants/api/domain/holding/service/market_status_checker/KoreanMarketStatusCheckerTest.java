@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,6 +14,8 @@ import co.fineants.api.domain.holding.service.market_status_checker.time_range.K
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
 
 class KoreanMarketStatusCheckerTest {
+
+	private MarketStatusCheckerRule rule;
 
 	public static Stream<Arguments> invalidMarketStatusCheckerRules() {
 		return Stream.of(
@@ -30,13 +33,26 @@ class KoreanMarketStatusCheckerTest {
 		);
 	}
 
+	public static Stream<Arguments> notRegularDateTimeSource() {
+		return Stream.of(
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 8, 59), "정규시간 이전"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 15, 31), "정규시간 이후"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 0, 0), "정규시간 이전 (자정)"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 23, 59), "정규시간 이후 (23시59분)")
+		);
+	}
+
+	@BeforeEach
+	void setUp() {
+		TimeRange regularTimeRange = new KoreanMarketTimeRange();
+		rule = new TimeMarketStatusCheckerRule(regularTimeRange);
+	}
+
 	@DisplayName("정규시간 내에서는 true를 반환한다.")
 	@ParameterizedTest(name = "{index} : {0} ({1})")
 	@MethodSource(value = "regularDateTimeSource")
-	void shouldReturnTrue_whenDateTimeIsInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
+	void isOpen_shouldReturnTrue_whenDateTimeIsInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
 		// given
-		TimeRange regularTimeRange = new KoreanMarketTimeRange();
-		MarketStatusCheckerRule rule = new TimeMarketStatusCheckerRule(regularTimeRange);
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
 		// when
 		boolean isOpen = checker.isOpen(dateTime);
@@ -44,10 +60,22 @@ class KoreanMarketStatusCheckerTest {
 		Assertions.assertThat(isOpen).isTrue();
 	}
 
+	@DisplayName("정규시간 외에는 false를 반환한다.")
+	@ParameterizedTest(name = "{index} : {0} ({1})")
+	@MethodSource(value = "notRegularDateTimeSource")
+	void isOpen_shouldReturnFalse_whenDateTimeIsNotInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
+		// given
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
+		// when
+		boolean isOpen = checker.isOpen(dateTime);
+		// then
+		Assertions.assertThat(isOpen).isFalse();
+	}
+
 	@DisplayName("MarketStatusChecker 생성시 빈 배열이나 null을 전달하면 객체 생성시 인스턴스가 발생한다")
 	@ParameterizedTest
 	@MethodSource(value = "invalidMarketStatusCheckerRules")
-	void shouldReturnFalse_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
+	void created_shouldReturnFalse_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
 		// given
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> new KoreanMarketStatusChecker(rules));
@@ -55,5 +83,17 @@ class KoreanMarketStatusCheckerTest {
 		Assertions.assertThat(throwable)
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("At least one rule must be provided");
+	}
+
+	@DisplayName("정규시간 내에서는 true를 반환한다.")
+	@ParameterizedTest(name = "{index} : {0} ({1})")
+	@MethodSource(value = "notRegularDateTimeSource")
+	void isClose_shouldReturnFalse_whenDateTimeIsNotInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
+		// given
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
+		// when
+		boolean isClose = checker.isClose(dateTime);
+		// then
+		Assertions.assertThat(isClose).isTrue();
 	}
 }
