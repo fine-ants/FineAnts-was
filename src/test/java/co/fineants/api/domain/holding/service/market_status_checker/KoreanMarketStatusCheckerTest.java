@@ -59,14 +59,14 @@ class KoreanMarketStatusCheckerTest {
 			Arguments.of(LocalDateTime.of(2025, 6, 15, 15, 31), "일요일 정규시간 이후"),
 			Arguments.of(LocalDateTime.of(2025, 6, 15, 0, 0), "일요일 정규시간 이전 (자정)"),
 			Arguments.of(LocalDateTime.of(2025, 6, 15, 23, 59), "일요일 정규시간 이후 (23시59분)"),
-			Arguments.of(LocalDateTime.of(2025, 6, 14, 8, 59), "토요일 정규시간 이전"),
-			Arguments.of(LocalDateTime.of(2025, 6, 14, 15, 31), "토요일 정규시간 이후"),
-			Arguments.of(LocalDateTime.of(2025, 6, 14, 0, 0), "토요일 정규시간 이전 (자정)"),
-			Arguments.of(LocalDateTime.of(2025, 6, 14, 23, 59), "토요일 정규시간 이후 (23시59분)"),
-			Arguments.of(LocalDateTime.of(2025, 6, 15, 8, 59), "일요일 정규시간 이전"),
-			Arguments.of(LocalDateTime.of(2025, 6, 15, 15, 31), "일요일 정규시간 이후"),
-			Arguments.of(LocalDateTime.of(2025, 6, 15, 0, 0), "일요일 정규시간 이전 (자정)"),
-			Arguments.of(LocalDateTime.of(2025, 6, 15, 23, 59), "일요일 정규시간 이후 (23시59분)")
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 9, 0), "토요일 정규시간 시작"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 15, 30), "토요일 정규시간 종료"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 12, 0), "토요일 정규시간 중간"),
+			Arguments.of(LocalDateTime.of(2025, 6, 14, 10, 30), "토요일 정규시간 중간"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 9, 0), "일요일 정규시간 시작"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 15, 30), "일요일 정규시간 종료"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 12, 0), "일요일 정규시간 중간"),
+			Arguments.of(LocalDateTime.of(2025, 6, 15, 10, 30), "일요일 정규시간 중간")
 		);
 	}
 
