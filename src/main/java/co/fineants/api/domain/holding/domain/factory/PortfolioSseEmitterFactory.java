@@ -20,9 +20,7 @@ public class PortfolioSseEmitterFactory implements SseEmitterFactory {
 			log.info("SseEmitter timeout, removing emitter");
 			emitter.complete();
 		});
-		emitter.onCompletion(() -> {
-			log.info("SseEmitter completed, removing emitter");
-		});
+		emitter.onCompletion(() -> log.info("SseEmitter completed, removing emitter"));
 		emitter.onError(throwable -> {
 			log.error("SseEmitter error: {}", throwable.getMessage(), throwable);
 			emitter.completeWithError(throwable);
