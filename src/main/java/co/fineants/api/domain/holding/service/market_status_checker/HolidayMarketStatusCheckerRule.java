@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.springframework.cache.annotation.Cacheable;
 
-import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
 public class HolidayMarketStatusCheckerRule implements MarketStatusCheckerRule {
@@ -22,7 +21,6 @@ public class HolidayMarketStatusCheckerRule implements MarketStatusCheckerRule {
 	@Cacheable(value = "holidayCache", key = "#dateTime.toLocalDate().toString()")
 	public boolean isOpen(LocalDateTime dateTime) {
 		return repository.findByBaseDate(dateTime.toLocalDate())
-			.map(Holiday::isOpenMarket)
-			.orElse(Boolean.TRUE);
+			.isEmpty();
 	}
 }
