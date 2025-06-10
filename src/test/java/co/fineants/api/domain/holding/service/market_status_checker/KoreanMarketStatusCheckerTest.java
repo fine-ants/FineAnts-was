@@ -104,7 +104,7 @@ class KoreanMarketStatusCheckerTest {
 	@DisplayName("MarketStatusChecker 생성시 빈 배열이나 null을 전달하면 객체 생성시 예외가 발생한다")
 	@ParameterizedTest
 	@MethodSource(value = "invalidMarketStatusCheckerRules")
-	void created_shouldThrowException_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
+	void created_shouldThrowIllegalArgumentException_whenEmptyCheckerRule(MarketStatusCheckerRule[] rules) {
 		// given
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> new KoreanMarketStatusChecker(rules));
