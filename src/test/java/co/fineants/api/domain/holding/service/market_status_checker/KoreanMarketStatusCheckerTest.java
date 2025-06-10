@@ -108,4 +108,18 @@ class KoreanMarketStatusCheckerTest {
 		// then
 		Assertions.assertThat(isClose).isFalse();
 	}
+
+	@DisplayName("평일 정규시간 내에서는 true를 반환한다")
+	@ParameterizedTest
+	@MethodSource(value = "regularDateTimeSource")
+	void isOpen_shouldReturnTrue_whenWeekDayAndDateTimeIsInRegularTime(LocalDateTime dateTime,
+		String ignoredDescription) {
+		// given
+		MarketStatusCheckerRule weekdayRule = new WeekdayMarketStatusCheckerRule();
+		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule, weekdayRule);
+		// when
+		boolean isOpen = checker.isOpen(dateTime);
+		// then
+		Assertions.assertThat(isOpen).isTrue();
+	}
 }
