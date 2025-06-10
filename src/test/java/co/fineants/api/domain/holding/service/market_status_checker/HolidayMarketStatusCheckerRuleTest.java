@@ -68,7 +68,7 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(isOpen).isFalse();
 		boolean cachedIsOpen = Boolean.parseBoolean(
-			Objects.requireNonNull(redisTemplate.opsForValue().get("holidayCache::" + date)).toString());
+			Objects.requireNonNull(redisTemplate.opsForValue().get("holidayMarketStatus::" + date)).toString());
 		assertThat(cachedIsOpen).isFalse();
 	}
 }
