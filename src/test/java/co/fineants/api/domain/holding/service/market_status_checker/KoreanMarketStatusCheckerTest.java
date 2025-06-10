@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,14 +21,23 @@ class KoreanMarketStatusCheckerTest {
 		);
 	}
 
+	public static Stream<Arguments> regularDateTimeSource() {
+		return Stream.of(
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 9, 0), "정규시간 시작"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 15, 30), "정규시간 종료"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 12, 0), "정규시간 중간"),
+			Arguments.of(LocalDateTime.of(2025, 6, 10, 10, 30), "정규시간 중간")
+		);
+	}
+
 	@DisplayName("정규시간 내에서는 true를 반환한다.")
-	@Test
-	void shouldReturnTrue_whenDateTimeIsInRegularTime() {
+	@ParameterizedTest(name = "{index} : {0} ({1})")
+	@MethodSource(value = "regularDateTimeSource")
+	void shouldReturnTrue_whenDateTimeIsInRegularTime(LocalDateTime dateTime, String ignoredDescription) {
 		// given
 		TimeRange regularTimeRange = new KoreanMarketTimeRange();
 		MarketStatusCheckerRule rule = new TimeMarketStatusCheckerRule(regularTimeRange);
 		MarketStatusChecker checker = new KoreanMarketStatusChecker(rule);
-		LocalDateTime dateTime = LocalDateTime.of(2025, 6, 10, 9, 0);
 		// when
 		boolean isOpen = checker.isOpen(dateTime);
 		// then
