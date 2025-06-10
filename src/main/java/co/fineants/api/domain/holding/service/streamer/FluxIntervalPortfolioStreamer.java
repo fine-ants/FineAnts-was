@@ -19,10 +19,10 @@ public class FluxIntervalPortfolioStreamer implements PortfolioStreamer {
 	private final long maxCount;
 
 	public FluxIntervalPortfolioStreamer(PortfolioHoldingService portfolioHoldingService,
-		MarketStatusChecker marketStatusChecker, long second, long maxCount) {
+		MarketStatusChecker marketStatusChecker, long intervalSeconds, long maxCount) {
 		this.portfolioHoldingService = portfolioHoldingService;
 		this.marketStatusChecker = marketStatusChecker;
-		this.interval = Duration.ofSeconds(second);
+		this.interval = Duration.ofSeconds(intervalSeconds);
 		this.maxCount = maxCount;
 		if (this.maxCount < 0) {
 			throw new IllegalArgumentException("maxCount must be non-negative");
