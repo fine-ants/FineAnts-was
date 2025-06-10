@@ -2,11 +2,11 @@ package co.fineants.api.domain.holding.service.market_status_checker.time_range;
 
 import java.time.LocalTime;
 
-public class MarketTimeRange implements TimeRange {
+public class KoreanMarketTimeRange implements TimeRange {
 	private final LocalTime openTime;
 	private final LocalTime closeTime;
 
-	public MarketTimeRange() {
+	public KoreanMarketTimeRange() {
 		openTime = LocalTime.of(9, 0);
 		closeTime = LocalTime.of(15, 30);
 	}

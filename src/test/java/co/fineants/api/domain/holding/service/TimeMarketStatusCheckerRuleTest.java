@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
 import co.fineants.api.domain.holding.service.market_status_checker.TimeMarketStatusCheckerRule;
-import co.fineants.api.domain.holding.service.market_status_checker.time_range.MarketTimeRange;
+import co.fineants.api.domain.holding.service.market_status_checker.time_range.KoreanMarketTimeRange;
 import co.fineants.api.domain.holding.service.market_status_checker.time_range.TimeRange;
 
 class TimeMarketStatusCheckerRuleTest {
@@ -39,7 +39,7 @@ class TimeMarketStatusCheckerRuleTest {
 
 	@BeforeEach
 	void setUp() {
-		TimeRange timeRange = new MarketTimeRange();
+		TimeRange timeRange = new KoreanMarketTimeRange();
 		checker = new TimeMarketStatusCheckerRule(timeRange);
 	}
 
