@@ -29,7 +29,7 @@ public class KisProductionScheduler {
 	 * 휴장일 및 주말에는 실행하지 않습니다.
 	 * </p>
 	 */
-	@SchedulerLock(name = "kisCurrentPriceScheduler", lockAtLeastFor = "4s", lockAtMostFor = "5s")
+	@SchedulerLock(name = "kisCurrentPriceScheduler", lockAtLeastFor = "6s", lockAtMostFor = "12s")
 	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
 	@Transactional
 	public void refreshCurrentPrice() {
