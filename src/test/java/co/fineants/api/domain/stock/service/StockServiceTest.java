@@ -344,4 +344,19 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(items).hasSize(1);
 	}
+
+	@DisplayName("영어 종목 이름을 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
+	@Test
+	void search_givenStockNameEng_whenSearch_thenReturnStockSearchItemList() {
+		// given
+		stockRepository.save(createSamsungStock());
+		stockRepository.save(createNokwonCI());
+
+		String searchTerm = "samsung";
+		StockSearchRequest request = new StockSearchRequest(searchTerm);
+		// when
+		List<StockSearchItem> items = stockService.search(request);
+		// then
+		assertThat(items).hasSize(1);
+	}
 }
