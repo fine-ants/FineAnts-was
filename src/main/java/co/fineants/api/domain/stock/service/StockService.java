@@ -45,8 +45,8 @@ public class StockService {
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(StockSearchRequest request) {
-		List<Stock> stocks = stockQueryRepository.getStock(request.getSearchTerm());
-		return stocks.stream()
+		String keyword = request.getSearchTerm();
+		return stockQueryRepository.getStock(keyword).stream()
 			.map(StockSearchItem::from)
 			.toList();
 	}
