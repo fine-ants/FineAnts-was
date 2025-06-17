@@ -116,11 +116,9 @@ public class PortfolioHoldingService {
 		Stock stock,
 		PortfolioHoldingCreateRequest request,
 		PortfolioHolding holding) {
-		// 기존 포트폴리오 종목 탐색후 없으면 새로 생성함
-		Long portfolioId = portfolio.getId();
+
 		// 포트폴리오 종목 정보 저장
 		PortfolioHolding saveHolding = portfolioHoldingRepository.save(holding);
-
 		if (request.isPurchaseHistoryComplete()) { // 매입 이력 정보가 모두 입력된 경우
 			validateCashSufficientForPurchase(request, portfolio);
 			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
@@ -129,6 +127,7 @@ public class PortfolioHoldingService {
 		}
 
 		// 포트폴리오의 종목 캐시 업데이트
+		Long portfolioId = portfolio.getId();
 		Set<String> cachedTickers = portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		log.debug("update cached tickerSymbols: {}", cachedTickers);
 
