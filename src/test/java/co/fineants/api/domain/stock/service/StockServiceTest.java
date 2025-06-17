@@ -359,4 +359,19 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(items).hasSize(1);
 	}
+
+	@DisplayName("키워드가 null이면 빈 리스트를 반환한다")
+	@Test
+	void search_whenSearchTermIsNull_ThenReturnEmptyList() {
+		// given
+		stockRepository.save(createSamsungStock());
+		stockRepository.save(createNokwonCI());
+
+		String searchTerm = null;
+		StockSearchRequest request = new StockSearchRequest(searchTerm);
+		// when
+		List<StockSearchItem> items = stockService.search(request);
+		// then
+		assertThat(items).isEmpty();
+	}
 }

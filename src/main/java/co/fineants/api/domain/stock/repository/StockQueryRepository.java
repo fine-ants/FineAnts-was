@@ -1,7 +1,9 @@
 package co.fineants.api.domain.stock.repository;
 
 import static co.fineants.api.domain.stock.domain.entity.QStock.*;
+import static org.apache.logging.log4j.util.Strings.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,6 +62,9 @@ public class StockQueryRepository {
 	}
 
 	public List<Stock> getStock(String keyword) {
+		if (isBlank(keyword)) {
+			return Collections.emptyList();
+		}
 		return jpaQueryFactory.selectFrom(stock)
 			.where(search(keyword))
 			.orderBy(stock.tickerSymbol.desc())
