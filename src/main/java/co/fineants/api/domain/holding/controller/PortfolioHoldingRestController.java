@@ -51,6 +51,12 @@ public class PortfolioHoldingRestController {
 	@PostMapping("/holdings")
 	public ApiResponse<PortfolioStockCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
+		// 포트폴리오 탐색
+		// 종목 탐색
+		// 포트폴리오 종목 생성
+		// 매입 이력 생성
+		// 포트폴리오의 캐시 업데이트
+		// 포트폴리오 종목 이벤트 발행
 		PortfolioStockCreateResponse response = portfolioHoldingService.createPortfolioHolding(portfolioId, request);
 		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
 	}

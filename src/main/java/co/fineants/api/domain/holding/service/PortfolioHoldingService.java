@@ -112,29 +112,8 @@ public class PortfolioHoldingService {
 	}
 
 	@Transactional
-	public PortfolioStockCreateResponse createPortfolioHolding_temp(Portfolio portfolio,
-		Stock stock,
-		PortfolioHoldingCreateRequest request,
-		PortfolioHolding holding) {
-
-		// 포트폴리오 종목 정보 저장
-		PortfolioHolding saveHolding = portfolioHoldingRepository.save(holding);
-		if (request.isPurchaseHistoryComplete()) { // 매입 이력 정보가 모두 입력된 경우
-			validateCashSufficientForPurchase(request, portfolio);
-			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
-		} else if (!request.isPurchaseHistoryAllNull()) { // 매입 이력 정보가 일부 입력된 경우
-			throw new PurchaseHistoryInvalidInputException(request.toString());
-		}
-
-		// 포트폴리오의 종목 캐시 업데이트
-		Long portfolioId = portfolio.getId();
-		Set<String> cachedTickers = portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
-		log.debug("update cached tickerSymbols: {}", cachedTickers);
-
-		// 포트폴리오 종목 이벤트 발행
-		publisher.publishPortfolioHolding(stock.getTickerSymbol());
-		log.info("포트폴리오 종목 추가 결과 : {}", saveHolding);
-		return PortfolioStockCreateResponse.from(saveHolding);
+	public void createPortfolioHolding_temp(PortfolioHolding holding) {
+		portfolioHoldingRepository.save(holding);
 	}
 
 	@Transactional
