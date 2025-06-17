@@ -113,17 +113,12 @@ public class PortfolioHoldingService {
 
 	@Transactional
 	public PortfolioStockCreateResponse createPortfolioHolding_temp(Portfolio portfolio,
-		PortfolioHoldingCreateRequest request) {
-		// 종목 탐색
-		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(request.getTickerSymbol())
-			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
-
+		Stock stock,
+		PortfolioHoldingCreateRequest request,
+		PortfolioHolding holding) {
 		// 기존 포트폴리오 종목 탐색후 없으면 새로 생성함
 		Long portfolioId = portfolio.getId();
-		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
-				request.getTickerSymbol())
-			.orElseGet(() -> PortfolioHolding.of(portfolio, stock));
-		// 포트폴리오 종목 정보 업데이트
+		// 포트폴리오 종목 정보 저장
 		PortfolioHolding saveHolding = portfolioHoldingRepository.save(holding);
 
 		if (request.isPurchaseHistoryComplete()) { // 매입 이력 정보가 모두 입력된 경우
