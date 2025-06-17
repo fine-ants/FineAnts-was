@@ -112,6 +112,38 @@ public class PortfolioHoldingService {
 	}
 
 	@Transactional
+	public PortfolioStockCreateResponse createPortfolioHolding_temp(Portfolio portfolio,
+		PortfolioHoldingCreateRequest request) {
+		// 종목 탐색
+		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(request.getTickerSymbol())
+			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
+
+		// 기존 포트폴리오 종목 탐색후 없으면 새로 생성함
+		Long portfolioId = portfolio.getId();
+		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
+				request.getTickerSymbol())
+			.orElseGet(() -> PortfolioHolding.of(portfolio, stock));
+		// 포트폴리오 종목 정보 업데이트
+		PortfolioHolding saveHolding = portfolioHoldingRepository.save(holding);
+
+		if (request.isPurchaseHistoryComplete()) { // 매입 이력 정보가 모두 입력된 경우
+			validateCashSufficientForPurchase(request, portfolio);
+			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
+		} else if (!request.isPurchaseHistoryAllNull()) { // 매입 이력 정보가 일부 입력된 경우
+			throw new PurchaseHistoryInvalidInputException(request.toString());
+		}
+
+		// 포트폴리오의 종목 캐시 업데이트
+		Set<String> cachedTickers = portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
+		log.debug("update cached tickerSymbols: {}", cachedTickers);
+
+		// 포트폴리오 종목 이벤트 발행
+		publisher.publishPortfolioHolding(stock.getTickerSymbol());
+		log.info("포트폴리오 종목 추가 결과 : {}", saveHolding);
+		return PortfolioStockCreateResponse.from(saveHolding);
+	}
+
+	@Transactional
 	@Authorized(serviceClass = PortfolioHoldingAuthorizedService.class)
 	@CacheEvict(value = "tickerSymbols", key = "#portfolioId")
 	public PortfolioStockDeleteResponse deletePortfolioStock(@ResourceId Long portfolioHoldingId,
