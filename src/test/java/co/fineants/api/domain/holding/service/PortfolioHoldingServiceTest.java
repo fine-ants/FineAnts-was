@@ -69,7 +69,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	@Autowired
-	private PortfolioHoldingRepository portFolioHoldingRepository;
+	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
@@ -110,7 +110,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Stock stock = stockRepository.save(createSamsungStock());
 		given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
 		stockDividendRepository.saveAll(createStockDividendThisYearWith(stock));
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -248,7 +248,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		List<StockDividend> stockDividends = createStockDividendWith(stock);
 		stockDividends.forEach(stock::addStockDividend);
 		stockDividendRepository.saveAll(stockDividends);
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -362,7 +362,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		List<StockDividend> stockDividends = createStockDividendWith(stock);
 		stockDividends.forEach(stock::addStockDividend);
 		stockDividendRepository.saveAll(stockDividends);
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -389,8 +389,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Stock stock = stockRepository.save(createSamsungStock());
 		Stock stock2 = stockRepository.save(createKakaoStock());
 		stockDividendRepository.saveAll(createStockDividendWith(stock));
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -464,7 +464,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(response)
 				.extracting("portfolioHoldingId")
 				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
+			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
 			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
 				.isInstanceOf(Set.class)
 				.hasSize(1)
@@ -523,7 +523,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(response)
 				.extracting("portfolioHoldingId")
 				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
+			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
 			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
 				.isInstanceOf(Set.class)
 				.hasSize(1)
@@ -537,7 +537,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
-		PortfolioHolding holding = portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+		PortfolioHolding holding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(5);
 		Money purchasePerShare = Money.won(10000);
@@ -565,7 +565,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(response)
 				.extracting("portfolioHoldingId")
 				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
+			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
 			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holding.getId())).hasSize(2),
 			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
 				.isInstanceOf(Set.class)
@@ -631,7 +631,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
 
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			PortfolioHolding.of(portfolio, stock)
 		);
 
@@ -650,7 +650,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertAll(
 			() -> assertThat(response).extracting("portfolioHoldingId").isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findById(portfolioHoldingId)).isEmpty(),
+			() -> assertThat(portfolioHoldingRepository.findById(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
@@ -664,8 +664,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
 		Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-		PortfolioHolding portfolioHolding1 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
+		PortfolioHolding portfolioHolding1 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(5);
@@ -691,8 +691,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 				.containsExactlyInAnyOrder(portfolioHolding1.getId(), portfolioHolding2.getId()),
 			() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory1.getId())).isFalse(),
 			() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory2.getId())).isFalse(),
-			() -> assertThat(portFolioHoldingRepository.existsById(portfolioHolding1.getId())).isFalse(),
-			() -> assertThat(portFolioHoldingRepository.existsById(portfolioHolding2.getId())).isFalse(),
+			() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding1.getId())).isFalse(),
+			() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding2.getId())).isFalse(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
 	}
@@ -704,7 +704,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
 		Money purchasePerShare = Money.won(50000);
@@ -722,7 +722,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(HoldingNotFoundException.class)
 			.hasMessage("9999");
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}
 
@@ -733,7 +733,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -744,7 +744,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		Member member2 = memberRepository.save(createMember("일개미2222", "user2@gmail.com"));
 		Portfolio portfolio2 = portfolioRepository.save(createPortfolio(member2));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(
 			createPortfolioHolding(portfolio2, stock1));
 		List<Long> portfolioHoldingIds = List.of(portfolioHolding.getId(), portfolioHolding2.getId());
 
@@ -757,8 +757,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolioHolding2.toString());
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}
 
@@ -773,9 +773,9 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		PortfolioHolding holding = request.toEntity(portfolio, samsung);
 		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding_temp(portfolio, samsung, request,
-			holding);
+		service.createPortfolioHolding_temp(holding);
 		// then
-		assertThat(response).isNotNull();
+		List<PortfolioHolding> holdings = portfolioHoldingRepository.findAll();
+		assertThat(holdings).hasSize(1);
 	}
 }
