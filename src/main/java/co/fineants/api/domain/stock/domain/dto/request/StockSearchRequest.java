@@ -5,4 +5,8 @@ import lombok.Getter;
 @Getter
 public class StockSearchRequest {
 	private String searchTerm;
+
+	public StockSearchRequest(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
 }

@@ -58,4 +58,11 @@ public class StockQueryRepository {
 	private BooleanExpression containsCompanyNameEng(@Nullable String keyword) {
 		return Strings.hasText(keyword) ? stock.companyNameEng.contains(keyword) : null;
 	}
+
+	public List<Stock> getStock(String keyword) {
+		return jpaQueryFactory.selectFrom(stock)
+			.where(search(keyword))
+			.orderBy(stock.tickerSymbol.desc())
+			.fetch();
+	}
 }
