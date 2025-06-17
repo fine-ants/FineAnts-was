@@ -33,9 +33,11 @@ import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisService;
+import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
+import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
@@ -311,5 +313,20 @@ class StockServiceTest extends AbstractContainerBaseTest {
 
 		actual = amazonS3StockService.fetchStocks();
 		assertThat(actual).hasSize(1);
+	}
+
+	@DisplayName("종목 이름을 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
+	@Test
+	void search_givenStockName_whenSearch_thenReturnStockSearchItemList() {
+		// given
+		stockRepository.save(createSamsungStock());
+		stockRepository.save(createNokwonCI());
+
+		String searchTerm = "삼성";
+		StockSearchRequest request = new StockSearchRequest(searchTerm);
+		// when
+		List<StockSearchItem> items = stockService.search(request);
+		// then
+		assertThat(items).hasSize(1);
 	}
 }
