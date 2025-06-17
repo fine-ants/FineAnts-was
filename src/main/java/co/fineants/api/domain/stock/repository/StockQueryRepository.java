@@ -1,7 +1,6 @@
 package co.fineants.api.domain.stock.repository;
 
 import static co.fineants.api.domain.stock.domain.entity.QStock.*;
-import static org.apache.logging.log4j.util.Strings.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +61,7 @@ public class StockQueryRepository {
 	}
 
 	public List<Stock> getStock(String keyword) {
-		if (isBlank(keyword)) {
+		if (!Strings.hasText(keyword)) {
 			return Collections.emptyList();
 		}
 		return jpaQueryFactory.selectFrom(stock)
