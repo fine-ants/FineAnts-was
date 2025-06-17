@@ -761,4 +761,18 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		assertThat(portFolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}
+
+	@DisplayName("사용자는 매입이력 없이 포트폴리오 종목을 추가할 수 있다")
+	@Test
+	void givenRequest_whenOnlyTickerSymbol_thenReturnResponse() {
+		// given
+		Stock samsung = stockRepository.save(createSamsungStock());
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(), null);
+		// when
+		PortfolioStockCreateResponse response = service.createPortfolioHolding_temp(portfolio, request);
+		// then
+		assertThat(response).isNotNull();
+	}
 }
