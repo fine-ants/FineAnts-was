@@ -36,6 +36,7 @@ import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioStockSuccessCode;
@@ -73,10 +74,13 @@ public class PortfolioHoldingRestController {
 		PortfolioHolding saveHolding = portfolioHoldingService.savePortfolioHolding(
 			PortfolioHolding.of(portfolio, stock));
 		// 매입 이력 생성
-		if (request.getPurchaseHistory() != null) {
+		if (request.isPurchaseHistoryComplete()) {
 			PurchaseHistory purchaseHistory = request.getPurchaseHistory().toEntity(saveHolding);
 			purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio);
+		} else if (!request.isPurchaseHistoryAllNull()) { // 매입 이력 정보가 일부 입력된 경우
+			throw new PurchaseHistoryInvalidInputException(request.toString());
 		}
+
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 이벤트 발행
