@@ -33,7 +33,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
@@ -262,19 +261,15 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 		String body = ObjectMapperUtil.serialize(requestBodyMap);
 		Long portfolioId = portfolio.getId();
-
-		PortfolioHoldingCreateRequest createRequest = ObjectMapperUtil.deserialize(body,
-			PortfolioHoldingCreateRequest.class);
-
 		// when & then
 		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("PurchaseHistory Bad Request")))
-			.andExpect(jsonPath("data").value(equalTo(createRequest.toString())));
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("code").value(equalTo(201)))
+			.andExpect(jsonPath("status").value(equalTo("Created")))
+			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 추가되었습니다")))
+			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목만 추가한다")
