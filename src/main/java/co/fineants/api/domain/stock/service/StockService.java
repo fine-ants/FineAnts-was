@@ -97,4 +97,10 @@ public class StockService {
 		amazonS3StockService.writeStocks(result);
 		return result;
 	}
+
+	@Transactional(readOnly = true)
+	public Stock getStock(String tickerSymbol) {
+		return stockRepository.findByTickerSymbol(tickerSymbol)
+			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
+	}
 }

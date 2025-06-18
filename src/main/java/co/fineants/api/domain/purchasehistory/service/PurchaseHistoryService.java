@@ -124,4 +124,9 @@ public class PurchaseHistoryService {
 		return repository.findById(purchaseHistoryId)
 			.orElseThrow(() -> new PurchaseHistoryNotFoundException(purchaseHistoryId.toString()));
 	}
+
+	@Transactional
+	public void createPurchaseHistory(PurchaseHistory purchaseHistory) {
+		repository.save(purchaseHistory);
+	}
 }

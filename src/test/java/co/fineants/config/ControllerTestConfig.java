@@ -8,6 +8,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
@@ -16,6 +17,7 @@ import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
@@ -93,4 +95,10 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private SseEventBuilderFactory sseEventBuilderFactory;
+
+	@MockBean
+	private PortfolioCacheService portfolioCacheService;
+
+	@MockBean
+	private PortfolioHoldingEventPublisher portfolioHoldingEventPublisher;
 }
