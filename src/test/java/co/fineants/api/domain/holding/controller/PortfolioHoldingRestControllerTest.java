@@ -33,6 +33,7 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
+import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
@@ -235,6 +236,45 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("status").value(equalTo("Created")))
 			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 추가되었습니다")))
 			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
+	}
+
+	@DisplayName("사용자는 포트폴리오 종목 및 매입 이력 추가시 매입 이력 정보가 모두 입력된 경우에만 추가한다")
+	@Test
+	void savePortfolioHolding_whenPurchaseHistoryIsNotComplete_thenThrowException() throws Exception {
+		Member member = createMember();
+		Portfolio portfolio = createPortfolio(member);
+		Stock stock = createSamsungStock();
+
+		given(stockService.getStock("005930")).willReturn(stock);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
+			.willReturn(holding);
+
+		Map<String, Object> purchaseHistoryMap = new HashMap<>();
+		purchaseHistoryMap.put("purchaseDate", null); // 매입 날짜가 입력되지 않음
+		purchaseHistoryMap.put("numShares", 10L);
+		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
+		purchaseHistoryMap.put("memo", null);
+
+		Map<String, Object> requestBodyMap = new HashMap<>();
+		requestBodyMap.put("tickerSymbol", "005930");
+		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
+
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		Long portfolioId = portfolio.getId();
+
+		PortfolioHoldingCreateRequest createRequest = ObjectMapperUtil.deserialize(body,
+			PortfolioHoldingCreateRequest.class);
+
+		// when & then
+		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(400)))
+			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("message").value(equalTo("PurchaseHistory Bad Request")))
+			.andExpect(jsonPath("data").value(equalTo(createRequest.toString())));
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목만 추가한다")
