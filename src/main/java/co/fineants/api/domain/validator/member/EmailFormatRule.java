@@ -1,13 +1,14 @@
-package co.fineants.api.domain.member.domain.rule;
+package co.fineants.api.domain.validator.member;
 
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.util.Strings;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.validator.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 
-public class EmailFormatRule implements ValidationRule {
+public class EmailFormatRule implements MemberValidationRule {
 
 	private final Pattern emailRegexp;
 

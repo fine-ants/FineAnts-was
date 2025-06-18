@@ -1,9 +1,10 @@
-package co.fineants.api.domain.holding.domain.rule;
+package co.fineants.api.domain.validator.purchasehistory;
 
 import java.util.Arrays;
 import java.util.List;
 
-import co.fineants.api.domain.member.domain.rule.Validator;
+import co.fineants.api.domain.validator.PurchaseHistoryValidationRule;
+import co.fineants.api.domain.validator.Validator;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 
 public class PurchaseHistorySaveValidator implements Validator<PurchaseHistory> {
