@@ -70,8 +70,8 @@ public class PortfolioHoldingRestController {
 		// 종목 탐색
 		Stock stock = stockService.getStock(request.getTickerSymbol());
 		// 포트폴리오 종목 저장
-		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
-		PortfolioHolding saveHolding = portfolioHoldingService.createPortfolioHolding_temp(holding);
+		PortfolioHolding saveHolding = portfolioHoldingService.createPortfolioHolding_temp(
+			PortfolioHolding.of(portfolio, stock));
 		// 포트폴리오 종목 조회
 		// 매입 이력 생성
 		if (request.getPurchaseHistory() != null) {
