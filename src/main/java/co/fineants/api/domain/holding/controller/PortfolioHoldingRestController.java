@@ -74,8 +74,8 @@ public class PortfolioHoldingRestController {
 			PortfolioHolding.of(portfolio, stock));
 		// 매입 이력 생성
 		if (request.getPurchaseHistory() != null) {
-			PurchaseHistory purchaseHistory = PurchaseHistory.of(saveHolding, request.getPurchaseHistory());
-			purchaseHistoryService.createPurchaseHistory(purchaseHistory);
+			PurchaseHistory purchaseHistory = request.getPurchaseHistory().toEntity(saveHolding);
+			purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio);
 		}
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
