@@ -56,7 +56,6 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import reactor.core.publisher.Flux;
@@ -70,12 +69,10 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PortfolioStreamer portfolioStreamer;
 	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
-	private StockService stockService;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
 	protected Object initController() {
-
 		portfolioStreamer = mock(PortfolioStreamer.class);
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
 		given(portfolioStreamerFactory.getStreamer())
@@ -83,7 +80,6 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		portfolioStreamMessageConsumerFactory = mock(PortfolioStreamMessageConsumerFactory.class);
 		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		stockService = mock(StockService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
 		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
