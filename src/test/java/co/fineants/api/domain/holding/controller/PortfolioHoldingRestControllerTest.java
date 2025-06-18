@@ -211,7 +211,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 		given(stockService.getStock("005930")).willReturn(stock);
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(mockedPortfolioHoldingService.createPortfolioHolding_temp(ArgumentMatchers.any(PortfolioHolding.class)))
+		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -246,7 +246,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 		given(stockService.getStock("005930")).willReturn(stock);
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(mockedPortfolioHoldingService.createPortfolioHolding_temp(ArgumentMatchers.any(PortfolioHolding.class)))
+		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
 			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
