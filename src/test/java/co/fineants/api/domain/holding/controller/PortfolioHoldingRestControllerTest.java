@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -33,6 +32,7 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
+import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
@@ -46,6 +46,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -73,6 +74,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
 	private StockService stockService;
+	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
 	protected Object initController() {
@@ -86,6 +88,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
 		return new PortfolioHoldingRestController(
 			mockedPortfolioHoldingService,
 			portfolioStreamerFactory,
@@ -96,7 +99,8 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			stockService,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			purchaseHistoryService
+			purchaseHistoryService,
+			portfolioHoldingFacade
 		);
 	}
 
@@ -209,9 +213,8 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		given(stockService.getStock("005930")).willReturn(stock);
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
+		given(portfolioHoldingFacade.savePortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -237,16 +240,15 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
 	}
 
-	@DisplayName("사용자는 포트폴리오 종목 및 매입 이력 추가시 매입 이력 정보가 모두 입력된 경우에만 추가한다")
+	@DisplayName("사용자는 포트폴리오 종목을 입력하고 매입 이력 정보를 일부만 입력하는 경우 포트폴리오 종목만 저장된다")
 	@Test
 	void savePortfolioHolding_whenPurchaseHistoryIsNotComplete_thenThrowException() throws Exception {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		given(stockService.getStock("005930")).willReturn(stock);
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
+		given(portfolioHoldingFacade.savePortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -279,9 +281,8 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		given(stockService.getStock("005930")).willReturn(stock);
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(mockedPortfolioHoldingService.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
+		given(portfolioHoldingFacade.savePortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();

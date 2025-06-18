@@ -46,6 +46,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
@@ -89,6 +90,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		PortfolioHoldingFacade portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
@@ -99,7 +101,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			stockService,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			purchaseHistoryService
+			purchaseHistoryService,
+			portfolioHoldingFacade
 		);
 	}
 
