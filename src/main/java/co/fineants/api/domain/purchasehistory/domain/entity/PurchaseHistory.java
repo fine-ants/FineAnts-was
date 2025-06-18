@@ -22,7 +22,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -31,7 +30,6 @@ import lombok.ToString;
 @ToString(exclude = {"portfolioHolding"})
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PurchaseHistory extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +49,28 @@ public class PurchaseHistory extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "portfolio_holding_id")
 	private PortfolioHolding portfolioHolding;
+
+	private PurchaseHistory(Long id, LocalDateTime purchaseDate, Money purchasePricePerShare, Count numShares,
+		String memo, PortfolioHolding portfolioHolding) {
+		this.id = id;
+		this.purchaseDate = purchaseDate;
+		this.purchasePricePerShare = purchasePricePerShare;
+		this.numShares = numShares;
+		this.memo = memo;
+		this.portfolioHolding = portfolioHolding;
+		if (this.purchaseDate == null) {
+			throw new IllegalArgumentException("매입 날짜는 필수 정보입니다.");
+		}
+		if (this.purchasePricePerShare == null) {
+			throw new IllegalArgumentException("매입 단가는 필수 정보입니다.");
+		}
+		if (this.numShares == null) {
+			throw new IllegalArgumentException("매입 수량은 필수 정보입니다.");
+		}
+		if (this.portfolioHolding == null) {
+			throw new IllegalArgumentException("포트폴리오 보유 정보는 필수 정보입니다.");
+		}
+	}
 
 	public static PurchaseHistory of(PortfolioHolding portFolioHolding, PurchaseHistoryCreateRequest request) {
 		return new PurchaseHistory(
