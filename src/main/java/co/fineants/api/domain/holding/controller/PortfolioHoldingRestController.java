@@ -19,13 +19,22 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRe
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -45,6 +54,11 @@ public class PortfolioHoldingRestController {
 	private final PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private final SseEmitterFactory portfolioSseEmitterFactory;
 	private final SseEventBuilderFactory portfolioSseEventBuilderFactory;
+	private final PortFolioService portFolioService;
+	private final StockService stockService;
+	private final PortfolioCacheService portfolioCacheService;
+	private final PortfolioHoldingEventPublisher publisher;
+	private final PurchaseHistoryService purchaseHistoryService;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -52,12 +66,24 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioStockCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
 		// 포트폴리오 탐색
+		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
 		// 종목 탐색
-		// 포트폴리오 종목 생성
+		Stock stock = stockService.getStock(request.getTickerSymbol());
+		// 포트폴리오 종목 저장
+		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
+		PortfolioHolding saveHolding = portfolioHoldingService.createPortfolioHolding_temp(holding);
+		// 포트폴리오 종목 조회
 		// 매입 이력 생성
-		// 포트폴리오의 캐시 업데이트
+		if (request.getPurchaseHistory() != null) {
+			PurchaseHistory purchaseHistory = PurchaseHistory.of(saveHolding, request.getPurchaseHistory());
+			purchaseHistoryService.createPurchaseHistory(purchaseHistory);
+		}
+		// 포트폴리오의 종목 캐시 업데이트
+		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 이벤트 발행
-		PortfolioStockCreateResponse response = portfolioHoldingService.createPortfolioHolding(portfolioId, request);
+		publisher.publishPortfolioHolding(stock.getTickerSymbol());
+
+		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(saveHolding);
 		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
 	}
 

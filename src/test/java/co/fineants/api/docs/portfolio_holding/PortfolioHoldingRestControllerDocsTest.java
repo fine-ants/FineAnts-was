@@ -45,6 +45,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
@@ -53,7 +54,11 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import reactor.core.publisher.Flux;
@@ -78,8 +83,23 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		portfolioStreamMessageConsumerFactory = mock(PortfolioStreamMessageConsumerFactory.class);
 		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		return new PortfolioHoldingRestController(service, portfolioStreamerFactory,
-			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory, portfolioSseEventBuilderFactory);
+		PortFolioService portfolioService = mock(PortFolioService.class);
+		StockService stockService = mock(StockService.class);
+		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
+		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
+		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		return new PortfolioHoldingRestController(
+			service,
+			portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory,
+			portfolioSseEmitterFactory,
+			portfolioSseEventBuilderFactory,
+			portfolioService,
+			stockService,
+			portfolioCacheService,
+			portfolioHoldingEventPublisher,
+			purchaseHistoryService
+		);
 	}
 
 	@BeforeEach

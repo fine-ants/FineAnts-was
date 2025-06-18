@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,27 +33,30 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -68,6 +72,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
+	private StockService stockService;
 
 	@Override
 	protected Object initController() {
@@ -76,8 +81,23 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			PortfolioStreamMessageConsumerFactory.class);
 		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, portfolioStreamerFactory,
-			portfolioStreamMessageConsumerFactory, portfolioSseEmitterFactory, portfolioSseEventBuilderFactory);
+		PortFolioService portfolioService = mock(PortFolioService.class);
+		stockService = mock(StockService.class);
+		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
+		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
+		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		return new PortfolioHoldingRestController(
+			mockedPortfolioHoldingService,
+			portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory,
+			portfolioSseEmitterFactory,
+			portfolioSseEventBuilderFactory,
+			portfolioService,
+			stockService,
+			portfolioCacheService,
+			portfolioHoldingEventPublisher,
+			purchaseHistoryService
+		);
 	}
 
 	@BeforeEach
@@ -189,10 +209,10 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
-			PortfolioHolding.of(1L, portfolio, stock));
-		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
-			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
+		given(stockService.getStock("005930")).willReturn(stock);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(mockedPortfolioHoldingService.createPortfolioHolding_temp(ArgumentMatchers.any(PortfolioHolding.class)))
+			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
 		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
@@ -224,10 +244,10 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
-			PortfolioHolding.of(1L, portfolio, stock));
-		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
-			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
+		given(stockService.getStock("005930")).willReturn(stock);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(mockedPortfolioHoldingService.createPortfolioHolding_temp(ArgumentMatchers.any(PortfolioHolding.class)))
+			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("tickerSymbol", "005930");
