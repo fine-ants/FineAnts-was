@@ -25,14 +25,13 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
-import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -58,26 +57,20 @@ public class PortfolioHoldingRestController {
 	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioHoldingEventPublisher publisher;
 	private final PurchaseHistoryService purchaseHistoryService;
+	private final PortfolioHoldingFacade portfolioHoldingFacade;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/holdings")
 	public ApiResponse<PortfolioStockCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
-		// 포트폴리오 탐색
-		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
-		// 종목 탐색
-		Stock stock = stockService.getStock(request.getTickerSymbol());
-		// 포트폴리오 종목 저장
-		PortfolioHolding saveHolding = portfolioHoldingService.savePortfolioHolding(
-			PortfolioHolding.of(portfolio, stock));
-		// 매입 이력 생성 후 저장 (생성 못하면 생략)
-		request.toPurchaseHistoryEntity(saveHolding)
-			.ifPresent(purchaseHistory -> purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio));
+		// 포트폴리오 종목 및 매입 이력 저장
+		PortfolioHolding saveHolding = portfolioHoldingFacade.savePortfolioHolding(request, portfolioId);
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 이벤트 발행
-		publisher.publishPortfolioHolding(stock.getTickerSymbol());
+		String tickerSymbol = request.getTickerSymbol();
+		publisher.publishPortfolioHolding(tickerSymbol);
 
 		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(saveHolding);
 		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
