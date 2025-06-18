@@ -72,6 +72,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PortfolioStreamer portfolioStreamer;
 	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
+	private StockService stockService;
 
 	@Override
 	protected Object initController() {
@@ -84,7 +85,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
 		PortFolioService portfolioService = mock(PortFolioService.class);
-		StockService stockService = mock(StockService.class);
+		stockService = mock(StockService.class);
 		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
@@ -123,6 +124,10 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			anyLong(),
 			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class)))
 			.willReturn(PortfolioStockCreateResponse.from(holding));
+		given(stockService.getStock("005930"))
+			.willReturn(stock);
+		given(service.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
+			.willReturn(holding);
 
 		Map<String, Object> body = Map.of(
 			"tickerSymbol", "005930",
