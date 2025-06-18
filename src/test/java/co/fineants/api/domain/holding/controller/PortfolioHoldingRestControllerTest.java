@@ -53,11 +53,8 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
-import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -82,9 +79,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			PortfolioStreamMessageConsumerFactory.class);
 		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		PortFolioService portfolioService = mock(PortFolioService.class);
-		StockService stockService = mock(StockService.class);
-		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
 		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
@@ -94,11 +88,8 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			portfolioStreamMessageConsumerFactory,
 			portfolioSseEmitterFactory,
 			portfolioSseEventBuilderFactory,
-			portfolioService,
-			stockService,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			purchaseHistoryService,
 			portfolioHoldingFacade
 		);
 	}

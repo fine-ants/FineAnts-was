@@ -29,10 +29,7 @@ import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
-import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -52,11 +49,8 @@ public class PortfolioHoldingRestController {
 	private final PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private final SseEmitterFactory portfolioSseEmitterFactory;
 	private final SseEventBuilderFactory portfolioSseEventBuilderFactory;
-	private final PortFolioService portFolioService;
-	private final StockService stockService;
 	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioHoldingEventPublisher publisher;
-	private final PurchaseHistoryService purchaseHistoryService;
 	private final PortfolioHoldingFacade portfolioHoldingFacade;
 
 	// 포트폴리오 종목 생성
