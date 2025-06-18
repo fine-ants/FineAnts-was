@@ -773,7 +773,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		PortfolioHolding holding = request.toEntity(portfolio, samsung);
 		// when
-		service.createPortfolioHolding_temp(holding);
+		service.savePortfolioHolding(holding);
 		// then
 		List<PortfolioHolding> holdings = portfolioHoldingRepository.findAll();
 		assertThat(holdings).hasSize(1);

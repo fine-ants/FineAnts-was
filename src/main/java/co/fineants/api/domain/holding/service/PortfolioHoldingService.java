@@ -112,7 +112,7 @@ public class PortfolioHoldingService {
 	}
 
 	@Transactional
-	public PortfolioHolding createPortfolioHolding_temp(PortfolioHolding holding) {
+	public PortfolioHolding savePortfolioHolding(PortfolioHolding holding) {
 		return portfolioHoldingRepository.save(holding);
 	}
 
