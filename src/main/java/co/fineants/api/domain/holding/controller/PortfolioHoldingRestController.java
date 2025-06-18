@@ -71,12 +71,9 @@ public class PortfolioHoldingRestController {
 		// 포트폴리오 종목 저장
 		PortfolioHolding saveHolding = portfolioHoldingService.savePortfolioHolding(
 			PortfolioHolding.of(portfolio, stock));
-		// 매입 이력 생성
+		// 매입 이력 생성 후 저장 (생성 못하면 생략)
 		request.toPurchaseHistoryEntity(saveHolding)
-			.ifPresent(purchaseHistory -> {
-				// 매입 이력 저장
-				purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio);
-			});
+			.ifPresent(purchaseHistory -> purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio));
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 이벤트 발행
