@@ -1,4 +1,4 @@
-package co.fineants.api.domain.holding.domain.rule;
+package co.fineants.api.domain.validator;
 
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 

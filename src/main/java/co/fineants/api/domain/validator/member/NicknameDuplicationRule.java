@@ -1,10 +1,11 @@
-package co.fineants.api.domain.member.domain.rule;
+package co.fineants.api.domain.validator.member;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.validator.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 
-public class NicknameDuplicationRule implements ValidationRule {
+public class NicknameDuplicationRule implements MemberValidationRule {
 
 	private final MemberRepository memberRepository;
 

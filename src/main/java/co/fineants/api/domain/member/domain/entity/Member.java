@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.member.domain.rule.ValidationRule;
+import co.fineants.api.domain.validator.MemberValidationRule;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
@@ -157,16 +157,16 @@ public class Member extends BaseEntity {
 		return Collections.unmodifiableSet(roles);
 	}
 
-	public void validateEmail(ValidationRule rule) {
+	public void validateEmail(MemberValidationRule rule) {
 		profile.validateEmail(rule);
 	}
 
-	public void validateNickname(ValidationRule rule) {
+	public void validateNickname(MemberValidationRule rule) {
 		profile.validateNickname(rule);
 	}
 
-	public void validateRules(ValidationRule... rules) {
-		for (ValidationRule rule : rules) {
+	public void validateRules(MemberValidationRule... rules) {
+		for (MemberValidationRule rule : rules) {
 			rule.validate(this);
 		}
 	}
