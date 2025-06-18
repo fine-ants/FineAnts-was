@@ -73,7 +73,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
-	private StockService stockService;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
@@ -84,7 +83,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
 		PortFolioService portfolioService = mock(PortFolioService.class);
-		stockService = mock(StockService.class);
+		StockService stockService = mock(StockService.class);
 		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
