@@ -38,7 +38,6 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealT
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
@@ -55,9 +54,7 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
-import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -74,6 +71,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
 	private StockService stockService;
+	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
 	protected Object initController() {
@@ -85,23 +83,18 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		portfolioStreamMessageConsumerFactory = mock(PortfolioStreamMessageConsumerFactory.class);
 		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		PortFolioService portfolioService = mock(PortFolioService.class);
 		stockService = mock(StockService.class);
-		PurchaseHistoryService purchaseHistoryService = mock(PurchaseHistoryService.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
-		PortfolioHoldingFacade portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
+		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
 			portfolioStreamMessageConsumerFactory,
 			portfolioSseEmitterFactory,
 			portfolioSseEventBuilderFactory,
-			portfolioService,
-			stockService,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			purchaseHistoryService,
 			portfolioHoldingFacade
 		);
 	}
@@ -123,14 +116,10 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		given(service.createPortfolioHolding(
-			anyLong(),
-			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class)))
-			.willReturn(PortfolioStockCreateResponse.from(holding));
-		given(stockService.getStock("005930"))
-			.willReturn(stock);
-		given(service.savePortfolioHolding(ArgumentMatchers.any(PortfolioHolding.class)))
-			.willReturn(holding);
+		given(portfolioHoldingFacade.savePortfolioHolding(
+			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class),
+			ArgumentMatchers.anyLong()
+		)).willReturn(holding);
 
 		Map<String, Object> body = Map.of(
 			"tickerSymbol", "005930",
