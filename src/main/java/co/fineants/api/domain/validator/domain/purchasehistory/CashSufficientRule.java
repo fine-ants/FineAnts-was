@@ -1,10 +1,10 @@
-package co.fineants.api.domain.validator.purchasehistory;
+package co.fineants.api.domain.validator.domain.purchasehistory;
 
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.validator.PurchaseHistoryValidationRule;
+import co.fineants.api.domain.validator.domain.PurchaseHistoryValidationRule;
 import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 
 public class CashSufficientRule implements PurchaseHistoryValidationRule {

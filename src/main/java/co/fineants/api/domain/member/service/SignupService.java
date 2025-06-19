@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.validator.member.SignUpValidator;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.validator.domain.member.SignUpValidator;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;

@@ -1,11 +1,11 @@
-package co.fineants.api.domain.validator.member;
+package co.fineants.api.domain.validator.domain.member;
 
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.util.Strings;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.validator.MemberValidationRule;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
 public class NicknameFormatRule implements MemberValidationRule {

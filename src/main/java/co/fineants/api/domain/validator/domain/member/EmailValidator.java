@@ -1,10 +1,10 @@
-package co.fineants.api.domain.validator.member;
+package co.fineants.api.domain.validator.domain.member;
 
 import java.util.Arrays;
 import java.util.List;
 
-import co.fineants.api.domain.validator.MemberValidationRule;
-import co.fineants.api.domain.validator.Validator;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
+import co.fineants.api.domain.validator.domain.Validator;
 
 public class EmailValidator implements Validator<String> {
 	private final List<MemberValidationRule> rules;

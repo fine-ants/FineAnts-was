@@ -1,25 +1,23 @@
-package co.fineants.api.domain.member.config;
+package co.fineants.api.domain.validator.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.validator.member.EmailDuplicationRule;
-import co.fineants.api.domain.validator.member.EmailFormatRule;
-import co.fineants.api.domain.validator.member.EmailValidator;
-import co.fineants.api.domain.validator.member.NicknameDuplicationRule;
-import co.fineants.api.domain.validator.member.NicknameFormatRule;
-import co.fineants.api.domain.validator.member.NicknameValidator;
-import co.fineants.api.domain.validator.member.PasswordValidator;
-import co.fineants.api.domain.validator.member.SignUpValidator;
-import co.fineants.api.domain.validator.MemberValidationRule;
 import co.fineants.api.domain.member.properties.EmailProperties;
 import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
+import co.fineants.api.domain.validator.domain.member.EmailDuplicationRule;
+import co.fineants.api.domain.validator.domain.member.EmailFormatRule;
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameDuplicationRule;
+import co.fineants.api.domain.validator.domain.member.NicknameFormatRule;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
+import co.fineants.api.domain.validator.domain.member.SignUpValidator;
 
 @Configuration
-@RequiredArgsConstructor
-public class RuleConfig {
+public class MemberRuleConfig {
 
 	@Bean
 	public EmailFormatRule emailFormatRule(EmailProperties emailProperties) {

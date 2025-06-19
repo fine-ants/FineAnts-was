@@ -2,9 +2,9 @@ package co.fineants.api.domain.member.service;
 
 import org.springframework.stereotype.Service;
 
-import co.fineants.api.domain.validator.member.EmailValidator;
-import co.fineants.api.domain.validator.member.NicknameValidator;
-import co.fineants.api.domain.validator.member.PasswordValidator;
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service

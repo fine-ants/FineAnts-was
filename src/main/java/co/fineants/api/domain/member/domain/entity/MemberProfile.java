@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.domain.entity;
 import java.util.Map;
 import java.util.Optional;
 
-import co.fineants.api.domain.validator.MemberValidationRule;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

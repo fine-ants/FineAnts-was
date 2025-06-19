@@ -6,11 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.validator.purchasehistory.CashSufficientRule;
-import co.fineants.api.domain.validator.purchasehistory.PurchaseHistorySaveValidator;
-import co.fineants.api.domain.validator.PurchaseHistoryValidationRule;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.validator.Validator;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -22,6 +18,10 @@ import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistor
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.event.publisher.PurchaseHistoryEventPublisher;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.validator.domain.PurchaseHistoryValidationRule;
+import co.fineants.api.domain.validator.domain.Validator;
+import co.fineants.api.domain.validator.domain.purchasehistory.CashSufficientRule;
+import co.fineants.api.domain.validator.domain.purchasehistory.PurchaseHistorySaveValidator;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PurchaseHistoryAuthorizedService;

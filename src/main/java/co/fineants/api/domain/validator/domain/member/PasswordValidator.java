@@ -1,4 +1,4 @@
-package co.fineants.api.domain.validator.member;
+package co.fineants.api.domain.validator.domain.member;
 
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 

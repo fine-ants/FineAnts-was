@@ -1,4 +1,4 @@
-package co.fineants.api.domain.validator;
+package co.fineants.api.domain.validator.domain;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 
