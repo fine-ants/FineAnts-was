@@ -2,6 +2,7 @@ package co.fineants.api.domain.holding.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -202,5 +203,10 @@ public class PortfolioHoldingService {
 		List<PortfolioDividendChartItem> dividendChartItems = dividendChart.createItemsBy(portfolio, currentLocalDate);
 		List<PortfolioSectorChartItem> sectorChartItems = sectorChart.createBy(portfolio);
 		return PortfolioChartResponse.create(portfolioDetails, pieChartItems, dividendChartItems, sectorChartItems);
+	}
+
+	@Transactional
+	public Optional<PortfolioHolding> getPortfolioHoldingBy(Portfolio portfolio, Stock stock) {
+		return Optional.empty();
 	}
 }
