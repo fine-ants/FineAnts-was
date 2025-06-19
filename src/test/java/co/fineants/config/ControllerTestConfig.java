@@ -17,10 +17,10 @@ import co.fineants.api.domain.member.service.MemberNotificationPreferenceService
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
@@ -44,7 +44,7 @@ public class ControllerTestConfig {
 	private MemberService memberService;
 
 	@MockBean
-	private PortFolioService portFolioService;
+	private PortfolioService portFolioService;
 
 	@MockBean
 	private PortfolioHoldingService portfolioHoldingService;

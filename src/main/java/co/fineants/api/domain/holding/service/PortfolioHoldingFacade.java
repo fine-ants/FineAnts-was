@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.service.StockService;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PortfolioHoldingFacade {
 
-	private final PortFolioService portFolioService;
+	private final PortfolioService portfolioService;
 	private final StockService stockService;
 	private final PortfolioHoldingService portfolioHoldingService;
 
@@ -30,7 +30,7 @@ public class PortfolioHoldingFacade {
 	public PortfolioHolding createPortfolioHolding(PortfolioHoldingCreateRequest request,
 		@ResourceId Long portfolioId) {
 		// 포트폴리오 탐색
-		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
+		Portfolio portfolio = portfolioService.findPortfolio(portfolioId);
 		// 종목 탐색
 		Stock stock = stockService.getStock(request.getTickerSymbol());
 		// 기존 포트폴리오 종목 조회 or 생성

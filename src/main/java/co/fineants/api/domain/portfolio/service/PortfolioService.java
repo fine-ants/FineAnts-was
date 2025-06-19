@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class PortFolioService {
+public class PortfolioService {
 
 	private final PortfolioRepository portfolioRepository;
 	private final MemberRepository memberRepository;
