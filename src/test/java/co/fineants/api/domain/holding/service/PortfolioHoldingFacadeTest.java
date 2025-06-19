@@ -12,6 +12,7 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -38,6 +39,9 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PurchaseHistoryRepository purchaseHistoryRepository;
+
+	@Autowired
+	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@DisplayName("사용자는 다른 사용자의 포트폴리오를 대상으로 포트폴리오 종목을 추가할 수 없다")
 	@Test
@@ -104,6 +108,33 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(portfolioHolding).isNotNull();
+		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
+			.hasSize(1);
+	}
+
+	@DisplayName("기존 포트폴리오 종목이 있는 상태에서 매입 이력과 같이 포트폴리오 종목을 같이 생성 요청 시, 매입 이력을 추가한다")
+	@Test
+	void whenExistPortfolioHolding_thenSavePurchaseHistory() {
+		Member member = memberRepository.save(createMember());
+		setAuthentication(member);
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock samsung = stockRepository.save(createSamsungStock());
+		portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, samsung));
+
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			LocalDateTime.now(),
+			Count.from(3),
+			Money.won(50_000),
+			"memo"
+		);
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
+			purchaseHistoryCreateRequest);
+		// when
+		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+
+		// then
+		Assertions.assertThat(portfolioHolding).isNotNull();
+		Assertions.assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
 		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
 			.hasSize(1);
 	}
