@@ -83,6 +83,20 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.build();
 	}
 
+	@NotNull
+	private Map<String, Object> getPortfolioHoldingCreateRequestBodyMap() {
+		Map<String, Object> purchaseHistoryMap = new HashMap<>();
+		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
+		purchaseHistoryMap.put("numShares", 10L);
+		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
+		purchaseHistoryMap.put("memo", "memo");
+
+		Map<String, Object> requestBodyMap = new HashMap<>();
+		requestBodyMap.put("tickerSymbol", "005930");
+		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
+		return requestBodyMap;
+	}
+
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
@@ -155,20 +169,6 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
 		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holdingId)).hasSize(1);
 		assertThat(redisTemplate.opsForValue().get("tickerSymbols::" + portfolio.getId())).isNotNull();
-	}
-
-	@NotNull
-	private static Map<String, Object> getPortfolioHoldingCreateRequestBodyMap() {
-		Map<String, Object> purchaseHistoryMap = new HashMap<>();
-		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
-		purchaseHistoryMap.put("numShares", 10L);
-		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
-		purchaseHistoryMap.put("memo", null);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "005930");
-		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
-		return requestBodyMap;
 	}
 
 }
