@@ -33,7 +33,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -457,7 +457,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
+		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
 
 		// then
 		assertAll(
@@ -516,7 +516,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
+		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
 
 		// then
 		assertAll(
@@ -558,7 +558,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
+		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
 
 		// then
 		assertAll(

@@ -19,12 +19,12 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailRealTim
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -76,7 +76,7 @@ public class PortfolioHoldingService {
 
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
-	public PortfolioStockCreateResponse createPortfolioHolding(@ResourceId Long portfolioId,
+	public PortfolioHoldingCreateResponse createPortfolioHolding(@ResourceId Long portfolioId,
 		PortfolioHoldingCreateRequest request) {
 		log.info("포트폴리오 종목 추가 서비스 요청 : portfolioId={}, request={}", portfolioId, request);
 
@@ -108,7 +108,7 @@ public class PortfolioHoldingService {
 		// 포트폴리오 종목 이벤트 발행
 		publisher.publishPortfolioHolding(stock.getTickerSymbol());
 		log.info("포트폴리오 종목 추가 결과 : {}", saveHolding);
-		return PortfolioStockCreateResponse.from(saveHolding);
+		return PortfolioHoldingCreateResponse.from(saveHolding);
 	}
 
 	@Transactional

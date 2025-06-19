@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.member.domain.dto.request.MemberNotificationPreferenceRequest;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -28,12 +28,12 @@ class ObjectMapperTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock samsung = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, samsung);
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(holding);
+		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(holding);
 		String json = objectMapper.writeValueAsString(response);
 		// when
-		PortfolioStockCreateResponse actual = objectMapper.readValue(json, PortfolioStockCreateResponse.class);
+		PortfolioHoldingCreateResponse actual = objectMapper.readValue(json, PortfolioHoldingCreateResponse.class);
 		// then
-		PortfolioStockCreateResponse expected = PortfolioStockCreateResponse.from(holding);
+		PortfolioHoldingCreateResponse expected = PortfolioHoldingCreateResponse.from(holding);
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 
