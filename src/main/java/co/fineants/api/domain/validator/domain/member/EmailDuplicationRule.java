@@ -1,8 +1,8 @@
-package co.fineants.api.domain.validator.member;
+package co.fineants.api.domain.validator.domain.member;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.validator.MemberValidationRule;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 
 public class EmailDuplicationRule implements MemberValidationRule {
