@@ -205,8 +205,8 @@ public class PortfolioHoldingService {
 		return PortfolioChartResponse.create(portfolioDetails, pieChartItems, dividendChartItems, sectorChartItems);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public Optional<PortfolioHolding> getPortfolioHoldingBy(Portfolio portfolio, Stock stock) {
-		return Optional.empty();
+		return portfolioHoldingRepository.findByPortfolioAndStock(portfolio, stock);
 	}
 }
