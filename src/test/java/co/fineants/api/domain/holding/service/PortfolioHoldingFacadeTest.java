@@ -114,7 +114,7 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
 	@DisplayName("기존 포트폴리오 종목이 있는 상태에서 매입 이력과 같이 포트폴리오 종목을 같이 생성 요청 시, 매입 이력을 추가한다")
 	@Test
-	void whenExistPortfolioHolding_thenSavePurchaseHistory() {
+	void createPortfolioHolding_whenExistPortfolioHolding_thenSavePurchaseHistory() {
 		Member member = memberRepository.save(createMember());
 		setAuthentication(member);
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
