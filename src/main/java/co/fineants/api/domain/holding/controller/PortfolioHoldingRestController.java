@@ -59,14 +59,13 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioHoldingCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
 		// 포트폴리오 종목 및 매입 이력 저장
-		PortfolioHolding saveHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolioId);
+		PortfolioHolding holding = portfolioHoldingFacade.createPortfolioHolding(request, portfolioId);
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 추가 이벤트를 발행하여 종목 현재가 및 종가 갱신
-		String tickerSymbol = request.getTickerSymbol();
-		publisher.publishPortfolioHolding(tickerSymbol);
+		publisher.publishPortfolioHolding(request.getTickerSymbol());
 
-		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(saveHolding);
+		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(holding);
 		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
 	}
 
