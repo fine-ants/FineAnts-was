@@ -112,7 +112,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		given(portfolioHoldingFacade.savePortfolioHolding(
+		given(portfolioHoldingFacade.createPortfolioHolding(
 			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class),
 			ArgumentMatchers.anyLong()
 		)).willReturn(holding);
