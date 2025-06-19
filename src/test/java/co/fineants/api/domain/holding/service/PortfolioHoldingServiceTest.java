@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.assertj.core.groups.Tuple;
@@ -31,9 +32,9 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -777,5 +778,18 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		// then
 		List<PortfolioHolding> holdings = portfolioHoldingRepository.findAll();
 		assertThat(holdings).hasSize(1);
+	}
+
+	@DisplayName("포트폴리오 종목이 없으면 빈 Optional을 반환한다")
+	@Test
+	void getPortfolioHoldingBy_givenPortfolioAndStock_whenNotExistPortfolioHolding_thenReturnEmptyOptional() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(createSamsungStock());
+		// when
+		Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
+		// then
+		assertThat(holding).isEmpty();
 	}
 }
