@@ -33,7 +33,7 @@ import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
-import co.fineants.api.global.success.PortfolioStockSuccessCode;
+import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,13 +66,13 @@ public class PortfolioHoldingRestController {
 		publisher.publishPortfolioHolding(request.getTickerSymbol());
 
 		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(holding);
-		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
+		return ApiResponse.success(PortfolioHoldingSuccessCode.CREATED_ADD_PORTFOLIO_HOLDING, response);
 	}
 
 	// 포트폴리오 종목 조회
 	@GetMapping("/holdings")
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
-		return ApiResponse.success(PortfolioStockSuccessCode.OK_READ_PORTFOLIO_STOCKS,
+		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
 	}
 
@@ -97,7 +97,7 @@ public class PortfolioHoldingRestController {
 	@GetMapping("/charts")
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId, LocalDate.now());
-		return ApiResponse.success(PortfolioStockSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
+		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
 	}
 
 	// 포트폴리오 종목 단일 삭제
@@ -105,7 +105,7 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<Void> deletePortfolioHolding(@PathVariable Long portfolioId,
 		@PathVariable Long portfolioHoldingId) {
 		portfolioHoldingService.deletePortfolioStock(portfolioHoldingId, portfolioId);
-		return ApiResponse.success(PortfolioStockSuccessCode.OK_DELETE_PORTFOLIO_STOCK);
+		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_DELETE_PORTFOLIO_HOLDING);
 	}
 
 	// 포트폴리오 종목 다수 삭제
@@ -115,6 +115,6 @@ public class PortfolioHoldingRestController {
 		@Valid @RequestBody PortfolioStocksDeleteRequest request) {
 		portfolioHoldingService.deletePortfolioHoldings(portfolioId, authentication.getId(),
 			request.getPortfolioHoldingIds());
-		return ApiResponse.success(PortfolioStockSuccessCode.OK_DELETE_PORTFOLIO_STOCKS);
+		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_DELETE_PORTFOLIO_HOLDINGS);
 	}
 }
