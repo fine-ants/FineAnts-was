@@ -3,24 +3,20 @@ package co.fineants.api.domain.holding.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
@@ -33,26 +29,19 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioDetailFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioHoldingDetailFactory;
 import co.fineants.api.domain.holding.domain.message.PortfolioReturnsStreamMessage;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
-import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
-import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
-import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
-import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
-import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PortfolioHoldingService {
 	private final PortfolioRepository portfolioRepository;
-	private final StockRepository stockRepository;
 	private final PortfolioHoldingRepository portfolioHoldingRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
 	private final PieChart pieChart;
@@ -71,46 +59,7 @@ public class PortfolioHoldingService {
 	private final SectorChart sectorChart;
 	private final PortfolioDetailFactory portfolioDetailFactory;
 	private final PortfolioHoldingDetailFactory portfolioHoldingDetailFactory;
-	private final PortfolioHoldingEventPublisher publisher;
-	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioCalculator calculator;
-
-	@Transactional
-	@Authorized(serviceClass = PortfolioAuthorizedService.class)
-	public PortfolioHoldingCreateResponse createPortfolioHolding(@ResourceId Long portfolioId,
-		PortfolioHoldingCreateRequest request) {
-		log.info("포트폴리오 종목 추가 서비스 요청 : portfolioId={}, request={}", portfolioId, request);
-
-		// 포트폴리오 탐색
-		Portfolio portfolio = findPortfolio(portfolioId);
-
-		// 종목 탐색
-		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(request.getTickerSymbol())
-			.orElseThrow(() -> new StockNotFoundException(request.getTickerSymbol()));
-
-		// 기존 포트폴리오 종목 탐색후 없으면 새로 생성함
-		PortfolioHolding holding = portfolioHoldingRepository.findByPortfolioIdAndTickerSymbol(portfolioId,
-				request.getTickerSymbol())
-			.orElseGet(() -> PortfolioHolding.of(portfolio, stock));
-		// 포트폴리오 종목 정보 업데이트
-		PortfolioHolding saveHolding = portfolioHoldingRepository.save(holding);
-
-		if (request.isPurchaseHistoryComplete()) { // 매입 이력 정보가 모두 입력된 경우
-			validateCashSufficientForPurchase(request, portfolio);
-			purchaseHistoryRepository.save(PurchaseHistory.of(saveHolding, request.getPurchaseHistory()));
-		} else if (!request.isPurchaseHistoryAllNull()) { // 매입 이력 정보가 일부 입력된 경우
-			throw new PurchaseHistoryInvalidInputException(request.toString());
-		}
-
-		// 포트폴리오의 종목 캐시 업데이트
-		Set<String> cachedTickers = portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
-		log.debug("update cached tickerSymbols: {}", cachedTickers);
-
-		// 포트폴리오 종목 이벤트 발행
-		publisher.publishPortfolioHolding(stock.getTickerSymbol());
-		log.info("포트폴리오 종목 추가 결과 : {}", saveHolding);
-		return PortfolioHoldingCreateResponse.from(saveHolding);
-	}
 
 	@Transactional
 	public PortfolioHolding savePortfolioHolding(PortfolioHolding holding) {
@@ -152,15 +101,7 @@ public class PortfolioHoldingService {
 		return portfolioRepository.findById(portfolioId)
 			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
-
-	private void validateCashSufficientForPurchase(PortfolioHoldingCreateRequest request, Portfolio portfolio) {
-		Expression purchasedAmount = request.getPurchaseHistory().getNumShares()
-			.multiply(request.getPurchaseHistory().getPurchasePricePerShare());
-		if (!portfolio.isCashSufficientForPurchase(purchasedAmount, calculator)) {
-			throw new CashNotSufficientInvalidInputException(request.toString());
-		}
-	}
-
+	
 	private void validateExistPortfolioHolding(List<Long> portfolioHoldingIds) {
 		portfolioHoldingIds.stream()
 			.filter(portfolioHoldingId -> !portfolioHoldingRepository.existsById(portfolioHoldingId))
