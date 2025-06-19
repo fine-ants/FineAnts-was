@@ -1,6 +1,6 @@
 package co.fineants.api.domain.holding.controller;
 
-import static co.fineants.api.global.success.PortfolioStockSuccessCode.*;
+import static co.fineants.api.global.success.PortfolioHoldingSuccessCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 
@@ -132,7 +132,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.statusCode(HttpStatus.CREATED.value())
 			.body("code", equalTo(HttpStatus.CREATED.value()))
 			.body("status", equalTo(HttpStatus.CREATED.getReasonPhrase()))
-			.body("message", equalTo(CREATED_ADD_PORTFOLIO_STOCK.getMessage()))
+			.body("message", equalTo(CREATED_ADD_PORTFOLIO_HOLDING.getMessage()))
 			.body("data.portfolioHoldingId", notNullValue())
 			.extract();
 
@@ -160,7 +160,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.statusCode(HttpStatus.CREATED.value())
 			.body("code", equalTo(HttpStatus.CREATED.value()))
 			.body("status", equalTo(HttpStatus.CREATED.getReasonPhrase()))
-			.body("message", equalTo(CREATED_ADD_PORTFOLIO_STOCK.getMessage()))
+			.body("message", equalTo(CREATED_ADD_PORTFOLIO_HOLDING.getMessage()))
 			.body("data.portfolioHoldingId", notNullValue())
 			.extract();
 
