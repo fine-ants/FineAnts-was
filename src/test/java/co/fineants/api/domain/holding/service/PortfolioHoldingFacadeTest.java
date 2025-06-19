@@ -1,8 +1,9 @@
 package co.fineants.api.domain.holding.service;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.LocalDateTime;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 
 class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
@@ -62,10 +64,10 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 			)
 		);
 		// when
-		Throwable throwable = Assertions.catchThrowable(
+		Throwable throwable = catchThrowable(
 			() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
 		// then
-		Assertions.assertThat(throwable)
+		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class);
 	}
 
@@ -83,7 +85,7 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
 
 		// then
-		Assertions.assertThat(portfolioHolding).isNotNull();
+		assertThat(portfolioHolding).isNotNull();
 	}
 
 	@DisplayName("포트폴리오 종목 생성 시 매입 이력 생성 요청이 null이 아닌 경우, 포트폴리오 종목과 매입 이력을 저장한다")
@@ -107,8 +109,8 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
 
 		// then
-		Assertions.assertThat(portfolioHolding).isNotNull();
-		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
+		assertThat(portfolioHolding).isNotNull();
+		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
 			.hasSize(1);
 	}
 
@@ -133,9 +135,9 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
 
 		// then
-		Assertions.assertThat(portfolioHolding).isNotNull();
-		Assertions.assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
-		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
+		assertThat(portfolioHolding).isNotNull();
+		assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
+		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
 			.hasSize(1);
 	}
 
@@ -159,9 +161,35 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
 
 		// then
-		Assertions.assertThat(portfolioHolding).isNotNull();
-		Assertions.assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
-		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
+		assertThat(portfolioHolding).isNotNull();
+		assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
+		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
 			.isEmpty();
+	}
+
+	@DisplayName("포트폴리오 종목 추가할 때 존재하지 않는 종목인 경우에는 추가할 수 없다")
+	@Test
+	void whenTickerSymbolIsNotFound_thenThrowException() {
+		Member member = memberRepository.save(createMember());
+		setAuthentication(member);
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			LocalDateTime.now(),
+			Count.from(3),
+			Money.won(50_000),
+			"memo"
+		);
+		String invalidTickerSymbol = "INVALID_TICKER";
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(invalidTickerSymbol,
+			purchaseHistoryCreateRequest);
+		// when
+		Throwable throwable = catchThrowable(
+			() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(StockNotFoundException.class)
+			.hasMessage(invalidTickerSymbol);
 	}
 }

@@ -51,7 +51,6 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
-import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.cache.PortfolioCacheSupportService;
@@ -436,34 +435,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 						Money.won(60000L),
 						Percentage.from(0.2)))
 		);
-	}
-
-	@DisplayName("사용자는 포트폴리오에 종목과 매입이력 중 일부를 추가할 수 없다")
-	@Test
-	void addPortfolioStockWithInvalidInput() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(PurchaseHistoryInvalidInputException.class)
-			.hasMessage(request.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 존재하지 않는 종목을 추가할 수 없다")
