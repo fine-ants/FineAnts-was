@@ -26,18 +26,6 @@ public class PortfolioHoldingCreateRequest {
 		return new PortfolioHoldingCreateRequest(tickerSymbol, purchaseHistory);
 	}
 
-	public boolean isPurchaseHistoryAllNull() {
-		return purchaseHistory == null
-			|| purchaseHistory.getPurchaseDate() == null && purchaseHistory.getNumShares() == null
-			&& purchaseHistory.getPurchasePricePerShare() == null && purchaseHistory.getMemo() == null;
-	}
-
-	public boolean isPurchaseHistoryComplete() {
-		return purchaseHistory != null && purchaseHistory.getPurchaseDate() != null
-			&& purchaseHistory.getNumShares() != null
-			&& purchaseHistory.getPurchasePricePerShare() != null;
-	}
-
 	public Optional<PurchaseHistory> toPurchaseHistoryEntity(PortfolioHolding saveHolding) {
 		if (purchaseHistory == null) {
 			return Optional.empty();
