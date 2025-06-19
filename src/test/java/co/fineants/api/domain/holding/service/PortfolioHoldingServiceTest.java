@@ -792,4 +792,19 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(holding).isEmpty();
 	}
+
+	@DisplayName("포트폴리오 종목을 조회한다")
+	@Test
+	void getPortfolioHoldingBy_givenPortfolioAndStock_whenExistPortfolioHolding_thenReturnHoldingOptional() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(createSamsungStock());
+
+		portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+		// when
+		Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
+		// then
+		assertThat(holding).isPresent();
+	}
 }
