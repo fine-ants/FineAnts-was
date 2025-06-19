@@ -770,9 +770,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Stock samsung = stockRepository.save(createSamsungStock());
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(), null);
 
-		PortfolioHolding holding = request.toEntity(portfolio, samsung);
+		PortfolioHolding holding = PortfolioHolding.of(portfolio, samsung);
 		// when
 		service.savePortfolioHolding(holding);
 		// then

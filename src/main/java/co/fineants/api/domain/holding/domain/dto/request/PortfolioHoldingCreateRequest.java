@@ -3,10 +3,8 @@ package co.fineants.api.domain.holding.domain.dto.request;
 import java.util.Optional;
 
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.stock.domain.entity.Stock;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,10 +36,6 @@ public class PortfolioHoldingCreateRequest {
 		return purchaseHistory != null && purchaseHistory.getPurchaseDate() != null
 			&& purchaseHistory.getNumShares() != null
 			&& purchaseHistory.getPurchasePricePerShare() != null;
-	}
-
-	public PortfolioHolding toEntity(Portfolio portfolio, Stock stock) {
-		return PortfolioHolding.of(portfolio, stock);
 	}
 
 	public Optional<PurchaseHistory> toPurchaseHistoryEntity(PortfolioHolding saveHolding) {

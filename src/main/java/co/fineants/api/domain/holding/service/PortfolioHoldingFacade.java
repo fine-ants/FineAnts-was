@@ -22,7 +22,6 @@ public class PortfolioHoldingFacade {
 	private final PortfolioService portfolioService;
 	private final StockService stockService;
 	private final PortfolioHoldingService portfolioHoldingService;
-
 	private final PurchaseHistoryService purchaseHistoryService;
 
 	@Transactional
