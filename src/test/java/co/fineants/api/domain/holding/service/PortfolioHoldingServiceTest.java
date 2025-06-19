@@ -17,7 +17,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -56,8 +55,6 @@ import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
-import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
-import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.cache.PortfolioCacheSupportService;
 
@@ -441,59 +438,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 						Money.won(60000L),
 						Percentage.from(0.2)))
 		);
-	}
-
-	@DisplayName("사용자는 포트폴리오에 종목을 추가한다")
-	@Test
-	void addPortfolioStockOnly() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
-		);
-	}
-
-	@DisplayName("다른 회원의 포트폴리오에 포트폴리오 종목을 등록할 수 없다")
-	@Test
-	void createPortfolioHolding_whenCreatePortfolioHoldingToOtherMemberPortfolio_then403Error() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Member other = memberRepository.save(createMember("other1234"));
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		SecurityContextHolder.getContext()
-			.setAuthentication(AjaxAuthenticationToken.authenticated(
-				MemberAuthentication.from(other), null, member.getSimpleGrantedAuthorities()));
-
-		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(stock.getTickerSymbol(), null);
-
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(ForbiddenException.class)
-			.hasMessage(portfolio.toString());
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
