@@ -10,6 +10,9 @@ import co.fineants.api.domain.portfolio.service.PortFolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.service.StockService;
+import co.fineants.api.global.common.authorized.Authorized;
+import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
+import co.fineants.api.global.common.resource.ResourceId;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,7 +26,9 @@ public class PortfolioHoldingFacade {
 	private final PurchaseHistoryService purchaseHistoryService;
 
 	@Transactional
-	public PortfolioHolding createPortfolioHolding(PortfolioHoldingCreateRequest request, Long portfolioId) {
+	@Authorized(serviceClass = PortfolioAuthorizedService.class)
+	public PortfolioHolding createPortfolioHolding(PortfolioHoldingCreateRequest request,
+		@ResourceId Long portfolioId) {
 		// 포트폴리오 탐색
 		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
 		// 종목 탐색
