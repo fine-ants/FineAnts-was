@@ -28,12 +28,14 @@ public class PortfolioHoldingFacade {
 		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
 		// 종목 탐색
 		Stock stock = stockService.getStock(request.getTickerSymbol());
+		// 기존 포트폴리오 종목 조회 or 생성
+		PortfolioHolding holding = portfolioHoldingService.getPortfolioHoldingBy(portfolio, stock)
+			.orElseGet(() -> PortfolioHolding.of(portfolio, stock));
 		// 포트폴리오 종목 저장
-		PortfolioHolding holding = portfolioHoldingService.savePortfolioHolding(
-			PortfolioHolding.of(portfolio, stock));
+		PortfolioHolding saveHolding = portfolioHoldingService.savePortfolioHolding(holding);
 		// 매입 이력 생성 후 저장 (생성 못하면 생략)
-		request.toPurchaseHistoryEntity(holding)
+		request.toPurchaseHistoryEntity(saveHolding)
 			.ifPresent(purchaseHistory -> purchaseHistoryService.savePurchaseHistory(purchaseHistory, portfolio));
-		return holding;
+		return saveHolding;
 	}
 }
