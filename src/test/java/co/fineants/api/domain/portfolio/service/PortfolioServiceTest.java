@@ -51,10 +51,10 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class PortFolioServiceTest extends AbstractContainerBaseTest {
+class PortfolioServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private PortFolioService service;
+	private PortfolioService service;
 
 	@Autowired
 	private MemberRepository memberRepository;
