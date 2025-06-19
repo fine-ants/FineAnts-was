@@ -19,12 +19,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -68,6 +70,17 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	private Cookie accessTokenCookie;
 	private Cookie refreshTokenCookie;
 	private Portfolio portfolio;
+	private Stock samsung;
+
+	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
+		return new Cookie.Builder(cookie.getName(), cookie.getValue())
+			.setDomain(cookie.getDomain())
+			.setPath(cookie.getPath())
+			.setHttpOnly(cookie.isHttpOnly())
+			.setSecured(cookie.isSecure())
+			.setSameSite(cookie.getSameSite())
+			.build();
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -77,7 +90,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		// 테스트 데이터 생성
 		Member member = memberRepository.save(createMember());
 		portfolio = portfolioRepository.save(createPortfolio(member));
-		stockRepository.save(createSamsungStock());
+		samsung = stockRepository.save(createSamsungStock());
 
 		// 인증 정보 설정
 		setAuthentication(member);
@@ -125,13 +138,43 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		assertThat(redisTemplate.opsForValue().get("tickerSymbols::" + portfolio.getId())).isNotNull();
 	}
 
-	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
-		return new Cookie.Builder(cookie.getName(), cookie.getValue())
-			.setDomain(cookie.getDomain())
-			.setPath(cookie.getPath())
-			.setHttpOnly(cookie.isHttpOnly())
-			.setSecured(cookie.isSecure())
-			.setSameSite(cookie.getSameSite())
-			.build();
+	@DisplayName("같은 종목에 대하여 포트폴리오 종목 생성시 중복적으로 생성되지 않는다")
+	@Test
+	void createPortfolioHolding_whenPortfolioHoldingExist_thenNotSaveNewPortfolioHolding() {
+		portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, samsung));
+
+		Map<String, Object> purchaseHistoryMap = new HashMap<>();
+		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
+		purchaseHistoryMap.put("numShares", 10L);
+		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
+		purchaseHistoryMap.put("memo", null);
+
+		Map<String, Object> requestBodyMap = new HashMap<>();
+		requestBodyMap.put("tickerSymbol", "005930");
+		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
+
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
+
+		ExtractableResponse<Response> response = RestAssured.given()
+			.contentType(ContentType.JSON)
+			.cookie(accessTokenCookie)
+			.cookie(refreshTokenCookie)
+			.body(body)
+			.when()
+			.post("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
+			.then()
+			.statusCode(HttpStatus.CREATED.value())
+			.body("code", equalTo(HttpStatus.CREATED.value()))
+			.body("status", equalTo(HttpStatus.CREATED.getReasonPhrase()))
+			.body("message", equalTo(CREATED_ADD_PORTFOLIO_STOCK.getMessage()))
+			.body("data.portfolioHoldingId", notNullValue())
+			.extract();
+
+		Integer holdingIdInteger = response.path("data.portfolioHoldingId");
+		long holdingId = holdingIdInteger.longValue();
+		assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
+		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holdingId)).hasSize(1);
+		assertThat(redisTemplate.opsForValue().get("tickerSymbols::" + portfolio.getId())).isNotNull();
 	}
+
 }
