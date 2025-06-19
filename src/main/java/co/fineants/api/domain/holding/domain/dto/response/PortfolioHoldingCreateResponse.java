@@ -7,18 +7,18 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public class PortfolioStockCreateResponse {
+public class PortfolioHoldingCreateResponse {
 
 	@JsonProperty
 	private final Long portfolioHoldingId;
 
 	@JsonCreator
-	private PortfolioStockCreateResponse(@JsonProperty("portfolioHoldingId") Long portfolioHoldingId) {
+	private PortfolioHoldingCreateResponse(@JsonProperty("portfolioHoldingId") Long portfolioHoldingId) {
 		this.portfolioHoldingId = portfolioHoldingId;
 	}
 
-	public static PortfolioStockCreateResponse from(PortfolioHolding portFolioHolding) {
-		return new PortfolioStockCreateResponse(portFolioHolding.getId());
+	public static PortfolioHoldingCreateResponse from(PortfolioHolding portFolioHolding) {
+		return new PortfolioHoldingCreateResponse(portFolioHolding.getId());
 	}
 
 	@Override

@@ -17,8 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
@@ -56,7 +56,7 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/holdings")
-	public ApiResponse<PortfolioStockCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
+	public ApiResponse<PortfolioHoldingCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
 		// 포트폴리오 종목 및 매입 이력 저장
 		PortfolioHolding saveHolding = portfolioHoldingFacade.savePortfolioHolding(request, portfolioId);
@@ -66,7 +66,7 @@ public class PortfolioHoldingRestController {
 		String tickerSymbol = request.getTickerSymbol();
 		publisher.publishPortfolioHolding(tickerSymbol);
 
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(saveHolding);
+		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(saveHolding);
 		return ApiResponse.success(PortfolioStockSuccessCode.CREATED_ADD_PORTFOLIO_STOCK, response);
 	}
 
