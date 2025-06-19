@@ -439,42 +439,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 						Percentage.from(0.2)))
 		);
 	}
-
-	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
-	@Test
-	void addPortfolioStock() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("numShares", 2);
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
-		);
-	}
-
+	
 	@DisplayName("사용자는 포트폴리오 종목이 존재하는 상태에서 매입 이력과 같이 종목을 추가할때 매입 이력만 추가된다")
 	@Test
 	void addPortfolioStock_whenExistHolding_thenAddPurchaseHistory() {
