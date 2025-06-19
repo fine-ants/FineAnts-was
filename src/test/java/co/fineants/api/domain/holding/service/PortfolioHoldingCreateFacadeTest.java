@@ -25,10 +25,10 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 
-class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
+class PortfolioHoldingCreateFacadeTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private PortfolioHoldingFacade portfolioHoldingFacade;
+	private PortfolioHoldingCreateFacade portfolioHoldingCreateFacade;
 
 	@Autowired
 	private MemberRepository memberRepository;
@@ -65,7 +65,7 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		);
 		// when
 		Throwable throwable = catchThrowable(
-			() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
+			() -> portfolioHoldingCreateFacade.createPortfolioHolding(request, portfolio.getId()));
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class);
@@ -82,7 +82,8 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
 		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(), null);
 		// when
-		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+		PortfolioHolding portfolioHolding = portfolioHoldingCreateFacade.createPortfolioHolding(request,
+			portfolio.getId());
 
 		// then
 		assertThat(portfolioHolding).isNotNull();
@@ -106,7 +107,8 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
 			purchaseHistoryCreateRequest);
 		// when
-		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+		PortfolioHolding portfolioHolding = portfolioHoldingCreateFacade.createPortfolioHolding(request,
+			portfolio.getId());
 
 		// then
 		assertThat(portfolioHolding).isNotNull();
@@ -132,7 +134,8 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
 			purchaseHistoryCreateRequest);
 		// when
-		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+		PortfolioHolding portfolioHolding = portfolioHoldingCreateFacade.createPortfolioHolding(request,
+			portfolio.getId());
 
 		// then
 		assertThat(portfolioHolding).isNotNull();
@@ -158,7 +161,8 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
 			purchaseHistoryCreateRequest);
 		// when
-		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+		PortfolioHolding portfolioHolding = portfolioHoldingCreateFacade.createPortfolioHolding(request,
+			portfolio.getId());
 
 		// then
 		assertThat(portfolioHolding).isNotNull();
@@ -185,7 +189,7 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 			purchaseHistoryCreateRequest);
 		// when
 		Throwable throwable = catchThrowable(
-			() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
+			() -> portfolioHoldingCreateFacade.createPortfolioHolding(request, portfolio.getId()));
 
 		// then
 		assertThat(throwable)

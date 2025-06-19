@@ -25,7 +25,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEmitterFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
-import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
+import co.fineants.api.domain.holding.service.PortfolioHoldingCreateFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
@@ -51,7 +51,7 @@ public class PortfolioHoldingRestController {
 	private final SseEventBuilderFactory portfolioSseEventBuilderFactory;
 	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioHoldingEventPublisher publisher;
-	private final PortfolioHoldingFacade portfolioHoldingFacade;
+	private final PortfolioHoldingCreateFacade portfolioHoldingCreateFacade;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -59,7 +59,7 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioHoldingCreateResponse> createPortfolioHolding(@PathVariable Long portfolioId,
 		@Valid @RequestBody PortfolioHoldingCreateRequest request) {
 		// 포트폴리오 종목 및 매입 이력 저장
-		PortfolioHolding holding = portfolioHoldingFacade.createPortfolioHolding(request, portfolioId);
+		PortfolioHolding holding = portfolioHoldingCreateFacade.createPortfolioHolding(request, portfolioId);
 		// 포트폴리오의 종목 캐시 업데이트
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 추가 이벤트를 발행하여 종목 현재가 및 종가 갱신

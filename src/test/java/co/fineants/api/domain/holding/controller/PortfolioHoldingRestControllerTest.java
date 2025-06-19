@@ -46,7 +46,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
-import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
+import co.fineants.api.domain.holding.service.PortfolioHoldingCreateFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -70,7 +70,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
-	private PortfolioHoldingFacade portfolioHoldingFacade;
+	private PortfolioHoldingCreateFacade portfolioHoldingCreateFacade;
 
 	@Override
 	protected Object initController() {
@@ -81,7 +81,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
-		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
+		portfolioHoldingCreateFacade = mock(PortfolioHoldingCreateFacade.class);
 		return new PortfolioHoldingRestController(
 			mockedPortfolioHoldingService,
 			portfolioStreamerFactory,
@@ -90,7 +90,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			portfolioSseEventBuilderFactory,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			portfolioHoldingFacade
+			portfolioHoldingCreateFacade
 		);
 	}
 
@@ -204,7 +204,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -238,7 +238,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -272,7 +272,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();

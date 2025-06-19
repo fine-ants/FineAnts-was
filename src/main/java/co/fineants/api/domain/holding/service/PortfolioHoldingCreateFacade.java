@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PortfolioHoldingFacade {
+public class PortfolioHoldingCreateFacade {
 
 	private final PortfolioService portfolioService;
 	private final StockService stockService;

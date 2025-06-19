@@ -9,7 +9,7 @@ import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsu
 import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
 import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
 import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
-import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
+import co.fineants.api.domain.holding.service.PortfolioHoldingCreateFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
@@ -104,5 +104,5 @@ public class ControllerTestConfig {
 	private PortfolioHoldingEventPublisher portfolioHoldingEventPublisher;
 
 	@MockBean
-	private PortfolioHoldingFacade portfolioHoldingFacade;
+	private PortfolioHoldingCreateFacade portfolioHoldingCreateFacade;
 }
