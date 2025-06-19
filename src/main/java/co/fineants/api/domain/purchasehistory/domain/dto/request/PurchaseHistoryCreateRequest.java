@@ -1,6 +1,7 @@
 package co.fineants.api.domain.purchasehistory.domain.dto.request;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.count.valiator.CountNumber;
@@ -42,12 +43,12 @@ public class PurchaseHistoryCreateRequest {
 			.build();
 	}
 
-	public PurchaseHistory toEntity(PortfolioHolding holding) {
+	public Optional<PurchaseHistory> toEntity(PortfolioHolding holding) {
 		try {
-			return PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo, holding);
+			return Optional.of(PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo, holding));
 		} catch (IllegalArgumentException e) {
 			log.warn("매입이력 객체 생성 실패", e);
-			return null;
+			return Optional.empty();
 		}
 	}
 }
