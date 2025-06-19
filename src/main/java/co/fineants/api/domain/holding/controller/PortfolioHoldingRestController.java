@@ -64,6 +64,7 @@ public class PortfolioHoldingRestController {
 		portfolioCacheService.updateTickerSymbolsFrom(portfolioId);
 		// 포트폴리오 종목 이벤트 발행
 		String tickerSymbol = request.getTickerSymbol();
+		// 포트폴리오 종목 추가 이벤트를 발행하여 종목 현재가 및 종가 갱신
 		publisher.publishPortfolioHolding(tickerSymbol);
 
 		PortfolioHoldingCreateResponse response = PortfolioHoldingCreateResponse.from(saveHolding);
