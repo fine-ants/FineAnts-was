@@ -1,6 +1,7 @@
 package co.fineants.api.domain.holding.controller;
 
 import static co.fineants.api.global.success.PortfolioStockSuccessCode.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 
 import java.time.LocalDateTime;
@@ -8,11 +9,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 
@@ -22,6 +24,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -57,6 +60,11 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	@Autowired
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
+	@Autowired
+	private PurchaseHistoryRepository purchaseHistoryRepository;
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+
 	private Cookie accessTokenCookie;
 	private Cookie refreshTokenCookie;
 	private Portfolio portfolio;
@@ -80,6 +88,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		refreshTokenCookie = getRestAssuredCookie(tokenFactory.createRefreshTokenCookie(token));
 	}
 
+	@DisplayName("포트폴리오 종목 및 매입이력 생성")
 	@Test
 	void createPortfolioHolding() {
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -109,8 +118,11 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.body("data.portfolioHoldingId", notNullValue())
 			.extract();
 
-		Integer holdingId = response.path("data.portfolioHoldingId");
-		Assertions.assertThat(portfolioHoldingRepository.findById(holdingId.longValue())).isPresent();
+		Integer holdingIdInteger = response.path("data.portfolioHoldingId");
+		long holdingId = holdingIdInteger.longValue();
+		assertThat(portfolioHoldingRepository.findById(holdingId)).isPresent();
+		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holdingId)).hasSize(1);
+		assertThat(redisTemplate.opsForValue().get("tickerSymbols::" + portfolio.getId())).isNotNull();
 	}
 
 	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
