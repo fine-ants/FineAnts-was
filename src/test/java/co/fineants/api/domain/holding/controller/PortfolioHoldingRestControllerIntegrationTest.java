@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -29,6 +31,8 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 
 class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBaseTest {
 
@@ -49,6 +53,10 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 
 	@Autowired
 	private StockRepository stockRepository;
+
+	@Autowired
+	private PortfolioHoldingRepository portfolioHoldingRepository;
+
 	private Cookie accessTokenCookie;
 	private Cookie refreshTokenCookie;
 	private Portfolio portfolio;
@@ -86,7 +94,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 
 		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
-		RestAssured.given()
+		ExtractableResponse<Response> response = RestAssured.given()
 			.contentType(ContentType.JSON)
 			.cookie(accessTokenCookie)
 			.cookie(refreshTokenCookie)
@@ -98,7 +106,11 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.body("code", equalTo(HttpStatus.CREATED.value()))
 			.body("status", equalTo(HttpStatus.CREATED.getReasonPhrase()))
 			.body("message", equalTo(CREATED_ADD_PORTFOLIO_STOCK.getMessage()))
-			.body("data.portfolioHoldingId", notNullValue());
+			.body("data.portfolioHoldingId", notNullValue())
+			.extract();
+
+		Integer holdingId = response.path("data.portfolioHoldingId");
+		Assertions.assertThat(portfolioHoldingRepository.findById(holdingId.longValue())).isPresent();
 	}
 
 	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
