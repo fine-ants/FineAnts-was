@@ -48,6 +48,6 @@ public class PortfolioHoldingCreateRequest {
 		if (purchaseHistory == null) {
 			return Optional.empty();
 		}
-		return Optional.ofNullable(purchaseHistory.toEntity(saveHolding));
+		return purchaseHistory.toEntity(saveHolding);
 	}
 }

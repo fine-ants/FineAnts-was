@@ -29,6 +29,7 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PurchaseHistoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,8 @@ public class PurchaseHistoryService {
 			.filter(holding -> holding.getId().equals(portfolioHoldingId))
 			.findAny()
 			.orElseThrow(() -> new HoldingNotFoundException(portfolioHoldingId.toString()));
-		PurchaseHistory history = request.toEntity(findHolding);
+		PurchaseHistory history = request.toEntity(findHolding)
+			.orElseThrow(() -> new PurchaseHistoryInvalidInputException(request.toString()));
 
 		verifyCashSufficientForPurchase(portfolio, (Money)history.calInvestmentAmount());
 
