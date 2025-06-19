@@ -6,9 +6,7 @@ import static org.hamcrest.Matchers.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,17 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -55,14 +49,29 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 
 	@Autowired
 	private StockRepository stockRepository;
+	private Cookie accessTokenCookie;
+	private Cookie refreshTokenCookie;
+	private Portfolio portfolio;
 
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
+		// 테스트 데이터 생성
+		Member member = memberRepository.save(createMember());
+		portfolio = portfolioRepository.save(createPortfolio(member));
+		stockRepository.save(createSamsungStock());
+
+		// 인증 정보 설정
+		setAuthentication(member);
+
+		// 토큰 생성 및 쿠키 설정
+		Token token = tokenService.generateToken(MemberAuthentication.from(member), new Date());
+		accessTokenCookie = getRestAssuredCookie(tokenFactory.createAccessTokenCookie(token));
+		refreshTokenCookie = getRestAssuredCookie(tokenFactory.createRefreshTokenCookie(token));
 	}
 
-	// todo: 인증 관련 설정 필요함
 	@Test
 	void createPortfolioHolding() {
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -76,20 +85,6 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
 
 		String body = ObjectMapperUtil.serialize(requestBodyMap);
-
-		Member member = memberRepository.save(createMember());
-		Token token = tokenService.generateToken(MemberAuthentication.from(member), new Date());
-		Cookie accessTokenCookie = getRestAssuredCookie(tokenFactory.createAccessTokenCookie(token));
-		Cookie refreshTokenCookie = getRestAssuredCookie(tokenFactory.createRefreshTokenCookie(token));
-
-		List<GrantedAuthority> authorities = member.getRoles().stream()
-			.map(MemberRole::toSimpleGrantedAuthority)
-			.toList();
-		SecurityContextHolder.getContext()
-			.setAuthentication(AjaxAuthenticationToken.authenticated(member, null, authorities));
-
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		stockRepository.save(createSamsungStock());
 
 		RestAssured.given()
 			.contentType(ContentType.JSON)
@@ -114,16 +109,5 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 			.setSecured(cookie.isSecure())
 			.setSameSite(cookie.getSameSite())
 			.build();
-	}
-
-	private MemberAuthentication createMemberAuthentication() {
-		return MemberAuthentication.create(
-			1L,
-			"dragonbead95@naver.com",
-			"일개미1234",
-			"local",
-			"profileUrl",
-			Set.of("ROLE_USER")
-		);
 	}
 }
