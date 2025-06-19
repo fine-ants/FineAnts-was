@@ -26,7 +26,7 @@ public class PortfolioHoldingCreateFacade {
 
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
-	public PortfolioHolding createPortfolioHolding(PortfolioHoldingCreateRequest request,
+	public PortfolioHolding create(PortfolioHoldingCreateRequest request,
 		@ResourceId Long portfolioId) {
 		// 포트폴리오 탐색
 		Portfolio portfolio = portfolioService.findPortfolio(portfolioId);

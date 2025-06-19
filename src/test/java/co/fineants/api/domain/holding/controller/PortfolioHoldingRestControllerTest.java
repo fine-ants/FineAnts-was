@@ -204,7 +204,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.create(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -238,7 +238,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.create(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
@@ -272,7 +272,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingCreateFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+		given(portfolioHoldingCreateFacade.create(any(PortfolioHoldingCreateRequest.class), anyLong()))
 			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
