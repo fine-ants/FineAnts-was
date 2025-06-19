@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +30,6 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
@@ -437,49 +435,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 					Tuple.tuple(Money.won(360000L), Money.won(10000L), Percentage.from(0.2),
 						Money.won(60000L),
 						Percentage.from(0.2)))
-		);
-	}
-	
-	@DisplayName("사용자는 포트폴리오 종목이 존재하는 상태에서 매입 이력과 같이 종목을 추가할때 매입 이력만 추가된다")
-	@Test
-	void addPortfolioStock_whenExistHolding_thenAddPurchaseHistory() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-		PortfolioHolding holding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
-		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-		Count numShares = Count.from(5);
-		Money purchasePerShare = Money.won(10000);
-		String memo = "첫구매";
-		purchaseHistoryRepository.save(
-			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, holding));
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("numShares", 2);
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioHoldingCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portfolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holding.getId())).hasSize(2),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
 		);
 	}
 

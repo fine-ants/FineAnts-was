@@ -138,4 +138,30 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
 			.hasSize(1);
 	}
+
+	@DisplayName("포트폴리오 종목과 매입 이력 추가시 매입 이력 필수 입력 정보를 넣지 않으면 포트폴리오 종목만 추가된다")
+	@Test
+	void createPortfolioHolding_whenInvalidPurchaseHistory_thenSaveOnlyPortfolioHolding() {
+		Member member = memberRepository.save(createMember());
+		setAuthentication(member);
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock samsung = stockRepository.save(createSamsungStock());
+
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			null,
+			null,
+			null,
+			null
+		);
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
+			purchaseHistoryCreateRequest);
+		// when
+		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+
+		// then
+		Assertions.assertThat(portfolioHolding).isNotNull();
+		Assertions.assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
+		Assertions.assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
+			.isEmpty();
+	}
 }
