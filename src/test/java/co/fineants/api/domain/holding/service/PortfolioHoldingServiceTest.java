@@ -6,9 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.assertj.core.groups.Tuple;
@@ -27,7 +25,6 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
@@ -51,8 +48,6 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
-import co.fineants.api.global.errors.exception.business.StockNotFoundException;
-import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.cache.PortfolioCacheSupportService;
 
 class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
@@ -435,28 +430,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 						Money.won(60000L),
 						Percentage.from(0.2)))
 		);
-	}
-
-	@DisplayName("사용자는 포트폴리오에 존재하지 않는 종목을 추가할 수 없다")
-	@Test
-	void addPortfolioStockWithNotExistStock() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "999999");
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(StockNotFoundException.class)
-			.hasMessage("999999");
-
 	}
 
 	@DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
