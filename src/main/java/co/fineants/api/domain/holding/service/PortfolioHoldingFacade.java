@@ -23,7 +23,7 @@ public class PortfolioHoldingFacade {
 	private final PurchaseHistoryService purchaseHistoryService;
 
 	@Transactional
-	public PortfolioHolding savePortfolioHolding(PortfolioHoldingCreateRequest request, Long portfolioId) {
+	public PortfolioHolding createPortfolioHolding(PortfolioHoldingCreateRequest request, Long portfolioId) {
 		// 포트폴리오 탐색
 		Portfolio portfolio = portFolioService.findPortfolio(portfolioId);
 		// 종목 탐색
