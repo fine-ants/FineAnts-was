@@ -65,7 +65,6 @@ public class SetupDataLoader {
 		setupSecurityResources();
 		setupMemberResources();
 		setAdminAuthentication();
-		setupExchangeRateResources();
 		setupStockResources();
 		setupStockDividendResources();
 	}
