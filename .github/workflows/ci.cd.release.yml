@@ -2,7 +2,7 @@ name: ci-cd
 
 on:
   push:
-    branches: [ release, fix/#655 ]
+    branches: [ release ]
 
 permissions:
   contents: read
