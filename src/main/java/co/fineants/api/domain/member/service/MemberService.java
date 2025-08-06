@@ -2,12 +2,9 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import org.springframework.http.ResponseCookie;
-import org.springframework.mail.MailException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,14 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
@@ -48,23 +43,17 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
-import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
-import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -75,11 +64,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberService {
 
-	private static final String LOCAL_PROVIDER = "local";
-	public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,10}$");
-	public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
+	public static final String LOCAL_PROVIDER = "local";
 	private final MemberRepository memberRepository;
-	private final EmailService emailService;
 	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
@@ -88,7 +74,6 @@ public class MemberService {
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
-	private final VerifyCodeGenerator verifyCodeGenerator;
 	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final NotificationRepository notificationRepository;
 	private final FcmRepository fcmRepository;
@@ -97,7 +82,7 @@ public class MemberService {
 	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
-	private final VerifyCodeManagementService verifyCodeManagementService;
+	private final VerifyCodeRepository verifyCodeRedisRepository;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -168,13 +153,13 @@ public class MemberService {
 	}
 
 	private void verifyEmail(Member member) throws EmailDuplicateException {
-		if (memberRepository.findMemberByEmailAndProvider(member, LOCAL_PROVIDER).isPresent()) {
+		if (memberRepository.findMemberByEmailAndProvider(member.getEmail(), LOCAL_PROVIDER).isPresent()) {
 			throw new EmailDuplicateException(member.getEmail());
 		}
 	}
 
 	private void verifyNickname(Member member) throws NicknameDuplicateException {
-		if (memberRepository.findMemberByNickname(member).isPresent()) {
+		if (memberRepository.findMemberByNickname(member.getNickname()).isPresent()) {
 			throw new NicknameDuplicateException(member.getNickname());
 		}
 	}
@@ -188,49 +173,7 @@ public class MemberService {
 
 	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
 		if (!request.matchPassword()) {
-			throw new PasswordAuthenticationException(request.getPassword());
-		}
-	}
-
-	@Transactional(readOnly = true)
-	@PermitAll
-	public void sendVerifyCode(VerifyEmailRequest request) {
-		String to = request.getEmail();
-		String verifyCode = verifyCodeGenerator.generate();
-
-		// Redis에 생성한 검증 코드 임시 저장
-		verifyCodeManagementService.saveVerifyCode(to, verifyCode);
-
-		String subject = "Finants 회원가입 인증 코드";
-		String templateName = "mail-templates/verify-email_template";
-		Map<String, String> values = Map.of("verifyCode", verifyCode);
-		try {
-			emailService.sendEmail(to, subject, templateName, values);
-		} catch (MailException exception) {
-			String value = "to=%s, subject=%s, templateName=%s, values=%s".formatted(to, subject, templateName, values);
-			throw new MailInvalidInputException(value, exception);
-		}
-	}
-
-	@Transactional
-	@PermitAll
-	public void checkNickname(String nickname) {
-		if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
-			throw new NicknameInvalidInputException(nickname);
-		}
-		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new NicknameDuplicateException(nickname);
-		}
-	}
-
-	@Transactional
-	@PermitAll
-	public void checkEmail(String email) {
-		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			throw new MailInvalidInputException(email);
-		}
-		if (memberRepository.findMemberByEmailAndProvider(email, LOCAL_PROVIDER).isPresent()) {
-			throw new MailDuplicateException(email);
+			throw new PasswordAuthenticationException();
 		}
 	}
 
@@ -252,10 +195,10 @@ public class MemberService {
 		} else if (profileImageFile.isEmpty()) { // 기본 프로필 파일로 변경인 경우
 			// 회원의 기존 프로필 사진 제거
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteFile);
+			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
 		} else if (!profileImageFile.isEmpty()) { // 새로운 프로필 파일로 변경인 경우
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteFile);
+			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
 
 			// 새로운 프로필 파일 저장
 			profileUrl = amazonS3Service.upload(profileImageFile);
@@ -295,15 +238,6 @@ public class MemberService {
 			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
 	}
 
-	@Transactional(readOnly = true)
-	@PermitAll
-	public void checkVerifyCode(String email, String code) {
-		Optional<String> verifyCode = verifyCodeManagementService.getVerificationCode(email);
-		if (verifyCode.isEmpty() || !verifyCode.get().equals(code)) {
-			throw new VerifyCodeInvalidInputException(code);
-		}
-	}
-
 	@Transactional
 	public void deleteMember(Long memberId) {
 		Member member = findMember(memberId);
@@ -311,12 +245,13 @@ public class MemberService {
 		List<PortfolioHolding> portfolioHoldings = new ArrayList<>();
 		portfolios.forEach(
 			portfolio -> portfolioHoldings.addAll(portfolioHoldingRepository.findAllByPortfolio(portfolio)));
-		List<PortfolioGainHistory> portfolioGainHistories = new ArrayList<>();
-		portfolios.forEach(portfolio -> portfolioGainHistories.addAll(
-			portfolioGainHistoryRepository.findAllByPortfolioId(portfolio.getId())));
+		// 포트폴리오에 속한 모든 포트폴리오 손익 내역 데이터 삭제
+		List<Long> portfolioIds = portfolios.stream()
+			.map(Portfolio::getId)
+			.toList();
+		portfolioGainHistoryRepository.deleteAllByPortfolioIds(portfolioIds);
 		purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(
 			portfolioHoldings.stream().map(PortfolioHolding::getId).toList());
-		portfolioGainHistoryRepository.deleteAll(portfolioGainHistories);
 		portfolioHoldingRepository.deleteAll(portfolioHoldings);
 		portfolioRepository.deleteAll(portfolios);
 		List<WatchList> watchList = watchListRepository.findByMember(member);
@@ -339,5 +274,11 @@ public class MemberService {
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
 			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
+	}
+
+	public void verifyPasswordMatch(String password, String passwordConfirm) throws PasswordAuthenticationException {
+		if (!password.equals(passwordConfirm)) {
+			throw new PasswordAuthenticationException();
+		}
 	}
 }

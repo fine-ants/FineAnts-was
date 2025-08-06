@@ -398,6 +398,6 @@ public class Portfolio extends BaseEntity {
 
 	@Override
 	public String toString() {
-		return String.format("Portfolio(id=%d, detail=%s, memberNickname=%s)", id, detail, member.getNickname());
+		return String.format("Portfolio(id=%d, detail=%s)", id, detail);
 	}
 }

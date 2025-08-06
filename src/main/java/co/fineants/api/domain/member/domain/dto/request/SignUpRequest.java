@@ -9,8 +9,10 @@ import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 @EqualsAndHashCode
+@Getter
 public class SignUpRequest {
 	@Pattern(regexp = MemberProfile.NICKNAME_REGEXP, message = "{nickname.notnull}")
 	@NotBlank(message = "닉네임은 필수 정보입니다")
@@ -47,7 +49,7 @@ public class SignUpRequest {
 	public SignUpServiceRequest toSignUpServiceRequest(MultipartFile profileImageFile) {
 		return SignUpServiceRequest.create(nickname, email, password, passwordConfirm, profileImageFile);
 	}
-
+	
 	@Override
 	public String toString() {
 		return String.format("SignUpRequest(nickname=%s, email=%s, password=%s, passwordConfirm=%s)", nickname, email,

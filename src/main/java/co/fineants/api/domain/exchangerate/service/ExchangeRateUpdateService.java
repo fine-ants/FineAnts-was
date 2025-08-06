@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
+import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import co.fineants.api.infra.mail.EmailService;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -27,13 +30,16 @@ public class ExchangeRateUpdateService {
 	private final ExchangeRateClient client;
 	private final EmailService emailService;
 	private final String adminEmail;
+	private final MimeMessageFactory messageFactory;
 
 	public ExchangeRateUpdateService(ExchangeRateRepository exchangeRateRepository, ExchangeRateClient client,
-		EmailService emailService, @Value("${admin.email}") String adminEmail) {
+		EmailService emailService, @Value("${admin.email}") String adminEmail,
+		@Qualifier("exchangeRateErrorMimeMessageFactory") MimeMessageFactory messageFactory) {
 		this.exchangeRateRepository = exchangeRateRepository;
 		this.client = client;
 		this.emailService = emailService;
 		this.adminEmail = adminEmail;
+		this.messageFactory = messageFactory;
 	}
 
 	@Transactional
@@ -56,19 +62,18 @@ public class ExchangeRateUpdateService {
 	}
 
 	private void sendExchangeRateErrorNotification(ExternalApiGetRequestException e) {
-		String subject = "환율 API 서버 오류";
-		String templateName = "mail-templates/exchange-rate-fail-notification_template";
 		String apiUrl = "https://exchange-rate-api1.p.rapidapi.com/latest";
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		String stackTrace = sw.toString();
-		Map<String, String> values = Map.of(
+		Map<String, Object> variables = Map.of(
 			"failedAt", LocalDateTime.now().toString(),
 			"apiUrl", apiUrl,
 			"errorMessage", e.getErrorCodeMessage(),
 			"stackTrace", stackTrace
 		);
-		emailService.sendEmail(adminEmail, subject, templateName, values);
+		MimeMessage message = messageFactory.create(adminEmail, variables);
+		emailService.sendEmail(message);
 	}
 
 	private void validateExistBase(List<ExchangeRate> rates) throws BaseExchangeRateNotFoundException {

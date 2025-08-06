@@ -17,7 +17,7 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfoliosDeleteReque
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class PortFolioRestController {
 
-	private final PortFolioService portFolioService;
+	private final PortfolioService portFolioService;
 
 	// 포트폴리오 생성
 	@ResponseStatus(HttpStatus.CREATED)

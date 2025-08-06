@@ -1,6 +1,7 @@
 package co.fineants.api.domain.purchasehistory.domain.dto.request;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.count.valiator.CountNumber;
@@ -15,12 +16,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @ToString
+@Slf4j
 public class PurchaseHistoryCreateRequest {
 	@NotNull(message = "매입날짜는 날짜 형식의 필수 정보입니다")
 	private LocalDateTime purchaseDate;
@@ -40,7 +43,12 @@ public class PurchaseHistoryCreateRequest {
 			.build();
 	}
 
-	public PurchaseHistory toEntity(PortfolioHolding holding) {
-		return PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo, holding);
+	public Optional<PurchaseHistory> toEntity(PortfolioHolding holding) {
+		try {
+			return Optional.of(PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo, holding));
+		} catch (IllegalArgumentException e) {
+			log.warn("매입이력 객체 생성 실패", e);
+			return Optional.empty();
+		}
 	}
 }

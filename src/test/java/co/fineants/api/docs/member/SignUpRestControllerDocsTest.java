@@ -15,37 +15,40 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.SignUpRestController;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
-import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.member.domain.factory.MemberFactory;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.SignupValidatorService;
+import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
-	private MemberService memberService;
-
 	@Override
 	protected Object initController() {
-		memberService = Mockito.mock(MemberService.class);
-		return new SignUpRestController(memberService);
+		SignupService signupService = mock(SignupService.class);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		MemberFactory memberFactory = new MemberFactory();
+		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
+		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
+		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory,
+			memberFactory, signupVerificationService, signupValidatorService);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
 	@Test
 	void signup() throws Exception {
 		// given
-		given(memberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",

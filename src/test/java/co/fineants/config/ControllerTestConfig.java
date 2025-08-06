@@ -4,15 +4,23 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import co.fineants.api.domain.fcm.service.FcmService;
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
@@ -36,13 +44,10 @@ public class ControllerTestConfig {
 	private MemberService memberService;
 
 	@MockBean
-	private PortFolioService portFolioService;
+	private PortfolioService portFolioService;
 
 	@MockBean
 	private PortfolioHoldingService portfolioHoldingService;
-
-	@MockBean
-	private PortfolioObservableService portfolioObservableService;
 
 	@MockBean
 	private LocalDateTimeService localDateTimeService;
@@ -73,4 +78,31 @@ public class ControllerTestConfig {
 
 	@MockBean
 	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
+
+	@MockBean
+	private PortfolioStreamer portfolioStreamer;
+
+	@MockBean
+	private MarketStatusCheckerRule stockMarketChecker;
+
+	@MockBean
+	private PortfolioStreamerFactory portfolioStreamerFactory;
+
+	@MockBean
+	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
+
+	@MockBean
+	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
+
+	@MockBean
+	private SseEventBuilderFactory sseEventBuilderFactory;
+
+	@MockBean
+	private PortfolioCacheService portfolioCacheService;
+
+	@MockBean
+	private PortfolioHoldingEventPublisher portfolioHoldingEventPublisher;
+
+	@MockBean
+	private PortfolioHoldingFacade portfolioHoldingFacade;
 }

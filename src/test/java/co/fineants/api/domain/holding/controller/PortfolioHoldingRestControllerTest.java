@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -40,16 +39,21 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChart
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
@@ -62,17 +66,32 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	private PortfolioHoldingService mockedPortfolioHoldingService;
 
 	@Autowired
-	private PortfolioObservableService mockedPortfolioObservableService;
-
-	@Autowired
 	private LocalDateTimeService mockedlocalDateTimeService;
 
 	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
+	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
 	protected Object initController() {
-		return new PortfolioHoldingRestController(mockedPortfolioHoldingService, mockedPortfolioObservableService);
+		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
+		PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory = mock(
+			PortfolioStreamMessageConsumerFactory.class);
+		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
+		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
+		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
+		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
+		return new PortfolioHoldingRestController(
+			mockedPortfolioHoldingService,
+			portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory,
+			portfolioSseEmitterFactory,
+			portfolioSseEventBuilderFactory,
+			portfolioCacheService,
+			portfolioHoldingEventPublisher,
+			portfolioHoldingFacade
+		);
 	}
 
 	@BeforeEach
@@ -85,7 +104,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readMyPortfolioStocks() throws Exception {
 		// given
-		BDDMockito.given(mockedlocalDateTimeService.getLocalDateWithNow())
+		given(mockedlocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
@@ -184,13 +203,46 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
-			PortfolioHolding.of(1L, portfolio, stock));
-		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
-			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
 		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
+		purchaseHistoryMap.put("numShares", 10L);
+		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
+		purchaseHistoryMap.put("memo", null);
+
+		Map<String, Object> requestBodyMap = new HashMap<>();
+		requestBodyMap.put("tickerSymbol", "005930");
+		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
+
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		Long portfolioId = portfolio.getId();
+		// when & then
+		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("code").value(equalTo(201)))
+			.andExpect(jsonPath("status").value(equalTo("Created")))
+			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 추가되었습니다")))
+			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
+	}
+
+	@DisplayName("사용자는 포트폴리오 종목을 입력하고 매입 이력 정보를 일부만 입력하는 경우 포트폴리오 종목만 저장된다")
+	@Test
+	void savePortfolioHolding_whenPurchaseHistoryIsNotComplete_thenThrowException() throws Exception {
+		Member member = createMember();
+		Portfolio portfolio = createPortfolio(member);
+		Stock stock = createSamsungStock();
+
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+			.willReturn(holding);
+
+		Map<String, Object> purchaseHistoryMap = new HashMap<>();
+		purchaseHistoryMap.put("purchaseDate", null); // 매입 날짜가 입력되지 않음
 		purchaseHistoryMap.put("numShares", 10L);
 		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
 		purchaseHistoryMap.put("memo", null);
@@ -219,10 +271,9 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
-		PortfolioStockCreateResponse response = PortfolioStockCreateResponse.from(
-			PortfolioHolding.of(1L, portfolio, stock));
-		given(mockedPortfolioHoldingService.createPortfolioHolding(anyLong(),
-			any(PortfolioHoldingCreateRequest.class))).willReturn(response);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
+		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
+			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("tickerSymbol", "005930");

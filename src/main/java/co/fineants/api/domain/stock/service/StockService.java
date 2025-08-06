@@ -45,8 +45,8 @@ public class StockService {
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(StockSearchRequest request) {
-		return stockRepository.search(request.getSearchTerm())
-			.stream()
+		String keyword = request.getSearchTerm();
+		return stockQueryRepository.getStock(keyword).stream()
 			.map(StockSearchItem::from)
 			.toList();
 	}
@@ -60,7 +60,7 @@ public class StockService {
 
 	@Transactional(readOnly = true)
 	public StockResponse getDetailedStock(String tickerSymbol) {
-		Stock stock = stockRepository.findByTickerSymbol(tickerSymbol)
+		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		return StockResponse.of(stock, currentPriceRedisRepository, closingPriceRepository, localDateTimeService);
 	}
@@ -96,5 +96,11 @@ public class StockService {
 		}
 		amazonS3StockService.writeStocks(result);
 		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public Stock getStock(String tickerSymbol) {
+		return stockRepository.findByTickerSymbol(tickerSymbol)
+			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 }

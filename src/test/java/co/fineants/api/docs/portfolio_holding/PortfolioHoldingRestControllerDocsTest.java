@@ -19,11 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
@@ -35,44 +34,74 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateR
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
+import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
+import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.holding.service.PortfolioObservableService;
+import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
+import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import reactor.core.publisher.Flux;
 
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
-	private final PortfolioHoldingService service = Mockito.mock(PortfolioHoldingService.class);
-	private final PortfolioObservableService portfolioObservableService = Mockito.mock(
-		PortfolioObservableService.class);
-
+	private final PortfolioHoldingService service = mock(PortfolioHoldingService.class);
 	private PriceRepository currentPriceRepository;
 	private LocalDateTimeService timeService;
 	private PortfolioCalculator calculator;
+	private PortfolioStreamer portfolioStreamer;
+	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
+	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
+	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Override
 	protected Object initController() {
-		return new PortfolioHoldingRestController(service, portfolioObservableService);
+		portfolioStreamer = mock(PortfolioStreamer.class);
+		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
+		given(portfolioStreamerFactory.getStreamer())
+			.willReturn(portfolioStreamer);
+		portfolioStreamMessageConsumerFactory = mock(PortfolioStreamMessageConsumerFactory.class);
+		portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
+		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
+		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
+		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
+		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
+		return new PortfolioHoldingRestController(
+			service,
+			portfolioStreamerFactory,
+			portfolioStreamMessageConsumerFactory,
+			portfolioSseEmitterFactory,
+			portfolioSseEventBuilderFactory,
+			portfolioCacheService,
+			portfolioHoldingEventPublisher,
+			portfolioHoldingFacade
+		);
 	}
 
 	@BeforeEach
 	void setUp() {
 		currentPriceRepository = new CurrentPriceMemoryRepository();
-		timeService = Mockito.mock(LocalDateTimeService.class);
+		timeService = mock(LocalDateTimeService.class);
 		calculator = new PortfolioCalculator(currentPriceRepository, timeService);
 
-		BDDMockito.given(timeService.getLocalDateWithNow())
+		given(timeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
 	}
 
@@ -83,10 +112,10 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		given(service.createPortfolioHolding(
-			anyLong(),
-			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class)))
-			.willReturn(PortfolioStockCreateResponse.from(holding));
+		given(portfolioHoldingFacade.createPortfolioHolding(
+			ArgumentMatchers.any(PortfolioHoldingCreateRequest.class),
+			ArgumentMatchers.anyLong()
+		)).willReturn(holding);
 
 		Map<String, Object> body = Map.of(
 			"tickerSymbol", "005930",
@@ -335,6 +364,22 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 
+		StreamMessage portfolioStreamMessage = mock(StreamMessage.class);
+		given(portfolioStreamMessage.getEventName())
+			.willReturn("portfolioDetails");
+		given(portfolioStreamMessage.getData())
+			.willReturn(mock(PortfolioHoldingsRealTimeResponse.class));
+		Flux<StreamMessage> flux = Flux.just();
+		given(portfolioStreamer.streamMessages(anyLong()))
+			.willReturn(flux);
+
+		SseEmitter emitter = mock(SseEmitter.class);
+		given(portfolioSseEmitterFactory.create())
+			.willReturn(emitter);
+		given(portfolioStreamer.createStreamSseMessageSender(emitter, portfolioStreamMessageConsumerFactory))
+			.willReturn(mock(StreamSseMessageSender.class));
+		given(portfolioStreamMessageConsumerFactory.createStreamContinuesMessageSender(emitter))
+			.willReturn(mock(StreamSseMessageSender.class));
 		// when & then
 		mockMvc.perform(
 				get("/api/portfolio/{portfolioId}/holdings/realtime", portfolio.getId())

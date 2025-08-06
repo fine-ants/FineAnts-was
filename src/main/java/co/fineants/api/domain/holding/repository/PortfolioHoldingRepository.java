@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 
 public interface PortfolioHoldingRepository extends JpaRepository<PortfolioHolding, Long> {
 
@@ -29,6 +30,11 @@ public interface PortfolioHoldingRepository extends JpaRepository<PortfolioHoldi
 	Optional<PortfolioHolding> findByPortfolioHoldingIdAndPortfolioIdWithPortfolio(
 		@Param("portfolioHoldingId") Long portfolioHoldingId,
 		@Param("portfolioId") Long portfolioId);
+
+	@Query("select p from PortfolioHolding p where p.portfolio = :portfolio and p.stock = :stock")
+	Optional<PortfolioHolding> findByPortfolioAndStock(
+		@Param("portfolio") Portfolio portfolio,
+		@Param("stock") Stock stock);
 
 	@Modifying
 	@Query("delete from PortfolioHolding p where p.portfolio.id = :portFolioId")
