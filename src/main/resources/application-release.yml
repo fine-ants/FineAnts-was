@@ -21,6 +21,8 @@ spring:
 logging:
   level:
     co: debug
+    org.flywaydb: debug
+    org.springframework.boot.autoconfigure.flyway: debug
 server:
   port: 444
 cron:
