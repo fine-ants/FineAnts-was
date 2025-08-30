@@ -1,6 +1,7 @@
 package co.fineants.api.infra.s3.service;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDate;
@@ -49,7 +50,7 @@ class DividendCsvFormatterTest {
 
 		Assertions.assertThat(result).isNotNull();
 		BufferedReader lead = new BufferedReader(new StringReader(result));
-		BufferedReader gold = new BufferedReader(new StringReader("id,dividend,recordDate,paymentDate,stockCode"));
+		BufferedReader gold = new BufferedReader(new FileReader("src/test/resources/gold_dividends.csv"));
 		String line;
 		while ((line = gold.readLine()) != null) {
 			String readLine = lead.readLine();
