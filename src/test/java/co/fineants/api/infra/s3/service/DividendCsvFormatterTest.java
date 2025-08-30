@@ -1,9 +1,6 @@
 package co.fineants.api.infra.s3.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.time.LocalDate;
 
 import org.assertj.core.api.Assertions;
@@ -19,6 +16,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 class DividendCsvFormatterTest {
 
 	private DividendCsvFormatter formatter;
+	private FileContentComparator fileContentComparator;
 
 	private String parseCsvHeader(String result) {
 		return result.split("\n")[0];
@@ -27,6 +25,7 @@ class DividendCsvFormatterTest {
 	@BeforeEach
 	void setUp() {
 		formatter = new DividendCsvFormatter();
+		fileContentComparator = new FileContentComparator();
 	}
 
 	@Test
@@ -49,17 +48,7 @@ class DividendCsvFormatterTest {
 		String content = formatter.format(stockDividend);
 
 		Assertions.assertThat(content).isNotNull();
-		assertContent(content, "src/test/resources/gold_dividends.csv");
-	}
-
-	private void assertContent(String content, String goldFilePath) throws IOException {
-		BufferedReader lead = new BufferedReader(new StringReader(content));
-		BufferedReader gold = new BufferedReader(new FileReader(goldFilePath));
-		String line;
-		while ((line = gold.readLine()) != null) {
-			Assertions.assertThat(lead.readLine()).isEqualTo(line);
-		}
-		Assertions.assertThat(lead.readLine()).isNull();
+		fileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
 	}
 
 	@NotNull
@@ -73,4 +62,5 @@ class DividendCsvFormatterTest {
 		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
 			stock);
 	}
+
 }
