@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
+import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -154,6 +155,20 @@ public class Member extends BaseEntity {
 
 	public Set<MemberRole> getRoles() {
 		return Collections.unmodifiableSet(roles);
+	}
+
+	public void validateEmail(MemberValidationRule rule) {
+		profile.validateEmail(rule);
+	}
+
+	public void validateNickname(MemberValidationRule rule) {
+		profile.validateNickname(rule);
+	}
+
+	public void validateRules(MemberValidationRule... rules) {
+		for (MemberValidationRule rule : rules) {
+			rule.validate(this);
+		}
 	}
 
 	@Override

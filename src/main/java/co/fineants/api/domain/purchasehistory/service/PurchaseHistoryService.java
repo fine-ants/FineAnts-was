@@ -18,6 +18,10 @@ import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistor
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.event.publisher.PurchaseHistoryEventPublisher;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.validator.domain.PurchaseHistoryValidationRule;
+import co.fineants.api.domain.validator.domain.Validator;
+import co.fineants.api.domain.validator.domain.purchasehistory.CashSufficientRule;
+import co.fineants.api.domain.validator.domain.purchasehistory.PurchaseHistorySaveValidator;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PurchaseHistoryAuthorizedService;
@@ -25,6 +29,7 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PurchaseHistoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +60,8 @@ public class PurchaseHistoryService {
 			.filter(holding -> holding.getId().equals(portfolioHoldingId))
 			.findAny()
 			.orElseThrow(() -> new HoldingNotFoundException(portfolioHoldingId.toString()));
-		PurchaseHistory history = request.toEntity(findHolding);
+		PurchaseHistory history = request.toEntity(findHolding)
+			.orElseThrow(() -> new PurchaseHistoryInvalidInputException(request.toString()));
 
 		verifyCashSufficientForPurchase(portfolio, (Money)history.calInvestmentAmount());
 
@@ -123,5 +129,13 @@ public class PurchaseHistoryService {
 	private PurchaseHistory findPurchaseHistory(Long purchaseHistoryId) {
 		return repository.findById(purchaseHistoryId)
 			.orElseThrow(() -> new PurchaseHistoryNotFoundException(purchaseHistoryId.toString()));
+	}
+
+	@Transactional
+	public void savePurchaseHistory(PurchaseHistory purchaseHistory, Portfolio portfolio) {
+		PurchaseHistoryValidationRule rule = new CashSufficientRule(portfolio, calculator);
+		Validator<PurchaseHistory> validator = new PurchaseHistorySaveValidator(rule);
+		validator.validate(purchaseHistory);
+		repository.save(purchaseHistory);
 	}
 }

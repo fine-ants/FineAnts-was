@@ -28,6 +28,7 @@ include::{snippets}/portfolio-search/response-fields.adoc[]
 
 ==== HTTP Request
 
+include::{snippets}/portfolio-search-names/query-parameters.adoc[]
 include::{snippets}/portfolio-search-names/http-request.adoc[]
 
 ==== HTTP Response

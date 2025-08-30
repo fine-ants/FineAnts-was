@@ -2,25 +2,20 @@ package co.fineants.api.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -35,7 +30,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
@@ -54,14 +48,9 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
-import co.fineants.api.global.errors.exception.business.MailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
-import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
-import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -97,32 +86,48 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
-
-	@Autowired
-	private AmazonS3Service mockAmazonS3Service;
-
-	@Autowired
-	private VerifyCodeManagementService mockedVerifyCodeManagementService;
-
-	@Autowired
-	private VerifyCodeGenerator mockedVerifyCodeGenerator;
-
-	@BeforeEach
-	void setUp() {
-		given(mockAmazonS3Service.upload(ArgumentMatchers.any(MultipartFile.class)))
-			.willReturn("profileUrl");
-		given(mockedVerifyCodeManagementService.getVerificationCode("dragonbead95@naver.com"))
-			.willReturn(Optional.of("123456"));
-		given(mockedVerifyCodeGenerator.generate()).willReturn("123456");
-	}
-
+	
 	public static Stream<Arguments> validChangeProfileSource() {
 		return Stream.of(
-			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "profileUrl", "새 프로필 사진과 새 닉네임 변경"),
-			Arguments.of(createProfileFile(), null, "nemo1234", "profileUrl", "새 프로필 사진만 변경"),
-			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", null, "기본 프로필 사진으로만 변경"),
-			Arguments.of(null, "nemo12345", "nemo12345", "profileUrl", "닉네임만 변경"),
-			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "profileUrl", "프로필 사진과 닉네임을 그대로 유지")
+			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
+			Arguments.of(createProfileFile(), null, "nemo1234", "새 프로필 사진만 변경"),
+			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", "기본 프로필 사진으로만 변경"),
+			Arguments.of(null, "nemo12345", "nemo12345", "닉네임만 변경"),
+			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
+		);
+	}
+
+	private static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static MultipartFile createOverSizeMockProfileFile() {
+		byte[] profile = new byte[3145728];
+		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
+	}
+
+	private static MultipartFile createEmptyProfileImageFile() {
+		return new MockMultipartFile("profileImageFile", new byte[] {});
+	}
+
+	public static Stream<Arguments> signupMethodSource() {
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"dragonbead95@naver.com",
+			"nemo1234@",
+			"nemo1234@"
+		);
+		MultipartFile profileImageFile = createProfileFile();
+		return Stream.of(
+			Arguments.of(request, profileImageFile)
 		);
 	}
 
@@ -132,8 +137,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(
 		MultipartFile profileImageFile,
 		String nickname,
-		String expectedNickname,
-		String expectedProfileUrl) {
+		String expectedNickname) {
 		// given
 		Member member = memberRepository.save(createMember());
 		ProfileChangeServiceRequest serviceRequest = ProfileChangeServiceRequest.of(
@@ -147,8 +151,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(response)
 			.extracting("user")
-			.extracting("nickname", "profileUrl")
-			.containsExactlyInAnyOrder(expectedNickname, expectedProfileUrl);
+			.extracting("nickname")
+			.isEqualTo(expectedNickname);
 	}
 
 	@DisplayName("사용자는 회원 프로필에서 닉네임 변경시 중복되어 변경하지 못한다")
@@ -196,7 +200,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	@DisplayName("사용자는 일반 회원가입한다")
 	@MethodSource(value = "signupMethodSource")
 	@ParameterizedTest
-	void signup(SignUpRequest request, MultipartFile profileImageFile, String expectedProfileUrl) {
+	void signup(SignUpRequest request, MultipartFile profileImageFile) {
 		// given
 		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
 
@@ -205,8 +209,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(response)
-			.extracting("nickname", "email", "profileUrl", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", expectedProfileUrl, "local");
+			.extracting("nickname", "email", "provider")
+			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", "local");
+		assertThat(response)
+			.extracting("profileUrl")
+			.isNotNull();
 	}
 
 	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
@@ -296,24 +303,21 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(PasswordAuthenticationException.class)
-			.hasMessage("nemo1234@");
+			.hasMessage(Strings.EMPTY);
 	}
 
 	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
 	@Test
 	void signup_whenOverProfileImageFile_thenResponse400Error() {
 		// given
-		MultipartFile profileFile = createProfileFile();
-		given(mockAmazonS3Service.upload(any(MultipartFile.class)))
-			.willThrow(new ImageSizeExceededInvalidInputException(profileFile));
-
+		MultipartFile profileFile = createOverSizeMockProfileFile(); // 3MB
 		SignUpRequest request = new SignUpRequest(
 			"일개미4567",
 			"nemo1234@naver.com",
 			"nemo1234@",
 			"nemo1234@"
 		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
+		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileFile);
 
 		// when
 		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
@@ -322,109 +326,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
-	}
-
-	@DisplayName("사용자는 닉네임이 중복되었는지 체크한다")
-	@Test
-	void checkNickname() {
-		// given
-		String nickname = "일개미1234";
-		// when & then
-		assertDoesNotThrow(() -> memberService.checkNickname(nickname));
-	}
-
-	@DisplayName("사용자가 닉네임 중복 체크시 입력형식이 잘못되어 실패한다")
-	@Test
-	void checkNickname_whenInvalidInput_thenThrowException() {
-		// given
-		String nickname = "일";
-		// when & then
-		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
-		assertThat(throwable)
-			.isInstanceOf(NicknameInvalidInputException.class)
-			.hasMessage(nickname);
-	}
-
-	@DisplayName("사용자는 닉네임이 중복되어 에러를 받는다")
-	@Test
-	void checkNickname_whenDuplicatedNickname_thenThrow400Error() {
-		// given
-		memberRepository.save(createMember("일개미1234"));
-		String nickname = "일개미1234";
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkNickname(nickname));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(NicknameDuplicateException.class)
-			.hasMessage(nickname);
-	}
-
-	@DisplayName("사용자는 이메일이 중복되었는지 검사한다")
-	@Test
-	void checkEmail() {
-		// given
-		String email = "dragonbead95@naver.com";
-		// when & then
-		assertDoesNotThrow(() -> memberService.checkEmail(email));
-	}
-
-	@DisplayName("사용자는 이메일 중복 검사 요청시 로컬 이메일이 존재하여 예외가 발생한다")
-	@Test
-	void checkEmail_whenDuplicatedLocalEmail_thenThrowBadRequestException() {
-		// given
-		Member member = memberRepository.save(createMember());
-		String email = member.getEmail();
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkEmail(email));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(MailDuplicateException.class)
-			.hasMessage(email);
-	}
-
-	@DisplayName("사용자는 이메일에 대한 검증 코드를 이메일로 전송받는다")
-	@Test
-	void sendVerifyCode() {
-		// given
-		VerifyEmailRequest request = ObjectMapperUtil.deserialize(
-			ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com")),
-			VerifyEmailRequest.class);
-
-		// when
-		memberService.sendVerifyCode(request);
-
-		// then
-		verify(mockedVerifyCodeManagementService, times(1)).saveVerifyCode("dragonbead95@naver.com", "123456");
-	}
-
-	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
-	@Test
-	void checkVerifyCode() {
-		// given
-		String email = "dragonbead95@naver.com";
-		String code = "123456";
-		// when & then
-		Assertions.assertDoesNotThrow(() -> memberService.checkVerifyCode(email, code));
-	}
-
-	@DisplayName("사용자는 매치되지 않은 검증 코드를 전달하며 검사를 요청했을때 예외가 발생한다")
-	@Test
-	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
-		// given
-		String email = "dragonbead95@naver.com";
-		String code = "234567";
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.checkVerifyCode(email, code));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(VerifyCodeInvalidInputException.class)
-			.hasMessage("234567");
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")
@@ -474,32 +375,13 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(memberRepository.findById(member.getId())).isEmpty();
 	}
 
-	public static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static MultipartFile createEmptyProfileImageFile() {
-		return new MockMultipartFile("profileImageFile", new byte[] {});
-	}
-
-	public static Stream<Arguments> signupMethodSource() {
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = createProfileFile();
-		return Stream.of(
-			Arguments.of(request, profileImageFile, "profileUrl")
-		);
+	@DisplayName("두 비밀번호가 일치하여 예외가 발생하지 않는다")
+	@Test
+	void givenPassword_whenVerifyPasswordMatch_thenNotThrowException() {
+		// given
+		String password = "nemo1234@";
+		String passwordConfirm = "nemo1234@";
+		// when & then
+		assertDoesNotThrow(() -> memberService.verifyPasswordMatch(password, passwordConfirm));
 	}
 }

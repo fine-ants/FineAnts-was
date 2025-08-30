@@ -19,6 +19,9 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    configureEach {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
     asciidoctorExt
 }
 
@@ -118,6 +121,10 @@ dependencies {
     // ShedLock
     implementation 'net.javacrumbs.shedlock:shedlock-spring:6.3.1'
     implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:6.3.1'
+
+    // Database migration
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
 }
 
 tasks.named('test') {

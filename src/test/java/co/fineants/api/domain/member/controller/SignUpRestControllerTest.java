@@ -14,21 +14,26 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
-import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.factory.MemberFactory;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.SignupValidatorService;
+import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
@@ -37,21 +42,26 @@ import co.fineants.support.controller.ControllerTestSupport;
 
 public class SignUpRestControllerTest extends ControllerTestSupport {
 
-	@Autowired
-	private MemberService mockedMemberService;
+	private SignupService signupService;
+
+	private SignupValidatorService signupValidatorService;
 
 	@Override
 	protected Object initController() {
-		return new SignUpRestController(mockedMemberService);
+		signupService = mock(SignupService.class);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		MemberFactory memberFactory = new MemberFactory();
+		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
+		signupValidatorService = mock(SignupValidatorService.class);
+		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory,
+			memberFactory, signupVerificationService, signupValidatorService);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
 	@Test
 	void signup() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
@@ -78,9 +88,6 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenSkipProfileImageFile_then200OK() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willReturn(SignUpServiceResponse.from(createMember()));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
@@ -133,8 +140,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new NicknameDuplicateException("일개미1234"));
+		willThrow(new NicknameDuplicateException("일개미1234"))
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -163,8 +171,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new EmailDuplicateException("dragonbead95@naver.com"));
+		willThrow(new EmailDuplicateException("dragonbead95@naver.com"))
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -193,8 +202,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
-		given(mockedMemberService.signup(ArgumentMatchers.any(SignUpServiceRequest.class)))
-			.willThrow(new PasswordAuthenticationException("nemo1234@"));
+		willThrow(new PasswordAuthenticationException())
+			.given(signupService)
+			.signup(ArgumentMatchers.any(Member.class));
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -216,7 +226,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("code").value(equalTo(401)))
 			.andExpect(jsonPath("status").value(equalTo("Unauthorized")))
 			.andExpect(jsonPath("message").value(equalTo("Unauthenticated Password")))
-			.andExpect(jsonPath("data").value(equalTo("nemo1234@")));
+			.andExpect(jsonPath("data").value(equalTo(Strings.EMPTY)));
 	}
 
 	@DisplayName("사용자는 signupData 필드 없이 회원가입 할 수 없다")
@@ -252,8 +262,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String nickname = "일개미1234";
 		doThrow(new NicknameDuplicateException(nickname))
-			.when(mockedMemberService)
-			.checkNickname(nickname);
+			.when(signupValidatorService)
+			.validateNickname(nickname);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
@@ -284,8 +294,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 		// given
 		String email = "dragonbead95@naver.com";
 		doThrow(new EmailDuplicateException(email))
-			.when(mockedMemberService)
-			.checkEmail(email);
+			.when(signupValidatorService)
+			.validateEmail(email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))

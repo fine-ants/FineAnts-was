@@ -407,4 +407,27 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(history.toString());
 	}
+
+	@DisplayName("매입 이력의 값이 포트폴리오의 잔고보다 큰 경우 예외가 발생한다")
+	@Test
+	void savePurchaseHisotry_whenPurchaseHistoryAmountGreaterThanPortfolioBalance_thenThrowException() {
+		// given
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(21);
+		Money purchasePricePerShare = Money.won(50000);
+		String memo = "첫구매";
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(createSamsungStock());
+		PortfolioHolding holding = portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+
+		PurchaseHistory purchaseHistory = PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		// when
+		Throwable throwable = catchThrowable(() -> service.savePurchaseHistory(purchaseHistory, portfolio));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(CashNotSufficientInvalidInputException.class)
+			.hasMessage(purchaseHistory.toString());
+	}
 }

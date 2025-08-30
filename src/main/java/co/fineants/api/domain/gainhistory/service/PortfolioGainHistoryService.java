@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,10 +34,10 @@ public class PortfolioGainHistoryService {
 		List<PortfolioGainHistory> portfolioGainHistories = new ArrayList<>();
 		for (Portfolio portfolio : portfolios) {
 			PortfolioGainHistory latestHistory =
-				repository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
-						portfolio.getId(), LocalDateTime.now())
+				repository.findFirstLatestPortfolioGainHistory(
+						portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 					.stream()
-					.findFirst()
+					.findAny()
 					.orElseGet(() -> PortfolioGainHistory.empty(portfolio));
 			PortfolioGainHistory history = latestHistory.createNewHistory(calculator);
 			portfolioGainHistories.add(repository.save(history));

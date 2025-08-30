@@ -1,8 +1,8 @@
 package co.fineants.api.domain.portfolio.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,7 +17,6 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -25,6 +24,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -119,18 +119,22 @@ public class DashboardService {
 	@Secured("ROLE_USER")
 	@Cacheable(value = "lineChartCache", key = "#memberId")
 	public List<DashboardLineChartResponse> getLineChart(Long memberId) {
-		List<PortfolioGainHistory> histories = portfolioRepository.findAllByMemberId(memberId).stream()
+		// 사용자의 모든 포트폴리오 아이디를 조회
+		List<Long> portfolioIds = portfolioRepository.findAllByMemberId(memberId).stream()
 			.map(Portfolio::getId)
-			.map(portfolioGainHistoryRepository::findAllByPortfolioId)
-			.flatMap(Collection::stream)
 			.toList();
 
-		Map<String, Expression> result = histories.stream()
+		// 일자별 포트폴리오 총 가치 금액 합계를 계산
+		Map<String, Expression> result = portfolioIds.stream()
+			.flatMap(portfolioId -> portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(portfolioId)
+				.stream())
 			.collect(Collectors.toMap(
-				PortfolioGainHistory::getLineChartKey,
-				PortfolioGainHistory::calculateTotalPortfolioValue,
-				Expression::plus
+				LineChartItem::getDate,
+				item -> Money.won(item.getTotalValuation()),
+				Expression::plus,
+				HashMap::new
 			));
+
 		return result.keySet()
 			.stream()
 			.sorted()

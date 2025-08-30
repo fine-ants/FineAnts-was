@@ -137,7 +137,7 @@ public class WatchListService {
 		validateAlreadyExistWatchStocks(watchList, request.getTickerSymbols());
 
 		request.getTickerSymbols().stream()
-			.map(tickerSymbol -> stockRepository.findByTickerSymbol(tickerSymbol)
+			.map(tickerSymbol -> stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 				.orElseThrow(() -> new StockNotFoundException(tickerSymbol)))
 			.map(stock -> WatchStock.newWatchStock(watchList, stock))
 			.forEach(watchStockRepository::save);

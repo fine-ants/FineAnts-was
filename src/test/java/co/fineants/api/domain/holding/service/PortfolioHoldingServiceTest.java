@@ -6,17 +6,14 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
@@ -28,16 +25,14 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockCreateResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -53,11 +48,6 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
-import co.fineants.api.global.errors.exception.business.PurchaseHistoryInvalidInputException;
-import co.fineants.api.global.errors.exception.business.StockNotFoundException;
-import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
-import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
-import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.cache.PortfolioCacheSupportService;
 
 class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
@@ -69,7 +59,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	@Autowired
-	private PortfolioHoldingRepository portFolioHoldingRepository;
+	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
@@ -110,7 +100,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Stock stock = stockRepository.save(createSamsungStock());
 		given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
 		stockDividendRepository.saveAll(createStockDividendThisYearWith(stock));
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -248,7 +238,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		List<StockDividend> stockDividends = createStockDividendWith(stock);
 		stockDividends.forEach(stock::addStockDividend);
 		stockDividendRepository.saveAll(stockDividends);
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -362,7 +352,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		List<StockDividend> stockDividends = createStockDividendWith(stock);
 		stockDividends.forEach(stock::addStockDividend);
 		stockDividendRepository.saveAll(stockDividends);
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -389,8 +379,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Stock stock = stockRepository.save(createSamsungStock());
 		Stock stock2 = stockRepository.save(createKakaoStock());
 		stockDividendRepository.saveAll(createStockDividendWith(stock));
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -411,11 +401,11 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		closingPriceRepository.addPrice("035720", 50000);
 
 		// when
-		PortfolioHoldingsRealTimeResponse response = service.readMyPortfolioStocksInRealTime(portfolio.getId());
+		StreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
 
 		// then
 		assertAll(
-			() -> assertThat(response)
+			() -> assertThat(portfolioStreamMessage)
 				.extracting("portfolioDetails")
 				.extracting("currentValuation", "totalGain", "totalGainRate", "dailyGain", "dailyGainRate",
 					"provisionalLossBalance")
@@ -424,7 +414,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 				.containsExactlyInAnyOrder(Money.won(720000L), Money.won(120000L), Percentage.from(0.2),
 					Money.won(120000L), Percentage.from(0.2), Money.zero()),
 
-			() -> assertThat(response).extracting(PortfolioHoldingsRealTimeResponse::getPortfolioHoldings)
+			() -> assertThat(portfolioStreamMessage)
+				.extracting("portfolioHoldings")
 				.asList()
 				.hasSize(2)
 				.extracting("currentValuation", "dailyChange", "dailyChangeRate", "totalGain",
@@ -441,187 +432,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("사용자는 포트폴리오에 종목을 추가한다")
-	@Test
-	void addPortfolioStockOnly() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
-		);
-	}
-
-	@DisplayName("다른 회원의 포트폴리오에 포트폴리오 종목을 등록할 수 없다")
-	@Test
-	void createPortfolioHolding_whenCreatePortfolioHoldingToOtherMemberPortfolio_then403Error() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Member other = memberRepository.save(createMember("other1234"));
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		SecurityContextHolder.getContext()
-			.setAuthentication(AjaxAuthenticationToken.authenticated(
-				MemberAuthentication.from(other), null, member.getSimpleGrantedAuthorities()));
-
-		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(stock.getTickerSymbol(), null);
-
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(ForbiddenException.class)
-			.hasMessage(portfolio.toString());
-	}
-
-	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
-	@Test
-	void addPortfolioStock() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("numShares", 2);
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
-		);
-	}
-
-	@DisplayName("사용자는 포트폴리오 종목이 존재하는 상태에서 매입 이력과 같이 종목을 추가할때 매입 이력만 추가된다")
-	@Test
-	void addPortfolioStock_whenExistHolding_thenAddPurchaseHistory() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-		PortfolioHolding holding = portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
-		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-		Count numShares = Count.from(5);
-		Money purchasePerShare = Money.won(10000);
-		String memo = "첫구매";
-		purchaseHistoryRepository.save(
-			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, holding));
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("numShares", 2);
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		PortfolioStockCreateResponse response = service.createPortfolioHolding(portfolio.getId(), request);
-
-		// then
-		assertAll(
-			() -> assertThat(response)
-				.extracting("portfolioHoldingId")
-				.isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findAll()).hasSize(1),
-			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holding.getId())).hasSize(2),
-			() -> assertThat(portfolioCacheSupportService.fetchTickers(portfolio.getId()))
-				.isInstanceOf(Set.class)
-				.hasSize(1)
-		);
-	}
-
-	@DisplayName("사용자는 포트폴리오에 종목과 매입이력 중 일부를 추가할 수 없다")
-	@Test
-	void addPortfolioStockWithInvalidInput() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-
-		Map<Object, Object> purchaseHistory = new HashMap<>();
-		purchaseHistory.put("purchaseDate", LocalDateTime.now());
-		purchaseHistory.put("purchasePricePerShare", 1000.0);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", stock.getTickerSymbol());
-		requestBodyMap.put("purchaseHistory", purchaseHistory);
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(PurchaseHistoryInvalidInputException.class)
-			.hasMessage(request.toString());
-	}
-
-	@DisplayName("사용자는 포트폴리오에 존재하지 않는 종목을 추가할 수 없다")
-	@Test
-	void addPortfolioStockWithNotExistStock() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "999999");
-		PortfolioHoldingCreateRequest request = ObjectMapperUtil.deserialize(ObjectMapperUtil.serialize(requestBodyMap),
-			PortfolioHoldingCreateRequest.class);
-
-		setAuthentication(member);
-		// when
-		Throwable throwable = catchThrowable(() -> service.createPortfolioHolding(portfolio.getId(), request));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(StockNotFoundException.class)
-			.hasMessage("999999");
-
-	}
-
 	@DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
 	@Test
 	void deletePortfolioStock() {
@@ -630,7 +440,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
 
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			PortfolioHolding.of(portfolio, stock)
 		);
 
@@ -649,7 +459,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertAll(
 			() -> assertThat(response).extracting("portfolioHoldingId").isNotNull(),
-			() -> assertThat(portFolioHoldingRepository.findById(portfolioHoldingId)).isEmpty(),
+			() -> assertThat(portfolioHoldingRepository.findById(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHoldingId)).isEmpty(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
@@ -663,8 +473,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
 		Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-		PortfolioHolding portfolioHolding1 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
+		PortfolioHolding portfolioHolding1 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(5);
@@ -690,8 +500,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 				.containsExactlyInAnyOrder(portfolioHolding1.getId(), portfolioHolding2.getId()),
 			() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory1.getId())).isFalse(),
 			() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory2.getId())).isFalse(),
-			() -> assertThat(portFolioHoldingRepository.existsById(portfolioHolding1.getId())).isFalse(),
-			() -> assertThat(portFolioHoldingRepository.existsById(portfolioHolding2.getId())).isFalse(),
+			() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding1.getId())).isFalse(),
+			() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding2.getId())).isFalse(),
 			() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
 		);
 	}
@@ -703,7 +513,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
 		Money purchasePerShare = Money.won(50000);
@@ -721,7 +531,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(HoldingNotFoundException.class)
 			.hasMessage("9999");
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
 	}
 
@@ -732,7 +542,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock1 = stockRepository.save(createSamsungStock());
-		PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -743,7 +553,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		Member member2 = memberRepository.save(createMember("일개미2222", "user2@gmail.com"));
 		Portfolio portfolio2 = portfolioRepository.save(createPortfolio(member2));
-		PortfolioHolding portfolioHolding2 = portFolioHoldingRepository.save(
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(
 			createPortfolioHolding(portfolio2, stock1));
 		List<Long> portfolioHoldingIds = List.of(portfolioHolding.getId(), portfolioHolding2.getId());
 
@@ -756,8 +566,52 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolioHolding2.toString());
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
-		assertThat(portFolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
+		assertThat(portfolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
 		assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
+	}
+
+	@DisplayName("사용자는 매입이력 없이 포트폴리오 종목을 추가할 수 있다")
+	@Test
+	void givenRequest_whenOnlyTickerSymbol_thenReturnResponse() {
+		// given
+		Stock samsung = stockRepository.save(createSamsungStock());
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+
+		PortfolioHolding holding = PortfolioHolding.of(portfolio, samsung);
+		// when
+		service.savePortfolioHolding(holding);
+		// then
+		List<PortfolioHolding> holdings = portfolioHoldingRepository.findAll();
+		assertThat(holdings).hasSize(1);
+	}
+
+	@DisplayName("포트폴리오 종목이 없으면 빈 Optional을 반환한다")
+	@Test
+	void getPortfolioHoldingBy_givenPortfolioAndStock_whenNotExistPortfolioHolding_thenReturnEmptyOptional() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(createSamsungStock());
+		// when
+		Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
+		// then
+		assertThat(holding).isEmpty();
+	}
+
+	@DisplayName("포트폴리오 종목을 조회한다")
+	@Test
+	void getPortfolioHoldingBy_givenPortfolioAndStock_whenExistPortfolioHolding_thenReturnHoldingOptional() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(createSamsungStock());
+
+		portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+		// when
+		Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
+		// then
+		assertThat(holding).isPresent();
 	}
 }

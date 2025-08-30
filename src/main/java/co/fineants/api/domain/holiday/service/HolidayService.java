@@ -28,7 +28,7 @@ public class HolidayService {
 	private final HolidayRepository repository;
 
 	@Transactional
-	@CacheEvict(value = "holidayCache", allEntries = true)
+	@CacheEvict(value = {"holidayCache", "holidayMarketStatus"}, allEntries = true)
 	public List<Holiday> updateHoliday(LocalDate baseDate) {
 		// 한국투자증권에 baseDate를 기준으로 기준일자 이후의 국내 휴장일을 조회합니다.
 		List<Holiday> holidays = kisClient.fetchHolidays(baseDate)

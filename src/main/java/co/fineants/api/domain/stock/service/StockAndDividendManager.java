@@ -216,7 +216,7 @@ public class StockAndDividendManager {
 	}
 
 	private Stock findStockBy(String tickerSymbol) {
-		return stockRepository.findByTickerSymbol(tickerSymbol)
+		return stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 }

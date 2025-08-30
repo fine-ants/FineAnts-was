@@ -6,11 +6,13 @@ import static org.assertj.core.api.Assertions.*;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 
 class PurchaseHistoryTest {
 
@@ -18,11 +20,12 @@ class PurchaseHistoryTest {
 	@Test
 	void calculateInvestmentAmount() {
 		// given
+		PortfolioHolding holding = BDDMockito.mock(PortfolioHolding.class);
 		PurchaseHistory purchaseHistory = PurchaseHistory.now(
 			Money.won(10000),
 			Count.from(5),
 			Strings.EMPTY,
-			null
+			holding
 		);
 		Bank bank = Bank.getInstance();
 		// when

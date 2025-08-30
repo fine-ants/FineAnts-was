@@ -2,6 +2,7 @@ package co.fineants.api.domain.stock.repository;
 
 import static co.fineants.api.domain.stock.domain.entity.QStock.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,5 +58,15 @@ public class StockQueryRepository {
 
 	private BooleanExpression containsCompanyNameEng(@Nullable String keyword) {
 		return Strings.hasText(keyword) ? stock.companyNameEng.contains(keyword) : null;
+	}
+
+	public List<Stock> getStock(String keyword) {
+		if (!Strings.hasText(keyword)) {
+			return Collections.emptyList();
+		}
+		return jpaQueryFactory.selectFrom(stock)
+			.where(search(keyword))
+			.orderBy(stock.tickerSymbol.desc())
+			.fetch();
 	}
 }

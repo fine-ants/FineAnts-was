@@ -35,7 +35,6 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import jakarta.servlet.ServletException;
@@ -52,8 +51,6 @@ public class AuthenticationDocsTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 	@Autowired
 	private RoleRepository roleRepository;
-	@Autowired
-	private MemberRoleRepository memberRoleRepository;
 
 	@BeforeAll
 	static void setUp() throws IOException {

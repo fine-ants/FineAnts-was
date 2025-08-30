@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractDataJpaBaseTest;
@@ -16,6 +18,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 
@@ -30,22 +33,6 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 	@Autowired
 	private PortfolioRepository portfolioRepository;
 
-	@DisplayName("포트폴리오 등록번호를 가진 손익내역들을 조회한다")
-	@Test
-	void findAllByPortfolioId() {
-		// given
-		Member member = memberRepository.save(TestDataFactory.createMember());
-		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
-		portfolioGainHistoryRepository.save(PortfolioGainHistory.empty(portfolio));
-
-		// when
-		List<PortfolioGainHistory> histories = portfolioGainHistoryRepository.findAllByPortfolioId(
-			portfolio.getId());
-
-		// then
-		assertThat(histories).hasSize(1);
-	}
-
 	@DisplayName("사용자는 제일 최근의 포트폴리오 손익 내역을 조회합니다")
 	@Test
 	void findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc() {
@@ -57,11 +44,11 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 		// when
 		PortfolioGainHistory history =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
 					portfolio.getId(),
-					LocalDateTime.now())
-				.stream()
-				.findFirst()
+					LocalDateTime.now(),
+					PageRequest.of(0, 1)).stream()
+				.findAny()
 				.orElseThrow();
 
 		// then
@@ -96,13 +83,74 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
 		// when
 		PortfolioGainHistory result =
-			portfolioGainHistoryRepository.findFirstByPortfolioAndCreateAtIsLessThanEqualOrderByCreateAtDesc(
-					portfolio.getId(), LocalDateTime.now())
+			portfolioGainHistoryRepository.findFirstLatestPortfolioGainHistory(
+					portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
 				.stream()
-				.findFirst()
+				.findAny()
 				.orElseThrow();
 
 		// then
 		assertThat(result.getCurrentValuation()).isEqualByComparingTo(Money.won(120000L));
+	}
+
+	@DisplayName("포트폴리오의 일별 총 금액을 조회한다")
+	@Test
+	void findDailyTotalAmountByPortfolioId() {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+
+		PortfolioGainHistory portfolioGainHistory1 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio
+		);
+
+		PortfolioGainHistory portfolioGainHistory2 = PortfolioGainHistory.create(
+			Money.won(20000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(120000L),
+			portfolio
+		);
+		portfolioGainHistoryRepository.save(portfolioGainHistory1);
+		portfolioGainHistoryRepository.save(portfolioGainHistory2);
+		// when
+		List<LineChartItem> actual = portfolioGainHistoryRepository.findDailyTotalAmountByPortfolioId(
+			portfolio.getId());
+		// then
+		Assertions.assertThat(actual).hasSize(1);
+	}
+
+	@DisplayName("여러개의 포트폴리오의 포트폴리오 손익 내역 데이터를 삭제한다")
+	@Test
+	void deleteAllByPortfolioIds() {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member, "포트폴리오1"));
+		Portfolio portfolio2 = portfolioRepository.save(TestDataFactory.createPortfolio(member, "포트폴리오2"));
+		PortfolioGainHistory portfolioGainHistory1 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio
+		);
+		PortfolioGainHistory portfolioGainHistory2 = PortfolioGainHistory.create(
+			Money.won(10000L),
+			Money.won(10000L),
+			Money.won(1000000L),
+			Money.won(110000L),
+			portfolio2
+		);
+		portfolioGainHistoryRepository.saveAll(List.of(portfolioGainHistory1, portfolioGainHistory2));
+		// when
+		portfolioGainHistoryRepository.deleteAllByPortfolioIds(List.of(portfolio.getId(), portfolio2.getId()));
+		// then
+		List<PortfolioGainHistory> actual = portfolioGainHistoryRepository.findAll();
+		Assertions.assertThat(actual).isEmpty();
+		;
 	}
 }

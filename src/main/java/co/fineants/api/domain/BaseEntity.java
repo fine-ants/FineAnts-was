@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 public abstract class BaseEntity {
 	@CreatedDate
+	@Column(name = "create_at")
 	private LocalDateTime createAt;
 
 	@LastModifiedDate
+	@Column(name = "modified_at")
 	private LocalDateTime modifiedAt;
 }

@@ -33,14 +33,14 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.portfolio.service.PortFolioService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.support.controller.ControllerTestSupport;
 
 class PortFolioRestControllerTest extends ControllerTestSupport {
 
 	@Autowired
-	private PortFolioService mockedPortfolioService;
+	private PortfolioService mockedPortfolioService;
 
 	@Override
 	protected Object initController() {

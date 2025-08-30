@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 public class LocalCookieDomainProvider implements CookieDomainProvider {
 	@Override
 	public String domain() {
-		return null;
+		return "localhost";
 	}
 }
