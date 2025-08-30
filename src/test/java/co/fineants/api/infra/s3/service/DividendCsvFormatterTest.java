@@ -1,6 +1,5 @@
 package co.fineants.api.infra.s3.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 import org.assertj.core.api.Assertions;
@@ -20,6 +19,18 @@ class DividendCsvFormatterTest {
 
 	private String parseCsvHeader(String result) {
 		return result.split("\n")[0];
+	}
+
+	@NotNull
+	private StockDividend createSamsungStockDividend() {
+		Long id = 1L;
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2024, 5, 17);
+		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
+		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
+			stock);
 	}
 
 	@BeforeEach
@@ -43,24 +54,11 @@ class DividendCsvFormatterTest {
 	}
 
 	@Test
-	void format_whenDataIsOne() throws IOException {
+	void format_whenDataIsOne() {
 		StockDividend stockDividend = createSamsungStockDividend();
 		String content = formatter.format(stockDividend);
 
 		Assertions.assertThat(content).isNotNull();
 		fileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
 	}
-
-	@NotNull
-	private static StockDividend createSamsungStockDividend() {
-		Long id = 1L;
-		Money dividend = Money.won(361);
-		LocalDate recordDate = LocalDate.of(2023, 3, 31);
-		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
-		LocalDate paymentDate = LocalDate.of(2024, 5, 17);
-		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
-		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
-			stock);
-	}
-
 }
