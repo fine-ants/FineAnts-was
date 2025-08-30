@@ -46,15 +46,18 @@ class DividendCsvFormatterTest {
 	@Test
 	void format_whenDataIsOne() throws IOException {
 		StockDividend stockDividend = createSamsungStockDividend();
-		String result = formatter.format(stockDividend);
+		String content = formatter.format(stockDividend);
 
-		Assertions.assertThat(result).isNotNull();
-		BufferedReader lead = new BufferedReader(new StringReader(result));
-		BufferedReader gold = new BufferedReader(new FileReader("src/test/resources/gold_dividends.csv"));
+		Assertions.assertThat(content).isNotNull();
+		assertContent(content, "src/test/resources/gold_dividends.csv");
+	}
+
+	private void assertContent(String content, String goldFilePath) throws IOException {
+		BufferedReader lead = new BufferedReader(new StringReader(content));
+		BufferedReader gold = new BufferedReader(new FileReader(goldFilePath));
 		String line;
 		while ((line = gold.readLine()) != null) {
-			String readLine = lead.readLine();
-			Assertions.assertThat(readLine).isEqualTo(line);
+			Assertions.assertThat(lead.readLine()).isEqualTo(line);
 		}
 		Assertions.assertThat(lead.readLine()).isNull();
 	}
