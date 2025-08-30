@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 
 class DividendCsvFormatterTest {
 
+	private String parseCsvHeader(String result) {
+		return result.split("\n")[0];
+	}
+
 	@Test
 	void canCreated() {
 		DividendCsvFormatter formatter = new DividendCsvFormatter();
@@ -18,7 +22,7 @@ class DividendCsvFormatterTest {
 		String result = formatter.format();
 
 		Assertions.assertThat(result).isNotNull();
-		Assertions.assertThat(result.split("\n")[0])
+		Assertions.assertThat(parseCsvHeader(result))
 			.contains("id,dividend,recordDate,paymentDate,stockCode");
 	}
 }
