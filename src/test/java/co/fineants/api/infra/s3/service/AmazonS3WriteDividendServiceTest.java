@@ -11,4 +11,12 @@ class AmazonS3WriteDividendServiceTest {
 		WriteDividendService service = new AmazonS3WriteDividendService(formatter);
 		Assertions.assertThat(service).isNotNull();
 	}
+
+	@Test
+	void writeDividend_whenDividendIsEmpty() {
+		DividendCsvFormatter formatter = new DividendCsvFormatter();
+		WriteDividendService service = new AmazonS3WriteDividendService(formatter);
+
+		Assertions.assertThatCode(service::writeDividend).doesNotThrowAnyException();
+	}
 }
