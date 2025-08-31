@@ -17,10 +17,6 @@ class DividendCsvFormatterTest {
 	private DividendCsvFormatter formatter;
 	private FileContentComparator fileContentComparator;
 
-	private String parseCsvHeader(String result) {
-		return result.split("\n")[0];
-	}
-
 	@NotNull
 	private StockDividend createSamsungStockDividend() {
 		Long id = 1L;
@@ -29,6 +25,18 @@ class DividendCsvFormatterTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
+		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
+			stock);
+	}
+
+	@NotNull
+	private StockDividend createKakaoStockDividend() {
+		Long id = 2L;
+		Money dividend = Money.won(68);
+		LocalDate recordDate = LocalDate.of(2025, 3, 10);
+		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
+		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
+		Stock stock = Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
 		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
 			stock);
 	}
@@ -59,5 +67,15 @@ class DividendCsvFormatterTest {
 
 		Assertions.assertThat(content).isNotNull();
 		fileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
+	}
+
+	@Test
+	void format_whenDateIsTwo() {
+		StockDividend stockDividend1 = createSamsungStockDividend();
+		StockDividend stockDividend2 = createKakaoStockDividend();
+		String content = formatter.format(stockDividend1, stockDividend2);
+
+		Assertions.assertThat(content).isNotNull();
+		fileContentComparator.compare(content, "src/test/resources/gold_dividends_2.csv");
 	}
 }
