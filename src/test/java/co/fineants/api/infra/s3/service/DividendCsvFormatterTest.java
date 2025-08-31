@@ -27,7 +27,7 @@ class DividendCsvFormatterTest {
 		Money dividend = Money.won(361);
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
-		LocalDate paymentDate = LocalDate.of(2024, 5, 17);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
 		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
 			stock);
@@ -49,8 +49,7 @@ class DividendCsvFormatterTest {
 		String result = formatter.format();
 
 		Assertions.assertThat(result).isNotNull();
-		Assertions.assertThat(parseCsvHeader(result))
-			.contains("id,dividend,recordDate,paymentDate,stockCode");
+		fileContentComparator.compare(result, "src/test/resources/gold_empty_dividends.csv");
 	}
 
 	@Test
