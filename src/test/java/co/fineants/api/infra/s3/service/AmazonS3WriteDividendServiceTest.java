@@ -7,7 +7,8 @@ class AmazonS3WriteDividendServiceTest {
 
 	@Test
 	void canCreated() {
-		WriteDividendService service = new AmazonS3WriteDividendService();
+		DividendCsvFormatter formatter = new DividendCsvFormatter();
+		WriteDividendService service = new AmazonS3WriteDividendService(formatter);
 		Assertions.assertThat(service).isNotNull();
 	}
 }
