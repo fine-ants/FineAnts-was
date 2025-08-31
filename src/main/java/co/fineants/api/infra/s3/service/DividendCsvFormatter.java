@@ -11,20 +11,17 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 public class DividendCsvFormatter {
 
 	private static final String CSV_SEPARATOR = ",";
+	private static final String CSV_HEADER = String.join(CSV_SEPARATOR, "id", "dividend", "recordDate", "paymentDate",
+		"stockCode");
 
 	public String format(StockDividend... dividends) {
-		return String.join(System.lineSeparator(), createHeader(), createLines(dividends));
+		return String.join(System.lineSeparator(), CSV_HEADER, createCsvLines(dividends));
 	}
 
 	@NotNull
-	private static String createLines(StockDividend[] dividends) {
+	private static String createCsvLines(StockDividend[] dividends) {
 		return Arrays.stream(dividends)
 			.map(StockDividend::toCsvLineString)
 			.collect(Collectors.joining(Strings.LINE_SEPARATOR));
-	}
-
-	@NotNull
-	private static String createHeader() {
-		return String.join(CSV_SEPARATOR, "id", "dividend", "recordDate", "paymentDate", "stockCode");
 	}
 }

@@ -54,10 +54,7 @@ class DividendCsvFormatterTest {
 
 	@Test
 	void format_whenDataIsEmpty() {
-		String result = formatter.format();
-
-		Assertions.assertThat(result).isNotNull();
-		fileContentComparator.compare(result, "src/test/resources/gold_empty_dividends.csv");
+		fileContentComparator.compare(formatter.format(), "src/test/resources/gold_empty_dividends.csv");
 	}
 
 	@Test
