@@ -59,8 +59,10 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
+
 	@Value("${aws.s3.bucket}")
 	private String bucketName;
+
 	@Value("${aws.s3.dividend-csv-path}")
 	private String dividendPath;
 
@@ -118,5 +120,4 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			throw new RuntimeException(e);
 		}
 	}
-
 }
