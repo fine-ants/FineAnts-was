@@ -29,6 +29,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
+import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FileContentComparator;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
@@ -61,6 +62,9 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	@Value("${aws.s3.dividend-csv-path}")
 	private String dividendPath;
 
+	@Autowired
+	private DeleteDividendService deleteDividendService;
+
 	@BeforeEach
 	void setUp() {
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
@@ -84,7 +88,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@AfterEach
 	void tearDown() {
-		// todo: delete dividends.csv
+		deleteDividendService.delete();
 	}
 
 	@DisplayName("원격 저장소에 배당금 데이터를 작성한다")
