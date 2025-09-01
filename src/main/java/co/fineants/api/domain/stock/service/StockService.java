@@ -23,6 +23,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -42,6 +43,7 @@ public class StockService {
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;
+	private final WriteDividendService writeDividendService;
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(StockSearchRequest request) {
@@ -71,6 +73,7 @@ public class StockService {
 		log.info("refreshStocks response : {}", response);
 		amazonS3StockService.writeStocks(stockRepository.findAll());
 		amazonS3DividendService.writeDividends(stockDividendRepository.findAll());
+		writeDividendService.writeDividend(stockDividendRepository.findAll());
 		return response;
 	}
 

@@ -1,54 +1,36 @@
 package co.fineants.api.infra.s3.service;
 
-import static java.nio.charset.StandardCharsets.*;
+import java.util.Collection;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.jetbrains.annotations.NotNull;
-
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 
+@Service
 public class AmazonS3WriteDividendService implements WriteDividendService {
 
 	private final DividendCsvFormatter formatter;
-	private final String bucketName;
-	private final String dividendPath;
-	private final AmazonS3 amazonS3;
+	private final FileUploader fileUploader;
+	private final String filePath;
 
-	public AmazonS3WriteDividendService(DividendCsvFormatter formatter, String bucketName, String dividendPath,
-		AmazonS3 amazonS3) {
+	public AmazonS3WriteDividendService(
+		DividendCsvFormatter formatter,
+		FileUploader fileUploader,
+		@Value("${aws.s3.dividend-csv-path}") String filePath) {
 		this.formatter = formatter;
-		this.bucketName = bucketName;
-		this.dividendPath = dividendPath;
-		this.amazonS3 = amazonS3;
+		this.fileUploader = fileUploader;
+		this.filePath = filePath;
+	}
+
+	@Override
+	public void writeDividend(Collection<StockDividend> dividends) {
+		writeDividend(dividends.toArray(StockDividend[]::new));
 	}
 
 	@Override
 	public void writeDividend(StockDividend... dividends) {
-		putObject(formatter.format(dividends));
-	}
-
-	private PutObjectResult putObject(String data) {
-		PutObjectRequest request;
-		try (InputStream inputStream = new ByteArrayInputStream(data.getBytes(UTF_8))) {
-			request = new PutObjectRequest(bucketName, dividendPath, inputStream, createObjectMetadata());
-		} catch (IOException e) {
-			throw new IllegalStateException("Dividend data input/output error", e);
-		}
-		return amazonS3.putObject(request);
-	}
-
-	@NotNull
-	private ObjectMetadata createObjectMetadata() {
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType("text/csv");
-		return metadata;
+		String content = formatter.format(dividends);
+		fileUploader.upload(content, filePath);
 	}
 }
