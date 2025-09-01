@@ -1,32 +1,31 @@
 package co.fineants.api.infra.s3.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
-
-import com.amazonaws.services.s3.AmazonS3;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 
 public class AmazonS3FetchDividendService implements FetchDividendService {
 
-	private final String bucketName;
+	private final RemoteFileFetcher fileFetcher;
 	private final String dividendPath;
-	private final AmazonS3 amazonS3;
 
-	public AmazonS3FetchDividendService(
-		@Value("${aws.s3.bucket}") String bucketName,
-		@Value("${aws.s3.dividend-csv-path}") String dividendPath,
-		AmazonS3 amazonS3) {
-		this.bucketName = bucketName;
+	public AmazonS3FetchDividendService(RemoteFileFetcher fileFetcher, String dividendPath) {
+		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;
-		this.amazonS3 = amazonS3;
 	}
 
 	@Override
 	public List<StockDividend> fetchDividend() {
-		FileFetcher fileReader = new AmazonS3FileFetcher();
+		try (InputStream inputStream = fileFetcher.read(dividendPath)) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to read dividend file from S3", e);
+		}
 		return Collections.emptyList();
 	}
 }

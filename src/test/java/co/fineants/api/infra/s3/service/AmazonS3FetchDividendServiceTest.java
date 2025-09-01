@@ -7,8 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.amazonaws.services.s3.AmazonS3;
-
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 
 class AmazonS3FetchDividendServiceTest {
@@ -17,10 +15,9 @@ class AmazonS3FetchDividendServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		String bucketName = "fineants2024";
+		RemoteFileFetcher fileFetcher = Mockito.mock(AmazonS3RemoteFileFetcher.class);
 		String dividendPath = "local/dividend/dividends.csv";
-		AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
-		service = new AmazonS3FetchDividendService(bucketName, dividendPath, amazonS3);
+		service = new AmazonS3FetchDividendService(fileFetcher, dividendPath);
 	}
 
 	@Test

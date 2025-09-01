@@ -1,9 +1,10 @@
 package co.fineants.api.infra.s3.service;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -30,8 +31,8 @@ public class FileContentComparator {
 		Assertions.assertThat(lead.readLine()).isNull();
 	}
 
-	public void compare(File file, String goldFilePath) {
-		try (FileReader reader = new FileReader(file)) {
+	public void compare(InputStream inputStream, String goldFilePath) {
+		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
 			compareContent(reader, goldFilePath);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
