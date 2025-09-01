@@ -104,6 +104,8 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	private void assertDividendFile() {
+		// todo: test 클래스가 aws에 의존하는 것이 아닌 인터페이스에 의존하도록 변경
+		// 핵심은 검증할때 작성된 csv 파일이 미리 준비한 csv 파일과 동일한지 비교하는 것
 		GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, dividendPath);
 		S3Object s3Object = amazonS3.getObject(getObjectRequest);
 
