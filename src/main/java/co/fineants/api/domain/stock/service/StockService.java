@@ -72,7 +72,6 @@ public class StockService {
 		StockReloadResponse response = stockAndDividendManager.reloadStocks();
 		log.info("refreshStocks response : {}", response);
 		amazonS3StockService.writeStocks(stockRepository.findAll());
-		amazonS3DividendService.writeDividends(stockDividendRepository.findAll());
 		writeDividendService.writeDividend(stockDividendRepository.findAll());
 		return response;
 	}
