@@ -8,16 +8,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.InputStream;
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -49,9 +50,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	private StockDividendRestController controller;
 
 	@Autowired
-	private AmazonS3 amazonS3;
-
-	@Autowired
 	private StockRepository stockRepository;
 
 	@Autowired
@@ -59,6 +57,9 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private RemoteFileFetcher remoteFileFetcher;
+
+	@Value("${aws.s3.dividend-csv-path}")
+	private String dividendPath;
 
 	@BeforeEach
 	void setUp() {
@@ -81,6 +82,11 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		stockDividendRepository.save(samsungStockDividend);
 	}
 
+	@AfterEach
+	void tearDown() {
+		// todo: delete dividends.csv
+	}
+
 	@DisplayName("원격 저장소에 배당금 데이터를 작성한다")
 	@Test
 	void writeDividend() throws Exception {
@@ -98,7 +104,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	private void assertDividendFile() {
-		InputStream inputStream = remoteFileFetcher.read("local/dividend/dividends.csv");
+		InputStream inputStream = remoteFileFetcher.read(dividendPath);
 
 		FileContentComparator comparator = new FileContentComparator();
 		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
