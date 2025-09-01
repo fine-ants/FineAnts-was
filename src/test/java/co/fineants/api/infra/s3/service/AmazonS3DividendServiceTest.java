@@ -1,6 +1,5 @@
 package co.fineants.api.infra.s3.service;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -25,30 +24,19 @@ class AmazonS3DividendServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
 
+	@Autowired
+	private WriteDividendService writeDividendService;
+
 	@DisplayName("배당금 데이터를 읽어온다")
 	@Test
 	void fetchDividend() {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
 		List<StockDividend> stockDividends = stockDividendRepository.saveAll(createStockDividendWith(samsung));
-		service.writeDividends(stockDividends);
+		writeDividendService.writeDividend(stockDividends);
 		// when
 		List<StockDividend> dividends = service.fetchDividends();
 		// then
 		Assertions.assertThat(dividends).hasSize(7);
-	}
-
-	@DisplayName("dividends.csv 파일에 배당 일정을 작성한다")
-	@Test
-	void writeDividend() {
-		// given
-		List<StockDividend> dividends = Collections.emptyList();
-		// when
-		service.writeDividends(dividends);
-
-		// then
-		Assertions.assertThat(service.fetchDividends())
-			.asList()
-			.isEmpty();
 	}
 }
