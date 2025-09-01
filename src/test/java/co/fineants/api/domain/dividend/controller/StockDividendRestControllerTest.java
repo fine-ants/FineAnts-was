@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 
@@ -13,15 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -33,6 +29,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.infra.s3.service.FileContentComparator;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
 @WithMockUser(roles = {"ADMIN"})
 class StockDividendRestControllerTest extends AbstractContainerBaseTest {
@@ -60,11 +57,8 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
 
-	@Value("${aws.s3.bucket}")
-	private String bucketName;
-
-	@Value("${aws.s3.dividend-csv-path}")
-	private String dividendPath;
+	@Autowired
+	private RemoteFileFetcher remoteFileFetcher;
 
 	@BeforeEach
 	void setUp() {
@@ -104,22 +98,9 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	private void assertDividendFile() {
-		// todo: test 클래스가 aws에 의존하는 것이 아닌 인터페이스에 의존하도록 변경
-		// 핵심은 검증할때 작성된 csv 파일이 미리 준비한 csv 파일과 동일한지 비교하는 것
-		GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, dividendPath);
-		S3Object s3Object = amazonS3.getObject(getObjectRequest);
-
-		String fileContent = getFileContent(s3Object);
+		InputStream inputStream = remoteFileFetcher.read("local/dividend/dividends.csv");
 
 		FileContentComparator comparator = new FileContentComparator();
-		comparator.compare(fileContent, "src/test/resources/gold_dividends.csv");
-	}
-
-	private String getFileContent(S3Object s3Object) {
-		try (InputStream inputStream = s3Object.getObjectContent()) {
-			return new String(inputStream.readAllBytes());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
 	}
 }

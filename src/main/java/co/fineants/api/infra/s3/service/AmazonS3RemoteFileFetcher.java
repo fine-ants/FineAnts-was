@@ -3,9 +3,11 @@ package co.fineants.api.infra.s3.service;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+@Component
 public class AmazonS3RemoteFileFetcher implements RemoteFileFetcher {
 
 	private final String bucketName;
