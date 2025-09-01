@@ -24,7 +24,7 @@ public class AmazonBucketS3FileUploader implements FileUploader {
 	}
 
 	@Override
-	public void upload(String fileName, String fileContent, String filePath) {
+	public void upload(String fileContent, String filePath) {
 		PutObjectRequest request;
 		try (InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(UTF_8))) {
 			request = new PutObjectRequest(bucketName, filePath, inputStream, createObjectMetadata());
