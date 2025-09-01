@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.infra.s3.dto.StockDividendDto;
 
 public class AmazonS3FetchDividendService implements FetchDividendService {
 
@@ -18,11 +18,12 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	}
 
 	@Override
-	public List<StockDividend> fetchDividend() {
+	public List<StockDividendDto> fetchDividend() {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(fileFetcher.read(dividendPath)))) {
 			return reader.lines()
 				.skip(1) // Skip header line
-				.map(StockDividend::fromCsv)
+				.map(line -> line.split(","))
+				.map(StockDividendDto::from)
 				.toList();
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to read dividend file from S3", e);

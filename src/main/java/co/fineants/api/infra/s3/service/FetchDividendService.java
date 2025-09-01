@@ -2,8 +2,8 @@ package co.fineants.api.infra.s3.service;
 
 import java.util.List;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.infra.s3.dto.StockDividendDto;
 
 public interface FetchDividendService {
-	List<StockDividend> fetchDividend();
+	List<StockDividendDto> fetchDividend();
 }
