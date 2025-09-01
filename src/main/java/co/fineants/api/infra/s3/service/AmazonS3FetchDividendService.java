@@ -1,10 +1,13 @@
 package co.fineants.api.infra.s3.service;
 
-import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 
 public class AmazonS3FetchDividendService implements FetchDividendService {
 
@@ -22,7 +25,8 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	}
 
 	@Override
-	public File fetchDividend() {
-		return new File("src/test/resources/gold_dividends.csv");
+	public List<StockDividend> fetchDividend() {
+		FileFetcher fileReader = new AmazonS3FileFetcher();
+		return Collections.emptyList();
 	}
 }

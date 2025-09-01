@@ -1,6 +1,6 @@
 package co.fineants.api.infra.s3.service;
 
-import java.io.File;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 
 class AmazonS3FetchDividendServiceTest {
 
@@ -28,10 +30,9 @@ class AmazonS3FetchDividendServiceTest {
 
 	@Test
 	void fetchDividend() {
-		File file = service.fetchDividend();
+		List<StockDividend> list = service.fetchDividend();
 
-		Assertions.assertThat(file).isNotNull();
-		FileContentComparator comparator = new FileContentComparator();
-		comparator.compare(file, "src/test/resources/gold_dividends.csv");
+		Assertions.assertThat(list).isNotNull();
+		Assertions.assertThat(list).hasSize(1);
 	}
 }
