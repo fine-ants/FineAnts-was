@@ -22,7 +22,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,9 +39,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
-	private AmazonS3DividendService amazonS3DividendService;
-
-	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;
 
 	@Autowired
@@ -49,6 +46,9 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisService mockedKisService;
+
+	@Autowired
+	private WriteDividendService writeDividendService;
 
 	/**
 	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
@@ -59,7 +59,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		// given
 		Stock samsung = stockRepository.save(this.createSamsungStock());
 		List<StockDividend> stockDividends = stockDividendRepository.saveAll(createSamsungDividends(samsung));
-		amazonS3DividendService.writeDividends(stockDividends);
+		writeDividendService.writeDividend(stockDividends);
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
