@@ -39,6 +39,7 @@ public class AmazonS3DividendService {
 	private final StockRepository stockRepository;
 	private final StockDividendParser stockDividendParser;
 
+	// todo: extract to FetchDividendService
 	@Transactional(readOnly = true)
 	public List<StockDividend> fetchDividends() {
 		return getS3Object()
