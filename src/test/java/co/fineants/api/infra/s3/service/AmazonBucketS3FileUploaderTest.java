@@ -24,11 +24,10 @@ class AmazonBucketS3FileUploaderTest {
 		String bucketName = "fineants2024";
 		AmazonS3 amazonS3 = Mockito.mock(AmazonS3.class);
 		FileUploader fileUploader = new AmazonBucketS3FileUploader(bucketName, amazonS3);
-		String fileName = "title.txt";
 		String fileContent = Strings.EMPTY;
 		String filePath = "local/dividend/dividends.csv";
 
-		Assertions.assertThatCode(() -> fileUploader.upload(fileName, fileContent, filePath))
+		Assertions.assertThatCode(() -> fileUploader.upload(fileContent, filePath))
 			.doesNotThrowAnyException();
 	}
 }
