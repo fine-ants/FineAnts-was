@@ -9,16 +9,16 @@ import com.amazonaws.services.s3.AmazonS3;
 
 import joptsimple.internal.Strings;
 
-class AmazonBucketS3FileUploaderTest {
+class AmazonBucketS3RemoteFileUploaderTest {
 
-	private FileUploader fileUploader;
+	private RemoteFileUploader fileUploader;
 	private AmazonS3 amazonS3;
 
 	@BeforeEach
 	void setUp() {
 		String bucketName = "fineants2024";
 		amazonS3 = Mockito.mock(AmazonS3.class);
-		fileUploader = new AmazonBucketS3FileUploader(bucketName, amazonS3);
+		fileUploader = new AmazonBucketS3RemoteFileUploader(bucketName, amazonS3);
 	}
 
 	@Test

@@ -15,13 +15,13 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 @Component
-public class AmazonBucketS3FileUploader implements FileUploader {
+public class AmazonBucketS3RemoteFileUploader implements RemoteFileUploader {
 
 	private final String bucketName;
 
 	private final AmazonS3 amazonS3;
 
-	public AmazonBucketS3FileUploader(
+	public AmazonBucketS3RemoteFileUploader(
 		@Value("${aws.s3.bucket}") String bucketName,
 		AmazonS3 amazonS3) {
 		this.bucketName = bucketName;

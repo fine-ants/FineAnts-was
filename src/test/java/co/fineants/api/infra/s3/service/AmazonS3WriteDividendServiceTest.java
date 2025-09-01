@@ -12,7 +12,7 @@ class AmazonS3WriteDividendServiceTest {
 	@BeforeEach
 	void setUp() {
 		DividendCsvFormatter formatter = new DividendCsvFormatter();
-		FileUploader fileUploader = Mockito.mock(FileUploader.class);
+		RemoteFileUploader fileUploader = Mockito.mock(RemoteFileUploader.class);
 		String filePath = "local/dividend/dividends.csv";
 		service = new AmazonS3WriteDividendService(formatter, fileUploader, filePath);
 	}
