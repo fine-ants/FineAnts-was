@@ -5,20 +5,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.repository.StockDividendRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
+import co.fineants.api.infra.s3.service.FileContentComparator;
 
 @WithMockUser(roles = {"ADMIN"})
 class StockDividendRestControllerTest extends AbstractContainerBaseTest {
@@ -37,6 +51,19 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockDividendRestController controller;
 
+	@Autowired
+	private AmazonS3 amazonS3;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private StockDividendRepository stockDividendRepository;
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+	@Value("${aws.s3.dividend-csv-path}")
+	private String dividendPath;
+
 	@BeforeEach
 	void setUp() {
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
@@ -45,12 +72,24 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
 			.alwaysDo(print())
 			.build();
+
+		Stock samsung = stockRepository.save(createSamsungStock());
+		StockDividend samsungStockDividend = StockDividend.create(
+			1L,
+			Money.won(361),
+			LocalDate.of(2023, 3, 31),
+			LocalDate.of(2023, 3, 30),
+			LocalDate.of(2023, 5, 17),
+			samsung
+		);
+		stockDividendRepository.save(samsungStockDividend);
 	}
 
 	@DisplayName("원격 저장소에 배당금 데이터를 작성한다")
 	@Test
 	void writeDividend() throws Exception {
 		// given
+
 		// when & then
 		mockMvc.perform(post("/api/dividends/write/csv")
 				.cookie(createTokenCookies()))
@@ -59,9 +98,25 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("배당금 데이터 작성에 성공하였습니다")))
 			.andExpect(jsonPath("data").value(nullValue()));
-		// todo: csv 파일 존재 여부 확인
+		assertDividendFile();
+	}
 
-		// todo: csv 파일 내용 확인
+	private void assertDividendFile() {
+		GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, dividendPath);
+		S3Object s3Object = amazonS3.getObject(getObjectRequest);
+
+		String fileContent = getFileContent(s3Object);
+
+		FileContentComparator comparator = new FileContentComparator();
+		comparator.compare(fileContent, "src/test/resources/gold_dividends.csv");
+	}
+
+	private String getFileContent(S3Object s3Object) {
+		try (InputStream inputStream = s3Object.getObjectContent()) {
+			return new String(inputStream.readAllBytes());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
