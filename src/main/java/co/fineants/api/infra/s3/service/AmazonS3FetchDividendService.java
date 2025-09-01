@@ -23,7 +23,6 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 
 	@Override
 	public File fetchDividend() {
-
-		return new File("dividends.csv");
+		return new File("src/test/resources/gold_dividends.csv");
 	}
 }
