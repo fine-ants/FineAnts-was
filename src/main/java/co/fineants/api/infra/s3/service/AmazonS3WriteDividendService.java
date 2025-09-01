@@ -1,0 +1,36 @@
+package co.fineants.api.infra.s3.service;
+
+import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+
+@Service
+public class AmazonS3WriteDividendService implements WriteDividendService {
+
+	private final DividendCsvFormatter formatter;
+	private final RemoteFileUploader fileUploader;
+	private final String filePath;
+
+	public AmazonS3WriteDividendService(
+		DividendCsvFormatter formatter,
+		RemoteFileUploader fileUploader,
+		@Value("${aws.s3.dividend-csv-path}") String filePath) {
+		this.formatter = formatter;
+		this.fileUploader = fileUploader;
+		this.filePath = filePath;
+	}
+
+	@Override
+	public void writeDividend(Collection<StockDividend> dividends) {
+		writeDividend(dividends.toArray(StockDividend[]::new));
+	}
+
+	@Override
+	public void writeDividend(StockDividend... dividends) {
+		String content = formatter.format(dividends);
+		fileUploader.upload(content, filePath);
+	}
+}

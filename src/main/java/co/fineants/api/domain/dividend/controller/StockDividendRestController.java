@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.fineants.api.domain.dividend.service.StockDividendService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockDividendSuccessCode;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class StockDividendRestController {
 
 	private final StockDividendService service;
-	private final AmazonS3DividendService s3DividendService;
+	private final WriteDividendService writeDividendService;
 
 	@PostMapping("/init")
 	@Secured("ROLE_ADMIN")
@@ -36,7 +36,7 @@ public class StockDividendRestController {
 	@PostMapping("/write/csv")
 	@Secured("ROLE_ADMIN")
 	public ApiResponse<Void> writeDividendCsvToS3() {
-		s3DividendService.writeDividends(service.findAllStockDividends());
+		writeDividendService.writeDividend(service.findAllStockDividends());
 		return ApiResponse.success(StockDividendSuccessCode.OK_WRITE_DIVIDENDS_CSV);
 	}
 }
