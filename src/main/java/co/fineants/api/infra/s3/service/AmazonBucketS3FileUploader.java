@@ -1,9 +1,43 @@
 package co.fineants.api.infra.s3.service;
 
+import static java.nio.charset.StandardCharsets.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
 public class AmazonBucketS3FileUploader implements FileUploader {
 
-	@Override
-	public void upload(String fileName, String fileContent) {
+	private final String bucketName;
 
+	private final AmazonS3 amazonS3;
+
+	public AmazonBucketS3FileUploader(String bucketName, AmazonS3 amazonS3) {
+		this.bucketName = bucketName;
+		this.amazonS3 = amazonS3;
+	}
+
+	@Override
+	public void upload(String fileName, String fileContent, String filePath) {
+		PutObjectRequest request;
+		try (InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(UTF_8))) {
+			request = new PutObjectRequest(bucketName, filePath, inputStream, createObjectMetadata());
+		} catch (IOException e) {
+			throw new IllegalStateException("Dividend data input/output error", e);
+		}
+		amazonS3.putObject(request);
+	}
+
+	@NotNull
+	private ObjectMetadata createObjectMetadata() {
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentType("text/csv");
+		return metadata;
 	}
 }
