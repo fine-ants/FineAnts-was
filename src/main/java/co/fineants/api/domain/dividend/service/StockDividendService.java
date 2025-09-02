@@ -20,7 +20,6 @@ import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StockDividendService {
 
-	private final AmazonS3DividendService s3DividendService;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
@@ -51,7 +49,7 @@ public class StockDividendService {
 		stockDividendRepository.deleteAllInBatch();
 
 		// S3에 저장된 종목 배당금으로 초기화
-		List<StockDividend> stockDividends = s3DividendService.fetchDividends();
+		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
 		List<StockDividend> saveStockDividends = stockDividendRepository.saveAll(stockDividends);
 		log.info("save StockDividends size : {}", saveStockDividends.size());
 	}
