@@ -46,6 +46,7 @@ public class AmazonS3StockService {
 
 	private final StockParser stockParser;
 
+	// todo: extract interface
 	public List<Stock> fetchStocks() {
 		return getS3Object()
 			.map(this::parseStocks)
