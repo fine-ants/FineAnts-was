@@ -17,16 +17,17 @@ public class AmazonS3FetchStockService implements FetchStockService {
 
 	private final RemoteFileFetcher fetcher;
 	private final StockParser stockParser;
+	private final String filePath;
 
-	public AmazonS3FetchStockService(RemoteFileFetcher fetcher, StockParser stockParser) {
+	public AmazonS3FetchStockService(RemoteFileFetcher fetcher, StockParser stockParser, String filePath) {
 		this.fetcher = fetcher;
 		this.stockParser = stockParser;
+		this.filePath = filePath;
 	}
 
 	@Override
 	public List<Stock> fetchStocks() {
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(fetcher.read("local/stock/stocks.csv")))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(fetcher.read(filePath)))) {
 			return reader.lines()
 				.skip(1) // skip header line
 				.map(line -> line.split(CSV_SEPARATOR_REGEX))

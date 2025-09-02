@@ -26,11 +26,12 @@ class AmazonS3FetchStockServiceTest {
 
 	@BeforeEach
 	void setUp() {
+		String filePath = "local/stock/stocks.csv";
 		RemoteFileFetcher fetcher = Mockito.mock(RemoteFileFetcher.class);
-		BDDMockito.given(fetcher.read("local/stock/stocks.csv"))
+		BDDMockito.given(fetcher.read(filePath))
 			.willReturn(getMockInputStream());
 		StockParser parser = new StockParser();
-		service = new AmazonS3FetchStockService(fetcher, parser);
+		service = new AmazonS3FetchStockService(fetcher, parser, filePath);
 	}
 
 	@Test
