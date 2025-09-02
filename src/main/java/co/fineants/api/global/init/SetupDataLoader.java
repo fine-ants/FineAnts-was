@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.domain.exchangerate.service.ExchangeRateUpdateService;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
@@ -34,8 +32,8 @@ import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.FetchStockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,16 +45,14 @@ public class SetupDataLoader {
 	private final MemberRepository memberRepository;
 	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final ExchangeRateRepository exchangeRateRepository;
-	private final ExchangeRateUpdateService exchangeRateUpdateService;
 	private final AdminProperties adminProperties;
 	private final ManagerProperties managerProperties;
 	private final UserProperties userProperties;
 	private final RoleProperties roleProperties;
-	private final AmazonS3StockService amazonS3StockService;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
 	private final FetchDividendService fetchDividendService;
+	private final FetchStockService fetchStockService;
 
 	@Transactional
 	public void setupResources() {
@@ -157,7 +153,7 @@ public class SetupDataLoader {
 	}
 
 	private void setupStockResources() {
-		List<Stock> stocks = stockRepository.saveAll(amazonS3StockService.fetchStocks());
+		List<Stock> stocks = stockRepository.saveAll(fetchStockService.fetchStocks());
 		log.info("setupStock count is {}", stocks.size());
 	}
 
