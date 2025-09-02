@@ -27,13 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AmazonS3StockService {
-	
+
 	private final AmazonS3 amazonS3;
 	@Value("${aws.s3.bucket}")
 	private String bucketName;
 	@Value("${aws.s3.stock-path}")
 	private String stockPath;
 
+	// todo: extract to interface
 	public void writeStocks(List<Stock> stocks) {
 		String title = csvTitle();
 		String lines = csvLines(stocks);
