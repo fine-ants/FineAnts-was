@@ -24,8 +24,8 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -47,13 +47,13 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 	private AmazonS3StockService amazonS3StockService;
 
 	@Autowired
-	private AmazonS3DividendService amazonS3DividendService;
-
-	@Autowired
 	private KisService mockedKisService;
 
 	@Autowired
 	private DelayManager spyDelayManager;
+
+	@Autowired
+	private FetchDividendService fetchDividendService;
 
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
@@ -101,7 +101,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 			.as("Verify that the stock information in the stocks.csv file stored "
 				+ "in s3 matches the items in the database")
 			.containsExactlyInAnyOrderElementsOf(stockRepository.findAll());
-		assertThat(amazonS3DividendService.fetchDividends())
+		assertThat(fetchDividendService.fetchDividendEntityIn(stockRepository.findAll()))
 			.as("Verify that the dividend information in the dividends.csv file stored "
 				+ "in s3 matches the items in the database")
 			.containsExactlyInAnyOrderElementsOf(stockDividendRepository.findAllStockDividends());
