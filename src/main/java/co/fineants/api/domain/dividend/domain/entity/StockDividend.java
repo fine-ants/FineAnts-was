@@ -79,11 +79,7 @@ public class StockDividend extends BaseEntity {
 	public static StockDividend create(Long id, Money dividend, DividendDates dividendDates, Stock stock) {
 		return new StockDividend(id, dividend, dividendDates, stock);
 	}
-
-	public static StockDividend fromCsv(String line) {
-		// todo: implement
-		return null;
-	}
+	
 	// 주식 개수에 따른 배당금 합계 계산
 	// 배당금 합계 = 주당 배당금 * 주식 개수
 
