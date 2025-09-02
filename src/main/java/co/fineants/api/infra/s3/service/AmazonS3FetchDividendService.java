@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
@@ -17,6 +19,7 @@ import co.fineants.api.infra.s3.dto.StockDividendDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class AmazonS3FetchDividendService implements FetchDividendService {
 
 	private static final String CSV_SEPARATOR = ",";
@@ -24,7 +27,9 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	private final String dividendPath;
 	private final StockDividendParser stockDividendParser;
 
-	public AmazonS3FetchDividendService(RemoteFileFetcher fileFetcher, String dividendPath,
+	public AmazonS3FetchDividendService(
+		RemoteFileFetcher fileFetcher,
+		@Value("${aws.s3.dividend-csv-path}") String dividendPath,
 		StockDividendParser stockDividendParser) {
 		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;

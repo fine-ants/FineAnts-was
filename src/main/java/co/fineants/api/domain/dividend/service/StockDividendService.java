@@ -21,6 +21,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.AmazonS3DividendService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +36,7 @@ public class StockDividendService {
 	private final KisService kisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final ExDividendDateCalculator exDividendDateCalculator;
+	private final FetchDividendService fetchDividendService;
 
 	/**
 	 * 배당일정(StockDividend) 엔티티 데이터를 초기화합니다.
