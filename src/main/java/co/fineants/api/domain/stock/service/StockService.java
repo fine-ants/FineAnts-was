@@ -21,7 +21,6 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ public class StockService {
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final AmazonS3StockService amazonS3StockService;
-	private final AmazonS3DividendService amazonS3DividendService;
 	private final StockQueryRepository stockQueryRepository;
 	private final StockAndDividendManager stockAndDividendManager;
 	private final StockDividendRepository stockDividendRepository;
