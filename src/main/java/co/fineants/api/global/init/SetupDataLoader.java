@@ -3,7 +3,6 @@ package co.fineants.api.global.init;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.domain.exchangerate.service.ExchangeRateUpdateService;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -36,8 +34,8 @@ import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
 import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +56,7 @@ public class SetupDataLoader {
 	private final AmazonS3StockService amazonS3StockService;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
-	private final AmazonS3DividendService amazonS3DividendService;
+	private final FetchDividendService fetchDividendService;
 
 	@Transactional
 	public void setupResources() {
@@ -158,25 +156,14 @@ public class SetupDataLoader {
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 	}
 
-	private void setupExchangeRateResources() {
-		List<ExchangeRate> rates = Stream.of(ExchangeRate.base("KRW"), ExchangeRate.zero("USD", false))
-			.map(this::saveExchangeRateIfNotFound)
-			.toList();
-		log.info("create the exchange rates : {}", rates);
-		exchangeRateUpdateService.updateExchangeRates();
-	}
-
-	private ExchangeRate saveExchangeRateIfNotFound(ExchangeRate exchangeRate) {
-		return exchangeRateRepository.save(exchangeRate);
-	}
-
 	private void setupStockResources() {
 		List<Stock> stocks = stockRepository.saveAll(amazonS3StockService.fetchStocks());
 		log.info("setupStock count is {}", stocks.size());
 	}
 
 	private void setupStockDividendResources() {
-		List<StockDividend> dividends = stockDividendRepository.saveAll(amazonS3DividendService.fetchDividends());
+		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
+		List<StockDividend> dividends = stockDividendRepository.saveAll(stockDividends);
 		log.info("setupStockDividend count is {}", dividends.size());
 	}
 }
