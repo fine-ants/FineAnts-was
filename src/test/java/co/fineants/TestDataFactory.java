@@ -88,8 +88,7 @@ public final class TestDataFactory {
 	}
 
 	public static Stock createSamsungStock() {
-		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
-		return stock;
+		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
 	}
 	//
 	// public static Stock createDongwhaPharmStock() {
@@ -117,7 +116,7 @@ public final class TestDataFactory {
 	// public static PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
 	// 	return PortfolioHolding.of(portfolio, stock);
 	// }
-	//
+
 	// public static StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
 	// 	LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 	// 	return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
@@ -128,7 +127,7 @@ public final class TestDataFactory {
 	// 	LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 	// 	return StockDividend.create(dividend, recordDate, exDividendDate, paymentDate, stock);
 	// }
-	//
+
 	// public static PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
 	// 	Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 	// 	return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
