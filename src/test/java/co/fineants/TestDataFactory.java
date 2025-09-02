@@ -14,6 +14,8 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.stock.domain.entity.Market;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 
 public final class TestDataFactory {
 	private TestDataFactory() {
@@ -44,7 +46,7 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
 		return Member.localMember(profile);
 	}
-	
+
 	public static Portfolio createPortfolio(Member member) {
 		return createPortfolio(
 			member,
@@ -85,9 +87,10 @@ public final class TestDataFactory {
 		);
 	}
 
-	// public static Stock createSamsungStock() {
-	// 	return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
-	// }
+	public static Stock createSamsungStock() {
+		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
+		return stock;
+	}
 	//
 	// public static Stock createDongwhaPharmStock() {
 	// 	return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);

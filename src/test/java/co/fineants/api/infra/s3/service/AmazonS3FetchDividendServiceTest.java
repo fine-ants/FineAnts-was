@@ -10,12 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 
 class AmazonS3FetchDividendServiceTest {
@@ -66,8 +68,10 @@ class AmazonS3FetchDividendServiceTest {
 
 	@Test
 	void fetchDividendEntity() {
-		List<StockDividend> list = service.fetchDividendEntityIn(List.of());
+		Stock stock = TestDataFactory.createSamsungStock();
+		List<Stock> stocks = List.of(stock);
+		List<StockDividend> list = service.fetchDividendEntityIn(stocks);
 
-		Assertions.assertThat(list).isEmpty();
+		Assertions.assertThat(list).hasSize(1);
 	}
 }
