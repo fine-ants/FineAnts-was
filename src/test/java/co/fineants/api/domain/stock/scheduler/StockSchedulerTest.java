@@ -24,8 +24,8 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.FetchStockService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -44,9 +44,6 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 	private StockCsvReader stockCsvReader;
 
 	@Autowired
-	private AmazonS3StockService amazonS3StockService;
-
-	@Autowired
 	private KisService mockedKisService;
 
 	@Autowired
@@ -54,6 +51,9 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private FetchDividendService fetchDividendService;
+
+	@Autowired
+	private FetchStockService fetchStockService;
 
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
@@ -97,7 +97,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 		stockScheduler.scheduledReloadStocks();
 		// then
 		assertThat(stockRepository.findByTickerSymbolIncludingDeleted("000660")).isPresent();
-		assertThat(amazonS3StockService.fetchStocks())
+		assertThat(fetchStockService.fetchStocks())
 			.as("Verify that the stock information in the stocks.csv file stored "
 				+ "in s3 matches the items in the database")
 			.containsExactlyInAnyOrderElementsOf(stockRepository.findAll());

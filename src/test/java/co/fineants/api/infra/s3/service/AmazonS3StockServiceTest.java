@@ -23,6 +23,9 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 	private AmazonS3StockService amazonS3StockService;
 
 	@Autowired
+	private FetchStockService fetchStockService;
+
+	@Autowired
 	private AmazonS3TestConfig amazonS3TestConfig;
 
 	@BeforeEach
@@ -40,7 +43,7 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 		// when
 		amazonS3StockService.writeStocks(List.of(stock));
 		// then
-		Stock findStock = amazonS3StockService.fetchStocks().stream()
+		Stock findStock = fetchStockService.fetchStocks().stream()
 			.findAny()
 			.orElseThrow();
 		assertThat(findStock)
@@ -54,11 +57,11 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void givenStocks_whenWriteStocks_thenSaveCsvFile() {
 		// given
-		List<Stock> stocks = amazonS3StockService.fetchStocks();
+		List<Stock> stocks = fetchStockService.fetchStocks();
 		// when
 		amazonS3StockService.writeStocks(stocks);
 		// then
-		List<Stock> actual = amazonS3StockService.fetchStocks();
+		List<Stock> actual = fetchStockService.fetchStocks();
 		assertThat(actual).hasSize(2802);
 
 		Stock kakaopay = actual.stream()
@@ -74,22 +77,5 @@ class AmazonS3StockServiceTest extends AbstractContainerBaseTest {
 		assertThat(actual.stream()
 			.map(Stock::getSector)
 			.noneMatch(marketNames::contains)).isTrue();
-	}
-
-	@DisplayName("아마존 S3에 stock.csv가 주어지고 파싱하여 Stock 컬렉션으로 가져온다")
-	@Test
-	void givenCsvFile_whenFetchStocks_thenReturnCollectionOfStocks() {
-		// given
-
-		// when
-		List<Stock> stocks = amazonS3StockService.fetchStocks();
-		// then
-		assertThat(stocks).hasSize(2802);
-		Stock kakaoPay = stocks.stream()
-			.filter(stock -> stock.getTickerSymbol().equals("377300"))
-			.findAny()
-			.orElseThrow();
-		assertThat(kakaoPay.getSector()).isEqualTo("기타");
-		assertThat(kakaoPay.getMarket()).isEqualTo(Market.KOSPI);
 	}
 }
