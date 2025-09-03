@@ -90,11 +90,11 @@ public final class TestDataFactory {
 	public static Stock createSamsungStock() {
 		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기,전자", Market.KOSPI);
 	}
-	//
-	// public static Stock createDongwhaPharmStock() {
-	// 	return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);
-	// }
-	//
+
+	public static Stock createDongwhaPharmStock() {
+		return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);
+	}
+
 	// public static Stock createCcsStack() {
 	// 	return Stock.of("066790", "씨씨에스충북방송", "KOREA CABLE T.V CHUNG-BUK SYSTEM CO.,LTD.", "KR7066790007", "방송서비스",
 	// 		Market.KOSDAQ);
