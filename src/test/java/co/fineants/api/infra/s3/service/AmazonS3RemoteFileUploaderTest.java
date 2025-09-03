@@ -7,20 +7,32 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3;
+
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 
 class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
-	@Autowired
-	@Qualifier("amazonS3RemoteFileUploader")
 	private RemoteFileUploader fileUploader;
+
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+
+	@Autowired
+	private AmazonS3 amazonS3;
+
+	private UuidGenerator uuidGenerator;
 
 	@Autowired
 	private RemoteFileFetcher fileFetcher;
@@ -35,6 +47,14 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@BeforeEach
+	void setUp() {
+		uuidGenerator = Mockito.mock(UuidGenerator.class);
+		BDDMockito.given(uuidGenerator.generate())
+			.willReturn("001d55f2-ce0b-49b9-b55c-4130d305a3f4");
+		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3, uuidGenerator);
 	}
 
 	@Test
@@ -60,7 +80,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 		String path = fileUploader.uploadImageFile(profileFile, profilePath);
 
-		String expectedPath = "https://fineants2024.s3.ap-northeast-2.amazonaws.com/local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
+		String expectedPath = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(path).isEqualTo(expectedPath);
 	}
 }

@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ImageNameEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
@@ -35,12 +35,15 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	private final String bucketName;
 
 	private final AmazonS3 amazonS3;
+	private UuidGenerator uuidGenerator;
 
 	public AmazonS3RemoteFileUploader(
 		@Value("${aws.s3.bucket}") String bucketName,
-		AmazonS3 amazonS3) {
+		AmazonS3 amazonS3,
+		UuidGenerator uuidGenerator) {
 		this.bucketName = bucketName;
 		this.amazonS3 = amazonS3;
+		this.uuidGenerator = uuidGenerator;
 	}
 
 	@Override
@@ -64,25 +67,17 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	@Override
 	public String uploadImageFile(MultipartFile multipartFile, String profilePath) {
 		File file = convertMultiPartFileToFile(multipartFile);
-		String key = profilePath + createUUID() + file.getName();
+		String key = profilePath + uuidGenerator.generate() + file.getName();
 
-		amazonS3.putObject(new PutObjectRequest(bucketName, key, file).withCannedAcl(
-			CannedAccessControlList.PublicRead));
-
-		String path = amazonS3.getUrl(bucketName, key).toString();
-
+		amazonS3.putObject(new PutObjectRequest(bucketName, key, file)
+			.withCannedAcl(CannedAccessControlList.PublicRead));
 		// delete object
 		try {
 			Files.delete(file.toPath());
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
-		return path;
-	}
-
-	@NotNull
-	private UUID createUUID() {
-		return UUID.randomUUID();
+		return key;
 	}
 
 	private File convertMultiPartFileToFile(MultipartFile file) throws
