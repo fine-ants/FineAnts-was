@@ -32,10 +32,11 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 	@Autowired
 	private AmazonS3 amazonS3;
 
-	private UuidGenerator uuidGenerator;
-
 	@Autowired
 	private RemoteFileFetcher fileFetcher;
+
+	@Value("${aws.s3.profile-path}")
+	private String profilePath;
 
 	private static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
@@ -51,7 +52,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		uuidGenerator = Mockito.mock(UuidGenerator.class);
+		UuidGenerator uuidGenerator = Mockito.mock(UuidGenerator.class);
 		BDDMockito.given(uuidGenerator.generate())
 			.willReturn("001d55f2-ce0b-49b9-b55c-4130d305a3f4");
 		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3, uuidGenerator);
@@ -70,13 +71,13 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 		fileUploader.upload(fileContent, filePath);
 
 		InputStream inputStream = fileFetcher.read(filePath);
+		Assertions.assertThat(inputStream).isNotNull();
 		new FileContentComparator().compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
 	}
 
 	@Test
 	void updateImageFile() {
 		MultipartFile profileFile = createProfileFile();
-		String profilePath = "local/profile/";
 
 		String path = fileUploader.uploadImageFile(profileFile, profilePath);
 
