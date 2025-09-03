@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
-class CsvFormatterTest {
+class StockCsvFormatterTest {
 
 	private CsvFormatter<Stock> formatter;
 
