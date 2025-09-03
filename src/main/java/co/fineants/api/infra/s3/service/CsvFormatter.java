@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.common.CsvLineConvertible;
 
+@Component
 public class CsvFormatter<T extends CsvLineConvertible> {
 
 	private final String delimiter;

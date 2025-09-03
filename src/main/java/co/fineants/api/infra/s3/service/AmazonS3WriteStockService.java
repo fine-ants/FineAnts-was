@@ -12,12 +12,12 @@ public class AmazonS3WriteStockService implements WriteStockService {
 
 	private final RemoteFileUploader fileUploader;
 	private final String filePath;
-	private final StockCsvFormatter formatter;
+	private final CsvFormatter<Stock> formatter;
 
 	public AmazonS3WriteStockService(
 		RemoteFileUploader fileUploader,
 		@Value("${aws.s3.stock-path}") String filePath,
-		StockCsvFormatter formatter) {
+		CsvFormatter<Stock> formatter) {
 		this.fileUploader = fileUploader;
 		this.filePath = filePath;
 		this.formatter = formatter;
