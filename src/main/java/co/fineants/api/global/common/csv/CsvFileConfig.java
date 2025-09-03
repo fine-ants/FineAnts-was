@@ -17,7 +17,7 @@ public class CsvFileConfig {
 	public CsvFileConfig(CsvProperties csvProperties) {
 		this.csvProperties = csvProperties;
 	}
-
+	
 	@Bean
 	public CsvFormatter<Stock> stockCsvFormatter() {
 		CsvProperties.CsvFormat csvFormat = csvProperties.getStock();
