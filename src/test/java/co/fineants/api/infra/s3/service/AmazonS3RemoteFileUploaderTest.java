@@ -1,25 +1,22 @@
 package co.fineants.api.infra.s3.service;
 
+import java.io.InputStream;
+
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.amazonaws.services.s3.AmazonS3;
+import co.fineants.AbstractContainerBaseTest;
 
-import joptsimple.internal.Strings;
+class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
-class AmazonS3RemoteFileUploaderTest {
-
+	@Autowired
+	@Qualifier("amazonS3RemoteFileUploader")
 	private RemoteFileUploader fileUploader;
-	private AmazonS3 amazonS3;
 
-	@BeforeEach
-	void setUp() {
-		String bucketName = "fineants2024";
-		amazonS3 = Mockito.mock(AmazonS3.class);
-		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3);
-	}
+	@Autowired
+	private RemoteFileFetcher fileFetcher;
 
 	@Test
 	void canCreated() {
@@ -28,11 +25,12 @@ class AmazonS3RemoteFileUploaderTest {
 
 	@Test
 	void upload_whenFileContentIsEmpty_thenUploadEmptyFile() {
-		String fileContent = Strings.EMPTY;
+		String fileContent = "id,dividend,recordDate,paymentDate,stockCode";
 		String filePath = "local/dividend/dividends.csv";
 
-		Assertions.assertThatCode(() -> fileUploader.upload(fileContent, filePath))
-			.doesNotThrowAnyException();
-		Mockito.verify(amazonS3, Mockito.times(1)).putObject(Mockito.any());
+		fileUploader.upload(fileContent, filePath);
+
+		InputStream inputStream = fileFetcher.read(filePath);
+		new FileContentComparator().compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
 	}
 }
