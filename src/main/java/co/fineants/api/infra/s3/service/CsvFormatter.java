@@ -8,7 +8,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import co.fineants.api.domain.common.CsvLineConvertible;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 
 @Component
 public class CsvFormatter<T extends CsvLineConvertible> {

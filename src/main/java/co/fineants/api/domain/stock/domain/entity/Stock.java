@@ -14,7 +14,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.common.CsvLineConvertible;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
