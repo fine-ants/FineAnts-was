@@ -9,7 +9,7 @@ import com.amazonaws.services.s3.AmazonS3;
 
 import joptsimple.internal.Strings;
 
-class AmazonBucketS3RemoteFileUploaderTest {
+class AmazonS3RemoteFileUploaderTest {
 
 	private RemoteFileUploader fileUploader;
 	private AmazonS3 amazonS3;
@@ -18,7 +18,7 @@ class AmazonBucketS3RemoteFileUploaderTest {
 	void setUp() {
 		String bucketName = "fineants2024";
 		amazonS3 = Mockito.mock(AmazonS3.class);
-		fileUploader = new AmazonBucketS3RemoteFileUploader(bucketName, amazonS3);
+		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3);
 	}
 
 	@Test
