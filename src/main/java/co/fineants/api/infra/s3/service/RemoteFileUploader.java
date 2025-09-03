@@ -5,5 +5,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface RemoteFileUploader {
 	void upload(String fileContent, String filePath);
 
-	void uploadImageFile(MultipartFile multipartFile, String filePath);
+	String uploadImageFile(MultipartFile multipartFile, String filePath);
 }
