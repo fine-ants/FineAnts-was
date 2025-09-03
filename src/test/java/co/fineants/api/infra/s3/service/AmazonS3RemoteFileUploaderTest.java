@@ -37,6 +37,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
+	private UuidGenerator uuidGenerator;
 
 	private static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
@@ -52,7 +53,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		UuidGenerator uuidGenerator = Mockito.mock(UuidGenerator.class);
+		uuidGenerator = Mockito.mock(UuidGenerator.class);
 		BDDMockito.given(uuidGenerator.generate())
 			.willReturn("001d55f2-ce0b-49b9-b55c-4130d305a3f4");
 		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3, uuidGenerator);
@@ -79,8 +80,9 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 	void updateImageFile() {
 		MultipartFile profileFile = createProfileFile();
 		ProfileImageFile profileImageFile = new ProfileImageFile(profileFile);
+		String key = this.profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
 
-		String path = fileUploader.uploadImageFile(profileImageFile, profilePath);
+		String path = fileUploader.uploadImageFile(profileImageFile, key);
 
 		String expectedPath = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(path).isEqualTo(expectedPath);

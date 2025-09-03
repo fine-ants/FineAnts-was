@@ -58,9 +58,7 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	// todo: key 생성 부분을 profilePath에 통합
 	@Override
 	public String uploadImageFile(ProfileImageFile profileImageFile, String profilePath) {
-		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
-
-		amazonS3.putObject(new PutObjectRequest(bucketName, key, profileImageFile.getFile())
+		amazonS3.putObject(new PutObjectRequest(bucketName, profilePath, profileImageFile.getFile())
 			.withCannedAcl(CannedAccessControlList.PublicRead));
 		// delete object
 		try {
@@ -68,6 +66,6 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
-		return key;
+		return profilePath;
 	}
 }
