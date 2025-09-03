@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.common.CsvLineConvertible;
 
-public class CsvFormatter<T> {
+public class CsvFormatter<T extends CsvLineConvertible> {
 
 	private final String delimiter;
 	private final String[] headers;
@@ -28,8 +28,7 @@ public class CsvFormatter<T> {
 	@NotNull
 	private String createLines(List<T> items) {
 		return items.stream()
-			.map(item -> (Stock)item)
-			.map(Stock::toCsvLineString)
+			.map(T::toCsvLine)
 			.collect(Collectors.joining(Strings.LINE_SEPARATOR));
 	}
 }

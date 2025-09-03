@@ -52,7 +52,7 @@ public class AmazonS3StockService {
 	@NotNull
 	private String csvLines(List<Stock> stocks) {
 		return stocks.stream()
-			.map(Stock::toCsvLineString)
+			.map(Stock::toCsvLine)
 			.collect(Collectors.joining(Strings.LINE_SEPARATOR));
 	}
 
