@@ -25,11 +25,12 @@ class StockCsvFormatterTest {
 	}
 
 	@Test
-	void format_whenStockIsOne() {
+	void format_whenStockIsMultiple() {
 		StockCsvFormatter formatter = new StockCsvFormatter();
-		Stock stock = TestDataFactory.createSamsungStock();
+		Stock stock1 = TestDataFactory.createSamsungStock();
+		Stock stock2 = TestDataFactory.createDongwhaPharmStock();
 
-		String content = formatter.format(stock);
+		String content = formatter.format(stock1, stock2);
 
 		new FileContentComparator().compare(content, "src/test/resources/gold_stocks.csv");
 	}
