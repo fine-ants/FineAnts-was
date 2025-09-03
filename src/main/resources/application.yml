@@ -28,6 +28,7 @@ spring:
       - ./member.yml
       - ./mail.yml
       - ./sse.yml
+      - ./csv.yml
   application:
     name: fineAnts
   thymeleaf:

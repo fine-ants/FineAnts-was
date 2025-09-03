@@ -1,0 +1,10 @@
+csv:
+  stock:
+    delimiter: "$"
+    headers:
+      - stockCode
+      - tickerSymbol
+      - companyName
+      - companyNameEng
+      - sector
+      - market
