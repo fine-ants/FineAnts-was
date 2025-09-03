@@ -30,7 +30,7 @@ public class StockCsvFormatter {
 	@NotNull
 	private String createLines(List<Stock> stocks) {
 		return stocks.stream()
-			.map(Stock::toCsvLineString)
+			.map(Stock::toCsvLine)
 			.collect(Collectors.joining(Strings.LINE_SEPARATOR));
 	}
 }
