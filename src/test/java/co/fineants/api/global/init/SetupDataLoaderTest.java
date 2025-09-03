@@ -29,8 +29,8 @@ import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteStockService;
 
 class SetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -53,9 +53,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	private UserProperties userProperties;
 
 	@Autowired
-	private AmazonS3StockService amazonS3StockService;
-
-	@Autowired
 	private StockCsvReader stockCsvReader;
 
 	@Autowired
@@ -66,6 +63,9 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WriteDividendService writeDividendService;
+
+	@Autowired
+	private WriteStockService writeStockService;
 
 	@Transactional
 	@DisplayName("서버는 권한 및 역할 등의 리소스들을 생성한다")
@@ -117,7 +117,7 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		List<Stock> stocks = stockCsvReader.readStockCsv().stream()
 			.limit(limit)
 			.toList();
-		amazonS3StockService.writeStocks(stocks);
+		writeStockService.writeStocks(stocks);
 		return stocks;
 	}
 
