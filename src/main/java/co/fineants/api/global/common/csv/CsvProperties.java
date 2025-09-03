@@ -9,8 +9,13 @@ import lombok.Getter;
 @Getter
 @ConfigurationProperties(prefix = "csv")
 public class CsvProperties {
-	private CsvFormat stock;
-	private CsvFormat stockDividend;
+	private final CsvFormat stock;
+	private final CsvFormat stockDividend;
+
+	public CsvProperties(CsvFormat stock, CsvFormat stockDividend) {
+		this.stock = stock;
+		this.stockDividend = stockDividend;
+	}
 
 	public record CsvFormat(String delimiter, List<String> headers) {
 	}
