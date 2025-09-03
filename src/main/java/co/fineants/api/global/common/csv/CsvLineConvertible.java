@@ -1,4 +1,4 @@
-package co.fineants.api.domain.common;
+package co.fineants.api.global.common.csv;
 
 public interface CsvLineConvertible {
 
