@@ -23,7 +23,7 @@ public class DividendCsvFormatter {
 	@NotNull
 	private static String createCsvLines(StockDividend[] dividends) {
 		return Arrays.stream(dividends)
-			.map(StockDividend::toCsvLineString)
+			.map(StockDividend::toCsvLine)
 			.collect(Collectors.joining(Strings.LINE_SEPARATOR));
 	}
 }

@@ -6,22 +6,25 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
 
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 
-@Component
 public class CsvFormatter<T extends CsvLineConvertible> {
 
 	private final String delimiter;
-	private final String[] headers;
+	private final List<String> headers;
 
 	public CsvFormatter(String delimiter, String[] headers) {
+		this(delimiter, Arrays.asList(headers));
+	}
+
+	public CsvFormatter(String delimiter, List<String> headers) {
 		this.delimiter = delimiter;
 		this.headers = headers;
 	}
 
-	public String format(T... items) {
+	@SafeVarargs
+	public final String format(T... items) {
 		String title = String.join(delimiter, headers);
 		String lines = createLines(Arrays.asList(items));
 		return String.join(Strings.LINE_SEPARATOR, title, lines).trim();
