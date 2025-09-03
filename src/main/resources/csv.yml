@@ -8,3 +8,11 @@ csv:
       - companyNameEng
       - sector
       - market
+  stock-dividend:
+    delimiter: "$"
+    headers:
+      - id
+      - dividend
+      - recordDate
+      - paymentDate
+      - stockCode
