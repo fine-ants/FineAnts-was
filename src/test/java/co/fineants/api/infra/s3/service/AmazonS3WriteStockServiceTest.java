@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
 class AmazonS3WriteStockServiceTest extends AbstractContainerBaseTest {
@@ -31,5 +32,15 @@ class AmazonS3WriteStockServiceTest extends AbstractContainerBaseTest {
 
 		List<Stock> findStocks = fetchStockService.fetchStocks();
 		Assertions.assertThat(findStocks).isEmpty();
+	}
+
+	@Test
+	void writeStocks_whenStockIsMultiple() {
+		List<Stock> stocks = List.of(TestDataFactory.createSamsungStock(), TestDataFactory.createDongwhaPharmStock());
+
+		service.writeStocks(stocks);
+
+		List<Stock> findStocks = fetchStockService.fetchStocks();
+		Assertions.assertThat(findStocks).containsExactlyElementsOf(stocks);
 	}
 }
