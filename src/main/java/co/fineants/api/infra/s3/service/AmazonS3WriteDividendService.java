@@ -10,12 +10,12 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 @Service
 public class AmazonS3WriteDividendService implements WriteDividendService {
 
-	private final DividendCsvFormatter formatter;
+	private final CsvFormatter<StockDividend> formatter;
 	private final RemoteFileUploader fileUploader;
 	private final String filePath;
 
 	public AmazonS3WriteDividendService(
-		DividendCsvFormatter formatter,
+		CsvFormatter<StockDividend> formatter,
 		RemoteFileUploader fileUploader,
 		@Value("${aws.s3.dividend-csv-path}") String filePath) {
 		this.formatter = formatter;

@@ -14,6 +14,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import co.fineants.api.domain.BaseEntity;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
@@ -40,7 +41,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "stockCode", callSuper = false)
 @Entity
-public class Stock extends BaseEntity {
+public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	@Id
 	private String tickerSymbol;
@@ -224,7 +225,8 @@ public class Stock extends BaseEntity {
 			.toList();
 	}
 
-	public String toCsvLineString() {
+	@Override
+	public String toCsvLine() {
 		String ticker = String.format("%s%s", TICKER_PREFIX, tickerSymbol);
 		return String.join(CSV_DELIMITER,
 			stockCode,

@@ -11,6 +11,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -37,7 +38,7 @@ import lombok.ToString;
 	@UniqueConstraint(columnNames = {"ticker_symbol", "record_date"})
 })
 @Entity
-public class StockDividend extends BaseEntity {
+public class StockDividend extends BaseEntity implements CsvLineConvertible {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -80,10 +81,6 @@ public class StockDividend extends BaseEntity {
 		return new StockDividend(id, dividend, dividendDates, stock);
 	}
 
-	public static StockDividend fromCsv(String line) {
-		// todo: implement
-		return null;
-	}
 	// 주식 개수에 따른 배당금 합계 계산
 	// 배당금 합계 = 주당 배당금 * 주식 개수
 
@@ -112,7 +109,8 @@ public class StockDividend extends BaseEntity {
 		return String.format("%s:%s:%s", stock.getTickerSymbol(), dividend, dividendDateString);
 	}
 
-	public String toCsvLineString() {
+	@Override
+	public String toCsvLine() {
 		return String.join(",",
 			this.id.toString(),
 			this.dividend.toRawAmount(),

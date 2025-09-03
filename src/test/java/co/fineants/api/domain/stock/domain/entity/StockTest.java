@@ -13,7 +13,7 @@ class StockTest {
 		Stock stock = Stock.of("000370", "한화손해보험보통주", "\"Hanwha General Insurance Co.,Ltd.\"", "KR7000370007", "보험",
 			Market.KOSPI);
 		// when
-		String result = stock.toCsvLineString();
+		String result = stock.toCsvLine();
 		// then
 		String expected = "KR7000370007$TS000370$한화손해보험보통주$\"Hanwha General Insurance Co.,Ltd.\"$보험$KOSPI";
 		Assertions.assertThat(result).isEqualTo(expected);

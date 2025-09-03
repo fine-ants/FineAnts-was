@@ -12,9 +12,9 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
-class DividendCsvFormatterTest {
+class StockDividendCsvFormatterTest {
 
-	private DividendCsvFormatter formatter;
+	private CsvFormatter<StockDividend> formatter;
 	private FileContentComparator fileContentComparator;
 
 	@NotNull
@@ -43,17 +43,13 @@ class DividendCsvFormatterTest {
 
 	@BeforeEach
 	void setUp() {
-		formatter = new DividendCsvFormatter();
+		formatter = new CsvFormatter<>(",",
+			new String[] {"id", "dividend", "recordDate", "paymentDate", "stockCode"});
 		fileContentComparator = new FileContentComparator();
 	}
 
 	@Test
-	void canCreated() {
-		Assertions.assertThat(formatter).isNotNull();
-	}
-
-	@Test
-	void format_whenDataIsEmpty() {
+	void format_whenStockDividendIsEmpty() {
 		String content = formatter.format();
 
 		Assertions.assertThat(content).isNotNull();

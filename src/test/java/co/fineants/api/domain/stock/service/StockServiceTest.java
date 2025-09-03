@@ -43,7 +43,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.FetchStockService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -68,7 +68,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	private ClosingPriceRepository closingPriceRepository;
 
 	@Autowired
-	private AmazonS3StockService amazonS3StockService;
+	private FetchStockService fetchStockService;
 
 	@Autowired
 	private KisClient kisClient;
@@ -311,7 +311,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		assertThat(actual.get(0).getMarket()).isEqualTo(Market.KOSDAQ);
 		assertThat(actual.get(0).getSector()).isEqualTo("의료");
 
-		actual = amazonS3StockService.fetchStocks();
+		actual = fetchStockService.fetchStocks();
 		assertThat(actual).hasSize(1);
 	}
 

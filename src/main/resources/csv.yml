@@ -1,0 +1,18 @@
+csv:
+  stock:
+    delimiter: "$"
+    headers:
+      - stockCode
+      - tickerSymbol
+      - companyName
+      - companyNameEng
+      - sector
+      - market
+  stockDividend:
+    delimiter: ","
+    headers:
+      - id
+      - dividend
+      - recordDate
+      - paymentDate
+      - stockCode
