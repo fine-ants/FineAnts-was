@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -23,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
-	
+
 	private final String bucketName;
 
 	private final AmazonS3 amazonS3;
@@ -44,7 +43,7 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 		try (InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(UTF_8))) {
 			request = new PutObjectRequest(bucketName, filePath, inputStream, createObjectMetadata());
 		} catch (IOException e) {
-			throw new IllegalStateException("Dividend data input/output error", e);
+			throw new IllegalStateException("can not create InputStream", e);
 		}
 		amazonS3.putObject(request);
 	}
@@ -56,9 +55,9 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 		return metadata;
 	}
 
+	// todo: key 생성 부분을 profilePath에 통합
 	@Override
-	public String uploadImageFile(MultipartFile multipartFile, String profilePath) {
-		ProfileImageFile profileImageFile = new ProfileImageFile(multipartFile);
+	public String uploadImageFile(ProfileImageFile profileImageFile, String profilePath) {
 		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
 
 		amazonS3.putObject(new PutObjectRequest(bucketName, key, profileImageFile.getFile())

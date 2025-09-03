@@ -78,8 +78,9 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 	@Test
 	void updateImageFile() {
 		MultipartFile profileFile = createProfileFile();
+		ProfileImageFile profileImageFile = new ProfileImageFile(profileFile);
 
-		String path = fileUploader.uploadImageFile(profileFile, profilePath);
+		String path = fileUploader.uploadImageFile(profileImageFile, profilePath);
 
 		String expectedPath = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(path).isEqualTo(expectedPath);
