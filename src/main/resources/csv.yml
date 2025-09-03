@@ -8,7 +8,7 @@ csv:
       - companyNameEng
       - sector
       - market
-  stock-dividend:
+  stockDividend:
     delimiter: "$"
     headers:
       - id
