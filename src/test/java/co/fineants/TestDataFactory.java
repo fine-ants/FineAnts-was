@@ -88,7 +88,7 @@ public final class TestDataFactory {
 	}
 
 	public static Stock createSamsungStock() {
-		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
+		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기,전자", Market.KOSPI);
 	}
 	//
 	// public static Stock createDongwhaPharmStock() {
