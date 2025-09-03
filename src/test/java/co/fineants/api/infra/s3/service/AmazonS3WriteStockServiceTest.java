@@ -1,27 +1,22 @@
 package co.fineants.api.infra.s3.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
-class AmazonS3WriteStockServiceTest {
+class AmazonS3WriteStockServiceTest extends AbstractContainerBaseTest {
 
+	@Autowired
 	private WriteStockService service;
 
-	@BeforeEach
-	void setUp() {
-		RemoteFileUploader uploader = Mockito.mock(RemoteFileUploader.class);
-		String filePath = "local/stock/stocks.csv";
-		String delimiter = "$";
-		String[] headers = {"stockCode", "tickerSymbol", "companyName", "companyNameEng", "sector", "market"};
-		CsvFormatter<Stock> formatter = new CsvFormatter<>(delimiter, headers);
-		service = new AmazonS3WriteStockService(uploader, filePath, formatter);
-	}
+	@Autowired
+	private FetchStockService fetchStockService;
 
 	@Test
 	void canCreated() {
@@ -29,7 +24,12 @@ class AmazonS3WriteStockServiceTest {
 	}
 
 	@Test
-	void writeStocks() {
-		Assertions.assertThatCode(() -> service.writeStocks(List.of())).doesNotThrowAnyException();
+	void writeStocks_whenStocksIsEmpty() {
+		List<Stock> stocks = new ArrayList<>();
+
+		service.writeStocks(stocks);
+
+		List<Stock> findStocks = fetchStockService.fetchStocks();
+		Assertions.assertThat(findStocks).isEmpty();
 	}
 }
