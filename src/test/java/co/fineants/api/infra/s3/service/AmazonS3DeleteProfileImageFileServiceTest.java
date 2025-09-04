@@ -32,7 +32,7 @@ class AmazonS3DeleteProfileImageFileServiceTest extends AbstractContainerBaseTes
 		// 이미지 파일 삭제
 		service.delete(key);
 		// 이미지 파일이 삭제되었는지 확인
-		Assertions.assertThat(fetcher.read(key)).isNull();
+		Assertions.assertThat(fetcher.read(key)).isEmpty();
 	}
 
 }

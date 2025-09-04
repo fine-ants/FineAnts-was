@@ -54,7 +54,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 		fileUploader.upload(fileContent, filePath);
 
-		InputStream inputStream = fileFetcher.read(filePath);
+		InputStream inputStream = fileFetcher.read(filePath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
 		new FileContentComparator().compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
 	}

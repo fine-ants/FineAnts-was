@@ -3,6 +3,7 @@ package co.fineants.api.infra.s3.service;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +38,7 @@ class AmazonS3FetchDividendServiceTest {
 		RemoteFileFetcher fileFetcher = Mockito.mock(AmazonS3RemoteFileFetcher.class);
 		String dividendPath = "local/dividend/dividends.csv";
 		BDDMockito.given(fileFetcher.read(dividendPath))
-			.willReturn(getMockInputStream());
+			.willReturn(Optional.of(getMockInputStream()));
 		StockDividendParser stockDividendParser = createStockDividendParser();
 		service = new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
 	}

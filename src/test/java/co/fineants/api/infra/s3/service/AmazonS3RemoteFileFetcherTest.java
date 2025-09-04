@@ -35,7 +35,7 @@ class AmazonS3RemoteFileFetcherTest {
 			.willReturn(new S3ObjectInputStream(getMockInputStream(), null));
 		RemoteFileFetcher fileReader = new AmazonS3RemoteFileFetcher(bucketName, amazonS3);
 
-		InputStream inputStream = fileReader.read(filePath);
+		InputStream inputStream = fileReader.read(filePath).orElseThrow();
 
 		FileContentComparator comparator = new FileContentComparator();
 		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");

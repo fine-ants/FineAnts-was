@@ -2,6 +2,7 @@ package co.fineants.api.infra.s3.service;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,7 @@ class AmazonS3FetchStockServiceTest {
 		String filePath = "local/stock/stocks.csv";
 		RemoteFileFetcher fetcher = Mockito.mock(RemoteFileFetcher.class);
 		BDDMockito.given(fetcher.read(filePath))
-			.willReturn(getMockInputStream());
+			.willReturn(Optional.of(getMockInputStream()));
 		StockParser parser = new StockParser();
 		service = new AmazonS3FetchStockService(fetcher, parser, filePath);
 	}
