@@ -1,7 +1,6 @@
 package co.fineants.api.infra.s3.service;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,14 +33,14 @@ public class AmazonS3FetchStockService implements FetchStockService {
 
 	@Override
 	public List<Stock> fetchStocks() {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(fetcher.read(filePath)))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(fetcher.read(filePath).orElseThrow()))) {
 			return reader.lines()
 				.skip(1) // skip header line
 				.map(line -> line.split(CSV_SEPARATOR_REGEX))
 				.map(stockParser::parse)
 				.distinct()
 				.toList();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("Error reading stocks file", e);
 			return new ArrayList<>();
 		}
