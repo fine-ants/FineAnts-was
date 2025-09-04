@@ -54,6 +54,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -84,6 +85,7 @@ public class MemberService {
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
+	private final DeleteProfileImageFileService deleteProfileImageFileService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -196,10 +198,10 @@ public class MemberService {
 		} else if (profileImageFile.isEmpty()) { // 기본 프로필 파일로 변경인 경우
 			// 회원의 기존 프로필 사진 제거
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
+			member.getProfileUrl().ifPresent(deleteProfileImageFileService::delete);
 		} else if (!profileImageFile.isEmpty()) { // 새로운 프로필 파일로 변경인 경우
 			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
+			member.getProfileUrl().ifPresent(deleteProfileImageFileService::delete);
 
 			// 새로운 프로필 파일 저장
 			profileUrl = writeProfileImageFileService.upload(profileImageFile);

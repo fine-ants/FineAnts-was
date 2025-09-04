@@ -13,6 +13,7 @@ import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputEx
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,7 @@ public class SignupService {
 	private final MemberAssociationRegistrationService associationRegistrationService;
 	private final AmazonS3Service amazonS3Service;
 	private final WriteProfileImageFileService writeProfileImageFileService;
+	private final DeleteProfileImageFileService deleteProfileImageFileService;
 
 	@Transactional
 	public void signup(Member member) {
@@ -47,6 +49,6 @@ public class SignupService {
 	}
 
 	public void deleteProfileImageFile(String profileUrl) {
-		amazonS3Service.deleteProfileImageFile(profileUrl);
+		deleteProfileImageFileService.delete(profileUrl);
 	}
 }
