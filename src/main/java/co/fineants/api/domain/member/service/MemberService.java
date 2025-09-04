@@ -53,7 +53,6 @@ import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,7 +67,6 @@ public class MemberService {
 
 	public static final String LOCAL_PROVIDER = "local";
 	private final MemberRepository memberRepository;
-	private final AmazonS3Service amazonS3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
 	private final WatchStockRepository watchStockRepository;

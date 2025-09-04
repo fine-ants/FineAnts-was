@@ -12,7 +12,6 @@ import co.fineants.api.domain.validator.domain.member.SignUpValidator;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
-import co.fineants.api.infra.s3.service.AmazonS3Service;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ public class SignupService {
 	private final SignUpValidator signUpValidator;
 	private final MemberRepository memberRepository;
 	private final MemberAssociationRegistrationService associationRegistrationService;
-	private final AmazonS3Service amazonS3Service;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
 
