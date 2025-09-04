@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
+import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 
 class AmazonS3WriteProfileImageFileServiceTest {
 
@@ -42,5 +43,15 @@ class AmazonS3WriteProfileImageFileServiceTest {
 
 		String expectedKey = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(key).isEqualTo(expectedKey);
+	}
+
+	@Test
+	void upload_whenFileIsNull() {
+		MultipartFile multipartFile = null;
+
+		Throwable throwable = Assertions.catchThrowable(() -> service.upload(multipartFile));
+
+		Assertions.assertThat(throwable)
+			.isInstanceOf(ImageEmptyInvalidInputException.class);
 	}
 }
