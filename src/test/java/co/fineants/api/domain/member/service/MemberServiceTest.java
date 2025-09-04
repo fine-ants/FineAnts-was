@@ -1,12 +1,9 @@
 package co.fineants.api.domain.member.service;
 
+import static co.fineants.TestDataFactory.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -17,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,7 +82,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
-	
+
 	public static Stream<Arguments> validChangeProfileSource() {
 		return Stream.of(
 			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
@@ -95,18 +91,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			Arguments.of(null, "nemo12345", "nemo12345", "닉네임만 변경"),
 			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
 		);
-	}
-
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private static MultipartFile createOverSizeMockProfileFile() {

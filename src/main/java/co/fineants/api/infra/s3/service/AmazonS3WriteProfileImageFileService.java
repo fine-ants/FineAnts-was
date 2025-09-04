@@ -1,17 +1,22 @@
 package co.fineants.api.infra.s3.service;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 
+@Service
 public class AmazonS3WriteProfileImageFileService implements WriteProfileImageFileService {
 
 	private final RemoteFileUploader uploader;
 	private final String profilePath;
 	private final UuidGenerator uuidGenerator;
 
-	public AmazonS3WriteProfileImageFileService(RemoteFileUploader uploader, String profilePath,
+	public AmazonS3WriteProfileImageFileService(
+		RemoteFileUploader uploader,
+		@Value("${aws.s3.profile-path}") String profilePath,
 		UuidGenerator uuidGenerator) {
 		this.uploader = uploader;
 		this.profilePath = profilePath;

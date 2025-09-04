@@ -54,6 +54,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +83,7 @@ public class MemberService {
 	private final TokenManagementService tokenManagementService;
 	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
-	private final VerifyCodeRepository verifyCodeRedisRepository;
+	private final WriteProfileImageFileService writeProfileImageFileService;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -148,7 +149,7 @@ public class MemberService {
 
 	private String uploadProfileImageFile(MultipartFile profileImageFile) {
 		return Optional.ofNullable(profileImageFile)
-			.map(amazonS3Service::upload)
+			.map(writeProfileImageFileService::upload)
 			.orElse(null);
 	}
 
