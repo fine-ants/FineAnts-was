@@ -59,6 +59,6 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 		PutObjectRequest request = new PutObjectRequest(bucketName, key, profileImageFile.getFile())
 			.withCannedAcl(CannedAccessControlList.PublicRead);
 		amazonS3.putObject(request);
-		return key;
+		return amazonS3.getUrl(bucketName, key).toString();
 	}
 }

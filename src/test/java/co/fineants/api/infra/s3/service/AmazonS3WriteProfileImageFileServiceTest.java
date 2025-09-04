@@ -19,9 +19,11 @@ class AmazonS3WriteProfileImageFileServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		String uuid = "001d55f2-ce0b-49b9-b55c-4130d305a3f4";
+		String host = "http://localhost:54566/";
+		String bucketName = "fineants2024/";
 		String filePath = "local/profile/";
-		String key = filePath + uuid + "profile.jpeg";
+		String uuid = "001d55f2-ce0b-49b9-b55c-4130d305a3f4";
+		String key = host + bucketName + filePath + uuid + "profile.jpeg";
 		RemoteFileUploader uploader = Mockito.mock(RemoteFileUploader.class);
 		given(uploader.uploadImageFile(any(ProfileImageFile.class), anyString()))
 			.willReturn(key);
@@ -41,7 +43,7 @@ class AmazonS3WriteProfileImageFileServiceTest {
 		MultipartFile multipartFile = TestDataFactory.createProfileFile();
 		String key = service.upload(multipartFile);
 
-		String expectedKey = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
+		String expectedKey = "http://localhost:54566/fineants2024/local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(key).isEqualTo(expectedKey);
 	}
 

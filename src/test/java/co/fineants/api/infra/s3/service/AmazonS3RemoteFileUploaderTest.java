@@ -64,10 +64,12 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 		MultipartFile profileFile = TestDataFactory.createProfileFile();
 		ProfileImageFile profileImageFile = new ProfileImageFile(profileFile);
 		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
-		String actual = fileUploader.uploadImageFile(profileImageFile, key);
 
-		String expectedKey = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
-		Assertions.assertThat(actual).isEqualTo(expectedKey);
+		String saveUrl = fileUploader.uploadImageFile(profileImageFile, key);
+
+		String host = LOCAL_STACK_CONTAINER.getEndpoint().toString();
+		String expectedUrl = host + "/fineants2024/local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
+		Assertions.assertThat(saveUrl).isEqualTo(expectedUrl);
 
 		profileImageFile.deleteFile();
 	}
