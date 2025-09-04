@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +12,8 @@ import org.mockito.Mockito;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
 class AmazonS3RemoteFileFetcherTest {
 

@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

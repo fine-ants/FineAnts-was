@@ -1,5 +1,7 @@
 package co.fineants.api.infra.s3.service;
 
+import co.fineants.api.infra.s3.service.imple.ProfileImageFile;
+
 public interface RemoteFileUploader {
 	void upload(String fileContent, String filePath);
 

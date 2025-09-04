@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
 @Component
 public class AmazonS3RemoteFileFetcher implements RemoteFileFetcher {

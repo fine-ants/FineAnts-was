@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 
 class AmazonS3DeleteProfileImageFileServiceTest extends AbstractContainerBaseTest {
 

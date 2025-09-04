@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 
 class AmazonS3WriteProfileImageFileServiceTest {
 

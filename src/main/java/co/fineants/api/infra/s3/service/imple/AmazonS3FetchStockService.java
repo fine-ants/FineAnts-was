@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.parser.StockParser;
+import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

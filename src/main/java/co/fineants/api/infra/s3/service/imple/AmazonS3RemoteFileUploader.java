@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import static java.nio.charset.StandardCharsets.*;
 
@@ -16,6 +16,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 
 @Component

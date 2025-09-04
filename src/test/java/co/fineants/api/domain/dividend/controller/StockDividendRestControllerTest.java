@@ -30,8 +30,8 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
-import co.fineants.api.infra.s3.service.FileContentComparator;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 @WithMockUser(roles = {"ADMIN"})
 class StockDividendRestControllerTest extends AbstractContainerBaseTest {

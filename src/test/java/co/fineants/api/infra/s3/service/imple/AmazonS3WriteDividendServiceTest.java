@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 
 class AmazonS3WriteDividendServiceTest {
 

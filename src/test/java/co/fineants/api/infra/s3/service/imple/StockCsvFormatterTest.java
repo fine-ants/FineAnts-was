@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
