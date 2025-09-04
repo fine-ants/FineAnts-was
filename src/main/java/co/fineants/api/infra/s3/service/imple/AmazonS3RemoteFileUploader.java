@@ -3,7 +3,6 @@ package co.fineants.api.infra.s3.service.imple;
 import static java.nio.charset.StandardCharsets.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +34,21 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 
 	@Override
 	public void upload(String fileContent, String filePath) {
-		PutObjectRequest request;
-		try (InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(UTF_8))) {
-			request = new PutObjectRequest(bucketName, filePath, inputStream, createObjectMetadata());
-		} catch (IOException e) {
-			throw new IllegalStateException("can not create InputStream", e);
+		PutObjectRequest request = createPutObjectRequest(fileContent, filePath);
+		try {
+			amazonS3.putObject(request);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("can not upload file to s3", e);
 		}
-		amazonS3.putObject(request);
+	}
+
+	@NotNull
+	private PutObjectRequest createPutObjectRequest(String fileContent, String filePath) {
+		try (InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(UTF_8))) {
+			return new PutObjectRequest(bucketName, filePath, inputStream, createObjectMetadata());
+		} catch (Exception e) {
+			throw new IllegalArgumentException("can not upload file to s3", e);
+		}
 	}
 
 	@NotNull

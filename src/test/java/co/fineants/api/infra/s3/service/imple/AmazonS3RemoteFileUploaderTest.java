@@ -2,6 +2,7 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
 
+import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,27 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 		InputStream inputStream = fileFetcher.read(filePath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
 		new FileContentComparator().compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
+	}
+
+	@Test
+	void upload_whenFileContentIsInvalid_thenNotUpload() {
+		String fileContent = null;
+		String filePath = "local/dividend/dividends.csv";
+
+		Throwable throwable = Assertions.catchThrowable(() -> fileUploader.upload(fileContent, filePath));
+
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void upload_whenFilePathIsInvalid_thenNotUpload() {
+		String fileContent = "id,dividend,recordDate,paymentDate,stockCode";
+
+		Assertions.assertThatThrownBy(() -> fileUploader.upload(fileContent, null))
+			.isInstanceOf(IllegalArgumentException.class);
+		Assertions.assertThatThrownBy(() -> fileUploader.upload(fileContent, Strings.EMPTY))
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
