@@ -26,9 +26,9 @@ public class AmazonS3WriteProfileImageFileService implements WriteProfileImageFi
 	@Override
 	public String upload(MultipartFile multipartFile) {
 		ProfileImageFile profileImageFile = new ProfileImageFile(multipartFile);
-		String key = generateKey(profileImageFile.getFileName());
+		String filePath = generateKey(profileImageFile.getFileName());
 		try {
-			return uploader.uploadImageFile(profileImageFile, key);
+			return uploader.uploadImageFile(profileImageFile, filePath);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("can not upload file to s3", e);
 		} finally {
