@@ -41,7 +41,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 		uuidGenerator = Mockito.mock(UuidGenerator.class);
 		BDDMockito.given(uuidGenerator.generate())
 			.willReturn("001d55f2-ce0b-49b9-b55c-4130d305a3f4");
-		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3, uuidGenerator);
+		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3);
 	}
 
 	@Test

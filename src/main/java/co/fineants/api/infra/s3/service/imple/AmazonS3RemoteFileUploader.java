@@ -15,7 +15,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,15 +25,12 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	private final String bucketName;
 
 	private final AmazonS3 amazonS3;
-	private final UuidGenerator uuidGenerator;
 
 	public AmazonS3RemoteFileUploader(
 		@Value("${aws.s3.bucket}") String bucketName,
-		AmazonS3 amazonS3,
-		UuidGenerator uuidGenerator) {
+		AmazonS3 amazonS3) {
 		this.bucketName = bucketName;
 		this.amazonS3 = amazonS3;
-		this.uuidGenerator = uuidGenerator;
 	}
 
 	@Override
