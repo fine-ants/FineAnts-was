@@ -202,7 +202,7 @@ public class MemberService {
 			member.getProfileUrl().ifPresent(amazonS3Service::deleteProfileImageFile);
 
 			// 새로운 프로필 파일 저장
-			profileUrl = amazonS3Service.upload(profileImageFile);
+			profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		}
 		member.changeProfileUrl(profileUrl);
 

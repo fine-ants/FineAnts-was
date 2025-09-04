@@ -13,22 +13,18 @@ import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputEx
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.infra.s3.service.AmazonS3Service;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class SignupService {
 
 	private final SignUpValidator signUpValidator;
 	private final MemberRepository memberRepository;
 	private final MemberAssociationRegistrationService associationRegistrationService;
 	private final AmazonS3Service amazonS3Service;
-
-	public SignupService(SignUpValidator signUpValidator, MemberRepository memberRepository,
-		MemberAssociationRegistrationService associationRegistrationService, AmazonS3Service amazonS3Service) {
-		this.signUpValidator = signUpValidator;
-		this.memberRepository = memberRepository;
-		this.associationRegistrationService = associationRegistrationService;
-		this.amazonS3Service = amazonS3Service;
-	}
+	private final WriteProfileImageFileService writeProfileImageFileService;
 
 	@Transactional
 	public void signup(Member member) {
@@ -42,7 +38,7 @@ public class SignupService {
 
 	public Optional<String> upload(MultipartFile file) throws MemberProfileUploadException {
 		try {
-			return Optional.of(amazonS3Service.upload(file));
+			return Optional.of(writeProfileImageFileService.upload(file));
 		} catch (ImageEmptyInvalidInputException e) {
 			return Optional.empty();
 		} catch (InvalidInputException e) {
