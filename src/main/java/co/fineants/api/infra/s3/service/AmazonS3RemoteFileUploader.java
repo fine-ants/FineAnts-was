@@ -25,7 +25,7 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	private final String bucketName;
 
 	private final AmazonS3 amazonS3;
-	private UuidGenerator uuidGenerator;
+	private final UuidGenerator uuidGenerator;
 
 	public AmazonS3RemoteFileUploader(
 		@Value("${aws.s3.bucket}") String bucketName,
@@ -56,9 +56,9 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 
 	// todo: key 생성 부분을 profilePath에 통합
 	@Override
-	public String uploadImageFile(ProfileImageFile profileImageFile, String profilePath) {
+	public String uploadImageFile(ProfileImageFile profileImageFile, String key) {
 		// generate key
-		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
+		// String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
 		// upload
 		amazonS3.putObject(new PutObjectRequest(bucketName, key, profileImageFile.getFile())
 			.withCannedAcl(CannedAccessControlList.PublicRead));

@@ -1,10 +1,6 @@
 package co.fineants.api.infra.s3.service;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,13 +9,12 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 
 class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
@@ -37,22 +32,11 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
-
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	private UuidGenerator uuidGenerator;
 
 	@BeforeEach
 	void setUp() {
-		UuidGenerator uuidGenerator = Mockito.mock(UuidGenerator.class);
+		uuidGenerator = Mockito.mock(UuidGenerator.class);
 		BDDMockito.given(uuidGenerator.generate())
 			.willReturn("001d55f2-ce0b-49b9-b55c-4130d305a3f4");
 		fileUploader = new AmazonS3RemoteFileUploader(bucketName, amazonS3, uuidGenerator);
@@ -77,11 +61,12 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@Test
 	void updateImageFile() {
-		MultipartFile profileFile = createProfileFile();
+		MultipartFile profileFile = TestDataFactory.createProfileFile();
 		ProfileImageFile profileImageFile = new ProfileImageFile(profileFile);
-		String key = fileUploader.uploadImageFile(profileImageFile, profilePath);
+		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
+		String actual = fileUploader.uploadImageFile(profileImageFile, key);
 
 		String expectedKey = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
-		Assertions.assertThat(key).isEqualTo(expectedKey);
+		Assertions.assertThat(actual).isEqualTo(expectedKey);
 	}
 }
