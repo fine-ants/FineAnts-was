@@ -1,9 +1,11 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.infra.s3.service.DeleteDividendService;
 
 @Service
 public class AmazonS3DeleteDividendService implements DeleteDividendService {

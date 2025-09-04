@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.infra.s3.service.DeleteDividendService;
 
 class AmazonS3DeleteDividendServiceTest {
 

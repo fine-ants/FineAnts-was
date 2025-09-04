@@ -1,7 +1,8 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,9 @@ import org.mockito.Mockito;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.parser.StockParser;
+import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 
 class AmazonS3FetchStockServiceTest {
 
@@ -29,7 +33,7 @@ class AmazonS3FetchStockServiceTest {
 		String filePath = "local/stock/stocks.csv";
 		RemoteFileFetcher fetcher = Mockito.mock(RemoteFileFetcher.class);
 		BDDMockito.given(fetcher.read(filePath))
-			.willReturn(getMockInputStream());
+			.willReturn(Optional.of(getMockInputStream()));
 		StockParser parser = new StockParser();
 		service = new AmazonS3FetchStockService(fetcher, parser, filePath);
 	}

@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.util.List;
 
@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import co.fineants.api.infra.s3.service.WriteStockService;
 
 @Service
 public class AmazonS3WriteStockService implements WriteStockService {

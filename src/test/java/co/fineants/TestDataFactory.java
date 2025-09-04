@@ -1,9 +1,16 @@
 package co.fineants;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisAccessToken;
@@ -238,4 +245,16 @@ public final class TestDataFactory {
 	// 	);
 	// 	SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 	// }
+
+	public static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

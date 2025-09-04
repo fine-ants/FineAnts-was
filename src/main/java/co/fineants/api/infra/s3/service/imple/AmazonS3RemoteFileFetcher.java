@@ -1,11 +1,14 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
 @Component
 public class AmazonS3RemoteFileFetcher implements RemoteFileFetcher {
@@ -21,7 +24,11 @@ public class AmazonS3RemoteFileFetcher implements RemoteFileFetcher {
 	}
 
 	@Override
-	public InputStream read(String path) {
-		return amazonS3.getObject(bucketName, path).getObjectContent();
+	public Optional<InputStream> read(String path) {
+		try {
+			return Optional.ofNullable(amazonS3.getObject(bucketName, path).getObjectContent());
+		} catch (Exception e) {
+			return Optional.empty();
+		}
 	}
 }

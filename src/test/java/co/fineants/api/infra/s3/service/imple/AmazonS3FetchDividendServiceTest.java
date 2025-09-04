@@ -1,8 +1,9 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,10 @@ import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
+import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
 
 class AmazonS3FetchDividendServiceTest {
 
@@ -37,7 +42,7 @@ class AmazonS3FetchDividendServiceTest {
 		RemoteFileFetcher fileFetcher = Mockito.mock(AmazonS3RemoteFileFetcher.class);
 		String dividendPath = "local/dividend/dividends.csv";
 		BDDMockito.given(fileFetcher.read(dividendPath))
-			.willReturn(getMockInputStream());
+			.willReturn(Optional.of(getMockInputStream()));
 		StockDividendParser stockDividendParser = createStockDividendParser();
 		service = new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
 	}

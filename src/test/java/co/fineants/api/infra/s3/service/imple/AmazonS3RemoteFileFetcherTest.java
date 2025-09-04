@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service;
+package co.fineants.api.infra.s3.service.imple;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +12,8 @@ import org.mockito.Mockito;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 
 class AmazonS3RemoteFileFetcherTest {
 
@@ -35,7 +37,7 @@ class AmazonS3RemoteFileFetcherTest {
 			.willReturn(new S3ObjectInputStream(getMockInputStream(), null));
 		RemoteFileFetcher fileReader = new AmazonS3RemoteFileFetcher(bucketName, amazonS3);
 
-		InputStream inputStream = fileReader.read(filePath);
+		InputStream inputStream = fileReader.read(filePath).orElseThrow();
 
 		FileContentComparator comparator = new FileContentComparator();
 		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
