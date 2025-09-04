@@ -5,7 +5,6 @@ import static java.nio.charset.StandardCharsets.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,14 +57,13 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	// todo: key 생성 부분을 profilePath에 통합
 	@Override
 	public String uploadImageFile(ProfileImageFile profileImageFile, String profilePath) {
-		amazonS3.putObject(new PutObjectRequest(bucketName, profilePath, profileImageFile.getFile())
+		// generate key
+		String key = profilePath + uuidGenerator.generate() + profileImageFile.getFileName();
+		// upload
+		amazonS3.putObject(new PutObjectRequest(bucketName, key, profileImageFile.getFile())
 			.withCannedAcl(CannedAccessControlList.PublicRead));
-		// delete object
-		try {
-			Files.delete(profileImageFile.getFile().toPath());
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-		return profilePath;
+		// delete temp file
+		profileImageFile.deleteFile();
+		return key;
 	}
 }

@@ -3,6 +3,7 @@ package co.fineants.api.infra.s3.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,14 @@ public class ProfileImageFile {
 
 	public ProfileImageFile(MultipartFile multipartFile) {
 		this.file = convertMultiPartFileToFile(multipartFile);
+	}
+
+	public void deleteFile() {
+		try {
+			Files.delete(file.toPath());
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to delete temporary file", e);
+		}
 	}
 
 	private File convertMultiPartFileToFile(MultipartFile file) throws
