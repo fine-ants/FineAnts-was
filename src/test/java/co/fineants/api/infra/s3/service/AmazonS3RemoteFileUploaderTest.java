@@ -68,5 +68,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 		String expectedKey = "local/profile/001d55f2-ce0b-49b9-b55c-4130d305a3f4profile.jpeg";
 		Assertions.assertThat(actual).isEqualTo(expectedKey);
+
+		profileImageFile.deleteFile();
 	}
 }
