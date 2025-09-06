@@ -1,9 +1,9 @@
 package co.fineants.api.domain.member.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.IOException;
@@ -15,47 +15,73 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.util.Strings;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.factory.MemberFactory;
-import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
+import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.service.SignupService;
-import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
-import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
+import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
+import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
 
-public class SignUpRestControllerTest extends ControllerTestSupport {
+public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
+	private MockMvc mockMvc;
+
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
+
+	@Autowired
+	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
+
+	@Autowired
+	protected ObjectMapper objectMapper;
+
+	@Autowired
+	private SignUpRestController controller;
+
+	@Autowired
 	private SignupService signupService;
 
-	private SignupValidatorService signupValidatorService;
+	@Autowired
+	private SignupVerificationService signupVerificationService;
 
-	@Override
-	protected Object initController() {
-		signupService = mock(SignupService.class);
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
-		MemberFactory memberFactory = new MemberFactory();
-		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
-		signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory,
-			memberFactory, signupVerificationService, signupValidatorService);
+	@Autowired
+	private VerifyCodeGenerator spyVerifyCodeGenerator;
+
+	private void saveMember(String nickname, String email) {
+		Member member = Member.localMember(
+			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
+		signupService.signup(member);
+	}
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = MockMvcBuilders.standaloneSetup(controller)
+			.setControllerAdvice(globalExceptionHandler)
+			.setCustomArgumentResolvers(mockedMemberAuthenticationArgumentResolver)
+			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+			.alwaysDo(print())
+			.build();
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")
@@ -140,9 +166,7 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		willThrow(new NicknameDuplicateException("일개미1234"))
-			.given(signupService)
-			.signup(ArgumentMatchers.any(Member.class));
+		saveMember("일개미1234", "ants1234@gmail.com");
 
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
@@ -171,13 +195,12 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
-		willThrow(new EmailDuplicateException("dragonbead95@naver.com"))
-			.given(signupService)
-			.signup(ArgumentMatchers.any(Member.class));
-
+		String nickname = "ants1234";
+		String email = "ants1234@gmail.com";
+		saveMember(nickname, email);
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
-			"email", "dragonbead95@naver.com",
+			"email", email,
 			"password", "nemo1234@",
 			"passwordConfirm", "nemo1234@");
 		String json = ObjectMapperUtil.serialize(profileInformationMap);
@@ -195,22 +218,18 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("code").value(equalTo(409)))
 			.andExpect(jsonPath("status").value(equalTo("Conflict")))
 			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
-			.andExpect(jsonPath("data").value(equalTo("dragonbead95@naver.com")));
+			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
 	@DisplayName("사용자는 비밀번호가 불일치하여 회원가입 할 수 없다")
 	@Test
 	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() throws Exception {
 		// given
-		willThrow(new PasswordAuthenticationException())
-			.given(signupService)
-			.signup(ArgumentMatchers.any(Member.class));
-
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
 			"password", "nemo1234@",
-			"passwordConfirm", "nemo1234@");
+			"passwordConfirm", "nemo1234@@");
 		String json = ObjectMapperUtil.serialize(profileInformationMap);
 		MockMultipartFile signupData = new MockMultipartFile(
 			"signupData",
@@ -261,9 +280,8 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		String nickname = "일개미1234";
-		doThrow(new NicknameDuplicateException(nickname))
-			.when(signupValidatorService)
-			.validateNickname(nickname);
+		String email = "ants1234@gmail.com";
+		saveMember(nickname, email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
@@ -292,10 +310,9 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void emailDuplicationCheck_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
+		String nickname = "ants1234";
 		String email = "dragonbead95@naver.com";
-		doThrow(new EmailDuplicateException(email))
-			.when(signupValidatorService)
-			.validateEmail(email);
+		saveMember(nickname, email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
@@ -342,7 +359,12 @@ public class SignUpRestControllerTest extends ControllerTestSupport {
 	@Test
 	void checkVerifyCode() throws Exception {
 		// given
-		String body = ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com", "code", "123456"));
+		String code = "123456";
+		BDDMockito.given(spyVerifyCodeGenerator.generate())
+			.willReturn(code);
+		String email = "ants1234@gmail.com";
+		signupVerificationService.sendSignupVerification(email);
+		String body = ObjectMapperUtil.serialize(Map.of("email", email, "code", code));
 
 		// when & then
 		mockMvc.perform(post("/api/auth/signup/verifyCode")
