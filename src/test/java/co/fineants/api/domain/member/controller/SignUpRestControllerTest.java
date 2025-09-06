@@ -59,9 +59,9 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private SignupService signupService;
 
-	private void saveMember(String nickname) {
+	private void saveMember(String nickname, String email) {
 		Member member = Member.localMember(
-			MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234", null));
+			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
 		signupService.signup(member);
 	}
 
@@ -157,8 +157,8 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		saveMember("일개미1234");
-		
+		saveMember("일개미1234", "ants1234@gmail.com");
+
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
@@ -296,7 +296,9 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void emailDuplicationCheck_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
+		String nickname = "ants1234";
 		String email = "dragonbead95@naver.com";
+		saveMember(nickname, email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
