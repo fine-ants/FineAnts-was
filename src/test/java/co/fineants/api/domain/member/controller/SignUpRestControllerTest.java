@@ -268,6 +268,8 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	void nicknameDuplicationCheck_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
 		String nickname = "일개미1234";
+		String email = "ants1234@gmail.com";
+		saveMember(nickname, email);
 
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
