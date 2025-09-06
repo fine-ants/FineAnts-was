@@ -186,9 +186,12 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() throws Exception {
 		// given
+		String nickname = "ants1234";
+		String email = "ants1234@gmail.com";
+		saveMember(nickname, email);
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
-			"email", "dragonbead95@naver.com",
+			"email", email,
 			"password", "nemo1234@",
 			"passwordConfirm", "nemo1234@");
 		String json = ObjectMapperUtil.serialize(profileInformationMap);
@@ -206,7 +209,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(409)))
 			.andExpect(jsonPath("status").value(equalTo("Conflict")))
 			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
-			.andExpect(jsonPath("data").value(equalTo("dragonbead95@naver.com")));
+			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
 	@DisplayName("사용자는 비밀번호가 불일치하여 회원가입 할 수 없다")
