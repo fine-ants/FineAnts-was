@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -36,6 +37,8 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.service.SignupService;
+import co.fineants.api.domain.member.service.SignupVerificationService;
+import co.fineants.api.domain.member.service.VerifyCodeGenerator;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -58,6 +61,12 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private SignupService signupService;
+
+	@Autowired
+	private SignupVerificationService signupVerificationService;
+
+	@Autowired
+	private VerifyCodeGenerator spyVerifyCodeGenerator;
 
 	private void saveMember(String nickname, String email) {
 		Member member = Member.localMember(
@@ -350,7 +359,12 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void checkVerifyCode() throws Exception {
 		// given
-		String body = ObjectMapperUtil.serialize(Map.of("email", "dragonbead95@naver.com", "code", "123456"));
+		String code = "123456";
+		BDDMockito.given(spyVerifyCodeGenerator.generate())
+			.willReturn(code);
+		String email = "ants1234@gmail.com";
+		signupVerificationService.sendSignupVerification(email);
+		String body = ObjectMapperUtil.serialize(Map.of("email", email, "code", code));
 
 		// when & then
 		mockMvc.perform(post("/api/auth/signup/verifyCode")
