@@ -217,7 +217,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
 			"password", "nemo1234@",
-			"passwordConfirm", "nemo1234@");
+			"passwordConfirm", "nemo1234@@");
 		String json = ObjectMapperUtil.serialize(profileInformationMap);
 		MockMultipartFile signupData = new MockMultipartFile(
 			"signupData",
