@@ -40,6 +40,7 @@ import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgume
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 @WithMockUser(roles = {"ADMIN"})
@@ -82,6 +83,9 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private WriteDividendService writeDividendService;
 
 	private void assertDividendFile() {
 		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
@@ -166,5 +170,37 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("배당 일정 최신화 완료")))
 			.andExpect(jsonPath("data").value(nullValue()));
 		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(3);
+	}
+
+	@DisplayName("배당금 데이터를 초기화한다")
+	@Test
+	void initializeStockDividend() throws Exception {
+		// given
+		StockDividend stockDividend1 = StockDividend.create(
+			2L,
+			Money.won(361),
+			LocalDate.of(2024, 3, 31),
+			LocalDate.of(2023, 3, 30),
+			LocalDate.of(2023, 5, 20),
+			createSamsungStock()
+		);
+		StockDividend stockDividend2 = StockDividend.create(
+			3L,
+			Money.won(361),
+			LocalDate.of(2024, 6, 30),
+			LocalDate.of(2023, 6, 28),
+			LocalDate.of(2023, 8, 20),
+			createSamsungStock()
+		);
+		writeDividendService.writeDividend(stockDividend1, stockDividend2);
+		// when & then
+		mockMvc.perform(post("/api/dividends/init")
+				.cookie(createTokenCookies()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(jsonPath("message").value(equalTo("배당 일정이 초기화되었습니다")))
+			.andExpect(jsonPath("data").value(nullValue()));
+		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(2);
 	}
 }
