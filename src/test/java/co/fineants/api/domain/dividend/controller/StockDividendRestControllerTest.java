@@ -38,7 +38,6 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
-import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
@@ -74,9 +73,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private DeleteDividendService deleteDividendService;
-
-	@Autowired
-	private FetchDividendService fetchDividendService;
 
 	@Autowired
 	private KisService mockedKisService;
