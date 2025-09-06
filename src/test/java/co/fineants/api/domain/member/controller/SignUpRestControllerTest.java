@@ -33,6 +33,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -52,6 +55,15 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private SignUpRestController controller;
+
+	@Autowired
+	private SignupService signupService;
+
+	private void saveMember(String nickname) {
+		Member member = Member.localMember(
+			MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234", null));
+		signupService.signup(member);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -145,7 +157,8 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-
+		saveMember("일개미1234");
+		
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", "일개미1234",
 			"email", "dragonbead95@naver.com",
