@@ -7,11 +7,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Arrays;
+import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -25,11 +30,15 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
+import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
+import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
@@ -64,6 +73,22 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private DeleteDividendService deleteDividendService;
+
+	@Autowired
+	private FetchDividendService fetchDividendService;
+
+	@Autowired
+	private KisService mockedKisService;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
+
+	private void assertDividendFile() {
+		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
+
+		FileContentComparator comparator = new FileContentComparator();
+		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -107,10 +132,39 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		assertDividendFile();
 	}
 
-	private void assertDividendFile() {
-		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
+	@DisplayName("원격 저장소에 배당금 데이터를 갱신한다")
+	@Test
+	void refreshStockDividend() throws Exception {
+		// given
+		LocalDate now = LocalDate.of(2024, 1, 1);
+		LocalDate to = now.with(TemporalAdjusters.lastDayOfYear());
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(now);
 
-		FileContentComparator comparator = new FileContentComparator();
-		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
+		KisDividend kisDividend1 = KisDividend.create(
+			"005930",
+			Money.won(361),
+			LocalDate.of(2024, 3, 31),
+			LocalDate.of(2024, 5, 20)
+		);
+		KisDividend kisDividend2 = KisDividend.create(
+			"005930",
+			Money.won(361),
+			LocalDate.of(2024, 6, 30),
+			LocalDate.of(2024, 8, 20)
+		);
+		List<KisDividend> kisDividends = Arrays.asList(kisDividend1, kisDividend2);
+		BDDMockito.given(mockedKisService.fetchDividendsBetween(now, to))
+			.willReturn(kisDividends);
+
+		// when & then
+		mockMvc.perform(post("/api/dividends/refresh")
+				.cookie(createTokenCookies()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(jsonPath("message").value(equalTo("배당 일정 최신화 완료")))
+			.andExpect(jsonPath("data").value(nullValue()));
+		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(3);
 	}
 }
