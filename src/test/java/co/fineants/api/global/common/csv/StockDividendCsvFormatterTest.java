@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service.imple;
+package co.fineants.api.global.common.csv;
 
 import java.time.LocalDate;
 
@@ -11,6 +11,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 class StockDividendCsvFormatterTest {
 

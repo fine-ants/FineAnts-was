@@ -18,7 +18,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -72,7 +71,7 @@ import okhttp3.mockwebserver.MockResponse;
 @ContextConfiguration(classes = {AmazonS3TestConfig.class, TestConfig.class})
 @AutoConfigureWebTestClient
 @Testcontainers
-@WithMockUser(username = "dragonbead95@naver.com")
+@WithMockMemberAuthentication
 public abstract class AbstractContainerBaseTest {
 	private static final String REDIS_IMAGE = "redis:7-alpine";
 	private static final int REDIS_PORT = 6379;
