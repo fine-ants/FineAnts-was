@@ -37,7 +37,7 @@ import co.fineants.api.infra.s3.service.imple.AmazonS3WriteProfileImageFileServi
 import co.fineants.api.infra.s3.service.imple.AmazonS3WriteStockService;
 import lombok.extern.slf4j.Slf4j;
 
-@Profile(value = {"local", "release", "production"})
+@Profile(value = {"local", "release", "production", "aws"})
 @Configuration
 @Slf4j
 public class S3Config {
