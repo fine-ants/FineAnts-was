@@ -9,6 +9,7 @@ import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
+// todo: @Profile을 이용하여 AWS S3, GCP Storage 선택 가능하게 변경
 public class GoogleCloudStorageWriteDividendService implements WriteDividendService {
 
 	private final CsvFormatter<StockDividend> formatter;

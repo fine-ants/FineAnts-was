@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
@@ -22,7 +23,11 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Value("${gcp.storage.dividend-csv-path}")
 	private String dividendPath;
+
 	private WriteDividendService service;
+
+	@Autowired
+	private RemoteFileFetcher fetcher;
 
 	@BeforeEach
 	void setUp() {
@@ -37,5 +42,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	@Test
 	void writeDividend() {
 		service.writeDividend();
+
+		Assertions.assertThat(fetcher.read(dividendPath)).isPresent();
 	}
 }

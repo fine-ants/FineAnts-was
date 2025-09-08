@@ -11,6 +11,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
+import co.fineants.api.infra.s3.service.DeleteDividendService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -23,11 +25,19 @@ public class S3Config {
 	private String accessSecret;
 	@Value("${aws.region.static}")
 	private String region;
+	@Value("${aws.s3.bucket}")
+	private String bucket;
 
 	@Bean
 	public AmazonS3 amazonS3() {
 		AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
 		return AmazonS3ClientBuilder.standard()
 			.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
+	}
+
+	@Bean
+	public DeleteDividendService deleteDividendService(AmazonS3 amazonS3,
+		@Value("${aws.s3.dividend-csv-path}") String dividendPath) {
+		return new AmazonS3DeleteDividendService(bucket, dividendPath, amazonS3);
 	}
 }
