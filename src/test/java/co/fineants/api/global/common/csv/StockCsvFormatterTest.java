@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service.imple;
+package co.fineants.api.global.common.csv;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.global.common.csv.CsvFormatter;
+import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 class StockCsvFormatterTest {
 
