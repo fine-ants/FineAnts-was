@@ -3,9 +3,8 @@ package co.fineants.api.domain.common.money;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.common.count.Count;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(of = {"division", "divisor"})

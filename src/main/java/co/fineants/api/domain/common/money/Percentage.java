@@ -6,12 +6,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import jakarta.validation.constraints.NotNull;
 
 @JsonSerialize(using = Percentage.PercentageSerializer.class)
 public class Percentage implements Comparable<Percentage> {

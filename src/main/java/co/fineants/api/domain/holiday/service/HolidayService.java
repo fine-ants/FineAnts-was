@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import co.fineants.api.domain.holiday.repository.HolidayRepository;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.domain.dto.response.KisHoliday;
 import co.fineants.api.global.common.delay.DelayManager;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

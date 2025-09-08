@@ -3,7 +3,6 @@ package co.fineants.api.global.common.csv;
 import java.time.LocalDate;
 
 import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +11,7 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
+import jakarta.validation.constraints.NotNull;
 
 class StockDividendCsvFormatterTest {
 

@@ -2,9 +2,8 @@ package co.fineants.api.domain.common.money;
 
 import static co.fineants.api.domain.common.money.Currency.*;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.common.count.Count;
+import jakarta.validation.constraints.NotNull;
 
 public class AverageDivision implements Expression {
 

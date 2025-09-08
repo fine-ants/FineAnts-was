@@ -20,6 +20,5 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 		WriteDividendService service = new GoogleCloudStorageWriteDividendService();
 
 		service.writeDividend();
-
 	}
 }
