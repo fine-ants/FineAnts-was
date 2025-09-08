@@ -12,7 +12,7 @@ public @interface WithMockMemberAuthentication {
 
 	long memberId() default 1L;
 
-	String[] roles() default {"USER"};
+	String[] roles() default {"ROLE_USER"};
 
 	String provider() default "local";
 
