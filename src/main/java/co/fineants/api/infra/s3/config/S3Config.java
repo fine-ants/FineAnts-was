@@ -11,10 +11,14 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
+import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -47,5 +51,11 @@ public class S3Config {
 	public DeleteProfileImageFileService deleteProfileImageFileService(AmazonS3 amazonS3,
 		@Value("${aws.s3.profile-path}") String profilePath) {
 		return new AmazonS3DeleteProfileImageFileService(bucket, profilePath, amazonS3);
+	}
+
+	@Bean
+	public FetchDividendService fetchDividendService(RemoteFileFetcher fileFetcher,
+		@Value("${aws.s3.dividend-csv-path}") String dividendPath, StockDividendParser stockDividendParser) {
+		return new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
 	}
 }
