@@ -16,5 +16,5 @@ public @interface WithMockMemberAuthentication {
 
 	String provider() default "local";
 
-	String profileUrl() default "src/test/resources/profile.jpeg";
+	String profileUrl() default "profileUrl";
 }

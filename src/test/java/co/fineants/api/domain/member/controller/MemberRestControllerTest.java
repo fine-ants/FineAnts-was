@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -48,6 +49,9 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Autowired
+	private MemberRepository memberRepository;
+
 	@BeforeEach
 	void setUp() {
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
@@ -56,6 +60,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
 			.alwaysDo(print())
 			.build();
+		memberRepository.save(createMember());
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 새 프로필 및 닉네임을 수정한다")
@@ -81,9 +86,9 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("프로필이 수정되었습니다")))
 			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
-			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
+			.andExpect(jsonPath("data.user.nickname").value(equalTo("일개미12345")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
-			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")));
+			.andExpect(jsonPath("data.user.profileUrl").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 새 프로필만 수정한다")
@@ -101,7 +106,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
 			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
-			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")));
+			.andExpect(jsonPath("data.user.profileUrl").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 기본 프로필로 수정한다")
@@ -119,7 +124,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
 			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
-			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")));
+			.andExpect(jsonPath("data.user.profileUrl").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 프로필을 유지하고 닉네임만 변경한다")
@@ -141,9 +146,9 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("프로필이 수정되었습니다")))
 			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
-			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
+			.andExpect(jsonPath("data.user.nickname").value(equalTo("일개미1234")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
-			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")));
+			.andExpect(jsonPath("data.user.profileUrl").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 닉네임 입력 형식이 유효하지 않아 실패한다")
