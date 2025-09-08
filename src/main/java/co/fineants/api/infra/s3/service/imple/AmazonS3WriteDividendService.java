@@ -2,15 +2,11 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
-@Service
 public class AmazonS3WriteDividendService implements WriteDividendService {
 
 	private final CsvFormatter<StockDividend> formatter;
@@ -20,7 +16,7 @@ public class AmazonS3WriteDividendService implements WriteDividendService {
 	public AmazonS3WriteDividendService(
 		CsvFormatter<StockDividend> formatter,
 		RemoteFileUploader fileUploader,
-		@Value("${aws.s3.dividend-csv-path}") String filePath) {
+		String filePath) {
 		this.formatter = formatter;
 		this.fileUploader = fileUploader;
 		this.filePath = filePath;
