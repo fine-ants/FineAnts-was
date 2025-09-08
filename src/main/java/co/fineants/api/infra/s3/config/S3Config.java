@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.parser.StockParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
@@ -22,6 +23,7 @@ import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
@@ -29,6 +31,7 @@ import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileUploader;
 import co.fineants.api.infra.s3.service.imple.AmazonS3WriteDividendService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3WriteProfileImageFileService;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -91,5 +94,12 @@ public class S3Config {
 		RemoteFileUploader fileUploader,
 		@Value("${aws.s3.dividend-csv-path}") String dividendPath) {
 		return new AmazonS3WriteDividendService(formatter, fileUploader, dividendPath);
+	}
+
+	@Bean
+	public WriteProfileImageFileService writeProfileImageFileService(RemoteFileUploader fileUploader,
+		@Value("${aws.s3.profile-path}") String profilePath,
+		UuidGenerator uuidGenerator) {
+		return new AmazonS3WriteProfileImageFileService(fileUploader, profilePath, uuidGenerator);
 	}
 }
