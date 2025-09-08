@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service.imple;
+package co.fineants.api.domain.member.domain.entity;
 
 import java.io.File;
 import java.io.FileOutputStream;

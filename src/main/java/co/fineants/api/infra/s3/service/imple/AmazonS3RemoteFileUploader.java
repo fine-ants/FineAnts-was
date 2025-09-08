@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
+import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 
