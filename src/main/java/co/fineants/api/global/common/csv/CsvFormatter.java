@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service.imple;
+package co.fineants.api.global.common.csv;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
-
-import co.fineants.api.global.common.csv.CsvLineConvertible;
 
 public class CsvFormatter<T extends CsvLineConvertible> {
 

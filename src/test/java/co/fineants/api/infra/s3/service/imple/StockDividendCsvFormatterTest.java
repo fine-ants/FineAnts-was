@@ -11,6 +11,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.global.common.csv.CsvFormatter;
 
 class StockDividendCsvFormatterTest {
 
