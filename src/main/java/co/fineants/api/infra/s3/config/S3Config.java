@@ -12,7 +12,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import co.fineants.api.infra.s3.service.DeleteDividendService;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -39,5 +41,11 @@ public class S3Config {
 	public DeleteDividendService deleteDividendService(AmazonS3 amazonS3,
 		@Value("${aws.s3.dividend-csv-path}") String dividendPath) {
 		return new AmazonS3DeleteDividendService(bucket, dividendPath, amazonS3);
+	}
+
+	@Bean
+	public DeleteProfileImageFileService deleteProfileImageFileService(AmazonS3 amazonS3,
+		@Value("${aws.s3.profile-path}") String profilePath) {
+		return new AmazonS3DeleteProfileImageFileService(bucket, profilePath, amazonS3);
 	}
 }
