@@ -88,7 +88,8 @@ dependencies {
     // test container
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
     testImplementation 'org.testcontainers:mysql:1.19.7'
-    implementation 'org.testcontainers:localstack:1.19.7'
+    testImplementation 'org.testcontainers:localstack:1.19.7'
+    testImplementation 'io.aiven:testcontainers-fake-gcs-server:0.1.0'
 
     // Rest Docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
