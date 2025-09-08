@@ -13,6 +13,7 @@ import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
+// todo: gcp용 uploader, fetcher 구현체 확장
 class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired

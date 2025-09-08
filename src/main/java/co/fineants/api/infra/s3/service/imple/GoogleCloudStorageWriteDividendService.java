@@ -2,22 +2,21 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
-// todo: @Profile을 이용하여 AWS S3, GCP Storage 선택 가능하게 변경
 public class GoogleCloudStorageWriteDividendService implements WriteDividendService {
 
 	private final CsvFormatter<StockDividend> formatter;
 	private final RemoteFileUploader uploader;
 	private final String dividendPath;
 
-	public GoogleCloudStorageWriteDividendService(CsvFormatter<StockDividend> formatter, RemoteFileUploader uploader,
-		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
+	public GoogleCloudStorageWriteDividendService(
+		CsvFormatter<StockDividend> formatter,
+		RemoteFileUploader uploader,
+		String dividendPath) {
 		this.formatter = formatter;
 		this.uploader = uploader;
 		this.dividendPath = dividendPath;
