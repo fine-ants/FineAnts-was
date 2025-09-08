@@ -5,9 +5,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.parser.StockParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
@@ -15,7 +12,6 @@ import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
 public class AmazonS3FetchStockService implements FetchStockService {
 
 	private static final String CSV_SEPARATOR_REGEX = "\\$";
@@ -27,7 +23,7 @@ public class AmazonS3FetchStockService implements FetchStockService {
 	public AmazonS3FetchStockService(
 		RemoteFileFetcher fetcher,
 		StockParser stockParser,
-		@Value("${aws.s3.stock-path}") String filePath) {
+		String filePath) {
 		this.fetcher = fetcher;
 		this.stockParser = stockParser;
 		this.filePath = filePath;

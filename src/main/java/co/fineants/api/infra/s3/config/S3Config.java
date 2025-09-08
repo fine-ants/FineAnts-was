@@ -12,13 +12,16 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
+import co.fineants.api.domain.stock.parser.StockParser;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -57,5 +60,11 @@ public class S3Config {
 	public FetchDividendService fetchDividendService(RemoteFileFetcher fileFetcher,
 		@Value("${aws.s3.dividend-csv-path}") String dividendPath, StockDividendParser stockDividendParser) {
 		return new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
+	}
+
+	@Bean
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher, StockParser stockParser,
+		@Value("${aws.s3.stock-path}") String filePath) {
+		return new AmazonS3FetchStockService(fileFetcher, stockParser, filePath);
 	}
 }
