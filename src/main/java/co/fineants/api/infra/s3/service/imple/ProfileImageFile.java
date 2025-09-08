@@ -11,7 +11,9 @@ import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputEx
 import co.fineants.api.global.errors.exception.business.ImageNameEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ImageWriteInvalidInputException;
+import lombok.Getter;
 
+@Getter
 public class ProfileImageFile {
 
 	private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -58,7 +60,4 @@ public class ProfileImageFile {
 		return file.getName();
 	}
 
-	public File getFile() {
-		return file;
-	}
 }
