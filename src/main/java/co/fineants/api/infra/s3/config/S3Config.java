@@ -18,11 +18,13 @@ import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"local", "release", "production"})
@@ -72,5 +74,10 @@ public class S3Config {
 	@Bean
 	public RemoteFileFetcher remoteFileFetcher(AmazonS3 amazonS3) {
 		return new AmazonS3RemoteFileFetcher(bucket, amazonS3);
+	}
+
+	@Bean
+	public RemoteFileUploader remoteFileUploader(AmazonS3 amazonS3) {
+		return new AmazonS3RemoteFileUploader(bucket, amazonS3);
 	}
 }
