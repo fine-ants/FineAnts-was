@@ -2,15 +2,11 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteStockService;
 
-@Service
 public class AmazonS3WriteStockService implements WriteStockService {
 
 	private final RemoteFileUploader fileUploader;
@@ -19,7 +15,7 @@ public class AmazonS3WriteStockService implements WriteStockService {
 
 	public AmazonS3WriteStockService(
 		RemoteFileUploader fileUploader,
-		@Value("${aws.s3.stock-path}") String filePath,
+		String filePath,
 		CsvFormatter<Stock> formatter) {
 		this.fileUploader = fileUploader;
 		this.filePath = filePath;
