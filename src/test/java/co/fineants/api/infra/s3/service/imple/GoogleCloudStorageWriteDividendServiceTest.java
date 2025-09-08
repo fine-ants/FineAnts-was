@@ -6,12 +6,20 @@ import org.junit.jupiter.api.Test;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
-class GoogleStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
+class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Test
 	void canCreated() {
-		WriteDividendService service = new GoogleStorageWriteDividendService();
+		WriteDividendService service = new GoogleCloudStorageWriteDividendService();
 
 		Assertions.assertThat(service).isNotNull();
+	}
+
+	@Test
+	void writeDividend() {
+		WriteDividendService service = new GoogleCloudStorageWriteDividendService();
+
+		service.writeDividend();
+
 	}
 }
