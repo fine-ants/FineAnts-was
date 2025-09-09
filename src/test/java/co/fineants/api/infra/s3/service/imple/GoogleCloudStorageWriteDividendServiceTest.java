@@ -5,13 +5,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.config.GoogleCloudStorageTestConfig;
 
 // todo: gcp용 uploader, fetcher 구현체 확장
 @ActiveProfiles("gcp")
+@ContextConfiguration(classes = GoogleCloudStorageTestConfig.class)
 class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -32,6 +35,6 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	void writeDividend() {
 		service.writeDividend();
 
-		Assertions.assertThat(fetcher.read(dividendPath)).isPresent();
+		new FileContentComparator().compare(fetcher.read(dividendPath).orElseThrow(), "gold_empty_dividends.csv");
 	}
 }

@@ -7,7 +7,6 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 
-// TODO: implement
 public class GoogleCloudStorageFetchDividendService implements FetchDividendService {
 	@Override
 	public List<StockDividendDto> fetchDividend() {

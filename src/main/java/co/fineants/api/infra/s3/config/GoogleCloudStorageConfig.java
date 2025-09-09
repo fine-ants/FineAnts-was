@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
@@ -30,6 +33,15 @@ import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockServic
 @Profile(value = {"local", "release", "production", "gcp"})
 public class GoogleCloudStorageConfig {
 	@Bean
+	public Storage storage() {
+		return StorageOptions.newBuilder()
+			.setHost("http://localhost:4443")
+			.setProjectId("test-project")
+			.build()
+			.getService();
+	}
+
+	@Bean
 	public WriteDividendService writeDividendService(
 		CsvFormatter<StockDividend> formatter,
 		RemoteFileUploader uploader,
@@ -38,8 +50,9 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public RemoteFileUploader remoteFileUploader() {
-		return new GoogleCloudStorageRemoteFileUploader();
+	public RemoteFileUploader remoteFileUploader(Storage storage,
+		@Value("${gcp.storage.bucket}") String bucketName) {
+		return new GoogleCloudStorageRemoteFileUploader(storage, bucketName);
 	}
 
 	@Bean

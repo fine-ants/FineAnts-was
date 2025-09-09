@@ -60,7 +60,6 @@ import co.fineants.config.AmazonS3TestConfig;
 import co.fineants.config.TestConfig;
 import co.fineants.support.mysql.DatabaseCleaner;
 import co.fineants.support.redis.RedisRepository;
-import io.aiven.testcontainers.fakegcsserver.FakeGcsServerContainer;
 import jakarta.servlet.http.Cookie;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -86,14 +85,9 @@ public abstract class AbstractContainerBaseTest {
 		.withServices(LocalStackContainer.Service.S3)
 		.withReuse(true);
 
-	private static FakeGcsServerContainer GCS_CONTAINER = new FakeGcsServerContainer()
-		.withExposedPorts(4443)
-		.withReuse(true);
-
 	static {
 		REDIS_CONTAINER.start();
 		LOCAL_STACK_CONTAINER.start();
-		GCS_CONTAINER.start();
 	}
 
 	@Autowired
