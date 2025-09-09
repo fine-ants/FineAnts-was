@@ -39,6 +39,6 @@ class StockCsvFormatterTest {
 		String content = formatter.format(stock1, stock2);
 
 		Assertions.assertThat(content).isNotNull();
-		new FileContentComparator().compare(content, "src/test/resources/gold_stocks.csv");
+		FileContentComparator.compare(content, "src/test/resources/gold_stocks.csv");
 	}
 }

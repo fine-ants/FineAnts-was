@@ -16,7 +16,6 @@ import jakarta.validation.constraints.NotNull;
 class StockDividendCsvFormatterTest {
 
 	private CsvFormatter<StockDividend> formatter;
-	private FileContentComparator fileContentComparator;
 
 	@NotNull
 	private StockDividend createSamsungStockDividend() {
@@ -46,7 +45,6 @@ class StockDividendCsvFormatterTest {
 	void setUp() {
 		formatter = new CsvFormatter<>(",",
 			new String[] {"id", "dividend", "recordDate", "paymentDate", "stockCode"});
-		fileContentComparator = new FileContentComparator();
 	}
 
 	@Test
@@ -54,7 +52,7 @@ class StockDividendCsvFormatterTest {
 		String content = formatter.format();
 
 		Assertions.assertThat(content).isNotNull();
-		fileContentComparator.compare(content, "src/test/resources/gold_empty_dividends.csv");
+		FileContentComparator.compare(content, "src/test/resources/gold_empty_dividends.csv");
 	}
 
 	@Test
@@ -63,7 +61,7 @@ class StockDividendCsvFormatterTest {
 		String content = formatter.format(stockDividend);
 
 		Assertions.assertThat(content).isNotNull();
-		fileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
+		FileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
 	}
 
 	@Test
@@ -73,6 +71,6 @@ class StockDividendCsvFormatterTest {
 		String content = formatter.format(stockDividend1, stockDividend2);
 
 		Assertions.assertThat(content).isNotNull();
-		fileContentComparator.compare(content, "src/test/resources/gold_dividends_2.csv");
+		FileContentComparator.compare(content, "src/test/resources/gold_dividends_2.csv");
 	}
 }
