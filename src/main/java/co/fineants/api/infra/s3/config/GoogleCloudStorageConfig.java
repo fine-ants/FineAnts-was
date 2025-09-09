@@ -1,10 +1,14 @@
 package co.fineants.api.infra.s3.config;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
@@ -30,16 +34,25 @@ import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteProfileImag
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockService;
 
 @Configuration
-@Profile(value = {"local", "release", "production", "gcp"})
+@Profile(value = {"gcp"})
 public class GoogleCloudStorageConfig {
+
 	@Value("${gcp.storage.bucket}")
 	private String bucketName;
-	
+
+	@Value("${gcp.project-id}")
+	private String projectId;
+
+	@Value("${gcp.credentials}")
+	private Resource credentials;
+
 	@Bean
-	public Storage storage() {
+	public Storage storage() throws IOException {
+		GoogleCredentials googleCredentials = GoogleCredentials.fromStream(this.credentials.getInputStream());
+
 		return StorageOptions.newBuilder()
-			.setHost("http://localhost:4443")
-			.setProjectId("test-project")
+			.setProjectId(projectId)
+			.setCredentials(googleCredentials)
 			.build()
 			.getService();
 	}
