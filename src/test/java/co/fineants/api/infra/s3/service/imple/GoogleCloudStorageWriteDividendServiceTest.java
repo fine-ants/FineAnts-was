@@ -2,6 +2,7 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 		Stock stock = TestDataFactory.createSamsungStock();
 		StockDividend stockDividend = createSamsungStockDividend(stock);
 
-		service.writeDividend(stockDividend);
+		service.writeDividend(List.of(stockDividend));
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
@@ -89,7 +90,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 			kakaoStock
 		);
 
-		service.writeDividend(stockDividend, stockDividend2);
+		service.writeDividend(List.of(stockDividend, stockDividend2));
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
