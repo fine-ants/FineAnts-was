@@ -9,7 +9,6 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
+import jakarta.validation.constraints.NotNull;
 
 @ActiveProfiles("test")
 class TokenServiceTest {

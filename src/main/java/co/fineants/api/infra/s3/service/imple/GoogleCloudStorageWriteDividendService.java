@@ -7,19 +7,19 @@ import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
-public class AmazonS3WriteDividendService implements WriteDividendService {
+public class GoogleCloudStorageWriteDividendService implements WriteDividendService {
 
 	private final CsvFormatter<StockDividend> formatter;
-	private final RemoteFileUploader fileUploader;
-	private final String filePath;
+	private final RemoteFileUploader uploader;
+	private final String dividendPath;
 
-	public AmazonS3WriteDividendService(
+	public GoogleCloudStorageWriteDividendService(
 		CsvFormatter<StockDividend> formatter,
-		RemoteFileUploader fileUploader,
-		String filePath) {
+		RemoteFileUploader uploader,
+		String dividendPath) {
 		this.formatter = formatter;
-		this.fileUploader = fileUploader;
-		this.filePath = filePath;
+		this.uploader = uploader;
+		this.dividendPath = dividendPath;
 	}
 
 	@Override
@@ -30,6 +30,6 @@ public class AmazonS3WriteDividendService implements WriteDividendService {
 	@Override
 	public void writeDividend(StockDividend... dividends) {
 		String content = formatter.format(dividends);
-		fileUploader.upload(content, filePath);
+		uploader.upload(content, dividendPath);
 	}
 }

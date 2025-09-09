@@ -4,7 +4,6 @@ import static co.fineants.api.domain.notification.domain.entity.type.Notificatio
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +16,7 @@ import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

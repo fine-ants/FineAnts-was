@@ -1,8 +1,6 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
@@ -11,17 +9,13 @@ import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
 public class AmazonS3DeleteProfileImageFileService implements DeleteProfileImageFileService {
 
 	private final String bucketName;
 	private final String profilePath;
 	private final AmazonS3 amazonS3;
 
-	public AmazonS3DeleteProfileImageFileService(
-		@Value("${aws.s3.bucket}") String bucketName,
-		@Value("${aws.s3.profile-path}") String profilePath,
-		AmazonS3 amazonS3) {
+	public AmazonS3DeleteProfileImageFileService(String bucketName, String profilePath, AmazonS3 amazonS3) {
 		this.bucketName = bucketName;
 		this.profilePath = profilePath;
 		this.amazonS3 = amazonS3;

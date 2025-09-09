@@ -1,8 +1,7 @@
 package co.fineants.api.domain.holding.domain.dto.response;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.common.money.Money;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

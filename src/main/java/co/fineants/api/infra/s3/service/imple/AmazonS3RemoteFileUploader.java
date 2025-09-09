@@ -5,10 +5,6 @@ import static java.nio.charset.StandardCharsets.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -16,9 +12,9 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
 public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 
@@ -27,7 +23,7 @@ public class AmazonS3RemoteFileUploader implements RemoteFileUploader {
 	private final AmazonS3 amazonS3;
 
 	public AmazonS3RemoteFileUploader(
-		@Value("${aws.s3.bucket}") String bucketName,
+		String bucketName,
 		AmazonS3 amazonS3) {
 		this.bucketName = bucketName;
 		this.amazonS3 = amazonS3;

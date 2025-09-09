@@ -1,9 +1,9 @@
 spring:
   profiles:
     group:
-      local: local, secret
-      release: release, secret
-      production: production, secret
+      local: local, secret, aws
+      release: release, secret, aws
+      production: production, secret, aws
       test: test, secret
     default: local
   main:

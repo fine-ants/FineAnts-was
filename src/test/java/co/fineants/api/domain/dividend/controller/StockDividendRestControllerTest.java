@@ -86,8 +86,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	private void assertDividendFile() {
 		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
 
-		FileContentComparator comparator = new FileContentComparator();
-		comparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
+		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
 	}
 
 	@BeforeEach

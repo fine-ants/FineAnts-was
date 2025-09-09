@@ -3,7 +3,6 @@ package co.fineants.api.domain.notification.config;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +13,7 @@ import co.fineants.api.domain.notification.domain.entity.policy.TargetGainNotifi
 import co.fineants.api.domain.notification.domain.entity.policy.TargetPriceNotificationPolicy;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @Configuration

@@ -3,7 +3,6 @@ package co.fineants.api.domain.exchangerate.client;
 import java.time.Duration;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 
@@ -11,6 +10,7 @@ import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateFetch
 import co.fineants.api.global.errors.exception.business.ExchangeRateRapidApiRequestException;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import co.fineants.api.global.errors.exception.business.NetworkAnomalyExchangeRateRapidApiRequestException;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;

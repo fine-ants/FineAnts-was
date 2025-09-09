@@ -11,10 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
@@ -24,12 +21,14 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.converter.MarketConverter;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
