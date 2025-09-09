@@ -146,6 +146,11 @@ task copyPrivate(type: Copy) {
         include "*.json"
         into 'src/main/resources/secret/firebase'
     }
+    copy {
+        from './secret/gcp'
+        include "*.json"
+        into 'src/main/resources/secret/gcp'
+    }
 }
 
 // Rest Docs configuration start
