@@ -32,6 +32,9 @@ import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockServic
 @Configuration
 @Profile(value = {"local", "release", "production", "gcp"})
 public class GoogleCloudStorageConfig {
+	@Value("${gcp.storage.bucket}")
+	private String bucketName;
+	
 	@Bean
 	public Storage storage() {
 		return StorageOptions.newBuilder()
@@ -50,14 +53,13 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public RemoteFileUploader remoteFileUploader(Storage storage,
-		@Value("${gcp.storage.bucket}") String bucketName) {
+	public RemoteFileUploader remoteFileUploader(Storage storage) {
 		return new GoogleCloudStorageRemoteFileUploader(storage, bucketName);
 	}
 
 	@Bean
-	public RemoteFileFetcher remoteFileFetcher() {
-		return new GoogleCloudStorageRemoteFileFetcher();
+	public RemoteFileFetcher remoteFileFetcher(Storage storage) {
+		return new GoogleCloudStorageRemoteFileFetcher(storage, bucketName);
 	}
 
 	@Bean

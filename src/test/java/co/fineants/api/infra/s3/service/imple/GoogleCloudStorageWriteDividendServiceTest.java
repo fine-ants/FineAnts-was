@@ -36,6 +36,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	void writeDividend() {
 		service.writeDividend();
 
-		new FileContentComparator().compare(fetcher.read(dividendPath).orElseThrow(), "gold_empty_dividends.csv");
+		new FileContentComparator().compare(fetcher.read(dividendPath).orElseThrow(),
+			"src/test/resources/gold_empty_dividends.csv");
 	}
 }
