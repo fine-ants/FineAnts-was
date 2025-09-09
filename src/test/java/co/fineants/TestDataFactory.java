@@ -102,6 +102,10 @@ public final class TestDataFactory {
 		return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);
 	}
 
+	public static Stock createKakaoStock() {
+		return Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
+	}
+
 	// public static Stock createCcsStack() {
 	// 	return Stock.of("066790", "씨씨에스충북방송", "KOREA CABLE T.V CHUNG-BUK SYSTEM CO.,LTD.", "KR7066790007", "방송서비스",
 	// 		Market.KOSDAQ);

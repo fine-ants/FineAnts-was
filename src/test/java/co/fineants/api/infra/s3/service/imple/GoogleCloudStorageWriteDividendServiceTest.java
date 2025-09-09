@@ -33,6 +33,21 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	@Value("${gcp.storage.dividend-csv-path}")
 	private String dividendPath;
 
+	private StockDividend createSamsungStockDividend(Stock stock) {
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		return StockDividend.create(
+			1L,
+			dividend,
+			recordDate,
+			exDividendDate,
+			paymentDate,
+			stock
+		);
+	}
+
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
@@ -48,25 +63,36 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	}
 
 	@Test
-	void writeDividend_whenDataIsMultiple() {
+	void writeDividend_whenDataIsOne() {
 		Stock stock = TestDataFactory.createSamsungStock();
-		Money dividend = Money.won(361);
-		LocalDate recordDate = LocalDate.of(2023, 3, 31);
-		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
-		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
-		StockDividend stockDividend = StockDividend.create(
-			1L,
-			dividend,
-			recordDate,
-			exDividendDate,
-			paymentDate,
-			stock
-		);
+		StockDividend stockDividend = createSamsungStockDividend(stock);
 
 		service.writeDividend(stockDividend);
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
 		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
+	}
+
+	@Test
+	void writeDividend_whenDataIsTwo() {
+		Stock stock = TestDataFactory.createSamsungStock();
+		StockDividend stockDividend = createSamsungStockDividend(stock);
+
+		Stock kakaoStock = TestDataFactory.createKakaoStock();
+		StockDividend stockDividend2 = StockDividend.create(
+			2L,
+			Money.won(68),
+			LocalDate.of(2025, 3, 10),
+			LocalDate.of(2025, 3, 7),
+			LocalDate.of(2025, 4, 24),
+			kakaoStock
+		);
+
+		service.writeDividend(stockDividend, stockDividend2);
+
+		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
+		Assertions.assertThat(inputStream).isNotNull();
+		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends_2.csv");
 	}
 }
