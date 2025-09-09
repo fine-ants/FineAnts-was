@@ -10,11 +10,12 @@ import org.springframework.test.context.ContextConfiguration;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.config.GoogleCloudStorageBucketInitializer;
 import co.fineants.config.GoogleCloudStorageTestConfig;
 
 // todo: gcp용 uploader, fetcher 구현체 확장
 @ActiveProfiles("gcp")
-@ContextConfiguration(classes = GoogleCloudStorageTestConfig.class)
+@ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
 class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
