@@ -66,7 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.mockwebserver.MockResponse;
 
 @Slf4j
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "aws"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {AmazonS3TestConfig.class, TestConfig.class})
 @AutoConfigureWebTestClient

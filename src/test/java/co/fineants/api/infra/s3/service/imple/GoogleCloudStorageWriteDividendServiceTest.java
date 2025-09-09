@@ -21,7 +21,7 @@ import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;
 import co.fineants.config.GoogleCloudStorageTestConfig;
 
-@ActiveProfiles("gcp")
+@ActiveProfiles(value = {"test", "gcp"}, inheritProfiles = false)
 @ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
 class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTest {
 
@@ -52,6 +52,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
+		Assertions.assertThat(service).isInstanceOf(GoogleCloudStorageWriteDividendService.class);
 	}
 
 	@Test
@@ -59,6 +60,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 		service.writeDividend();
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
+		Assertions.assertThat(service).isInstanceOf(GoogleCloudStorageWriteDividendService.class);
 		Assertions.assertThat(inputStream).isNotNull();
 		FileContentComparator.compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
 	}
