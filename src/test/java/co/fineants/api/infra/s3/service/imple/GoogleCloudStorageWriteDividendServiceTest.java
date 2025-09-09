@@ -1,5 +1,7 @@
 package co.fineants.api.infra.s3.service.imple;
 
+import java.io.InputStream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,8 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 	void writeDividend() {
 		service.writeDividend();
 
-		new FileContentComparator().compare(fetcher.read(dividendPath).orElseThrow(),
-			"src/test/resources/gold_empty_dividends.csv");
+		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
+		Assertions.assertThat(inputStream).isNotNull();
+		new FileContentComparator().compare(inputStream, "src/test/resources/gold_empty_dividends.csv");
 	}
 }
