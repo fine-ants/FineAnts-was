@@ -23,9 +23,10 @@ public class GoogleCloudStorageRemoteFileFetcher implements RemoteFileFetcher {
 
 	@Override
 	public Optional<InputStream> read(String path) {
-		Blob blob = storage.get(bucketName, path);
+		Optional<Blob> blob = Optional.ofNullable(storage.get(bucketName, path));
 		try {
-			return Optional.of(new ByteArrayInputStream(blob.getContent()));
+			return blob.map(Blob::getContent)
+				.map(ByteArrayInputStream::new);
 		} catch (Exception e) {
 			log.warn("Failed to read file from path: {}", path, e);
 			return Optional.empty();

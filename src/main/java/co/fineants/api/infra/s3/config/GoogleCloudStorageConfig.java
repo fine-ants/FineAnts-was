@@ -45,7 +45,7 @@ public class GoogleCloudStorageConfig {
 
 	@Value("${gcp.credentials}")
 	private Resource credentials;
-
+	
 	@Bean
 	public Storage storage() throws IOException {
 		GoogleCredentials googleCredentials = GoogleCredentials.fromStream(this.credentials.getInputStream());
@@ -76,8 +76,9 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public FetchDividendService fetchDividendService() {
-		return new GoogleCloudStorageFetchDividendService();
+	public FetchDividendService fetchDividendService(RemoteFileFetcher fileFetcher,
+		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
+		return new GoogleCloudStorageFetchDividendService(fileFetcher, dividendPath);
 	}
 
 	@Bean

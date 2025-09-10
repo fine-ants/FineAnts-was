@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -17,19 +18,18 @@ import co.fineants.config.GoogleCloudStorageTestConfig;
 @ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
 class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTest {
 
+	@Autowired
+	private FetchDividendService service;
+
 	@Test
 	void canCreated() {
-		FetchDividendService service = new GoogleCloudStorageFetchDividendService();
-
 		Assertions.assertThat(service).isNotNull();
 	}
 
 	@Test
 	void fetchDividend() {
-		FetchDividendService service = new GoogleCloudStorageFetchDividendService();
+		List<StockDividendDto> list = service.fetchDividend();
 
-		List<StockDividendDto> dtos = service.fetchDividend();
-
-		Assertions.assertThat(dtos).isEmpty();
+		Assertions.assertThat(list).isEmpty();
 	}
 }
