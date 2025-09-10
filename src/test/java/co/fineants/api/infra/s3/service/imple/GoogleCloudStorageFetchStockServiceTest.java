@@ -26,7 +26,7 @@ class GoogleCloudStorageFetchStockServiceTest extends AbstractContainerBaseTest 
 	}
 
 	@Test
-	void fetchStocks_whenStockCsvFileIsNotExist() {
+	void fetchStocks() {
 		Throwable throwable = Assertions.catchThrowable(() -> service.fetchStocks());
 
 		Assertions.assertThat(throwable)
