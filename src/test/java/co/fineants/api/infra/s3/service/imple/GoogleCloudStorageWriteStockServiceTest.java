@@ -18,22 +18,28 @@ import co.fineants.config.GoogleCloudStorageTestConfig;
 @ActiveProfiles(value = {"test", "gcp"}, inheritProfiles = false)
 @ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
 class GoogleCloudStorageWriteStockServiceTest extends AbstractContainerBaseTest {
+	@Autowired
+	private WriteStockService service;
 
 	@Autowired
 	private FetchStockService fetchStockService;
 
 	@Test
 	void canCreated() {
-		WriteStockService writeStockService = new GoogleCloudStorageWriteStockService();
-
-		Assertions.assertThat(writeStockService).isNotNull();
+		Assertions.assertThat(service).isNotNull();
 	}
 
 	@Test
 	void writeStocks_whenStocksIsEmpty() {
-		WriteStockService writeStockService = new GoogleCloudStorageWriteStockService();
+		service.writeStocks(List.of());
 
-		writeStockService.writeStocks(List.of());
+		List<Stock> stocks = fetchStockService.fetchStocks();
+		Assertions.assertThat(stocks).isEmpty();
+	}
+
+	@Test
+	void writeStocks() {
+		service.writeStocks(List.of());
 
 		List<Stock> stocks = fetchStockService.fetchStocks();
 		Assertions.assertThat(stocks).isEmpty();
