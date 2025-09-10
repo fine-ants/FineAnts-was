@@ -1,5 +1,6 @@
 package co.fineants.api.domain.dividend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,8 +23,8 @@ public class StockDividendConfig {
 	}
 
 	@Bean
-	public StockDividendCsvParser stockDividendCsvParser(StockDividendCsvLineParser lineParser) {
-		String csvSeparator = ",";
+	public StockDividendCsvParser stockDividendCsvParser(@Value("${csv.stockDividend.delimiter}") String csvSeparator,
+		StockDividendCsvLineParser lineParser) {
 		return new StockDividendCsvParser(csvSeparator, lineParser);
 	}
 }
