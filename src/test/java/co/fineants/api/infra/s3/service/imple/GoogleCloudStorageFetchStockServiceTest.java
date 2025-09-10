@@ -1,5 +1,7 @@
 package co.fineants.api.infra.s3.service.imple;
 
+import java.util.NoSuchElementException;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,4 +25,11 @@ class GoogleCloudStorageFetchStockServiceTest extends AbstractContainerBaseTest 
 		Assertions.assertThat(service).isNotNull();
 	}
 
+	@Test
+	void fetchStocks_whenStockCsvFileIsNotExist() {
+		Throwable throwable = Assertions.catchThrowable(() -> service.fetchStocks());
+
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NoSuchElementException.class);
+	}
 }
