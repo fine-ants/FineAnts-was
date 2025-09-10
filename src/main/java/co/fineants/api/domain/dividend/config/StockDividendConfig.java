@@ -5,17 +5,25 @@ import org.springframework.context.annotation.Configuration;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.calculator.MySqlExDividendDateCalculator;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvLineParser;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class DividendConfig {
+public class StockDividendConfig {
 
 	private final HolidayService service;
 
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {
 		return new MySqlExDividendDateCalculator(service);
+	}
+
+	@Bean
+	public StockDividendCsvParser stockDividendCsvParser(StockDividendCsvLineParser lineParser) {
+		String csvSeparator = ",";
+		return new StockDividendCsvParser(csvSeparator, lineParser);
 	}
 }

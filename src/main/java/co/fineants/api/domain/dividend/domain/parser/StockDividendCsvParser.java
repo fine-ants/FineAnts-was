@@ -1,4 +1,4 @@
-package co.fineants.api.infra.s3.service.imple;
+package co.fineants.api.domain.dividend.domain.parser;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,11 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 public class StockDividendCsvParser {
 
 	private final String csvSeparator;
-	private final StockDividendParser stockDividendParser;
+	private final StockDividendCsvLineParser stockDividendCsvLineParser;
 
-	public StockDividendCsvParser(String csvSeparator, StockDividendParser stockDividendParser) {
+	public StockDividendCsvParser(String csvSeparator, StockDividendCsvLineParser stockDividendCsvLineParser) {
 		this.csvSeparator = csvSeparator;
-		this.stockDividendParser = stockDividendParser;
+		this.stockDividendCsvLineParser = stockDividendCsvLineParser;
 	}
 
 	public List<StockDividend> parse(InputStream inputStream, Map<String, Stock> stockMap) {
@@ -28,7 +27,7 @@ public class StockDividendCsvParser {
 			return reader.lines()
 				.skip(1) // Skip header line
 				.map(line -> line.split(csvSeparator))
-				.map(columns -> stockDividendParser.parseCsvLine(columns,
+				.map(columns -> stockDividendCsvLineParser.parseCsvLine(columns,
 					stockMap))
 				.filter(dividend -> dividend.getStock() != null)
 				.distinct()

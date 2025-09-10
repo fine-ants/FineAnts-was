@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -23,15 +23,15 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	private static final String CSV_SEPARATOR = ",";
 	private final RemoteFileFetcher fileFetcher;
 	private final String dividendPath;
-	private final StockDividendParser stockDividendParser;
+	private final StockDividendCsvParser stockDividendCsvParser;
 
 	public AmazonS3FetchDividendService(
 		RemoteFileFetcher fileFetcher,
 		@Value("${aws.s3.dividend-csv-path}") String dividendPath,
-		StockDividendParser stockDividendParser) {
+		StockDividendCsvParser stockDividendCsvParser) {
 		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;
-		this.stockDividendParser = stockDividendParser;
+		this.stockDividendCsvParser = stockDividendCsvParser;
 	}
 
 	@Override
@@ -58,7 +58,6 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
 
-		return new StockDividendCsvParser(CSV_SEPARATOR, stockDividendParser)
-			.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
+		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
 	}
 }

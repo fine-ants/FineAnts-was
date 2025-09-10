@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -19,15 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 public class GoogleCloudStorageFetchDividendService implements FetchDividendService {
 	private static final String CSV_SEPARATOR = ",";
 	private final RemoteFileFetcher fileFetcher;
-
 	private final String dividendPath;
-	private final StockDividendParser stockDividendParser;
+	private final StockDividendCsvParser stockDividendCsvParser;
 
 	public GoogleCloudStorageFetchDividendService(RemoteFileFetcher fileFetcher, String dividendPath,
-		StockDividendParser stockDividendParser) {
+		StockDividendCsvParser stockDividendCsvLineParser) {
 		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;
-		this.stockDividendParser = stockDividendParser;
+		this.stockDividendCsvParser = stockDividendCsvLineParser;
 	}
 
 	@Override
@@ -53,7 +52,6 @@ public class GoogleCloudStorageFetchDividendService implements FetchDividendServ
 	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
-		return new StockDividendCsvParser(CSV_SEPARATOR, stockDividendParser)
-			.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
+		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
 	}
 }
