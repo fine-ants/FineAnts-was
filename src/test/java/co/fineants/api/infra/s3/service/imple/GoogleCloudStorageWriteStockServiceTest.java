@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.WriteStockService;
@@ -39,9 +40,12 @@ class GoogleCloudStorageWriteStockServiceTest extends AbstractContainerBaseTest 
 
 	@Test
 	void writeStocks() {
-		service.writeStocks(List.of());
+		Stock samsungStock = TestDataFactory.createSamsungStock();
+		Stock kakaoStock = TestDataFactory.createKakaoStock();
+
+		service.writeStocks(List.of(samsungStock, kakaoStock));
 
 		List<Stock> stocks = fetchStockService.fetchStocks();
-		Assertions.assertThat(stocks).isEmpty();
+		Assertions.assertThat(stocks).hasSize(2);
 	}
 }
