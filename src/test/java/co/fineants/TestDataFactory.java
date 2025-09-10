@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.core.io.ClassPathResource;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
@@ -260,5 +262,32 @@ public final class TestDataFactory {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static StockDividend createSamsungStockDividend(Stock stock) {
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		return StockDividend.create(
+			1L,
+			dividend,
+			recordDate,
+			exDividendDate,
+			paymentDate,
+			stock
+		);
+	}
+
+	public static StockDividend createKakaoStockDividend(Stock kakaoStock) {
+		StockDividend stockDividend2 = StockDividend.create(
+			2L,
+			Money.won(68),
+			LocalDate.of(2025, 3, 10),
+			LocalDate.of(2025, 3, 7),
+			LocalDate.of(2025, 4, 24),
+			kakaoStock
+		);
+		return stockDividend2;
 	}
 }
