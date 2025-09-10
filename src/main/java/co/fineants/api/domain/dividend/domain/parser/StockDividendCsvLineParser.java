@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StockDividendParser {
+public class StockDividendCsvLineParser {
 
 	private final ExDividendDateCalculator calculator;
 

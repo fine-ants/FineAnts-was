@@ -6,22 +6,31 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.infra.s3.dto.StockDividendDto;
+import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.config.GoogleCloudStorageBucketInitializer;
+import co.fineants.config.GoogleCloudStorageTestConfig;
 
-class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
+@ActiveProfiles(value = {"test", "gcp"}, inheritProfiles = false)
+@ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
+class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private FetchDividendService service;
+	private DeleteDividendService service;
 
 	@Autowired
 	private WriteDividendService writeDividendService;
+
+	@Autowired
+	private FetchDividendService fetchDividendService;
 
 	@BeforeEach
 	void setUp() {
@@ -40,17 +49,20 @@ class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 	}
 
 	@Test
-	void fetchDividend() {
-		List<StockDividendDto> list = service.fetchDividend();
+	void delete() {
+		service.delete();
 
-		Assertions.assertThat(list).hasSize(2);
+		Throwable throwable = Assertions.catchThrowable(() -> fetchDividendService.fetchDividend());
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessageContaining("Failed to read dividend file from Google Storage");
 	}
 
 	@Test
-	void fetchDividendEntity() {
-		List<Stock> stocks = List.of(TestDataFactory.createSamsungStock(), TestDataFactory.createKakaoStock());
-		List<StockDividend> list = service.fetchDividendEntityIn(stocks);
+	void delete_whenFileNotExists_thenNotThrowAnyException() {
+		service.delete();
 
-		Assertions.assertThat(list).hasSize(2);
+		Assertions.assertThatCode(() -> service.delete()).doesNotThrowAnyException();
 	}
+
 }

@@ -12,7 +12,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.parser.StockParser;
@@ -71,8 +71,9 @@ public class S3Config {
 
 	@Bean
 	public FetchDividendService fetchDividendService(RemoteFileFetcher fileFetcher,
-		@Value("${aws.s3.dividend-csv-path}") String dividendPath, StockDividendParser stockDividendParser) {
-		return new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
+		@Value("${aws.s3.dividend-csv-path}") String dividendPath,
+		StockDividendCsvParser stockDividendCsvParser) {
+		return new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendCsvParser);
 	}
 
 	@Bean
