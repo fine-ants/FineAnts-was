@@ -19,6 +19,7 @@ import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -28,6 +29,7 @@ import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
@@ -113,5 +115,11 @@ public class S3Config {
 		@Value("${aws.s3.stock-path}") String filePath,
 		CsvFormatter<Stock> formatter) {
 		return new AmazonS3WriteStockService(fileUploader, filePath, formatter);
+	}
+
+	@Bean
+	public DeleteStockService deleteStockService(AmazonS3 amazonS3,
+		@Value("${aws.s3.stock-path}") String filePath) {
+		return new AmazonS3DeleteStockService(amazonS3, bucket, filePath);
 	}
 }
