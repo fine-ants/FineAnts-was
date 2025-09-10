@@ -4,23 +4,31 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GoogleCloudStorageFetchDividendService implements FetchDividendService {
-
+	private static final String CSV_SEPARATOR = ",";
 	private final RemoteFileFetcher fileFetcher;
 
 	private final String dividendPath;
+	private final StockDividendParser stockDividendParser;
 
-	public GoogleCloudStorageFetchDividendService(RemoteFileFetcher fileFetcher, String dividendPath) {
+	public GoogleCloudStorageFetchDividendService(RemoteFileFetcher fileFetcher, String dividendPath,
+		StockDividendParser stockDividendParser) {
 		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;
+		this.stockDividendParser = stockDividendParser;
 	}
 
 	@Override
@@ -44,6 +52,21 @@ public class GoogleCloudStorageFetchDividendService implements FetchDividendServ
 
 	@Override
 	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
-		return Collections.emptyList();
+		Map<String, Stock> stockMap = stocks.stream()
+			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
+
+		try (BufferedReader reader = new BufferedReader(
+			new InputStreamReader(fileFetcher.read(dividendPath).orElseThrow()))) {
+			return reader.lines()
+				.skip(1) // Skip header line
+				.map(line -> line.split(CSV_SEPARATOR))
+				.map(columns -> stockDividendParser.parseCsvLine(columns, stockMap))
+				.filter(dividend -> dividend.getStock() != null)
+				.distinct()
+				.toList();
+		} catch (Exception e) {
+			log.error("Failed to read dividend file from S3", e);
+			return Collections.emptyList();
+		}
 	}
 }

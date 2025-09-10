@@ -51,4 +51,21 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 
 		Assertions.assertThat(list).hasSize(2);
 	}
+
+	@Test
+	void fetchDividendEntityIn_whenStockIsEmpty() {
+		List<StockDividend> list = service.fetchDividendEntityIn(List.of());
+
+		Assertions.assertThat(list).isEmpty();
+	}
+
+	@Test
+	void fetchDividendEntityIn() {
+		Stock stock = TestDataFactory.createSamsungStock();
+		Stock kakaoStock = TestDataFactory.createKakaoStock();
+
+		List<StockDividend> list = service.fetchDividendEntityIn(List.of(stock, kakaoStock));
+
+		Assertions.assertThat(list).hasSize(2);
+	}
 }
