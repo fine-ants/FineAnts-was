@@ -15,7 +15,7 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.parser.StockParser;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
@@ -77,9 +77,9 @@ public class S3Config {
 	}
 
 	@Bean
-	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher, StockParser stockParser,
-		@Value("${aws.s3.stock-path}") String filePath) {
-		return new AmazonS3FetchStockService(fileFetcher, stockParser, filePath);
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher,
+		@Value("${aws.s3.stock-path}") String filePath, StockCsvParser stockCsvParser) {
+		return new AmazonS3FetchStockService(fileFetcher, filePath, stockCsvParser);
 	}
 
 	@Bean
