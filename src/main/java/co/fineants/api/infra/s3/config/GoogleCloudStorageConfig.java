@@ -84,8 +84,9 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public DeleteDividendService deleteDividendService() {
-		return new GoogleCloudStorageDeleteDividendService();
+	public DeleteDividendService deleteDividendService(Storage storage,
+		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
+		return new GoogleCloudStorageDeleteDividendService(storage, bucketName, dividendPath);
 	}
 
 	@Bean
