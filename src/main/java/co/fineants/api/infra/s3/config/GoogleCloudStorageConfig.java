@@ -15,6 +15,7 @@ import com.google.cloud.storage.StorageOptions;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.parser.StockParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
@@ -96,8 +97,9 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public FetchStockService fetchStockService() {
-		return new GoogleCloudStorageFetchStockService();
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher,
+		@Value("${gcp.storage.stock-path}") String filePath, StockParser stockParser) {
+		return new GoogleCloudStorageFetchStockService(fileFetcher, filePath, stockParser);
 	}
 
 	@Bean

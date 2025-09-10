@@ -39,7 +39,7 @@ public class AmazonS3FetchStockService implements FetchStockService {
 				.distinct()
 				.toList();
 		} catch (Exception e) {
-			log.error("Error reading stocks file", e);
+			log.warn("Error reading stocks file", e);
 			return new ArrayList<>();
 		}
 	}
