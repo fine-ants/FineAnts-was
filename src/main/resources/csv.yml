@@ -1,6 +1,6 @@
 csv:
   stock:
-    delimiter: "$"
+    delimiter: "\\$"
     headers:
       - stockCode
       - tickerSymbol
