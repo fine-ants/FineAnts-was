@@ -49,7 +49,7 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	private List<StockDividendDto> getStockDividendDtoList(BufferedReader reader) {
 		return reader.lines()
 			.skip(1) // Skip header line
-			.map(line -> line.split(","))
+			.map(line -> line.split(CSV_SEPARATOR))
 			.map(StockDividendDto::from)
 			.toList();
 	}
