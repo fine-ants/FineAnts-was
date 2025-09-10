@@ -34,7 +34,7 @@ public class StockDividendCsvParser {
 				.distinct()
 				.toList();
 		} catch (Exception e) {
-			log.error("Failed to parse dividend file from Google Storage", e);
+			log.error("Failed to parse dividend file from Remote Storage", e);
 			return Collections.emptyList();
 		}
 	}
