@@ -1,56 +1,37 @@
 package co.fineants.api.infra.s3.service.imple;
 
-import java.io.InputStream;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.domain.parser.StockDividendParser;
-import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
-import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
-import co.fineants.api.infra.s3.service.RemoteFileFetcher;
-import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
-import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.WriteDividendService;
 
-class AmazonS3FetchDividendServiceTest {
+class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 
+	@Autowired
 	private FetchDividendService service;
 
-	private InputStream getMockInputStream() {
-		try {
-			return new java.io.FileInputStream("src/test/resources/gold_dividends.csv");
-		} catch (java.io.FileNotFoundException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
+	@Autowired
+	private WriteDividendService writeDividendService;
 
 	@BeforeEach
 	void setUp() {
-		RemoteFileFetcher fileFetcher = Mockito.mock(AmazonS3RemoteFileFetcher.class);
-		String dividendPath = "local/dividend/dividends.csv";
-		BDDMockito.given(fileFetcher.read(dividendPath))
-			.willReturn(Optional.of(getMockInputStream()));
-		StockDividendParser stockDividendParser = createStockDividendParser();
-		service = new AmazonS3FetchDividendService(fileFetcher, dividendPath, stockDividendParser);
-	}
+		Stock stock = TestDataFactory.createSamsungStock();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
 
-	private StockDividendParser createStockDividendParser() {
-		FileHolidayRepository fileHolidayRepository = new FileHolidayRepository(new HolidayFileReader());
-		ExDividendDateCalculator exDividendDateCalculator = new FileExDividendDateCalculator(fileHolidayRepository);
-		return new StockDividendParser(exDividendDateCalculator);
+		Stock kakaoStock = TestDataFactory.createKakaoStock();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend(kakaoStock);
+
+		writeDividendService.writeDividend(List.of(stockDividend, stockDividend2));
 	}
 
 	@Test
@@ -62,21 +43,14 @@ class AmazonS3FetchDividendServiceTest {
 	void fetchDividend() {
 		List<StockDividendDto> list = service.fetchDividend();
 
-		Assertions.assertThat(list)
-			.isNotNull()
-			.allMatch(Objects::nonNull);
-		StockDividendDto dto = new StockDividendDto(1L, 361, "20230331", "20230517", "KR7005930003");
-		Assertions.assertThat(list)
-			.hasSize(1)
-			.containsExactly(dto);
+		Assertions.assertThat(list).hasSize(2);
 	}
 
 	@Test
 	void fetchDividendEntity() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		List<Stock> stocks = List.of(stock);
+		List<Stock> stocks = List.of(TestDataFactory.createSamsungStock(), TestDataFactory.createKakaoStock());
 		List<StockDividend> list = service.fetchDividendEntityIn(stocks);
 
-		Assertions.assertThat(list).hasSize(1);
+		Assertions.assertThat(list).hasSize(2);
 	}
 }
