@@ -58,4 +58,11 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 			.hasMessageContaining("Failed to read dividend file from Google Storage");
 	}
 
+	@Test
+	void delete_whenFileNotExists_thenNotThrowAnyException() {
+		service.delete();
+
+		Assertions.assertThatCode(() -> service.delete()).doesNotThrowAnyException();
+	}
+
 }
