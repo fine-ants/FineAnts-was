@@ -13,11 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 public class StockCsvParser {
 
 	private final String csvSeparator;
-	private final StockParser stockParser;
+	private final StockCsvLineParser stockCsvLineParser;
 
-	public StockCsvParser(String csvSeparator, StockParser stockParser) {
+	public StockCsvParser(String csvSeparator, StockCsvLineParser stockCsvLineParser) {
 		this.csvSeparator = csvSeparator;
-		this.stockParser = stockParser;
+		this.stockCsvLineParser = stockCsvLineParser;
 	}
 
 	public List<Stock> parse(InputStream inputStream) {
@@ -25,7 +25,7 @@ public class StockCsvParser {
 			return reader.lines()
 				.skip(1) // skip header line
 				.map(line -> line.split(csvSeparator))
-				.map(stockParser::parse)
+				.map(stockCsvLineParser::parse)
 				.distinct()
 				.toList();
 		} catch (Exception e) {

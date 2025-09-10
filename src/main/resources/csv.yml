@@ -1,6 +1,7 @@
 csv:
   stock:
     delimiter: "\\$"
+    tickerSymbolPrefix: "TS"
     headers:
       - stockCode
       - tickerSymbol

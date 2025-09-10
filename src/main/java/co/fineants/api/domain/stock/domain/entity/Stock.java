@@ -55,7 +55,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	@OneToMany(mappedBy = "stock", fetch = FetchType.LAZY)
 	private final List<StockDividend> stockDividends = new ArrayList<>();
 
-	public static final String TICKER_PREFIX = "TS";
+	private static final String TICKER_PREFIX = "TS";
 
 	private Stock(String tickerSymbol, String companyName, String companyNameEng, String stockCode, String sector,
 		Market market) {

@@ -2,13 +2,22 @@ package co.fineants.api.domain.stock.parser;
 
 import java.util.Arrays;
 
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
 @Component
-public class StockParser {
+public class StockCsvLineParser {
+
+	private final String tickerSymbolPrefix;
+
+	public StockCsvLineParser(@Value("${csv.stock.tickerSymbolPrefix}") String tickerSymbolPrefix) {
+		this.tickerSymbolPrefix = tickerSymbolPrefix;
+	}
+
 	/**
 	 * 종목 데이터를 파싱한다
 	 * tickerSymbol 열의 데이터는 앞에 접두사로 'TS'가 붙는다
@@ -21,7 +30,7 @@ public class StockParser {
 	public Stock parse(String[] data) {
 		try {
 			String stockCode = data[0];
-			String tickerSymbol = data[1].replace(Stock.TICKER_PREFIX, "");
+			String tickerSymbol = data[1].replace(tickerSymbolPrefix, Strings.EMPTY);
 			String companyName = data[2];
 			String companyNameEng = data[3];
 			String sector = data[4];
