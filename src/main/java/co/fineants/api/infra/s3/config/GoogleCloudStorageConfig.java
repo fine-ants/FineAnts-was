@@ -19,6 +19,7 @@ import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -28,6 +29,7 @@ import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchDividendService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageRemoteFileFetcher;
@@ -111,5 +113,11 @@ public class GoogleCloudStorageConfig {
 	public WriteStockService writeStockService(CsvFormatter<Stock> formatter, RemoteFileUploader fileUploader,
 		@Value("${gcp.storage.stock-path}") String filePath) {
 		return new GoogleCloudStorageWriteStockService(formatter, fileUploader, filePath);
+	}
+
+	@Bean
+	public DeleteStockService deleteStockService(Storage storage,
+		@Value("${gcp.storage.stock-path}") String filePath) {
+		return new GoogleCloudStorageDeleteStockService(storage, bucketName, filePath);
 	}
 }
