@@ -95,8 +95,8 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public DeleteProfileImageFileService deleteProfileImageFileService() {
-		return new GoogleCloudStorageDeleteProfileImageFileService();
+	public DeleteProfileImageFileService deleteProfileImageFileService(Storage storage) {
+		return new GoogleCloudStorageDeleteProfileImageFileService(storage, bucketName);
 	}
 
 	@Bean
