@@ -43,6 +43,6 @@ public class GoogleCloudStorageRemoteFileUploader implements RemoteFileUploader 
 			throw new IllegalStateException("Failed to upload file to GCS", e);
 		}
 
-		return storage.getOptions().getHost() + "/" + blob.getBucket() + "/" + blob.getName();
+		return String.format("%s/%s/%s", storage.getOptions().getHost(), blob.getBucket(), blob.getName());
 	}
 }

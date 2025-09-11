@@ -30,15 +30,16 @@ class GoogleCloudStorageWriteProfileImageFileServiceTest extends AbstractContain
 	@Autowired
 	private RemoteFileUploader uploader;
 
-	@Value("${gcp.storage.profile-path}")
-	private String profilePath;
-	private String uuid;
-
 	@Autowired
 	private Storage storage;
 
+	@Value("${gcp.storage.profile-path}")
+	private String profilePath;
+
 	@Value("${gcp.storage.bucket}")
 	private String bucketName;
+
+	private String uuid;
 
 	@BeforeEach
 	void setUp() {
