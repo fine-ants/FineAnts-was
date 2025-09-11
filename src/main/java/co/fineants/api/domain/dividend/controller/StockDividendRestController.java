@@ -35,7 +35,7 @@ public class StockDividendRestController {
 
 	@PostMapping("/write/csv")
 	@Secured("ROLE_ADMIN")
-	public ApiResponse<Void> writeDividendCsvToS3() {
+	public ApiResponse<Void> writeDividendCsvToBucket() {
 		writeDividendService.writeDividend(service.findAllStockDividends());
 		return ApiResponse.success(StockDividendSuccessCode.OK_WRITE_DIVIDENDS_CSV);
 	}
