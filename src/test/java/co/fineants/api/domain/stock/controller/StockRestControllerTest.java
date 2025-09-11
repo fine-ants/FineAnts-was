@@ -1,74 +1,89 @@
 package co.fineants.api.domain.stock.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.List;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 
-import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.service.StockService;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.repository.StockDividendRepository;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.api.global.success.StockSuccessCode;
+import io.restassured.RestAssured;
 
-class StockRestControllerTest extends ControllerTestSupport {
+class StockRestControllerTest extends AbstractContainerBaseTest {
+
+	@LocalServerPort
+	private int port;
 
 	@Autowired
-	private StockService stockService;
+	private StockRepository stockRepository;
 
-	@Override
-	protected Object initController() {
-		return new StockRestController(stockService);
+	@Autowired
+	private StockDividendRepository stockDividendRepository;
+
+	@Autowired
+	private PriceRepository priceRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
+
+	@BeforeEach
+	void setUp() {
+		RestAssured.port = port;
+		RestAssured.baseURI = "http://localhost";
 	}
 
 	@DisplayName("주식 종목을 조회한다.")
 	@Test
-	void getStock() throws Exception {
-		// given
-		String tickerSymbol = "006660";
-		StockResponse response = StockResponse.builder()
-			.stockCode("KR7006660005")
-			.tickerSymbol("006660")
-			.companyName("삼성공조보통주")
-			.companyNameEng("SamsungClimateControlCo.,Ltd")
-			.market(Market.KOSPI)
-			.currentPrice(Money.won(68000L))
-			.dailyChange(Money.won(12000L))
-			.dailyChangeRate(Percentage.from(0.2045))
-			.sector("전기전자")
-			.annualDividend(Money.won(6000L))
-			.annualDividendYield(Percentage.from(0.1))
-			.dividendMonths(List.of(1, 4))
-			.build();
-		given(stockService.getDetailedStock(anyString())).willReturn(response);
+	void getStock_temp() {
+		Stock stock = TestDataFactory.createSamsungStock();
+		stockRepository.save(stock);
 
-		// when & then
-		mockMvc.perform(get("/api/stocks/{tickerSymbol}", tickerSymbol)
-				.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("종목 상세정보 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data.stockCode").value(equalTo("KR7006660005")))
-			.andExpect(jsonPath("data.tickerSymbol").value(equalTo("006660")))
-			.andExpect(jsonPath("data.companyName").value(equalTo("삼성공조보통주")))
-			.andExpect(jsonPath("data.companyNameEng").value(equalTo("SamsungClimateControlCo.,Ltd")))
-			.andExpect(jsonPath("data.market").value(equalTo("KOSPI")))
-			.andExpect(jsonPath("data.currentPrice").value(equalTo(68000)))
-			.andExpect(jsonPath("data.dailyChange").value(equalTo(12000)))
-			.andExpect(jsonPath("data.dailyChangeRate").value(equalTo(20.45)))
-			.andExpect(jsonPath("data.sector").value(equalTo("전기전자")))
-			.andExpect(jsonPath("data.annualDividend").value(equalTo(6000)))
-			.andExpect(jsonPath("data.annualDividendYield").value(equalTo(10.0)))
-			.andExpect(jsonPath("data.dividendMonths[0]").value(equalTo(1)))
-			.andExpect(jsonPath("data.dividendMonths[1]").value(equalTo(4)));
+		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend(stock);
+		stockDividendRepository.save(samsungStockDividend);
+
+		int currentPrice = 68000;
+		priceRepository.savePrice(stock, currentPrice);
+		int closingPrice = 56000;
+		closingPriceRepository.addPrice(stock.getTickerSymbol(), closingPrice);
+
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(samsungStockDividend.getDividendDates().getRecordDate().minusDays(1));
+
+		RestAssured.given()
+			.when()
+			.get("/api/stocks/{tickerSymbol}", stock.getTickerSymbol())
+			.then()
+			.statusCode(HttpStatus.OK.value())
+			.body("code", equalTo(HttpStatus.OK.value()))
+			.body("status", equalTo(HttpStatus.OK.name()))
+			.body("message", equalTo(StockSuccessCode.OK_SEARCH_DETAIL_STOCK.getMessage()))
+			.body("data.stockCode", equalTo(stock.getStockCode()))
+			.body("data.tickerSymbol", equalTo(stock.getTickerSymbol()))
+			.body("data.companyName", equalTo(stock.getCompanyName()))
+			.body("data.companyNameEng", equalTo(stock.getCompanyNameEng()))
+			.body("data.market", equalTo(stock.getMarket().name()))
+			.body("data.currentPrice", equalTo(currentPrice))
+			.body("data.dailyChange", equalTo(12000))
+			.body("data.dailyChangeRate", equalTo(21.43F))
+			.body("data.sector", equalTo(stock.getSector()))
+			.body("data.annualDividend", equalTo(361))
+			.body("data.annualDividendYield", equalTo(0.53F))
+			.body("data.dividendMonths[0]", equalTo(5));
 	}
 }
