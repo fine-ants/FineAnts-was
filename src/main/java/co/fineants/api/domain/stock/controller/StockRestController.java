@@ -51,7 +51,7 @@ public class StockRestController {
 
 	@PostMapping("/write/csv")
 	@Secured(value = {"ROLE_ADMIN"})
-	public ApiResponse<Void> writeDividendCsvToBucket() {
+	public ApiResponse<Void> writeStockCsvToBucket() {
 		stockService.writeDividendCsvToBucket();
 		return ApiResponse.success(StockSuccessCode.OK_WRITE_STOCKS_CSV_TO_BUCKET);
 	}

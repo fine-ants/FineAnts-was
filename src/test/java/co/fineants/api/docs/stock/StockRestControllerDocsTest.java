@@ -273,6 +273,35 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 			);
 	}
 
+	@DisplayName("종목 원격저장소 작성")
+	@Test
+	void writeStockCsvToBucket() throws Exception {
+		mockMvc.perform(post("/api/stocks/write/csv")
+				.cookie(createTokenCookies()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(jsonPath("message").value(equalTo("종목 CSV 파일을 버킷에 작성하였습니다")))
+			.andExpect(jsonPath("data").value(nullValue()))
+			.andDo(
+				document(
+					"stock-write-csv",
+					preprocessRequest(prettyPrint()),
+					preprocessResponse(prettyPrint()),
+					responseFields(
+						fieldWithPath("code").type(JsonFieldType.NUMBER)
+							.description("코드"),
+						fieldWithPath("status").type(JsonFieldType.STRING)
+							.description("상태"),
+						fieldWithPath("message").type(JsonFieldType.STRING)
+							.description("메시지"),
+						fieldWithPath("data").type(JsonFieldType.NULL)
+							.description("응답 데이터")
+					)
+				)
+			);
+	}
+
 	@DisplayName("종목 상세 정보 조회 API")
 	@Test
 	void getStock() throws Exception {
