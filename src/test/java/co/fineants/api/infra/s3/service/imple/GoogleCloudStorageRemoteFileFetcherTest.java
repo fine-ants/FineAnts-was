@@ -1,0 +1,25 @@
+package co.fineants.api.infra.s3.service.imple;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.config.GoogleCloudStorageBucketInitializer;
+import co.fineants.config.GoogleCloudStorageTestConfig;
+
+@ActiveProfiles(value = {"test", "gcp"}, inheritProfiles = false)
+@ContextConfiguration(classes = {GoogleCloudStorageTestConfig.class, GoogleCloudStorageBucketInitializer.class})
+class GoogleCloudStorageRemoteFileFetcherTest extends AbstractContainerBaseTest {
+
+	@Autowired
+	private RemoteFileFetcher remoteFileFetcher;
+
+	@Test
+	void canCreated() {
+		Assertions.assertThat(remoteFileFetcher).isNotNull();
+	}
+}
