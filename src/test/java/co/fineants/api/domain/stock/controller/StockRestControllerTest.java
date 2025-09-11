@@ -16,11 +16,14 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
+import co.fineants.api.global.util.ObjectMapperUtil;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 
 class StockRestControllerTest extends AbstractContainerBaseTest {
 
@@ -47,7 +50,34 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 		RestAssured.port = port;
 	}
 
-	@DisplayName("주식 종목을 조회한다.")
+	@DisplayName("주식 종목을 검색한다")
+	@Test
+	void search() {
+		Stock stock = TestDataFactory.createSamsungStock();
+		stockRepository.save(stock);
+
+		String bodyJson = ObjectMapperUtil.serialize(new StockSearchRequest("삼성"));
+		RestAssured.given()
+			.contentType(ContentType.JSON)
+			.body(bodyJson)
+			.log().all()
+			.when()
+			.post("/api/stocks/search")
+			.then()
+			.log().all()
+			.statusCode(HttpStatus.OK.value())
+			.body("code", equalTo(HttpStatus.OK.value()))
+			.body("status", equalTo(HttpStatus.OK.name()))
+			.body("message", equalTo(StockSuccessCode.OK_SEARCH_STOCKS.getMessage()))
+			.body("data.size()", is(1))
+			.body("data[0].stockCode", equalTo(stock.getStockCode()))
+			.body("data[0].tickerSymbol", equalTo(stock.getTickerSymbol()))
+			.body("data[0].companyName", equalTo(stock.getCompanyName()))
+			.body("data[0].companyNameEng", equalTo(stock.getCompanyNameEng()))
+			.body("data[0].market", equalTo(stock.getMarket().name()));
+	}
+
+	@DisplayName("특정 주식 종목을 상세 조회한다")
 	@Test
 	void getStock() {
 		Stock stock = TestDataFactory.createSamsungStock();
