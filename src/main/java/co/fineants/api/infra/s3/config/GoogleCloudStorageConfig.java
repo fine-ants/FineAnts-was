@@ -14,6 +14,7 @@ import com.google.cloud.storage.StorageOptions;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
@@ -105,8 +106,9 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public WriteProfileImageFileService writeProfileImageFileService() {
-		return new GoogleCloudStorageWriteProfileImageFileService();
+	public WriteProfileImageFileService writeProfileImageFileService(RemoteFileUploader fileUploader,
+		@Value("${gcp.storage.profile-path}") String profilePath, UuidGenerator uuidGenerator) {
+		return new GoogleCloudStorageWriteProfileImageFileService(fileUploader, profilePath, uuidGenerator);
 	}
 
 	@Bean
