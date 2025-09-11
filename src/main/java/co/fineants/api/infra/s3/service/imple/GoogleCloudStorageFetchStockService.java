@@ -1,6 +1,6 @@
 package co.fineants.api.infra.s3.service.imple;
 
-import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -25,7 +25,8 @@ public class GoogleCloudStorageFetchStockService implements FetchStockService {
 
 	@Override
 	public List<Stock> fetchStocks() {
-		InputStream inputStream = fetcher.read(filePath).orElseThrow();
-		return stockCsvParser.parse(inputStream);
+		return fetcher.read(filePath)
+			.map(stockCsvParser::parse)
+			.orElseGet(Collections::emptyList);
 	}
 }

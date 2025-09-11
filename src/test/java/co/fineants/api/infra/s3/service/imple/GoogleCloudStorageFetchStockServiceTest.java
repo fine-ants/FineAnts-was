@@ -61,4 +61,13 @@ class GoogleCloudStorageFetchStockServiceTest extends AbstractContainerBaseTest 
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NoSuchElementException.class);
 	}
+
+	@Test
+	void fetchStocks_whenInputStreamIsEmpty_thenReturnEmptyList() {
+		deleteStockService.delete();
+
+		List<Stock> stocks = service.fetchStocks();
+
+		Assertions.assertThat(stocks).isEmpty();
+	}
 }
