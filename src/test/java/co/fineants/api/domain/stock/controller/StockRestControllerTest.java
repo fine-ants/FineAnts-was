@@ -45,12 +45,11 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
-		RestAssured.baseURI = "http://localhost";
 	}
 
 	@DisplayName("주식 종목을 조회한다.")
 	@Test
-	void getStock_temp() {
+	void getStock() {
 		Stock stock = TestDataFactory.createSamsungStock();
 		stockRepository.save(stock);
 
