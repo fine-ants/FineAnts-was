@@ -77,6 +77,31 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 			.body("data[0].market", equalTo(stock.getMarket().name()));
 	}
 
+	@DisplayName("종목 스크롤 검색을 한다")
+	@Test
+	void search_whenHttpMethodIsGet() {
+		Stock stock = TestDataFactory.createSamsungStock();
+		stockRepository.save(stock);
+
+		RestAssured.given()
+			.log().all()
+			.queryParam("keyword", "삼성")
+			.when()
+			.get("/api/stocks/search")
+			.then()
+			.log().all()
+			.statusCode(HttpStatus.OK.value())
+			.body("code", equalTo(HttpStatus.OK.value()))
+			.body("status", equalTo(HttpStatus.OK.name()))
+			.body("message", equalTo(StockSuccessCode.OK_SEARCH_STOCKS.getMessage()))
+			.body("data.size()", is(1))
+			.body("data[0].stockCode", equalTo(stock.getStockCode()))
+			.body("data[0].tickerSymbol", equalTo(stock.getTickerSymbol()))
+			.body("data[0].companyName", equalTo(stock.getCompanyName()))
+			.body("data[0].companyNameEng", equalTo(stock.getCompanyNameEng()))
+			.body("data[0].market", equalTo(stock.getMarket().name()));
+	}
+
 	@DisplayName("특정 주식 종목을 상세 조회한다")
 	@Test
 	void getStock() {
