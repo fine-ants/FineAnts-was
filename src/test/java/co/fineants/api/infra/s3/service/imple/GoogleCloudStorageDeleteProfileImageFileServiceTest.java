@@ -1,8 +1,13 @@
 package co.fineants.api.infra.s3.service.imple;
 
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,6 +40,16 @@ class GoogleCloudStorageDeleteProfileImageFileServiceTest extends AbstractContai
 
 	private String url;
 
+	public static Stream<Arguments> invalidUrlSource() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of("   "),
+			Arguments.of("invalid-url"),
+			Arguments.of("http://example.com/image.jpg")
+		);
+	}
+
 	@BeforeEach
 	void setUp() {
 		MultipartFile profileFile = TestDataFactory.createProfileFile();
@@ -44,6 +59,12 @@ class GoogleCloudStorageDeleteProfileImageFileServiceTest extends AbstractContai
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
+	}
+
+	@ParameterizedTest
+	@MethodSource("invalidUrlSource")
+	void delete_whenInvalidUrl_thenDoesNotThrowAnyException(String url) {
+		Assertions.assertThatCode(() -> service.delete(url)).doesNotThrowAnyException();
 	}
 
 	@Test
