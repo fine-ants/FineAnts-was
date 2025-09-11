@@ -15,10 +15,11 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.parser.StockParser;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -28,6 +29,7 @@ import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.AmazonS3DeleteStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileFetcher;
@@ -77,9 +79,9 @@ public class S3Config {
 	}
 
 	@Bean
-	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher, StockParser stockParser,
-		@Value("${aws.s3.stock-path}") String filePath) {
-		return new AmazonS3FetchStockService(fileFetcher, stockParser, filePath);
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher,
+		@Value("${aws.s3.stock-path}") String filePath, StockCsvParser stockCsvParser) {
+		return new AmazonS3FetchStockService(fileFetcher, filePath, stockCsvParser);
 	}
 
 	@Bean
@@ -113,5 +115,11 @@ public class S3Config {
 		@Value("${aws.s3.stock-path}") String filePath,
 		CsvFormatter<Stock> formatter) {
 		return new AmazonS3WriteStockService(fileUploader, filePath, formatter);
+	}
+
+	@Bean
+	public DeleteStockService deleteStockService(AmazonS3 amazonS3,
+		@Value("${aws.s3.stock-path}") String filePath) {
+		return new AmazonS3DeleteStockService(amazonS3, bucket, filePath);
 	}
 }

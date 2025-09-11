@@ -11,10 +11,10 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.parser.StockParser;
+import co.fineants.api.domain.stock.parser.StockCsvLineParser;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
-import co.fineants.api.infra.s3.service.imple.AmazonS3FetchStockService;
 
 class AmazonS3FetchStockServiceTest {
 
@@ -34,8 +34,9 @@ class AmazonS3FetchStockServiceTest {
 		RemoteFileFetcher fetcher = Mockito.mock(RemoteFileFetcher.class);
 		BDDMockito.given(fetcher.read(filePath))
 			.willReturn(Optional.of(getMockInputStream()));
-		StockParser parser = new StockParser();
-		service = new AmazonS3FetchStockService(fetcher, parser, filePath);
+		StockCsvLineParser parser = new StockCsvLineParser("TS");
+		StockCsvParser stockCsvParser = new StockCsvParser("\\$", parser);
+		service = new AmazonS3FetchStockService(fetcher, filePath, stockCsvParser);
 	}
 
 	@Test

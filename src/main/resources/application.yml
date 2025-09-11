@@ -1,7 +1,7 @@
 spring:
   profiles:
     group:
-      local: local, secret, aws
+      local: local, secret, gcp
       release: release, secret, aws
       production: production, secret, aws
       test: test, secret

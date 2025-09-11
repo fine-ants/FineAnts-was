@@ -1,7 +1,9 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,21 +33,23 @@ public class GoogleCloudStorageFetchDividendService implements FetchDividendServ
 
 	@Override
 	public List<StockDividendDto> fetchDividend() {
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(fileFetcher.read(dividendPath).orElseThrow()))) {
-			return getStockDividendDtoList(reader);
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to read dividend file from Google Storage", e);
-		}
+		return fileFetcher.read(dividendPath)
+			.map(this::parse)
+			.orElseGet(Collections::emptyList);
 	}
 
 	@NotNull
-	private List<StockDividendDto> getStockDividendDtoList(BufferedReader reader) {
-		return reader.lines()
-			.skip(1) // Skip header line
-			.map(line -> line.split(CSV_SEPARATOR))
-			.map(StockDividendDto::from)
-			.toList();
+	private List<StockDividendDto> parse(InputStream inputStream) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+			return reader.lines()
+				.skip(1) // Skip header line
+				.map(line -> line.split(CSV_SEPARATOR))
+				.map(StockDividendDto::from)
+				.toList();
+		} catch (Exception e) {
+			log.warn("Error reading dividend file", e);
+			return Collections.emptyList();
+		}
 	}
 
 	@Override

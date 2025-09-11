@@ -1,5 +1,6 @@
 package co.fineants.api.infra.s3.service.imple;
 
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
 import com.google.cloud.storage.Blob;
@@ -11,7 +12,6 @@ import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 
-// todo: 구글 클라우드 스토리지 업로더 구현
 @Slf4j
 public class GoogleCloudStorageRemoteFileUploader implements RemoteFileUploader {
 
@@ -33,6 +33,16 @@ public class GoogleCloudStorageRemoteFileUploader implements RemoteFileUploader 
 
 	@Override
 	public String uploadImageFile(ProfileImageFile profileImageFile, String filePath) {
-		return null;
+		Blob blob;
+		try (FileInputStream fileInputStream = new FileInputStream(profileImageFile.getFile())) {
+			BlobId blobId = BlobId.of(bucketName, filePath);
+			BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+				.build();
+			blob = storage.create(blobInfo, fileInputStream.readAllBytes());
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to upload file to GCS", e);
+		}
+
+		return String.format("%s/%s/%s", storage.getOptions().getHost(), blob.getBucket(), blob.getName());
 	}
 }

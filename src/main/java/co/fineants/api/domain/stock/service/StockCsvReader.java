@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -30,17 +31,22 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class StockCsvReader {
 
 	public static final String CSV_DELIMITER = "$";
 
 	private final ExDividendDateCalculator exDividendDateCalculator;
+	private final String tickerSymbolPrefix;
+
+	public StockCsvReader(ExDividendDateCalculator exDividendDateCalculator,
+		@Value("${csv.stock.tickerSymbolPrefix}") String tickerSymbolPrefix) {
+		this.exDividendDateCalculator = exDividendDateCalculator;
+		this.tickerSymbolPrefix = tickerSymbolPrefix;
+	}
 
 	public Set<Stock> readStockCsv() {
 		Resource resource = new ClassPathResource("stocks.csv");
@@ -56,7 +62,7 @@ public class StockCsvReader {
 
 			for (CSVRecord csvRecord : records) {
 				Stock stock = Stock.of(
-					csvRecord.get("tickerSymbol").replace(Stock.TICKER_PREFIX, Strings.EMPTY),
+					csvRecord.get("tickerSymbol").replace(tickerSymbolPrefix, Strings.EMPTY),
 					csvRecord.get("companyName"),
 					csvRecord.get("companyNameEng"),
 					csvRecord.get("stockCode"),

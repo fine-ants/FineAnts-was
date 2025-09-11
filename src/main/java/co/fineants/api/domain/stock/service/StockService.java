@@ -103,4 +103,9 @@ public class StockService {
 		return stockRepository.findByTickerSymbol(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
+
+	@Transactional(readOnly = true)
+	public void writeDividendCsvToBucket() {
+		writeStockService.writeStocks(stockRepository.findAll());
+	}
 }

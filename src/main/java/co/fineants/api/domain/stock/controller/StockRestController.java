@@ -44,13 +44,20 @@ public class StockRestController {
 	}
 
 	@PostMapping("/refresh")
-	@Secured(value = {"ROLE_MANAGER", "ROLE_ADMIN"})
+	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<StockReloadResponse> refreshStocks() {
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS, stockService.reloadStocks());
 	}
 
+	@PostMapping("/write/csv")
+	@Secured(value = {"ROLE_ADMIN"})
+	public ApiResponse<Void> writeStockCsvToBucket() {
+		stockService.writeDividendCsvToBucket();
+		return ApiResponse.success(StockSuccessCode.OK_WRITE_STOCKS_CSV_TO_BUCKET);
+	}
+
 	@PostMapping("/sync")
-	@Secured(value = {"ROLE_MANAGER", "ROLE_ADMIN"})
+	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<Void> syncAllStocksWithLatestData() {
 		stockService.syncAllStocksWithLatestData();
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS);

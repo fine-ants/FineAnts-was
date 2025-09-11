@@ -18,8 +18,10 @@ class StockCsvReaderTest {
 	@Test
 	void readStockCsv() {
 		// given
-		StockCsvReader reader = new StockCsvReader(
-			new FileExDividendDateCalculator(new FileHolidayRepository(new HolidayFileReader())));
+		FileExDividendDateCalculator calculator = new FileExDividendDateCalculator(
+			new FileHolidayRepository(new HolidayFileReader()));
+		String tickerSymbolPrefix = "TS";
+		StockCsvReader reader = new StockCsvReader(calculator, tickerSymbolPrefix);
 		// when
 		Set<Stock> stocks = reader.readStockCsv();
 		// then

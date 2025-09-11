@@ -14,9 +14,13 @@ import com.google.cloud.storage.StorageOptions;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -26,6 +30,7 @@ import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteDividendService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchDividendService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchStockService;
 import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageRemoteFileFetcher;
@@ -90,22 +95,31 @@ public class GoogleCloudStorageConfig {
 	}
 
 	@Bean
-	public DeleteProfileImageFileService deleteProfileImageFileService() {
-		return new GoogleCloudStorageDeleteProfileImageFileService();
+	public DeleteProfileImageFileService deleteProfileImageFileService(Storage storage) {
+		return new GoogleCloudStorageDeleteProfileImageFileService(storage, bucketName);
 	}
 
 	@Bean
-	public FetchStockService fetchStockService() {
-		return new GoogleCloudStorageFetchStockService();
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher,
+		@Value("${gcp.storage.stock-path}") String filePath, StockCsvParser stockCsvParser) {
+		return new GoogleCloudStorageFetchStockService(fileFetcher, filePath, stockCsvParser);
 	}
 
 	@Bean
-	public WriteProfileImageFileService writeProfileImageFileService() {
-		return new GoogleCloudStorageWriteProfileImageFileService();
+	public WriteProfileImageFileService writeProfileImageFileService(RemoteFileUploader fileUploader,
+		@Value("${gcp.storage.profile-path}") String profilePath, UuidGenerator uuidGenerator) {
+		return new GoogleCloudStorageWriteProfileImageFileService(fileUploader, profilePath, uuidGenerator);
 	}
 
 	@Bean
-	public WriteStockService writeStockService() {
-		return new GoogleCloudStorageWriteStockService();
+	public WriteStockService writeStockService(CsvFormatter<Stock> formatter, RemoteFileUploader fileUploader,
+		@Value("${gcp.storage.stock-path}") String filePath) {
+		return new GoogleCloudStorageWriteStockService(formatter, fileUploader, filePath);
+	}
+
+	@Bean
+	public DeleteStockService deleteStockService(Storage storage,
+		@Value("${gcp.storage.stock-path}") String filePath) {
+		return new GoogleCloudStorageDeleteStockService(storage, bucketName, filePath);
 	}
 }
