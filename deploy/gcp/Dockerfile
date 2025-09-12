@@ -10,6 +10,6 @@ LABEL maintainer="fineants.co.2024@gmail.com" \
 # 작업 디렉토리 설정
 WORKDIR /app
 # 빌드된 jar 파일을 복사
-COPY /home/fineants/FineAnts-was/build/libs/fineAnts_app.jar "app.jar"
+COPY ../../build/libs/fineAnts_app.jar "app.jar"
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "app.jar"]

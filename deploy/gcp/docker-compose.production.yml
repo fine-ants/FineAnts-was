@@ -2,10 +2,7 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app
-    #    image: fineants/fineants-app:production-latest
-    build: # Temporary use build for testing before pushing to Docker Hub
-      context: /home/fineants/FineAnts-was/deploy/gcp
-      dockerfile: Dockerfile
+    image: fineants/fineants-app:production-test
     restart: always
     ports:
       - "443:443"
