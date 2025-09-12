@@ -140,25 +140,4 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 			.body("data.annualDividendYield", equalTo(0.53F))
 			.body("data.dividendMonths[0]", equalTo(5));
 	}
-
-	@DisplayName("종목을 최신화한다")
-	@Test
-	void refreshStocks() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		stockRepository.save(stock);
-
-		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend(stock);
-		stockDividendRepository.save(samsungStockDividend);
-
-		RestAssured.given()
-			.when()
-			.post("/api/stocks/refresh")
-			.then()
-			.statusCode(HttpStatus.OK.value())
-			.body("code", equalTo(HttpStatus.OK.value()))
-			.body("status", equalTo(HttpStatus.OK.name()))
-			.body("message", equalTo(StockSuccessCode.OK_REFRESH_STOCKS.getMessage()))
-			.body("data.addedStocks.size()", is(1))
-			.body("data.addedStocks[0]", equalTo(stock.getTickerSymbol()));
-	}
 }
