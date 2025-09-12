@@ -2,7 +2,10 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app
-    image: fineants/fineants-app:production-latest
+    #    image: fineants/fineants-app:production-latest
+    build: # Temporary use build for testing before pushing to Docker Hub
+      context: /home/fineants/FineAnts-was/deploy/gcp
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "443:443"
@@ -10,7 +13,7 @@ services:
       PROFILE: production
       TZ: Asia/Seoul
     volumes:
-      - ./logs:/app/logs
+      - /home/fineants/FineAnts-was/logs:/app/logs
     depends_on:
       - redis
       - db
@@ -23,6 +26,8 @@ services:
       - "3306:3306"
     env_file:
       - /home/fineants/FineAnts-was/secret/mysql/.env
+    volumes:
+      - /home/fineants/FineAnts-was/mysql/data:/var/lib/mysql
     command:
       - '--local-infile=1'
     networks:
