@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  app:
+    container_name: fineAnts_app
+    image: fineants/fineants-app:production-latest
+    restart: always
+    ports:
+      - "443:443"
+    environment:
+      PROFILE: production
+      TZ: Asia/Seoul
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+      - db
+    networks:
+      - spring-net
+  db:
+    container_name: fineAnts_db
+    image: mysql:8.0.35
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./secret/mysql/.env
+    command:
+      - '--local-infile=1'
+    networks:
+      - spring-net
+  redis:
+    container_name: fineAnts_redis
+    image: redis:7.4-alpine
+    restart: always
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    networks:
+      - spring-net
+volumes:
+  grafana_data:
+networks:
+  spring-net:
