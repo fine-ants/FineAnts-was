@@ -60,4 +60,11 @@ public class ProfileImageFile {
 		return file.getName();
 	}
 
+	public String getContentType() {
+		try {
+			return Files.probeContentType(file.toPath());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

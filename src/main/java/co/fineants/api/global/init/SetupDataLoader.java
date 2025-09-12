@@ -62,7 +62,7 @@ public class SetupDataLoader {
 		setupStockResources();
 		setupStockDividendResources();
 	}
-
+	
 	private void setupSecurityResources() {
 		roleProperties.getRolePropertyList().forEach(this::saveRoleIfNotFound);
 	}
