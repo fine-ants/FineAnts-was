@@ -62,9 +62,8 @@ public class SetupDataLoader {
 		setupStockResources();
 		setupStockDividendResources();
 	}
-
-	@Transactional
-	public void setupSecurityResources() {
+	
+	private void setupSecurityResources() {
 		roleProperties.getRolePropertyList().forEach(this::saveRoleIfNotFound);
 	}
 
@@ -78,8 +77,7 @@ public class SetupDataLoader {
 			.orElseGet(roleProperty::toRoleEntity);
 	}
 
-	@Transactional
-	public void setupMemberResources() {
+	private void setupMemberResources() {
 		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
 			.orElseThrow(supplierNotFoundRoleException());
 		Role managerRole = roleRepository.findRoleByRoleName("ROLE_MANAGER")
