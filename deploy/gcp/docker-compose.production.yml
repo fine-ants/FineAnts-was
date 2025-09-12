@@ -22,7 +22,7 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - ./secret/mysql/.env
+      - /home/fineants/FineAnts-was/secret/mysql/.env
     command:
       - '--local-infile=1'
     networks:
@@ -32,7 +32,7 @@ services:
     image: redis:7.4-alpine
     restart: always
     volumes:
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - /home/fineants/FineAnts-was/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
