@@ -20,7 +20,7 @@ public class GoogleCloudStorageTestConfig {
 
 	@Bean
 	public Storage storage(FakeGcsServerContainer container) {
-		String endpoint = String.format("http://%s:%d", container.getHost(), container.getFirstMappedPort());
+		String endpoint = String.format("http://%s:%d/", container.getHost(), container.getFirstMappedPort());
 		return StorageOptions.newBuilder()
 			.setHost(endpoint)
 			.setProjectId("test-project")
