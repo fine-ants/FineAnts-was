@@ -2,7 +2,9 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
+import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -37,12 +39,14 @@ public class GoogleCloudStorageRemoteFileUploader implements RemoteFileUploader 
 		try (FileInputStream fileInputStream = new FileInputStream(profileImageFile.getFile())) {
 			BlobId blobId = BlobId.of(bucketName, filePath);
 			BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+				.setContentType(profileImageFile.getContentType())
+				.setAcl(Collections.singletonList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
 				.build();
 			blob = storage.create(blobInfo, fileInputStream.readAllBytes());
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to upload file to GCS", e);
 		}
 
-		return String.format("%s/%s/%s", storage.getOptions().getHost(), blob.getBucket(), blob.getName());
+		return String.format("%s%s/%s", storage.getOptions().getHost(), blob.getBucket(), blob.getName());
 	}
 }
