@@ -3,6 +3,7 @@ package co.fineants.api.infra.s3.service.imple;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
@@ -43,6 +45,11 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 		writeDividendService.writeDividend(List.of(stockDividend, stockDividend2));
 	}
 
+	@AfterEach
+	void tearDown() {
+		service.delete();
+	}
+
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
@@ -52,10 +59,9 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 	void delete() {
 		service.delete();
 
-		Throwable throwable = Assertions.catchThrowable(() -> fetchDividendService.fetchDividend());
-		Assertions.assertThat(throwable)
-			.isInstanceOf(IllegalStateException.class)
-			.hasMessageContaining("Failed to read dividend file from Google Storage");
+		List<StockDividendDto> list = fetchDividendService.fetchDividend();
+
+		Assertions.assertThat(list).isEmpty();
 	}
 
 	@Test

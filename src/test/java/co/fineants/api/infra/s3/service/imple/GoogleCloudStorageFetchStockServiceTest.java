@@ -1,9 +1,9 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,11 @@ class GoogleCloudStorageFetchStockServiceTest extends AbstractContainerBaseTest 
 		writeStockService.writeStocks(List.of(samsungStock, kakaoStock));
 	}
 
+	@AfterEach
+	void tearDown() {
+		deleteStockService.delete();
+	}
+
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
@@ -56,10 +61,9 @@ class GoogleCloudStorageFetchStockServiceTest extends AbstractContainerBaseTest 
 	void fetchStocks_whenCsvFileIsNotExist() {
 		deleteStockService.delete();
 
-		Throwable throwable = Assertions.catchThrowable(() -> service.fetchStocks());
+		List<Stock> list = service.fetchStocks();
 
-		Assertions.assertThat(throwable)
-			.isInstanceOf(NoSuchElementException.class);
+		Assertions.assertThat(list).isEmpty();
 	}
 
 	@Test
