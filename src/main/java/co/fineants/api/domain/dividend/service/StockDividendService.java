@@ -20,7 +20,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,12 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StockDividendService {
 
-	private final AmazonS3DividendService s3DividendService;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final ExDividendDateCalculator exDividendDateCalculator;
+	private final FetchDividendService fetchDividendService;
 
 	/**
 	 * 배당일정(StockDividend) 엔티티 데이터를 초기화합니다.
@@ -49,17 +49,19 @@ public class StockDividendService {
 		stockDividendRepository.deleteAllInBatch();
 
 		// S3에 저장된 종목 배당금으로 초기화
-		List<StockDividend> stockDividends = s3DividendService.fetchDividends();
+		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
 		List<StockDividend> saveStockDividends = stockDividendRepository.saveAll(stockDividends);
 		log.info("save StockDividends size : {}", saveStockDividends.size());
 	}
 
 	/**
 	 * 배당 일정 최신화
-	 * - 새로운 배당 일정 추가
-	 * - 현금 지급일 수정
-	 * - 범위를 벗어난 배당 일정 삭제
-	 *   - ex) now=202404-17 => 범위를 벗어난 배당 일정은 2023-01-01 이전 or 2024-12-31 이후
+	 * <p>
+	 * - 새로운 배당 일정 추가<br>
+	 * - 현금 지급일 수정<br>
+	 * - 범위를 벗어난 배당 일정 삭제<br>
+	 *   - ex) now=202404-17 => 범위를 벗어난 배당 일정은 2023-01-01 이전 or 2024-12-31 이후<br>
+	 * </p>
 	 */
 	@Transactional
 	public void reloadStockDividend() {

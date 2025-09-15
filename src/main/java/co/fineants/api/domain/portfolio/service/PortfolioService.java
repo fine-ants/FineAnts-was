@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +43,7 @@ import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateEx
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.errors.exception.domain.DomainException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

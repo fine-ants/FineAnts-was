@@ -7,7 +7,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -39,6 +38,7 @@ import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidPeriodDivCode
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.GB1;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.PrdtTypeCd;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;

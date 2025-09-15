@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
@@ -15,6 +14,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -98,7 +98,7 @@ public abstract class NotifyMessage implements Comparable<NotifyMessage> {
 	public boolean hasNotMessageId() {
 		return messageIds.contains(Strings.EMPTY);
 	}
-	
+
 	public abstract NotifyMessage withMessageId(List<String> messageIds);
 
 	public abstract co.fineants.api.domain.notification.domain.entity.Notification toEntity(Member member);

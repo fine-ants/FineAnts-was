@@ -3,12 +3,11 @@ package co.fineants.api.domain.kis.domain.dto.response;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode

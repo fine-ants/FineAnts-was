@@ -2,11 +2,10 @@ package co.fineants.api.domain.notification.domain.dto.response;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotifyMessageItem;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;

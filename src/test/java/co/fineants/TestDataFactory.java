@@ -1,11 +1,20 @@
 package co.fineants;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
@@ -14,6 +23,8 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.stock.domain.entity.Market;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 
 public final class TestDataFactory {
 	private TestDataFactory() {
@@ -44,7 +55,7 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
 		return Member.localMember(profile);
 	}
-	
+
 	public static Portfolio createPortfolio(Member member) {
 		return createPortfolio(
 			member,
@@ -85,14 +96,18 @@ public final class TestDataFactory {
 		);
 	}
 
-	// public static Stock createSamsungStock() {
-	// 	return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
-	// }
-	//
-	// public static Stock createDongwhaPharmStock() {
-	// 	return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);
-	// }
-	//
+	public static Stock createSamsungStock() {
+		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기,전자", Market.KOSPI);
+	}
+
+	public static Stock createDongwhaPharmStock() {
+		return Stock.of("000020", "동화약품보통주", "DongwhaPharm", "KR7000020008", "의약품", Market.KOSPI);
+	}
+
+	public static Stock createKakaoStock() {
+		return Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
+	}
+
 	// public static Stock createCcsStack() {
 	// 	return Stock.of("066790", "씨씨에스충북방송", "KOREA CABLE T.V CHUNG-BUK SYSTEM CO.,LTD.", "KR7066790007", "방송서비스",
 	// 		Market.KOSDAQ);
@@ -114,7 +129,7 @@ public final class TestDataFactory {
 	// public static PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
 	// 	return PortfolioHolding.of(portfolio, stock);
 	// }
-	//
+
 	// public static StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
 	// 	LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 	// 	return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
@@ -125,7 +140,7 @@ public final class TestDataFactory {
 	// 	LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 	// 	return StockDividend.create(dividend, recordDate, exDividendDate, paymentDate, stock);
 	// }
-	//
+
 	// public static PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
 	// 	Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 	// 	return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
@@ -236,4 +251,43 @@ public final class TestDataFactory {
 	// 	);
 	// 	SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 	// }
+
+	public static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static StockDividend createSamsungStockDividend(Stock stock) {
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		return StockDividend.create(
+			1L,
+			dividend,
+			recordDate,
+			exDividendDate,
+			paymentDate,
+			stock
+		);
+	}
+
+	public static StockDividend createKakaoStockDividend(Stock kakaoStock) {
+		StockDividend stockDividend2 = StockDividend.create(
+			2L,
+			Money.won(68),
+			LocalDate.of(2025, 3, 10),
+			LocalDate.of(2025, 3, 7),
+			LocalDate.of(2025, 4, 24),
+			kakaoStock
+		);
+		return stockDividend2;
+	}
 }

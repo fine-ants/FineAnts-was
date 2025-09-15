@@ -1,0 +1,125 @@
+package co.fineants.api.infra.s3.config;
+
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
+import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
+import co.fineants.api.global.common.csv.CsvFormatter;
+import co.fineants.api.infra.s3.service.DeleteDividendService;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
+import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.api.infra.s3.service.RemoteFileFetcher;
+import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
+import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteDividendService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageDeleteStockService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchDividendService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageFetchStockService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageRemoteFileFetcher;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageRemoteFileUploader;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteDividendService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteProfileImageFileService;
+import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockService;
+
+@Configuration
+@Profile(value = {"gcp"})
+public class GoogleCloudStorageConfig {
+
+	@Value("${gcp.storage.bucket}")
+	private String bucketName;
+
+	@Value("${gcp.project-id}")
+	private String projectId;
+
+	@Value("${gcp.credentials}")
+	private Resource credentials;
+
+	@Bean
+	public Storage storage() throws IOException {
+		GoogleCredentials googleCredentials = GoogleCredentials.fromStream(this.credentials.getInputStream());
+
+		return StorageOptions.newBuilder()
+			.setProjectId(projectId)
+			.setCredentials(googleCredentials)
+			.build()
+			.getService();
+	}
+
+	@Bean
+	public WriteDividendService writeDividendService(
+		CsvFormatter<StockDividend> formatter,
+		RemoteFileUploader uploader,
+		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
+		return new GoogleCloudStorageWriteDividendService(formatter, uploader, dividendPath);
+	}
+
+	@Bean
+	public RemoteFileUploader remoteFileUploader(Storage storage) {
+		return new GoogleCloudStorageRemoteFileUploader(storage, bucketName);
+	}
+
+	@Bean
+	public RemoteFileFetcher remoteFileFetcher(Storage storage) {
+		return new GoogleCloudStorageRemoteFileFetcher(storage, bucketName);
+	}
+
+	@Bean
+	public FetchDividendService fetchDividendService(RemoteFileFetcher fileFetcher,
+		@Value("${gcp.storage.dividend-csv-path}") String dividendPath,
+		StockDividendCsvParser stockDividendCsvParser) {
+		return new GoogleCloudStorageFetchDividendService(fileFetcher, dividendPath, stockDividendCsvParser);
+	}
+
+	@Bean
+	public DeleteDividendService deleteDividendService(Storage storage,
+		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
+		return new GoogleCloudStorageDeleteDividendService(storage, bucketName, dividendPath);
+	}
+
+	@Bean
+	public DeleteProfileImageFileService deleteProfileImageFileService(Storage storage) {
+		return new GoogleCloudStorageDeleteProfileImageFileService(storage, bucketName);
+	}
+
+	@Bean
+	public FetchStockService fetchStockService(RemoteFileFetcher fileFetcher,
+		@Value("${gcp.storage.stock-path}") String filePath, StockCsvParser stockCsvParser) {
+		return new GoogleCloudStorageFetchStockService(fileFetcher, filePath, stockCsvParser);
+	}
+
+	@Bean
+	public WriteProfileImageFileService writeProfileImageFileService(RemoteFileUploader fileUploader,
+		@Value("${gcp.storage.profile-path}") String profilePath, UuidGenerator uuidGenerator) {
+		return new GoogleCloudStorageWriteProfileImageFileService(fileUploader, profilePath, uuidGenerator);
+	}
+
+	@Bean
+	public WriteStockService writeStockService(CsvFormatter<Stock> formatter, RemoteFileUploader fileUploader,
+		@Value("${gcp.storage.stock-path}") String filePath) {
+		return new GoogleCloudStorageWriteStockService(formatter, fileUploader, filePath);
+	}
+
+	@Bean
+	public DeleteStockService deleteStockService(Storage storage,
+		@Value("${gcp.storage.stock-path}") String filePath) {
+		return new GoogleCloudStorageDeleteStockService(storage, bucketName, filePath);
+	}
+}

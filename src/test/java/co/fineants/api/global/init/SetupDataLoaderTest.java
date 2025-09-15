@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
-import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Role;
@@ -30,8 +29,8 @@ import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteStockService;
 
 class SetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -54,22 +53,19 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	private UserProperties userProperties;
 
 	@Autowired
-	private ExchangeRateRepository exchangeRateRepository;
-
-	@Autowired
-	private AmazonS3StockService amazonS3StockService;
-
-	@Autowired
 	private StockCsvReader stockCsvReader;
 
 	@Autowired
 	private StockRepository stockRepository;
 
 	@Autowired
-	private AmazonS3DividendService amazonS3DividendService;
+	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
-	private StockDividendRepository stockDividendRepository;
+	private WriteDividendService writeDividendService;
+
+	@Autowired
+	private WriteStockService writeStockService;
 
 	@Transactional
 	@DisplayName("서버는 권한 및 역할 등의 리소스들을 생성한다")
@@ -121,7 +117,7 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		List<Stock> stocks = stockCsvReader.readStockCsv().stream()
 			.limit(limit)
 			.toList();
-		amazonS3StockService.writeStocks(stocks);
+		writeStockService.writeStocks(stocks);
 		return stocks;
 	}
 
@@ -129,7 +125,7 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		List<StockDividend> stockDividends = stockCsvReader.readDividendCsv(stocks).stream()
 			.limit(limit)
 			.toList();
-		amazonS3DividendService.writeDividends(stockDividends);
+		writeDividendService.writeDividend(stockDividends);
 		return stockDividends;
 	}
 }

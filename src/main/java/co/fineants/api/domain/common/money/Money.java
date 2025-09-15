@@ -10,12 +10,11 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import co.fineants.api.domain.common.count.Count;
+import jakarta.validation.constraints.NotNull;
 
 public final class Money implements Expression {
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###");

@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
@@ -23,12 +21,14 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.converter.MarketConverter;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,7 +40,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "stockCode", callSuper = false)
 @Entity
-public class Stock extends BaseEntity {
+public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	@Id
 	private String tickerSymbol;
@@ -55,7 +55,7 @@ public class Stock extends BaseEntity {
 	@OneToMany(mappedBy = "stock", fetch = FetchType.LAZY)
 	private final List<StockDividend> stockDividends = new ArrayList<>();
 
-	public static final String TICKER_PREFIX = "TS";
+	private static final String TICKER_PREFIX = "TS";
 
 	private Stock(String tickerSymbol, String companyName, String companyNameEng, String stockCode, String sector,
 		Market market) {
@@ -224,7 +224,8 @@ public class Stock extends BaseEntity {
 			.toList();
 	}
 
-	public String toCsvLineString() {
+	@Override
+	public String toCsvLine() {
 		String ticker = String.format("%s%s", TICKER_PREFIX, tickerSymbol);
 		return String.join(CSV_DELIMITER,
 			stockCode,

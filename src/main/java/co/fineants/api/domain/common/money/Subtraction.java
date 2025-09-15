@@ -2,9 +2,8 @@ package co.fineants.api.domain.common.money;
 
 import java.math.BigDecimal;
 
-import org.jetbrains.annotations.NotNull;
-
 import co.fineants.api.domain.common.count.Count;
+import jakarta.validation.constraints.NotNull;
 
 public class Subtraction implements Expression {
 	private final Expression augend;

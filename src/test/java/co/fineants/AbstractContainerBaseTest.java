@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -63,16 +61,17 @@ import co.fineants.config.TestConfig;
 import co.fineants.support.mysql.DatabaseCleaner;
 import co.fineants.support.redis.RedisRepository;
 import jakarta.servlet.http.Cookie;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.mockwebserver.MockResponse;
 
 @Slf4j
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "aws"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {AmazonS3TestConfig.class, TestConfig.class})
 @AutoConfigureWebTestClient
 @Testcontainers
-@WithMockUser(username = "dragonbead95@naver.com")
+@WithMockMemberAuthentication
 public abstract class AbstractContainerBaseTest {
 	private static final String REDIS_IMAGE = "redis:7-alpine";
 	private static final int REDIS_PORT = 6379;

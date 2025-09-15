@@ -1,9 +1,9 @@
 spring:
   profiles:
     group:
-      local: local, secret
-      release: release, secret
-      production: production, secret
+      local: local, secret, gcp
+      release: release, secret, gcp
+      production: production, secret, gcp
       test: test, secret
     default: local
   main:
@@ -28,6 +28,7 @@ spring:
       - ./member.yml
       - ./mail.yml
       - ./sse.yml
+      - ./csv.yml
   application:
     name: fineAnts
   thymeleaf:

@@ -21,8 +21,8 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
-import co.fineants.api.infra.s3.service.AmazonS3DividendService;
-import co.fineants.api.infra.s3.service.AmazonS3StockService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteStockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -34,14 +34,14 @@ public class StockService {
 	private final StockRepository stockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
-	private final AmazonS3StockService amazonS3StockService;
-	private final AmazonS3DividendService amazonS3DividendService;
 	private final StockQueryRepository stockQueryRepository;
 	private final StockAndDividendManager stockAndDividendManager;
 	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;
+	private final WriteDividendService writeDividendService;
+	private final WriteStockService writeStockService;
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(StockSearchRequest request) {
@@ -69,8 +69,8 @@ public class StockService {
 	public StockReloadResponse reloadStocks() {
 		StockReloadResponse response = stockAndDividendManager.reloadStocks();
 		log.info("refreshStocks response : {}", response);
-		amazonS3StockService.writeStocks(stockRepository.findAll());
-		amazonS3DividendService.writeDividends(stockDividendRepository.findAll());
+		writeStockService.writeStocks(stockRepository.findAll());
+		writeDividendService.writeDividend(stockDividendRepository.findAll());
 		return response;
 	}
 
@@ -84,23 +84,28 @@ public class StockService {
 		List<String> tickerSymbols = stockRepository.findAll().stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
-		List<Stock> result = new ArrayList<>();
+		List<Stock> stocks = new ArrayList<>();
 		for (String ticker : tickerSymbols) {
 			Mono<KisSearchStockInfo> mono = kisService.fetchSearchStockInfo(ticker);
 			mono.map(KisSearchStockInfo::toEntity)
 				.blockOptional(delayManager.timeout())
 				.ifPresent(stock -> {
 					Stock save = stockRepository.save(stock);
-					result.add(save);
+					stocks.add(save);
 				});
 		}
-		amazonS3StockService.writeStocks(result);
-		return result;
+		writeStockService.writeStocks(stocks);
+		return stocks;
 	}
 
 	@Transactional(readOnly = true)
 	public Stock getStock(String tickerSymbol) {
 		return stockRepository.findByTickerSymbol(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
+	}
+
+	@Transactional(readOnly = true)
+	public void writeDividendCsvToBucket() {
+		writeStockService.writeStocks(stockRepository.findAll());
 	}
 }

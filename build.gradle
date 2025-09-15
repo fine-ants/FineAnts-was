@@ -88,7 +88,8 @@ dependencies {
     // test container
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
     testImplementation 'org.testcontainers:mysql:1.19.7'
-    implementation 'org.testcontainers:localstack:1.19.7'
+    testImplementation 'org.testcontainers:localstack:1.19.7'
+    testImplementation 'io.aiven:testcontainers-fake-gcs-server:0.1.0'
 
     // Rest Docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
@@ -125,6 +126,9 @@ dependencies {
     // Database migration
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
+
+    // Google Cloud Storage
+    implementation 'com.google.cloud:google-cloud-storage:2.56.0'
 }
 
 tasks.named('test') {
@@ -141,6 +145,11 @@ task copyPrivate(type: Copy) {
         from './secret'
         include "*.json"
         into 'src/main/resources/secret/firebase'
+    }
+    copy {
+        from './secret/gcp'
+        include "*.json"
+        into 'src/main/resources/secret/gcp'
     }
 }
 

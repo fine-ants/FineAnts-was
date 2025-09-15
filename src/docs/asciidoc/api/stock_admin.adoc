@@ -1,7 +1,7 @@
 [[stock-refresh]]
 === 종목 최신화
 
-해당 API는 관리자 또는 매니저 권한이 요구됩니다.
+해당 API는 관리자 권한이 요구됩니다.
 
 ==== HTTP Request
 
@@ -12,10 +12,24 @@ include::{snippets}/stock-refresh/http-request.adoc[]
 include::{snippets}/stock-refresh/http-response.adoc[]
 include::{snippets}/stock-refresh/response-fields.adoc[]
 
+[[stock-write-csv]]
+=== 종목 원격저장소 작성
+
+해당 API는 관리자 권한이 요구됩니다.
+
+==== HTTP Request
+
+include::{snippets}/stock-write-csv/http-request.adoc[]
+
+==== HTTP Response
+
+include::{snippets}/stock-write-csv/http-response.adoc[]
+include::{snippets}/stock-write-csv/response-fields.adoc[]
+
 [[stock-sync]]
 === 기조 종목 최신화
 
-해당 API는 관리자 또는 매니저 권한이 요구됩니다.
+해당 API는 관리자 권한이 요구됩니다.
 
 ==== HTTP Request
 
