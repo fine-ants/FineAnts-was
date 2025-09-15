@@ -12,4 +12,4 @@ WORKDIR /app
 # 빌드된 jar 파일을 복사
 COPY ./build/libs/fineAnts_app.jar "app.jar"
 # 애플리케이션 실행
-ENTRYPOINT ["java", "-Dspring.profiles.active=${PROFILE}", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "app.jar"]

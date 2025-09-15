@@ -61,7 +61,7 @@ class GoogleCloudStorageWriteProfileImageFileServiceTest extends AbstractContain
 
 		String path = service.upload(profileFile);
 
-		String expected = storage.getOptions().getHost() + "/" + bucketName + "/" + profilePath + uuid
+		String expected = storage.getOptions().getHost() + bucketName + "/" + profilePath + uuid
 			+ profileFile.getOriginalFilename();
 		Assertions.assertThat(path).isEqualTo(expected);
 	}
