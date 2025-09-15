@@ -1,9 +1,9 @@
 FROM eclipse-temurin:17-alpine
 # 작성자 및 메타데이터 추가
 LABEL maintainer="fineants.co.2024@gmail.com" \
-      version="0.0.16" \
+      version="0.0.23" \
       description="FineAnts Application - Spring Boot App" \
-      created="2025-02-19" \
+      created="2025-09-15" \
       org.opencontainers.image.source="https://github.com/fine-ants/FineAnts-was" \
       org.opencontainers.image.documentation="https://hub.docker.com/repository/docker/fineants/fineants-app/general" \
       org.opencontainers.image.licenses="MIT"
