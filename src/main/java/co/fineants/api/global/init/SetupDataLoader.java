@@ -16,11 +16,11 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.member.domain.entity.Role;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -62,7 +62,7 @@ public class SetupDataLoader {
 		setupStockResources();
 		setupStockDividendResources();
 	}
-	
+
 	private void setupSecurityResources() {
 		roleProperties.getRolePropertyList().forEach(this::saveRoleIfNotFound);
 	}

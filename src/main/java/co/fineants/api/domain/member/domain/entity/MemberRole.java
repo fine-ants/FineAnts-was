@@ -2,6 +2,7 @@ package co.fineants.api.domain.member.domain.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import co.fineants.api.domain.role.domain.Role;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
