@@ -45,6 +45,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void createPurchaseHistory() throws Exception {
 		// given
+		Long memberId = 1L;
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
@@ -63,7 +64,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 			anyLong(),
 			anyLong()
 		)).willReturn(
-			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), member.getId())
+			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), memberId)
 		);
 
 		// when & then
@@ -79,7 +80,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("message").value(equalTo("매입 이력이 추가되었습니다")))
 			.andExpect(jsonPath("data.id").value(equalTo(purchaseHistory.getId().intValue())))
 			.andExpect(jsonPath("data.portfolioId").value(equalTo(portfolio.getId().intValue())))
-			.andExpect(jsonPath("data.memberId").value(equalTo(member.getId().intValue())))
+			.andExpect(jsonPath("data.memberId").value(equalTo(memberId.intValue())))
 			.andDo(
 				document(
 					"purchase_history-create",
