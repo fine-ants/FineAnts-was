@@ -152,7 +152,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updateNotificationPreference() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		Map<String, Object> body = Map.of(
 			"browserNotify", true,
@@ -164,7 +164,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.put("/api/members/{memberId}/notification/settings", member.getId())
+				RestDocumentationRequestBuilders.put("/api/members/{memberId}/notification/settings", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))
@@ -288,7 +288,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		Map<String, Object> body = Map.of(
 			"notificationIds", List.of(1, 2)
@@ -296,7 +296,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.patch("/api/members/{memberId}/notifications/", member.getId())
+				RestDocumentationRequestBuilders.patch("/api/members/{memberId}/notifications/", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))
