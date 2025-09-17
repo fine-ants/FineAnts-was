@@ -34,6 +34,11 @@ public class Role {
 	@Column(name = "role_description")
 	private String roleDescription;
 
+	public Role(String roleName, String roleDescription) {
+		this.roleName = roleName;
+		this.roleDescription = roleDescription;
+	}
+
 	public static Role create(String roleName, String roleDesc) {
 		return new Role(null, roleName, roleDesc);
 	}

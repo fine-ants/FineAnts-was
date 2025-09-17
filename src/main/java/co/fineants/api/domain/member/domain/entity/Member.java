@@ -72,13 +72,20 @@ public class Member extends BaseEntity {
 				continue;
 			}
 			this.roles.add(role);
-			role.setMember(this);
+			if (role.getMember() != this) {
+				role.setMember(this);
+			}
 		}
 	}
 
 	public void removeMemberRole(MemberRole memberRole) {
 		this.roles.remove(memberRole);
 		memberRole.setMember(null);
+	}
+
+	public boolean hasRole(String roleName) {
+		return roles.stream()
+			.anyMatch(role -> role.getRoleName().equals(roleName));
 	}
 
 	public boolean containsMemberRole(MemberRole memberRole) {
@@ -99,8 +106,8 @@ public class Member extends BaseEntity {
 			notificationPreference.setMember(this);
 		}
 	}
-
 	//** 연관 관계 엔티티 메서드 종료 **//
+
 	public boolean hasAuthorization(Long memberId) {
 		return id.equals(memberId);
 	}

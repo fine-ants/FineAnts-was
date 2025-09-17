@@ -9,6 +9,16 @@ import co.fineants.api.domain.notificationpreference.domain.entity.NotificationP
 
 class MemberTest {
 
+	private Member createMember() {
+		String email = "ants1234@gmail.com";
+		String nickname = "ants1234";
+		String provider = "local";
+		String password = "ants1234@";
+		String profileUrl = "profileUrl";
+		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
+		return new Member(memberProfile);
+	}
+
 	@DisplayName("회원에 매니저 역할을 추가한다")
 	@Test
 	void givenMember_whenAddMemberRole_thenAddRoleList() {
@@ -92,16 +102,22 @@ class MemberTest {
 	@DisplayName("회원을 생성한다")
 	@Test
 	void canCreated() {
-		String email = "ants1234@gmail.com";
-		String nickname = "ants1234";
-		String provider = "local";
-		String password = "ants1234@";
-		String profileUrl = "profileUrl";
-		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
-		Member member = new Member(memberProfile);
+		Member member = createMember();
 
 		Assertions.assertThat(member).isNotNull();
 		Assertions.assertThat(member.getProfile()).isNotNull();
 		Assertions.assertThat(member.getRoles()).isEmpty();
+	}
+
+	@DisplayName("회원에 역할을 추가한다")
+	@Test
+	void addMemberRole() {
+		Member member = createMember();
+		Role role = new Role("ROLE_USER", "회원");
+		MemberRole memberRole = new MemberRole(member, role);
+
+		member.addMemberRole(memberRole);
+
+		Assertions.assertThat(member.hasRole("ROLE_USER")).isTrue();
 	}
 }
