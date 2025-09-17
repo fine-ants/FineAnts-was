@@ -204,14 +204,14 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deleteAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
 		Map<String, Object> body = Map.of(
 			"notificationIds", List.of(1, 2)
 		);
+		Long memberId = 1L;
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications", member.getId())
+				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))
@@ -248,13 +248,13 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deleteNotification() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 		Long notificationId = 1L;
 
 		// when & then
 		mockMvc.perform(
 				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications/{notificationId}",
-						member.getId(), notificationId)
+						memberId, notificationId)
 					.cookie(createTokenCookies()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
