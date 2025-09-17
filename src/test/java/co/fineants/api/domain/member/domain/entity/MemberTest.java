@@ -88,4 +88,10 @@ class MemberTest {
 		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[])";
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
+
+	@DisplayName("회원을 생성한다")
+	@Test
+	void canCreated() {
+		Member member = new Member();
+	}
 }

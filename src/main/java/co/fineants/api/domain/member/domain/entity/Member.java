@@ -45,13 +45,11 @@ public class Member extends BaseEntity {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private final Set<MemberRole> roles = new HashSet<>();
-
+	
 	private Member(MemberProfile profile) {
-		this(null, profile);
-	}
-
-	private Member(Long id, MemberProfile profile) {
-		this.id = id;
+		if (profile == null) {
+			throw new IllegalArgumentException("MemberProfile must not be null");
+		}
 		this.profile = profile;
 	}
 
@@ -64,7 +62,7 @@ public class Member extends BaseEntity {
 	}
 
 	public static Member localMember(Long id, MemberProfile profile) {
-		return new Member(id, profile);
+		return new Member(profile);
 	}
 
 	//** 연관 관계 엔티티 메서드 시작 **//
