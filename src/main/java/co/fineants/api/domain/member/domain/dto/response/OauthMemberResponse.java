@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @EqualsAndHashCode(of = {"id", "nickname", "email", "profileUrl"})
 public class OauthMemberResponse {
@@ -23,6 +21,16 @@ public class OauthMemberResponse {
 	private String provider;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private MemberNotificationPreferenceResponse notificationPreferences;
+
+	public OauthMemberResponse(Long id, String nickname, String email, String profileUrl, String provider,
+		MemberNotificationPreferenceResponse notificationPreferences) {
+		this.id = id;
+		this.nickname = nickname;
+		this.email = email;
+		this.profileUrl = profileUrl;
+		this.provider = provider;
+		this.notificationPreferences = notificationPreferences;
+	}
 
 	public static OauthMemberResponse from(Member member) {
 		return from(member, null);
