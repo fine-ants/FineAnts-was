@@ -119,5 +119,6 @@ class MemberTest {
 		member.addMemberRole(memberRole);
 
 		Assertions.assertThat(member.hasRole("ROLE_USER")).isTrue();
+		Assertions.assertThat(memberRole.getMember()).isEqualTo(member);
 	}
 }
