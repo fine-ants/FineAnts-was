@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class PortfolioNotifyMessageItem extends NotifyMessageItem {
 	private String name;
-
+	
 	public static NotifyMessageItem from(Notification notification) {
 		return NotifyMessageItem.portfolioNotifyMessageItem(
 			notification.getId(),

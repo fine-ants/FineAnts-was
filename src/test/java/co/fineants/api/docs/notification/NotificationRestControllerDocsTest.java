@@ -124,12 +124,25 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void notifyPortfolioMaxLossMessages() throws Exception {
 		// given
+		Long memberId = 1L;
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioNotifyMessage message = (PortfolioNotifyMessage)PortfolioMaximumLossNotifiable.from(portfolio, true)
 			.createMessage("token");
+
 		Notification notification = createPortfolioNotification(message, portfolio, member);
-		PortfolioNotifyMessageItem item = (PortfolioNotifyMessageItem)PortfolioNotifyMessageItem.from(notification);
+		PortfolioNotifyMessageItem item = PortfolioNotifyMessageItem.builder()
+			.notificationId(notification.getId())
+			.isRead(notification.getIsRead())
+			.title(notification.getTitle())
+			.content(notification.getContent())
+			.type(notification.getType())
+			.referenceId(notification.getReferenceId())
+			.memberId(memberId)
+			.link(notification.getLink())
+			.messageIds(notification.getMessageIds())
+			.name(notification.getName())
+			.build();
 		List<NotifyMessageItem> items = List.of(item);
 		given(service.notifyMaxLoss(anyLong())).willReturn(items);
 
