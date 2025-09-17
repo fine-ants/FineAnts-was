@@ -47,6 +47,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void fetchNotifications() throws Exception {
 		// given
+		Long memberId = 1L;
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
@@ -61,14 +62,14 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 			targetPriceNotification, member);
 		MemberNotification memberNotification2 = MemberNotification.from(stockTargetPriceNotification);
 
-		given(service.searchMemberNotifications(member.getId()))
+		given(service.searchMemberNotifications(memberId))
 			.willReturn(MemberNotificationResponse.create(List.of(
 				memberNotification,
 				memberNotification2
 			)));
 
 		// when & then
-		mockMvc.perform(RestDocumentationRequestBuilders.get("/api/members/{memberId}/notifications", member.getId())
+		mockMvc.perform(RestDocumentationRequestBuilders.get("/api/members/{memberId}/notifications", memberId)
 				.cookie(createTokenCookies()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
