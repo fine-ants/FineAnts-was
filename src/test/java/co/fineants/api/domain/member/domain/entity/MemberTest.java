@@ -92,6 +92,16 @@ class MemberTest {
 	@DisplayName("회원을 생성한다")
 	@Test
 	void canCreated() {
-		Member member = new Member();
+		String email = "ants1234@gmail.com";
+		String nickname = "ants1234";
+		String provider = "local";
+		String password = "ants1234@";
+		String profileUrl = "profileUrl";
+		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
+		Member member = new Member(memberProfile);
+
+		Assertions.assertThat(member).isNotNull();
+		Assertions.assertThat(member.getProfile()).isNotNull();
+		Assertions.assertThat(member.getRoles()).isEmpty();
 	}
 }
