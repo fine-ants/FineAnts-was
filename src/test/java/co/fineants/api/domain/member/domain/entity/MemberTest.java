@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
+import co.fineants.api.domain.role.domain.Role;
 
 class MemberTest {
 
