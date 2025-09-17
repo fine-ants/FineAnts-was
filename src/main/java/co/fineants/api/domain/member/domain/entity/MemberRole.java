@@ -2,12 +2,9 @@ package co.fineants.api.domain.member.domain.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -21,10 +18,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = {"member", "role"})
 @Getter
 public class MemberRole {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "member_role_id")
-	private Long id;
+	@EmbeddedId
+	private MemberRoleId id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Member member;
@@ -43,11 +38,11 @@ public class MemberRole {
 
 	//** 연관 관계 메서드 시작 **//
 	public void setMember(Member member) {
-		if (this.member != null && this.member.containsMemberRole(this)) {
+		if (this.member != null) {
 			this.member.removeMemberRole(this);
 		}
 		this.member = member;
-		if (member != null && !member.containsMemberRole(this)) {
+		if (member != null) {
 			member.addMemberRole(this);
 		}
 	}

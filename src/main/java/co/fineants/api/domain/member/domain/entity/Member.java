@@ -79,24 +79,16 @@ public class Member extends BaseEntity {
 	}
 
 	public void removeMemberRole(MemberRole memberRole) {
-		this.roles.remove(memberRole);
-		memberRole.setMember(null);
+		if (this.roles.remove(memberRole)) {
+			memberRole.setMember(null);
+		}
 	}
 
 	public boolean hasRole(String roleName) {
 		return roles.stream()
 			.anyMatch(role -> role.getRoleName().equals(roleName));
 	}
-
-	public boolean containsMemberRole(MemberRole memberRole) {
-		for (MemberRole role : this.roles) {
-			if (role.equals(memberRole)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		if (this.notificationPreference != null) {
 			this.notificationPreference.setMember(null);
