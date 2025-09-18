@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 
 class MemberTest {
 
@@ -30,20 +29,6 @@ class MemberTest {
 		// then
 		NotificationPreference expected = NotificationPreference.allActive();
 		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(expected);
-		Assertions.assertThat(preference.getMember()).isEqualTo(member);
-	}
-
-	@DisplayName("알림이 회원을 변경한다")
-	@Test
-	void givenNotificationPreference_whenSetMember_thenChangedMember() {
-		// given
-		Member member = TestDataFactory.createMember();
-		NotificationPreference preference = NotificationPreference.allActive();
-		// when
-		preference.setMember(member);
-		// then
-		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(preference);
-		Assertions.assertThat(preference.getMember()).isEqualTo(member);
 	}
 
 	@DisplayName("회원의 간단한 정보를 출력한다")

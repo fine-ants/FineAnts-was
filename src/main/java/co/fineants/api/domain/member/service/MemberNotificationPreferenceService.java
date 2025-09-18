@@ -10,11 +10,8 @@ import co.fineants.api.domain.member.domain.dto.request.MemberNotificationPrefer
 import co.fineants.api.domain.member.domain.dto.response.MemberNotificationPreferenceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
-import co.fineants.api.global.common.authorized.Authorized;
-import co.fineants.api.global.common.authorized.service.MemberNotificationPreferenceAuthorizedService;
-import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,16 +31,15 @@ public class MemberNotificationPreferenceService {
 	public MemberNotificationPreferenceResponse registerDefaultNotificationPreference(Member member) {
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
 			.orElseGet(NotificationPreference::defaultSetting);
-		preference.setMember(member);
+		member.setNotificationPreference(preference);
 		NotificationPreference saveNotificationPreference = notificationPreferenceRepository.save(preference);
 		return MemberNotificationPreferenceResponse.from(saveNotificationPreference);
 	}
 
 	@Transactional
-	@Authorized(serviceClass = MemberNotificationPreferenceAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public MemberNotificationPreferenceResponse updateNotificationPreference(
-		@ResourceId Long memberId,
+		Long memberId,
 		MemberNotificationPreferenceRequest request) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
@@ -51,7 +47,7 @@ public class MemberNotificationPreferenceService {
 			.ifPresentOrElse(preference -> preference.changePreference(request.toEntity()),
 				() -> {
 					NotificationPreference preference = NotificationPreference.defaultSetting();
-					preference.setMember(member);
+					member.setNotificationPreference(preference);
 					notificationPreferenceRepository.save(preference);
 				});
 		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(memberId)

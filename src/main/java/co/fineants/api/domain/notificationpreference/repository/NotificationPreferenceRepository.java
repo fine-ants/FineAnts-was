@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 
 public interface NotificationPreferenceRepository extends JpaRepository<NotificationPreference, Long> {
 

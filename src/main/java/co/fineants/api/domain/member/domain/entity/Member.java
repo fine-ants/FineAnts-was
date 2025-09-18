@@ -6,20 +6,16 @@ import java.util.Optional;
 import java.util.Set;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,7 +33,7 @@ public class Member extends BaseEntity {
 	@Embedded
 	private MemberProfile profile;
 
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
+	@Embedded
 	private NotificationPreference notificationPreference;
 
 	@ElementCollection
@@ -69,13 +65,7 @@ public class Member extends BaseEntity {
 
 	//** 연관 관계 엔티티 메서드 시작 **//
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
-		if (this.notificationPreference != null) {
-			this.notificationPreference.setMember(null);
-		}
 		this.notificationPreference = notificationPreference;
-		if (notificationPreference != null && notificationPreference.getMember() != this) {
-			notificationPreference.setMember(this);
-		}
 	}
 
 	public void addRoleId(Long roleId) {
