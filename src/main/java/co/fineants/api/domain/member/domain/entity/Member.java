@@ -15,12 +15,16 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
@@ -46,13 +50,13 @@ public class Member extends BaseEntity {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private final Set<MemberRole> roles = new HashSet<>();
 
-	// @ElementCollection
-	// @CollectionTable(
-	// 	name = "member_role_ids",
-	// 	joinColumns = @JoinColumn(name = "member_id")
-	// )
-	// @Column(name = "role_id")
-	// private final Set<Long> roleIds = new HashSet<>();
+	@ElementCollection
+	@CollectionTable(
+		name = "member_role_ids",
+		joinColumns = @JoinColumn(name = "member_id")
+	)
+	@Column(name = "role_id")
+	private final Set<Long> roleIds = new HashSet<>();
 
 	public Member(MemberProfile profile) {
 		setMemberProfile(profile);
