@@ -42,7 +42,7 @@ public class Member extends BaseEntity {
 
 	@ElementCollection
 	@CollectionTable(
-		name = "member_role_ids",
+		name = "member_role",
 		joinColumns = @JoinColumn(name = "member_id")
 	)
 	@Column(name = "role_id")
