@@ -47,9 +47,6 @@ public class MemberRole {
 			this.member.removeMemberRole(this);
 		}
 		this.member = member;
-		if (member != null && !member.containsMemberRole(this)) {
-			member.addMemberRole(this);
-		}
 	}
 	//** 연관 관계 메서드 종료 **//
 
