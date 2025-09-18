@@ -3,6 +3,7 @@ package co.fineants.api.global.init;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
@@ -19,9 +20,9 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
@@ -96,8 +97,15 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 					userProperties.getNickname(), userProperties.getPassword(), null))
 			);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		Member member = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
+			.orElseThrow();
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
 		MemberAuthentication memberAuthentication = MemberAuthentication.from(
-			memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local").orElseThrow()
+			member,
+			roleNames
 		);
 		assertThat(authentication)
 			.extracting(Authentication::getPrincipal, Authentication::getCredentials)

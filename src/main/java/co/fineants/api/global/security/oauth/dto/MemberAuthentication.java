@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.role.domain.Role;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -29,17 +27,14 @@ public class MemberAuthentication {
 		return new MemberAuthentication(id, email, nickname, provider, profileUrl, roleSet);
 	}
 
-	public static MemberAuthentication from(Member member) {
+	public static MemberAuthentication from(Member member, Set<String> roleNames) {
 		return new MemberAuthentication(
 			member.getId(),
 			member.getEmail(),
 			member.getNickname(),
 			member.getProvider(),
 			member.getProfileUrl().orElse(null),
-			member.getRoles().stream()
-				.map(MemberRole::getRole)
-				.map(Role::getRoleName)
-				.collect(Collectors.toSet())
+			roleNames
 		);
 	}
 

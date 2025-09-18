@@ -174,7 +174,8 @@ public class Member extends BaseEntity {
 
 	@Override
 	public String toString() {
-		return String.format("Member(id=%d, nickname=%s, email=%s, roles=%s)", id, getNickname(), getEmail(),
-			getSimpleGrantedAuthorities());
+		return String.format("Member(id=%d, nickname=%s, email=%s, roles=%s, roleIds=%s)", id, getNickname(),
+			getEmail(),
+			getSimpleGrantedAuthorities(), roleIds);
 	}
 }

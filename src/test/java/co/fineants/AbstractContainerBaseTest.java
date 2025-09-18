@@ -3,6 +3,8 @@ package co.fineants;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.AfterEach;
@@ -391,7 +393,10 @@ public abstract class AbstractContainerBaseTest {
 	}
 
 	public void setAuthentication(Member member) {
-		MemberAuthentication memberAuthentication = MemberAuthentication.from(member);
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		MemberAuthentication memberAuthentication = MemberAuthentication.from(member, roleNames);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 			memberAuthentication,
 			Strings.EMPTY,

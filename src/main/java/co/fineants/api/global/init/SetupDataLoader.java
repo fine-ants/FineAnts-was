@@ -143,7 +143,10 @@ public class SetupDataLoader {
 	private void setAdminAuthentication() {
 		Member admin = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
 			.orElseThrow(() -> new MemberNotFoundException(adminProperties.getEmail()));
-		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin);
+		Role roleAdmin = roleRepository.findRoleByRoleName("ROLE_ADMIN")
+			.orElseThrow(supplierNotFoundRoleException());
+		Set<String> roleNames = Set.of(roleAdmin.getRoleName());
+		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin, roleNames);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 			memberAuthentication,
 			Strings.EMPTY,
