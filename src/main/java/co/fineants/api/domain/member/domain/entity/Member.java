@@ -43,6 +43,7 @@ public class Member extends BaseEntity {
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private NotificationPreference notificationPreference;
 
+	// todo: Set<RoleId>로 변경, MemberRoleId 제거
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private final Set<MemberRole> roles = new HashSet<>();
 
@@ -88,7 +89,7 @@ public class Member extends BaseEntity {
 		return roles.stream()
 			.anyMatch(role -> role.getRoleName().equals(roleName));
 	}
-	
+
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		if (this.notificationPreference != null) {
 			this.notificationPreference.setMember(null);

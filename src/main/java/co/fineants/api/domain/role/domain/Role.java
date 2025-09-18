@@ -5,7 +5,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,8 +23,7 @@ import lombok.ToString;
 @Getter
 public class Role {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "role_id")
+	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(name = "role_name", nullable = false)
@@ -40,10 +38,11 @@ public class Role {
 	}
 
 	public static Role create(String roleName, String roleDesc) {
-		return new Role(null, roleName, roleDesc);
+		return new Role(roleName, roleDesc);
 	}
 
 	public SimpleGrantedAuthority toSimpleGrantedAuthority() {
 		return new SimpleGrantedAuthority(roleName);
 	}
+
 }
