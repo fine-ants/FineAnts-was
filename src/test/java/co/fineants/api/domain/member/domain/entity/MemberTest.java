@@ -65,7 +65,6 @@ class MemberTest {
 
 		Assertions.assertThat(member).isNotNull();
 		Assertions.assertThat(member.getProfile()).isNotNull();
-		Assertions.assertThat(member.getRoles()).isEmpty();
 	}
 
 	@DisplayName("회원에 Role 식별자값을 추가한다")

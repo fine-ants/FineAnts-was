@@ -7,7 +7,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
@@ -43,8 +42,8 @@ public abstract class AbstractUserService {
 			.orElseGet(() -> attributes.toEntity(nicknameGenerator));
 		attributes.updateProfileUrlIfAbsent(member);
 
-		Set<String> roleNames = member.getRoles().stream()
-			.map(MemberRole::getRoleName)
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
 			.collect(Collectors.toSet());
 		if (roleNames.isEmpty()) {
 			roleNames.add(DEFAULT_ROLE);
