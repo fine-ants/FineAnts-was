@@ -67,12 +67,9 @@ import jakarta.servlet.http.Cookie;
 
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class RestDocsSupport {
-	protected MockMvc mockMvc;
-
-	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
-
 	private final PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권", "FineAnts"});
-
+	protected MockMvc mockMvc;
+	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
 	private ExDividendDateCalculator exDividendDateCalculator;
 
 	@BeforeEach
@@ -103,6 +100,8 @@ public abstract class RestDocsSupport {
 			Set.of("ROLE_USER")
 		);
 	}
+
+	protected abstract Object initController();
 
 	protected Member createMember() {
 		MemberProfile profile = MemberProfile.localMemberProfile("kim1234@gmail.com", "일개미1234", "kim1234@",
@@ -268,6 +267,4 @@ public abstract class RestDocsSupport {
 		int start = cookieString.indexOf("=") + 1;
 		return new Cookie(cookie.getName(), cookieString.substring(start));
 	}
-
-	protected abstract Object initController();
 }

@@ -53,6 +53,31 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private ClosingPriceRepository manager;
 
+	@DisplayName("사용자는 한 종목의 지정가 알림 개수를 5개를 초과할 수 없다")
+	@Test
+	void createStockTargetPrice_whenTargetPriceNotificationLimit_thenThrow400Error() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Stock stock = stockRepository.save(createSamsungStock());
+		TargetPriceNotificationCreateRequest request = TargetPriceNotificationCreateRequest.builder()
+			.tickerSymbol(stock.getTickerSymbol())
+			.targetPrice(Money.won(60000L))
+			.build();
+		StockTargetPrice stockTargetPrice = repository.save(createStockTargetPrice(member, stock));
+		targetPriceNotificationRepository.saveAll(createTargetPriceNotification(
+			stockTargetPrice,
+			List.of(10000L, 20000L, 30000L, 40000L, 50000L)));
+
+		// when
+		Throwable throwable = catchThrowable(() ->
+			service.createStockTargetPrice(request, member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(TargetPriceNotificationLimitExceededException.class)
+			.hasMessage("5");
+	}
+
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")
 	@Test
 	void createStockTargetPrice() {
@@ -78,31 +103,6 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 			.containsExactlyInAnyOrder(targetPriceNotification.getId(),
 				stock.getTickerSymbol(),
 				Money.won(60000L));
-	}
-
-	@DisplayName("사용자는 한 종목의 지정가 알림 개수를 5개를 초과할 수 없다")
-	@Test
-	void createStockTargetPrice_whenTargetPriceNotificationLimit_thenThrow400Error() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Stock stock = stockRepository.save(createSamsungStock());
-		TargetPriceNotificationCreateRequest request = TargetPriceNotificationCreateRequest.builder()
-			.tickerSymbol(stock.getTickerSymbol())
-			.targetPrice(Money.won(60000L))
-			.build();
-		StockTargetPrice stockTargetPrice = repository.save(createStockTargetPrice(member, stock));
-		targetPriceNotificationRepository.saveAll(createTargetPriceNotification(
-			stockTargetPrice,
-			List.of(10000L, 20000L, 30000L, 40000L, 50000L)));
-
-		// when
-		Throwable throwable = catchThrowable(() ->
-			service.createStockTargetPrice(request, member.getId()));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(TargetPriceNotificationLimitExceededException.class)
-			.hasMessage("5");
 	}
 
 	@DisplayName("사용자는 한 종목의 지정가가 이미 존재하는 경우 추가할 수 없다")

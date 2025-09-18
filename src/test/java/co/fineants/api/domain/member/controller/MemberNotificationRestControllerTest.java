@@ -62,6 +62,36 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.notifications[2].notificationId").value(equalTo(1)));
 	}
 
+	private List<MemberNotification> createNotifications() {
+		return List.of(MemberNotification.builder()
+				.notificationId(3L)
+				.title("포트폴리오")
+				.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
+				.timestamp(LocalDateTime.of(2024, 1, 24, 10, 10, 10))
+				.isRead(false)
+				.type(PORTFOLIO_MAX_LOSS.getCategory())
+				.referenceId("2")
+				.build(),
+			MemberNotification.builder()
+				.notificationId(2L)
+				.title("포트폴리오")
+				.body(NotificationBody.portfolio("포트폴리오1", PORTFOLIO_TARGET_GAIN))
+				.timestamp(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
+				.isRead(false)
+				.type(PORTFOLIO_TARGET_GAIN.getCategory())
+				.referenceId("1")
+				.build(),
+			MemberNotification.builder()
+				.notificationId(1L)
+				.title("지정가")
+				.body(NotificationBody.stock("삼성전자", Money.won(60000L)))
+				.timestamp(LocalDateTime.of(2024, 1, 22, 10, 10, 10))
+				.isRead(true)
+				.type(STOCK_TARGET_PRICE.getCategory())
+				.referenceId("005930")
+				.build());
+	}
+
 	@DisplayName("사용자는 알림 모두 읽습니다")
 	@Test
 	void readAllNotifications() throws Exception {
@@ -192,35 +222,5 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("알림 삭제를 성공하였습니다")));
-	}
-
-	private List<MemberNotification> createNotifications() {
-		return List.of(MemberNotification.builder()
-				.notificationId(3L)
-				.title("포트폴리오")
-				.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
-				.timestamp(LocalDateTime.of(2024, 1, 24, 10, 10, 10))
-				.isRead(false)
-				.type(PORTFOLIO_MAX_LOSS.getCategory())
-				.referenceId("2")
-				.build(),
-			MemberNotification.builder()
-				.notificationId(2L)
-				.title("포트폴리오")
-				.body(NotificationBody.portfolio("포트폴리오1", PORTFOLIO_TARGET_GAIN))
-				.timestamp(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
-				.isRead(false)
-				.type(PORTFOLIO_TARGET_GAIN.getCategory())
-				.referenceId("1")
-				.build(),
-			MemberNotification.builder()
-				.notificationId(1L)
-				.title("지정가")
-				.body(NotificationBody.stock("삼성전자", Money.won(60000L)))
-				.timestamp(LocalDateTime.of(2024, 1, 22, 10, 10, 10))
-				.isRead(true)
-				.type(STOCK_TARGET_PRICE.getCategory())
-				.referenceId("005930")
-				.build());
 	}
 }

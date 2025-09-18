@@ -38,8 +38,8 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -74,16 +74,14 @@ import okhttp3.mockwebserver.MockResponse;
 @Testcontainers
 @WithMockMemberAuthentication
 public abstract class AbstractContainerBaseTest {
-	private static final String REDIS_IMAGE = "redis:7-alpine";
-	private static final int REDIS_PORT = 6379;
-
-	private static final GenericContainer REDIS_CONTAINER = new GenericContainer(REDIS_IMAGE)
-		.withExposedPorts(REDIS_PORT)
-		.withReuse(true);
-
 	public static final LocalStackContainer LOCAL_STACK_CONTAINER = new LocalStackContainer(
 		DockerImageName.parse("localstack/localstack"))
 		.withServices(LocalStackContainer.Service.S3)
+		.withReuse(true);
+	private static final String REDIS_IMAGE = "redis:7-alpine";
+	private static final int REDIS_PORT = 6379;
+	private static final GenericContainer REDIS_CONTAINER = new GenericContainer(REDIS_IMAGE)
+		.withExposedPorts(REDIS_PORT)
 		.withReuse(true);
 
 	static {
@@ -219,16 +217,6 @@ public abstract class AbstractContainerBaseTest {
 		);
 	}
 
-	protected Portfolio createPortfolio(Member member, String name) {
-		return createPortfolio(
-			member,
-			name,
-			Money.won(1000000L),
-			Money.won(1500000L),
-			Money.won(900000L)
-		);
-	}
-
 	protected Portfolio createPortfolio(Member member, Money budget) {
 		return createPortfolio(
 			member,
@@ -247,6 +235,16 @@ public abstract class AbstractContainerBaseTest {
 			detail,
 			financial,
 			member
+		);
+	}
+
+	protected Portfolio createPortfolio(Member member, String name) {
+		return createPortfolio(
+			member,
+			name,
+			Money.won(1000000L),
+			Money.won(1500000L),
+			Money.won(900000L)
 		);
 	}
 
@@ -278,11 +276,6 @@ public abstract class AbstractContainerBaseTest {
 
 	protected PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
 		return PortfolioHolding.of(portfolio, stock);
-	}
-
-	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
 	protected StockDividend createStockDividend(Money dividend, LocalDate recordDate,
@@ -359,6 +352,11 @@ public abstract class AbstractContainerBaseTest {
 				LocalDate.of(2024, 11, 20),
 				stock)
 		);
+	}
+
+	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
+		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
+		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
 	protected List<StockDividend> createStockDividendThisYearWith(Stock stock) {

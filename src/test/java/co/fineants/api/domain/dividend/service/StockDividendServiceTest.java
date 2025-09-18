@@ -66,6 +66,59 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		assertThat(stockDividendRepository.findAllStockDividends()).hasSize(9);
 	}
 
+	private List<StockDividend> createSamsungDividends(Stock stock) {
+		return List.of(
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2022, 3, 31),
+				LocalDate.of(2022, 5, 17),
+				stock
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2022, 6, 30),
+				LocalDate.of(2022, 8, 16),
+				stock
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2022, 9, 30),
+				LocalDate.of(2022, 11, 15),
+				stock
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2022, 12, 31),
+				LocalDate.of(2023, 4, 14),
+				stock),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 3, 31),
+				LocalDate.of(2023, 5, 17),
+				stock),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 6, 30),
+				LocalDate.of(2023, 8, 16),
+				stock),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 9, 30),
+				LocalDate.of(2023, 11, 20),
+				stock),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 12, 31),
+				LocalDate.of(2024, 4, 19),
+				stock),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2024, 3, 31),
+				null,
+				stock)
+		);
+	}
+
 	@DisplayName("배당 일정을 최신화한다")
 	@Test
 	void refreshStockDividend() {
@@ -150,59 +203,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 				"005930:₩361:2024-06-30:2024-06-28:null", // false 2024-06-29
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);
-	}
-
-	private List<StockDividend> createSamsungDividends(Stock stock) {
-		return List.of(
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 3, 31),
-				LocalDate.of(2022, 5, 17),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 6, 30),
-				LocalDate.of(2022, 8, 16),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 9, 30),
-				LocalDate.of(2022, 11, 15),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 12, 31),
-				LocalDate.of(2024, 4, 19),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2024, 3, 31),
-				null,
-				stock)
-		);
 	}
 
 	private List<StockDividend> createKakaoDividends(Stock stock) {

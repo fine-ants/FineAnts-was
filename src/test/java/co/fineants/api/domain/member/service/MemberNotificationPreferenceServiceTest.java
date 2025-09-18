@@ -3,8 +3,7 @@ package co.fineants.api.domain.member.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,8 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.member.domain.dto.request.MemberNotificationPreferenceRequest;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotificationPreferenceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
+import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 
 class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest {
@@ -29,9 +27,6 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private NotificationPreferenceRepository repository;
-
-	@Autowired
 	private FcmRepository fcmRepository;
 
 	@DisplayName("사용자는 계정 알림 설정을 등록합니다")
@@ -41,7 +36,6 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		Member member = memberRepository.save(createMember());
 		NotificationPreference preference = member.getNotificationPreference();
 		preference.changePreference(createNotificationPreference(false, false, false, false));
-		repository.save(preference);
 
 		// when
 		MemberNotificationPreferenceResponse response = service.registerDefaultNotificationPreference(member);
@@ -50,8 +44,7 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		assertAll(
 			() -> assertThat(response)
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
-				.containsExactly(false, false, false, false),
-			() -> assertThat(repository.findByMemberId(member.getId())).isPresent()
+				.containsExactly(false, false, false, false)
 		);
 	}
 
@@ -65,8 +58,7 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		service.registerDefaultNotificationPreference(member);
 
 		// then
-		List<NotificationPreference> preferences = repository.findAll();
-		assertThat(preferences).hasSize(1);
+		Assertions.assertThat(member.getNotificationPreference()).isNotNull();
 	}
 
 	@DisplayName("사용자는 계정의 알림 설정을 변경한다")
@@ -87,12 +79,12 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 			member.getId(), request);
 
 		// then
-		NotificationPreference preference = repository.findByMemberId(member.getId()).orElseThrow();
+		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 		assertAll(
 			() -> assertThat(response)
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, true, true, true),
-			() -> assertThat(preference)
+			() -> assertThat(findMember.getNotificationPreference())
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, true, true, true)
 		);
@@ -118,12 +110,12 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
 
 		// then
-		NotificationPreference preference = repository.findByMemberId(member.getId()).orElseThrow();
+		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 		assertAll(
 			() -> assertThat(response)
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false),
-			() -> assertThat(preference)
+			() -> assertThat(findMember.getNotificationPreference())
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false)
 		);
@@ -148,12 +140,12 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
 
 		// then
-		NotificationPreference preference = repository.findByMemberId(member.getId()).orElseThrow();
+		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 		assertAll(
 			() -> assertThat(response)
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false),
-			() -> assertThat(preference)
+			() -> assertThat(findMember.getNotificationPreference())
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false),
 			() -> assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty()
@@ -178,12 +170,12 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
 
 		// then
-		NotificationPreference preference = repository.findByMemberId(member.getId()).orElseThrow();
+		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 		assertAll(
 			() -> assertThat(response)
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false),
-			() -> assertThat(preference)
+			() -> assertThat(findMember.getNotificationPreference())
 				.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 				.containsExactly(false, false, false, false),
 			() -> assertThat(fcmRepository.findAllByMemberId(member.getId())).isEmpty()
@@ -210,6 +202,6 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
-			.hasMessage(member.getNotificationPreference().toString());
+			.hasMessage(member.toString());
 	}
 }

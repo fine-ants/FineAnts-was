@@ -52,6 +52,31 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	@LocalServerPort
 	private int port;
 
+	public static Stream<Arguments> validJwtTokenCreateDateSource() {
+		Date now = new Date();
+		long oneDayMilliSeconds = 1000 * 60 * 60 * 24; // 1일
+		long oneHourMilliSeconds = 1000 * 60 * 60; // 1시간
+		long oneMinuteMilliSeconds = 1000 * 60; // 1분
+		long thirteenDaysMilliSeconds =
+			oneDayMilliSeconds * 13 + oneHourMilliSeconds * 23 + oneMinuteMilliSeconds * 5; // 13일 23시간 5분
+		Date now1 = new Date(now.getTime() - oneDayMilliSeconds);
+		Date now2 = new Date(now.getTime() - thirteenDaysMilliSeconds);
+
+		return Stream.of(
+			Arguments.of(now1, now1),
+			Arguments.of(now2, now2),
+			Arguments.of(now, now2)
+		);
+	}
+
+	public static Stream<Arguments> invalidJwtTokenCreateDateSource() {
+		long fifteenDayMilliSeconds = 1000 * 60 * 60 * 24 * 15; // 1일
+		Date now1 = new Date(fifteenDayMilliSeconds);
+		return Stream.of(
+			Arguments.of(now1, now1)
+		);
+	}
+
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
@@ -137,6 +162,25 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.statusCode(401);
 	}
 
+	private Map<String, String> processLogin() {
+		Map<String, String> body = Map.of(
+			"email", "dragonbead95@naver.com",
+			"password", "nemo1234@"
+		);
+		String json = ObjectMapperUtil.serialize(body);
+		ExtractableResponse<Response> extract = given()
+			.contentType(MediaType.APPLICATION_JSON_VALUE)
+			.body(json)
+			.when()
+			.post("/api/auth/login")
+			.then()
+			.log()
+			.body()
+			.statusCode(200)
+			.extract();
+		return extract.cookies();
+	}
+
 	/**
 	 * 토큰 갱신 테스트
 	 * <p>
@@ -182,23 +226,6 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.statusCode(200);
 	}
 
-	public static Stream<Arguments> validJwtTokenCreateDateSource() {
-		Date now = new Date();
-		long oneDayMilliSeconds = 1000 * 60 * 60 * 24; // 1일
-		long oneHourMilliSeconds = 1000 * 60 * 60; // 1시간
-		long oneMinuteMilliSeconds = 1000 * 60; // 1분
-		long thirteenDaysMilliSeconds =
-			oneDayMilliSeconds * 13 + oneHourMilliSeconds * 23 + oneMinuteMilliSeconds * 5; // 13일 23시간 5분
-		Date now1 = new Date(now.getTime() - oneDayMilliSeconds);
-		Date now2 = new Date(now.getTime() - thirteenDaysMilliSeconds);
-
-		return Stream.of(
-			Arguments.of(now1, now1),
-			Arguments.of(now2, now2),
-			Arguments.of(now, now2)
-		);
-	}
-
 	/**
 	 * 토큰 갱신 실패 테스트
 	 * <p>
@@ -239,32 +266,5 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.log()
 			.body()
 			.statusCode(401);
-	}
-
-	public static Stream<Arguments> invalidJwtTokenCreateDateSource() {
-		long fifteenDayMilliSeconds = 1000 * 60 * 60 * 24 * 15; // 1일
-		Date now1 = new Date(fifteenDayMilliSeconds);
-		return Stream.of(
-			Arguments.of(now1, now1)
-		);
-	}
-
-	private Map<String, String> processLogin() {
-		Map<String, String> body = Map.of(
-			"email", "dragonbead95@naver.com",
-			"password", "nemo1234@"
-		);
-		String json = ObjectMapperUtil.serialize(body);
-		ExtractableResponse<Response> extract = given()
-			.contentType(MediaType.APPLICATION_JSON_VALUE)
-			.body(json)
-			.when()
-			.post("/api/auth/login")
-			.then()
-			.log()
-			.body()
-			.statusCode(200)
-			.extract();
-		return extract.cookies();
 	}
 }

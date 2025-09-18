@@ -12,6 +12,11 @@ public class Pair {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(from, to);
+	}
+
+	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
 			return true;
@@ -21,10 +26,5 @@ public class Pair {
 		}
 		Pair pair = (Pair)object;
 		return from == pair.from && to == pair.to;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(from, to);
 	}
 }

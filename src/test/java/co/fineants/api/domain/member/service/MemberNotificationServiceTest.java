@@ -83,6 +83,24 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
+	private List<Notification> createNotifications(Member member) {
+		return List.of(
+			Notification.stockTargetPriceNotification(
+				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
+				Money.won(60000L),
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
+				2L
+			)
+		);
+	}
+
 	@DisplayName("사용자는 다른 사용자의 알림 메시지들을 조회할 수 없습니다.")
 	@Test
 	void searchMemberNotifications_whenOtherMemberFetch_thenThrowException() {
@@ -232,23 +250,5 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class);
-	}
-
-	private List<Notification> createNotifications(Member member) {
-		return List.of(
-			Notification.stockTargetPriceNotification(
-				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
-				Money.won(60000L),
-				1L
-			),
-			Notification.portfolioNotification(
-				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
-				1L
-			),
-			Notification.portfolioNotification(
-				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
-				2L
-			)
-		);
 	}
 }

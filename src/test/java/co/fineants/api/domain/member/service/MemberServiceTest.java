@@ -93,11 +93,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	private static MultipartFile createOverSizeMockProfileFile() {
-		byte[] profile = new byte[3145728];
-		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
-	}
-
 	private static MultipartFile createEmptyProfileImageFile() {
 		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
@@ -310,6 +305,11 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
 			.hasMessage(profileFile.toString());
+	}
+
+	private static MultipartFile createOverSizeMockProfileFile() {
+		byte[] profile = new byte[3145728];
+		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")

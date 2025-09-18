@@ -22,7 +22,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 
-import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
@@ -34,14 +33,13 @@ import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -53,7 +51,7 @@ import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepo
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import reactor.core.publisher.Mono;
 
-class NotificationServiceTest extends AbstractContainerBaseTest {
+class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationService service;
@@ -84,9 +82,6 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationRepository notificationRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository notificationPreferenceRepository;
 
 	@Autowired
 	private NotificationSentRepository sentManager;
@@ -219,10 +214,11 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 	void notifyTargetGainBy_whenBrowserNotifyIsInActive_thenResponseEmptyList(boolean browserNotify,
 		boolean targetGainNotify) {
 		// given
-		Member member = memberRepository.save(createMember());
-		NotificationPreference preference = member.getNotificationPreference();
-		preference.changePreference(createNotificationPreference(browserNotify, targetGainNotify, true, true));
-		notificationPreferenceRepository.save(preference);
+		Member member = createMember();
+		NotificationPreference changePreference = createNotificationPreference(browserNotify, targetGainNotify, true,
+			true);
+		member.setNotificationPreference(changePreference);
+		member = memberRepository.save(member);
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
@@ -317,10 +313,11 @@ class NotificationServiceTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	void notifyMaxLoss_whenNotifySettingIsInActive_thenResponseEmptyList(boolean browserNotify, boolean maxLossNotify) {
 		// given
-		Member member = memberRepository.save(createMember());
-		NotificationPreference preference = member.getNotificationPreference();
-		preference.changePreference(createNotificationPreference(browserNotify, true, maxLossNotify, true));
-		notificationPreferenceRepository.save(preference);
+		Member member = createMember();
+		NotificationPreference changePreference = createNotificationPreference(browserNotify, true, maxLossNotify,
+			true);
+		member.setNotificationPreference(changePreference);
+		member = memberRepository.save(member);
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());

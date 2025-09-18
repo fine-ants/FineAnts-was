@@ -90,6 +90,15 @@ class KisClientTest extends AbstractContainerBaseTest {
 		manager.refreshAccessToken(kisAccessToken);
 	}
 
+	public KisAccessToken createKisAccessToken() {
+		return new KisAccessToken(
+			"accessToken",
+			"Bearer",
+			LocalDateTime.of(2023, 12, 7, 11, 41, 27),
+			86400
+		);
+	}
+
 	@DisplayName("한국투자증권 서버로부터 액세스 토큰 발급이 한번 실패하는 경우 재발급을 다시 요청한다")
 	@Test
 	void accessToken_whenIssueAccessToken_thenRetryOnAccessTokenFailure() {
@@ -109,6 +118,13 @@ class KisClientTest extends AbstractContainerBaseTest {
 			.expectNextMatches(expectedKisAccessToken::equals)
 			.expectComplete()
 			.verify();
+	}
+
+	private Map<String, String> createError() {
+		Map<String, String> responseBody = new HashMap<>();
+		responseBody.put("error_description", "접근토큰 발급 잠시 후 다시 시도하세요(1분당 1회)");
+		responseBody.put("error_code", "EGW00133");
+		return responseBody;
 	}
 
 	@DisplayName("어제부터 오늘까지 상장된 종목들을 조회한다")
@@ -405,22 +421,6 @@ class KisClientTest extends AbstractContainerBaseTest {
 		} catch (IOException e) {
 			throw new IllegalArgumentException("invalid json file path", e);
 		}
-	}
-
-	private Map<String, String> createError() {
-		Map<String, String> responseBody = new HashMap<>();
-		responseBody.put("error_description", "접근토큰 발급 잠시 후 다시 시도하세요(1분당 1회)");
-		responseBody.put("error_code", "EGW00133");
-		return responseBody;
-	}
-
-	public KisAccessToken createKisAccessToken() {
-		return new KisAccessToken(
-			"accessToken",
-			"Bearer",
-			LocalDateTime.of(2023, 12, 7, 11, 41, 27),
-			86400
-		);
 	}
 }
 

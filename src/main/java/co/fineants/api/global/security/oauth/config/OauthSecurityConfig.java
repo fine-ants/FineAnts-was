@@ -19,7 +19,6 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.member.service.TokenManagementService;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.CustomAccessDeniedHandler;
@@ -36,7 +35,6 @@ import co.fineants.api.global.security.oauth.service.TokenService;
 public class OauthSecurityConfig {
 
 	private final MemberRepository memberRepository;
-	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final TokenService tokenService;
 	private final NicknameGenerator nicknameGenerator;
 	private final RoleRepository roleRepository;
@@ -48,14 +46,13 @@ public class OauthSecurityConfig {
 	private final CorsConfiguration corsConfiguration;
 
 	public OauthSecurityConfig(MemberRepository memberRepository,
-		NotificationPreferenceRepository notificationPreferenceRepository, TokenService tokenService,
+		TokenService tokenService,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
 		TokenManagementService tokenManagementService,
 		@Value("${oauth2.login-success-uri}") String loginSuccessUri,
 		TokenFactory tokenFactory, CorsConfiguration corsConfiguration) {
 		this.memberRepository = memberRepository;
-		this.notificationPreferenceRepository = notificationPreferenceRepository;
 		this.tokenService = tokenService;
 		this.nicknameGenerator = nicknameGenerator;
 		this.roleRepository = roleRepository;
@@ -115,13 +112,13 @@ public class OauthSecurityConfig {
 
 	@Bean
 	public CustomOAuth2UserService customOAuth2UserService() {
-		return new CustomOAuth2UserService(memberRepository, notificationPreferenceRepository, nicknameGenerator,
+		return new CustomOAuth2UserService(memberRepository, nicknameGenerator,
 			roleRepository);
 	}
 
 	@Bean
 	public CustomOidcUserService customOidcUserService() {
-		return new CustomOidcUserService(memberRepository, notificationPreferenceRepository, nicknameGenerator,
+		return new CustomOidcUserService(memberRepository, nicknameGenerator,
 			roleRepository);
 	}
 

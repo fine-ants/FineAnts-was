@@ -17,30 +17,6 @@ class StockDividendCsvFormatterTest {
 
 	private CsvFormatter<StockDividend> formatter;
 
-	@NotNull
-	private StockDividend createSamsungStockDividend() {
-		Long id = 1L;
-		Money dividend = Money.won(361);
-		LocalDate recordDate = LocalDate.of(2023, 3, 31);
-		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
-		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
-		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
-		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
-			stock);
-	}
-
-	@NotNull
-	private StockDividend createKakaoStockDividend() {
-		Long id = 2L;
-		Money dividend = Money.won(68);
-		LocalDate recordDate = LocalDate.of(2025, 3, 10);
-		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
-		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
-		Stock stock = Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
-		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
-			stock);
-	}
-
 	@BeforeEach
 	void setUp() {
 		formatter = new CsvFormatter<>(",",
@@ -64,6 +40,18 @@ class StockDividendCsvFormatterTest {
 		FileContentComparator.compare(content, "src/test/resources/gold_dividends.csv");
 	}
 
+	@NotNull
+	private StockDividend createSamsungStockDividend() {
+		Long id = 1L;
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		Stock stock = Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
+		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
+			stock);
+	}
+
 	@Test
 	void format_whenDateIsTwo() {
 		StockDividend stockDividend1 = createSamsungStockDividend();
@@ -72,5 +60,17 @@ class StockDividendCsvFormatterTest {
 
 		Assertions.assertThat(content).isNotNull();
 		FileContentComparator.compare(content, "src/test/resources/gold_dividends_2.csv");
+	}
+
+	@NotNull
+	private StockDividend createKakaoStockDividend() {
+		Long id = 2L;
+		Money dividend = Money.won(68);
+		LocalDate recordDate = LocalDate.of(2025, 3, 10);
+		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
+		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
+		Stock stock = Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
+		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate,
+			stock);
 	}
 }

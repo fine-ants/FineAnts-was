@@ -72,6 +72,13 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	private PortfolioCalculator calculator;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 
+	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
+		return Stream.of(
+			Arguments.of(Collections.emptyList()),
+			Arguments.of((Object)null)
+		);
+	}
+
 	@Override
 	protected Object initController() {
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
@@ -180,6 +187,46 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(
 				jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchasePricePerShare").value(equalTo(50000)))
 			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo").value(equalTo("첫구매")));
+	}
+
+	private List<StockDividend> createStockDividendWith(Stock stock) {
+		return List.of(
+			createStockDividend(
+				LocalDate.of(2022, 3, 30),
+				LocalDate.of(2022, 5, 17),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 6, 29),
+				LocalDate.of(2022, 8, 16),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 9, 29),
+				LocalDate.of(2022, 11, 15),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 12, 30),
+				LocalDate.of(2023, 4, 14),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 3, 30),
+				LocalDate.of(2023, 5, 17),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 6, 29),
+				LocalDate.of(2023, 8, 16),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 9, 27),
+				LocalDate.of(2023, 11, 20),
+				stock),
+			createStockDividend(
+				LocalDate.of(2024, 3, 30),
+				LocalDate.of(2024, 5, 17),
+				stock)
+		);
 	}
 
 	@DisplayName("존재하지 않는 포트폴리오 번호를 가지고 포트폴리오 상세 정보를 가져올 수 없다")
@@ -461,52 +508,5 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.dividendChart[10].amount").value(equalTo(1083)))
 			.andExpect(jsonPath("data.dividendChart[11].month").value(equalTo(12)))
 			.andExpect(jsonPath("data.dividendChart[11].amount").value(equalTo(0)));
-	}
-
-	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
-		return Stream.of(
-			Arguments.of(Collections.emptyList()),
-			Arguments.of((Object)null)
-		);
-	}
-
-	private List<StockDividend> createStockDividendWith(Stock stock) {
-		return List.of(
-			createStockDividend(
-				LocalDate.of(2022, 3, 30),
-				LocalDate.of(2022, 5, 17),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 6, 29),
-				LocalDate.of(2022, 8, 16),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 9, 29),
-				LocalDate.of(2022, 11, 15),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 12, 30),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 3, 30),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 6, 29),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 9, 27),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 3, 30),
-				LocalDate.of(2024, 5, 17),
-				stock)
-		);
 	}
 }

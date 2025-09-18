@@ -20,14 +20,6 @@ class AmazonS3FetchStockServiceTest {
 
 	private FetchStockService service;
 
-	private InputStream getMockInputStream() {
-		try {
-			return new java.io.FileInputStream("src/test/resources/stocks.csv");
-		} catch (java.io.FileNotFoundException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
 	@BeforeEach
 	void setUp() {
 		String filePath = "local/stock/stocks.csv";
@@ -37,6 +29,14 @@ class AmazonS3FetchStockServiceTest {
 		StockCsvLineParser parser = new StockCsvLineParser("TS");
 		StockCsvParser stockCsvParser = new StockCsvParser("\\$", parser);
 		service = new AmazonS3FetchStockService(fetcher, filePath, stockCsvParser);
+	}
+
+	private InputStream getMockInputStream() {
+		try {
+			return new java.io.FileInputStream("src/test/resources/stocks.csv");
+		} catch (java.io.FileNotFoundException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	@Test

@@ -24,25 +24,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
-class SignupServiceTest extends AbstractContainerBaseTest {
+class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
 	private SignupService service;
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository notificationPreferenceRepository;
 
 	@Autowired
 	private AmazonS3 amazonS3;
@@ -83,18 +78,6 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	private static Stream<Arguments> invalidProfileUrlSource() {
 		return Stream.of(
 			Arguments.of((String)null), // null URL
@@ -117,9 +100,6 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		// then
 		int memberSize = memberRepository.findAll().size();
 		assertThat(memberSize).isEqualTo(1);
-		
-		int preferenceSize = notificationPreferenceRepository.findAll().size();
-		assertThat(preferenceSize).isEqualTo(1);
 	}
 
 	@DisplayName("사용자는 유효하지 않은 형식의 이메일이 주어졌을때 회원가입에 실패한다")
@@ -192,6 +172,18 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		service.deleteProfileImageFile(profileUrl);
 		// then
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
+	}
+
+	private static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private String extractKeyFromUrl(String url) {

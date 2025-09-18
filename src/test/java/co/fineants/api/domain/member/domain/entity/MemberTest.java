@@ -8,16 +8,6 @@ import co.fineants.TestDataFactory;
 
 class MemberTest {
 
-	private Member createMember() {
-		String email = "ants1234@gmail.com";
-		String nickname = "ants1234";
-		String provider = "local";
-		String password = "ants1234@";
-		String profileUrl = "profileUrl";
-		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
-		return new Member(memberProfile);
-	}
-
 	@DisplayName("회원의 알림 설정을 전부 활성화로 변경한다")
 	@Test
 	void givenMember_whenSetNotificationPreference_thenNotificationPreferenceIsAllActive() {
@@ -50,6 +40,16 @@ class MemberTest {
 
 		Assertions.assertThat(member).isNotNull();
 		Assertions.assertThat(member.getProfile()).isNotNull();
+	}
+
+	private Member createMember() {
+		String email = "ants1234@gmail.com";
+		String nickname = "ants1234";
+		String provider = "local";
+		String password = "ants1234@";
+		String profileUrl = "profileUrl";
+		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
+		return new Member(memberProfile);
 	}
 
 	@DisplayName("회원에 Role 식별자값을 추가한다")

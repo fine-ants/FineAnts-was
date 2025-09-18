@@ -18,11 +18,11 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 
@@ -63,16 +63,6 @@ public final class TestDataFactory {
 		);
 	}
 
-	public static Portfolio createPortfolio(Member member, String name) {
-		return createPortfolio(
-			member,
-			name,
-			Money.won(1000000L),
-			Money.won(1500000L),
-			Money.won(900000L)
-		);
-	}
-
 	public static Portfolio createPortfolio(Member member, Money budget) {
 		return createPortfolio(
 			member,
@@ -93,6 +83,16 @@ public final class TestDataFactory {
 			detail,
 			financial,
 			member
+		);
+	}
+
+	public static Portfolio createPortfolio(Member member, String name) {
+		return createPortfolio(
+			member,
+			name,
+			Money.won(1000000L),
+			Money.won(1500000L),
+			Money.won(900000L)
 		);
 	}
 
