@@ -107,20 +107,15 @@ public class SetupDataLoader {
 
 	private void createMemberIfNotFound(String email, String nickname, String password,
 		Set<Role> roleSet) {
-		Member member = memberRepository.save(findOrCreateNewMember(email, nickname, password, roleSet));
-		initializeNotificationPreferenceIfNotExists(member);
+		Member member = findOrCreateNewMember(email, nickname, password, roleSet);
+		NotificationPreference newPreference = NotificationPreference.allActive();
+		member.setNotificationPreference(newPreference);
+		memberRepository.save(member);
 	}
 
 	private Member findOrCreateNewMember(String email, String nickname, String password, Set<Role> roleSet) {
 		return memberRepository.findMemberByEmailAndProvider(email, "local")
 			.orElseGet(supplierNewMember(email, nickname, password, roleSet));
-	}
-
-	private void initializeNotificationPreferenceIfNotExists(Member member) {
-		if (member.getNotificationPreference() == null) {
-			NotificationPreference newPreference = NotificationPreference.allActive();
-			member.setNotificationPreference(newPreference);
-		}
 	}
 
 	@NotNull

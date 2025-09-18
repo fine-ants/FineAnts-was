@@ -1,5 +1,6 @@
 package co.fineants.api.domain.member.domain.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -12,12 +13,16 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class NotificationPreference {
 
+	@Column(name = "browser_notify", nullable = false)
 	private boolean browserNotify;
 
+	@Column(name = "target_gain_notify", nullable = false)
 	private boolean targetGainNotify;
 
+	@Column(name = "max_loss_notify", nullable = false)
 	private boolean maxLossNotify;
 
+	@Column(name = "target_price_notify", nullable = false)
 	private boolean targetPriceNotify;
 
 	public NotificationPreference(boolean browserNotify, boolean targetGainNotify, boolean maxLossNotify,
