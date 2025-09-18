@@ -119,6 +119,15 @@ public class Member extends BaseEntity {
 			notificationPreference.setMember(this);
 		}
 	}
+
+	public void addRoleId(Long roleId) {
+		this.roleIds.add(roleId);
+	}
+
+	public boolean containsRoleId(Long roleId) {
+		return this.roleIds.contains(roleId);
+	}
+
 	//** 연관 관계 엔티티 메서드 종료 **//
 
 	public boolean hasAuthorization(Long memberId) {

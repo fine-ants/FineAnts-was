@@ -122,4 +122,15 @@ class MemberTest {
 		Assertions.assertThat(member.hasRole("ROLE_USER")).isTrue();
 		Assertions.assertThat(memberRole.getMember()).isEqualTo(member);
 	}
+
+	@DisplayName("회원에 Role 식별자값을 추가한다")
+	@Test
+	void addRoleId() {
+		Member member = createMember();
+		Long roleId = 1L;
+
+		member.addRoleId(roleId);
+
+		Assertions.assertThat(member.containsRoleId(roleId)).isTrue();
+	}
 }
