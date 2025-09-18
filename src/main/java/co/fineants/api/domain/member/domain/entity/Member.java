@@ -78,12 +78,6 @@ public class Member extends BaseEntity {
 	}
 
 	//** 연관 관계 엔티티 메서드 시작 **//
-	public void removeMemberRole(MemberRole memberRole) {
-		if (this.roles.remove(memberRole)) {
-			memberRole.setMember(null);
-		}
-	}
-	
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		if (this.notificationPreference != null) {
 			this.notificationPreference.setMember(null);

@@ -43,9 +43,6 @@ public class MemberRole {
 
 	//** 연관 관계 메서드 시작 **//
 	public void setMember(Member member) {
-		if (this.member != null) {
-			this.member.removeMemberRole(this);
-		}
 		this.member = member;
 	}
 	//** 연관 관계 메서드 종료 **//
