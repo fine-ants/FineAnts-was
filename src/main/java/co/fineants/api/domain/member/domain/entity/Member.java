@@ -124,6 +124,14 @@ public class Member extends BaseEntity {
 		this.roleIds.add(roleId);
 	}
 
+	public void addRoleIds(Collection<Long> roleIds) {
+		this.roleIds.addAll(roleIds);
+	}
+
+	public void removeRoleId(Long roleId) {
+		this.roleIds.remove(roleId);
+	}
+
 	public boolean containsRoleId(Long roleId) {
 		return this.roleIds.contains(roleId);
 	}

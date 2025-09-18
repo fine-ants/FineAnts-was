@@ -3,6 +3,7 @@ package co.fineants.api.global.init;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,6 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
@@ -132,10 +132,10 @@ public class SetupDataLoader {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
 			Member newMember = Member.localMember(profile);
-			MemberRole[] memberRoles = roleSet.stream()
-				.map(r -> MemberRole.of(newMember, r))
-				.toArray(MemberRole[]::new);
-			newMember.addMemberRole(memberRoles);
+			Set<Long> roleIds = roleSet.stream()
+				.map(Role::getId)
+				.collect(Collectors.toSet());
+			newMember.addRoleIds(roleIds);
 			return newMember;
 		};
 	}
