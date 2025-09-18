@@ -90,13 +90,11 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 		);
 	}
 
-	@DisplayName("사용자가 계정 설정시 기존 설정이 없다면 새로 등록한다")
+	@DisplayName("사용자가 계정 알림 설정을 수정한다")
 	@Test
 	void updateNotificationPreference_whenNotExistPreference_thenRegisterPreference() {
 		// given
-		Member member = createMember();
-		member.setNotificationPreference(null);
-		member = memberRepository.save(member);
+		Member member = memberRepository.save(createMember());
 
 		MemberNotificationPreferenceRequest request = MemberNotificationPreferenceRequest.builder()
 			.browserNotify(false)

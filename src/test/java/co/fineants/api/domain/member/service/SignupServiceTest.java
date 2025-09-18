@@ -26,6 +26,7 @@ import com.amazonaws.services.s3.AmazonS3;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -95,6 +96,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", "ants1", "ants1234@", null);
 		Member member = Member.localMember(profile);
+		member.setNotificationPreference(NotificationPreference.defaultSetting());
+		
 		// when
 		service.signup(member);
 		// then
@@ -137,6 +140,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		String nickname = "ants1";
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
 		Member member = Member.localMember(profile);
+		member.setNotificationPreference(NotificationPreference.defaultSetting());
 		memberRepository.save(member);
 
 		MemberProfile otherProfile = MemberProfile.localMemberProfile("ants4567@gmail.com", nickname, "ants4567@",

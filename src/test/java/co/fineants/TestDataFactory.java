@@ -18,6 +18,7 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -53,7 +54,9 @@ public final class TestDataFactory {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		return Member.localMember(profile);
+		Member member = Member.localMember(profile);
+		member.setNotificationPreference(NotificationPreference.allActive());
+		return member;
 	}
 
 	public static Portfolio createPortfolio(Member member) {
