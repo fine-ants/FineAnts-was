@@ -1,7 +1,10 @@
 package co.fineants.api.global.security.oauth.service;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -57,7 +60,13 @@ public class CustomOidcUserService extends AbstractUserService implements OAuth2
 
 		OidcIdToken idToken = ((OidcUserRequest)userRequest).getIdToken();
 		Map<String, Object> claims = idToken.getClaims();
-		Map<String, Object> memberAttribute = member.toAttributeMap();
+		Map<String, Object> memberAttribute = new HashMap<>();
+		memberAttribute.put("id", member.getId());
+		memberAttribute.putAll(member.getProfile().toMap());
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		memberAttribute.put("roles", roleNames);
 		memberAttribute.putAll(claims);
 
 		OidcUserInfo userInfo = new OidcUserInfo(memberAttribute);

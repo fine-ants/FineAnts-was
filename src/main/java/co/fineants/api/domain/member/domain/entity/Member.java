@@ -2,12 +2,9 @@ package co.fineants.api.domain.member.domain.entity;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
@@ -114,16 +111,6 @@ public class Member extends BaseEntity {
 
 	public void changeNickname(String nickname) {
 		this.profile.changeNickname(nickname);
-	}
-
-	public Map<String, Object> toAttributeMap() {
-		Map<String, Object> result = new HashMap<>();
-		result.put("id", id);
-		result.putAll(profile.toMap());
-		result.put("roles", roles.stream()
-			.map(MemberRole::getRoleName)
-			.collect(Collectors.toUnmodifiableSet()));
-		return result;
 	}
 
 	public Optional<String> getPassword() {
