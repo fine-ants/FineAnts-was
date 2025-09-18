@@ -54,7 +54,7 @@ class MemberTest {
 		// when
 		String actual = member.toString();
 		// then
-		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[], roleIds=[])";
+		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roleIds=[])";
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 

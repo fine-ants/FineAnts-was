@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
@@ -118,12 +116,6 @@ public class Member extends BaseEntity {
 		this.profile.changeNickname(nickname);
 	}
 
-	public Collection<GrantedAuthority> getSimpleGrantedAuthorities() {
-		return roles.stream()
-			.map(MemberRole::toSimpleGrantedAuthority)
-			.collect(Collectors.toSet());
-	}
-
 	public Map<String, Object> toAttributeMap() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("id", id);
@@ -174,8 +166,7 @@ public class Member extends BaseEntity {
 
 	@Override
 	public String toString() {
-		return String.format("Member(id=%d, nickname=%s, email=%s, roles=%s, roleIds=%s)", id, getNickname(),
-			getEmail(),
-			getSimpleGrantedAuthorities(), roleIds);
+		return String.format("Member(id=%d, nickname=%s, email=%s, roleIds=%s)", id, getNickname(), getEmail(),
+			roleIds);
 	}
 }

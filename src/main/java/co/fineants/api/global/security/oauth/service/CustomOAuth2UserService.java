@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -18,6 +19,7 @@ import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,10 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomOAuth2UserService extends AbstractUserService
 	implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+	private final RoleRepository roleRepository;
+
 	public CustomOAuth2UserService(MemberRepository memberRepository,
 		NotificationPreferenceRepository notificationPreferenceRepository,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
 		super(memberRepository, notificationPreferenceRepository, nicknameGenerator, roleRepository);
+		this.roleRepository = roleRepository;
 	}
 
 	@Override
@@ -44,7 +49,10 @@ public class CustomOAuth2UserService extends AbstractUserService
 
 	@Override
 	OAuth2User createOAuth2User(Member member, OAuth2UserRequest userRequest, String sub) {
-		Collection<? extends GrantedAuthority> authorities = member.getSimpleGrantedAuthorities();
+		Collection<? extends GrantedAuthority> authorities = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.map(SimpleGrantedAuthority::new)
+			.toList();
 		Map<String, Object> memberAttribute = member.toAttributeMap();
 		String nameAttributeKey = userRequest.getClientRegistration()
 			.getProviderDetails()
