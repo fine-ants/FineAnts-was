@@ -80,7 +80,7 @@ public class Member extends BaseEntity {
 	//** 연관 관계 엔티티 메서드 시작 **//
 	public void addMemberRole(MemberRole... memberRole) {
 		for (MemberRole role : memberRole) {
-			if (this.roles.contains(role)) {
+			if (this.containsMemberRole(role)) {
 				continue;
 			}
 			this.roles.add(role);
@@ -88,6 +88,15 @@ public class Member extends BaseEntity {
 				role.setMember(this);
 			}
 		}
+	}
+
+	public boolean containsMemberRole(MemberRole memberRole) {
+		for (MemberRole role : this.roles) {
+			if (role.equals(memberRole)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void removeMemberRole(MemberRole memberRole) {
