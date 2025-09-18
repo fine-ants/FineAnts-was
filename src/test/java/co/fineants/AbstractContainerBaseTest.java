@@ -36,7 +36,6 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -178,7 +177,7 @@ public abstract class AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
 		Member member = Member.localMember(profile);
 		// 역할 설정
-		member.addMemberRole(MemberRole.of(member, userRole));
+		member.addRoleId(userRole.getId());
 
 		// 계정 알림 설정
 		member.setNotificationPreference(NotificationPreference.allActive());
@@ -194,7 +193,7 @@ public abstract class AbstractContainerBaseTest {
 		// 회원 생성
 		Member member = Member.oauthMember(profile);
 		// 역할 설정
-		member.addMemberRole(MemberRole.of(member, userRole));
+		member.addRoleId(userRole.getId());
 
 		// 계정 알림 설정
 		member.setNotificationPreference(NotificationPreference.allActive());

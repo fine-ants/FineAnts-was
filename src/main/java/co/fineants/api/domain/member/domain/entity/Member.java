@@ -78,38 +78,12 @@ public class Member extends BaseEntity {
 	}
 
 	//** 연관 관계 엔티티 메서드 시작 **//
-	public void addMemberRole(MemberRole... memberRole) {
-		for (MemberRole role : memberRole) {
-			if (this.containsMemberRole(role)) {
-				continue;
-			}
-			this.roles.add(role);
-			if (role.getMember() != this) {
-				role.setMember(this);
-			}
-		}
-	}
-
-	public boolean containsMemberRole(MemberRole memberRole) {
-		for (MemberRole role : this.roles) {
-			if (role.equals(memberRole)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public void removeMemberRole(MemberRole memberRole) {
 		if (this.roles.remove(memberRole)) {
 			memberRole.setMember(null);
 		}
 	}
-
-	public boolean hasRole(String roleName) {
-		return roles.stream()
-			.anyMatch(role -> role.getRoleName().equals(roleName));
-	}
-
+	
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		if (this.notificationPreference != null) {
 			this.notificationPreference.setMember(null);
