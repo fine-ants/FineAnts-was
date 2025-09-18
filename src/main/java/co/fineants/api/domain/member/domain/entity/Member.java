@@ -144,13 +144,7 @@ public class Member extends BaseEntity {
 	public void validateNickname(MemberValidationRule rule) {
 		profile.validateNickname(rule);
 	}
-
-	public void validateRules(MemberValidationRule... rules) {
-		for (MemberValidationRule rule : rules) {
-			rule.validate(this);
-		}
-	}
-
+	
 	@Override
 	public String toString() {
 		return String.format("Member(id=%d, nickname=%s, email=%s, roleIds=%s)", id, getNickname(), getEmail(),
