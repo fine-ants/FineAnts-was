@@ -19,7 +19,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -40,9 +39,6 @@ public class Member extends BaseEntity {
 
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private NotificationPreference notificationPreference;
-
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
-	private final Set<MemberRole> roles = new HashSet<>();
 
 	@ElementCollection
 	@CollectionTable(
@@ -131,7 +127,7 @@ public class Member extends BaseEntity {
 	public Optional<String> getProfileUrl() {
 		return profile.getProfileUrl();
 	}
-	
+
 	public void validateEmail(MemberValidationRule rule) {
 		profile.validateEmail(rule);
 	}
