@@ -101,4 +101,16 @@ class MemberTest {
 
 		Assertions.assertThat(member.containsRoleId(roleId)).isTrue();
 	}
+
+	@DisplayName("회원에 Role 식별자값을 제거한다")
+	@Test
+	void removeRoleId() {
+		Member member = createMember();
+		Long roleId = 1L;
+		member.addRoleId(roleId);
+
+		member.removeRoleId(roleId);
+
+		Assertions.assertThat(member.containsRoleId(roleId)).isFalse();
+	}
 }
