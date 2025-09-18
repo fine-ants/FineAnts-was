@@ -47,6 +47,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void fetchNotifications() throws Exception {
 		// given
+		Long memberId = 1L;
 		Member member = createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
@@ -61,14 +62,14 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 			targetPriceNotification, member);
 		MemberNotification memberNotification2 = MemberNotification.from(stockTargetPriceNotification);
 
-		given(service.searchMemberNotifications(member.getId()))
+		given(service.searchMemberNotifications(memberId))
 			.willReturn(MemberNotificationResponse.create(List.of(
 				memberNotification,
 				memberNotification2
 			)));
 
 		// when & then
-		mockMvc.perform(RestDocumentationRequestBuilders.get("/api/members/{memberId}/notifications", member.getId())
+		mockMvc.perform(RestDocumentationRequestBuilders.get("/api/members/{memberId}/notifications", memberId)
 				.cookie(createTokenCookies()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
@@ -151,7 +152,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updateNotificationPreference() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		Map<String, Object> body = Map.of(
 			"browserNotify", true,
@@ -163,7 +164,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.put("/api/members/{memberId}/notification/settings", member.getId())
+				RestDocumentationRequestBuilders.put("/api/members/{memberId}/notification/settings", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))
@@ -204,14 +205,14 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deleteAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
 		Map<String, Object> body = Map.of(
 			"notificationIds", List.of(1, 2)
 		);
+		Long memberId = 1L;
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications", member.getId())
+				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))
@@ -248,13 +249,13 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deleteNotification() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 		Long notificationId = 1L;
 
 		// when & then
 		mockMvc.perform(
 				RestDocumentationRequestBuilders.delete("/api/members/{memberId}/notifications/{notificationId}",
-						member.getId(), notificationId)
+						memberId, notificationId)
 					.cookie(createTokenCookies()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
@@ -287,7 +288,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		Map<String, Object> body = Map.of(
 			"notificationIds", List.of(1, 2)
@@ -295,7 +296,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 		// when & then
 		mockMvc.perform(
-				RestDocumentationRequestBuilders.patch("/api/members/{memberId}/notifications/", member.getId())
+				RestDocumentationRequestBuilders.patch("/api/members/{memberId}/notifications/", memberId)
 					.cookie(createTokenCookies())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMapperUtil.serialize(body)))

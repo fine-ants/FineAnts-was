@@ -28,7 +28,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.MemberRoleRepository;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -41,9 +40,6 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private MemberRoleRepository memberRoleRepository;
 
 	@Autowired
 	private NotificationPreferenceRepository notificationPreferenceRepository;
@@ -121,10 +117,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		// then
 		int memberSize = memberRepository.findAll().size();
 		assertThat(memberSize).isEqualTo(1);
-
-		int memberRoleSize = memberRoleRepository.findAll().size();
-		assertThat(memberRoleSize).isEqualTo(1);
-
+		
 		int preferenceSize = notificationPreferenceRepository.findAll().size();
 		assertThat(preferenceSize).isEqualTo(1);
 	}

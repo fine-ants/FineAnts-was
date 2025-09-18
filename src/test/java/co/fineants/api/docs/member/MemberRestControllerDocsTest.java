@@ -25,6 +25,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
+import co.fineants.api.domain.member.domain.dto.response.OauthMemberResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -136,8 +137,17 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 				.getBytes(StandardCharsets.UTF_8));
 
 		member.changeNickname("일개미12345");
+		OauthMemberResponse oauthMemberResponse = new OauthMemberResponse(
+			1L,
+			member.getNickname(),
+			member.getEmail(),
+			member.getProfileUrl().orElseThrow(),
+			member.getProvider(),
+			null
+		);
+		ProfileChangeResponse response = new ProfileChangeResponse(oauthMemberResponse);
 		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
-			.willReturn(ProfileChangeResponse.from(member));
+			.willReturn(response);
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/profile")

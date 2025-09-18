@@ -3,6 +3,7 @@ package co.fineants.api.global.init;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +16,11 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.member.domain.entity.Role;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -62,7 +62,7 @@ public class SetupDataLoader {
 		setupStockResources();
 		setupStockDividendResources();
 	}
-	
+
 	private void setupSecurityResources() {
 		roleProperties.getRolePropertyList().forEach(this::saveRoleIfNotFound);
 	}
@@ -132,10 +132,10 @@ public class SetupDataLoader {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
 			Member newMember = Member.localMember(profile);
-			MemberRole[] memberRoles = roleSet.stream()
-				.map(r -> MemberRole.of(newMember, r))
-				.toArray(MemberRole[]::new);
-			newMember.addMemberRole(memberRoles);
+			Set<Long> roleIds = roleSet.stream()
+				.map(Role::getId)
+				.collect(Collectors.toSet());
+			newMember.addRoleIds(roleIds);
 			return newMember;
 		};
 	}
@@ -143,7 +143,10 @@ public class SetupDataLoader {
 	private void setAdminAuthentication() {
 		Member admin = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
 			.orElseThrow(() -> new MemberNotFoundException(adminProperties.getEmail()));
-		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin);
+		Role roleAdmin = roleRepository.findRoleByRoleName("ROLE_ADMIN")
+			.orElseThrow(supplierNotFoundRoleException());
+		Set<String> roleNames = Set.of(roleAdmin.getRoleName());
+		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin, roleNames);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 			memberAuthentication,
 			Strings.EMPTY,

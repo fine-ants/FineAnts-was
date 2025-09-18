@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matchers;
@@ -22,7 +24,8 @@ import org.springframework.http.ResponseCookie;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.TokenManagementService;
+import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -44,7 +47,7 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	private TokenFactory tokenFactory;
 
 	@Autowired
-	private TokenManagementService tokenManagementService;
+	private RoleRepository roleRepository;
 
 	@LocalServerPort
 	private int port;
@@ -151,10 +154,13 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	void refreshAccessToken(Date accessTokenCreateDate, Date refreshTokenCreateDate) {
 		// given
 		Member member = memberRepository.save(createMember());
-		Token token = tokenService.generateToken(MemberAuthentication.from(member), accessTokenCreateDate);
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		Token token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), accessTokenCreateDate);
 		ResponseCookie accessTokenCookie = tokenFactory.createAccessTokenCookie(token);
 
-		token = tokenService.generateToken(MemberAuthentication.from(member), refreshTokenCreateDate);
+		token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), refreshTokenCreateDate);
 		ResponseCookie refreshTokenCookie = tokenFactory.createRefreshTokenCookie(token);
 
 		Map<String, String> cookies = Map.of(
@@ -209,10 +215,13 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	void refreshAccessToken_whenExpiredRefreshToken_then401(Date accessTokenCreateDate, Date refreshTokenCreateDate) {
 		// given
 		Member member = memberRepository.save(createMember());
-		Token token = tokenService.generateToken(MemberAuthentication.from(member), accessTokenCreateDate);
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		Token token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), accessTokenCreateDate);
 		ResponseCookie accessTokenCookie = tokenFactory.createAccessTokenCookie(token);
 
-		token = tokenService.generateToken(MemberAuthentication.from(member), refreshTokenCreateDate);
+		token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), refreshTokenCreateDate);
 		ResponseCookie refreshTokenCookie = tokenFactory.createRefreshTokenCookie(token);
 
 		Map<String, String> cookies = Map.of(

@@ -9,45 +9,14 @@ import co.fineants.api.domain.notificationpreference.domain.entity.NotificationP
 
 class MemberTest {
 
-	@DisplayName("회원에 매니저 역할을 추가한다")
-	@Test
-	void givenMember_whenAddMemberRole_thenAddRoleList() {
-		// given
-		Member member = TestDataFactory.createMember();
-		Role userRole = Role.create("ROLE_USER", "회원");
-		Role managerRole = Role.create("ROLE_MANAGER", "매니저");
-		MemberRole memberMemberRole = MemberRole.of(member, userRole);
-		MemberRole managerMemberRole = MemberRole.of(member, managerRole);
-		// when
-		member.addMemberRole(memberMemberRole, managerMemberRole);
-		// then
-		Assertions.assertThat(member.getRoles())
-			.hasSize(2)
-			.containsExactlyInAnyOrder(memberMemberRole, managerMemberRole);
-	}
-
-	@DisplayName("MemberRole을 다른 회원의 역할에 추가하면 기존 연관관계를 해제한다")
-	@Test
-	void addMemberRole_whenAssignMemberRoleToOtherMember_thenReleaseEntityRelationShip() {
-		// given
-		Member member = TestDataFactory.createMember();
-		Role userRole = Role.create("ROLE_USER", "회원");
-		Role managerRole = Role.create("ROLE_MANAGER", "매니저");
-		MemberRole userMemberRole = MemberRole.of(member, userRole);
-		MemberRole managerMemberRole = MemberRole.of(member, managerRole);
-		member.addMemberRole(userMemberRole, managerMemberRole);
-
-		Member otherMember = TestDataFactory.createMember("other1", "other1@gmail.com");
-		otherMember.addMemberRole(MemberRole.of(otherMember, userRole));
-		// when
-		otherMember.addMemberRole(managerMemberRole);
-		// then
-		Assertions.assertThat(member.getRoles())
-			.hasSize(1)
-			.containsExactly(MemberRole.of(member, userRole));
-		Assertions.assertThat(otherMember.getRoles())
-			.hasSize(2)
-			.containsExactlyInAnyOrder(MemberRole.of(otherMember, userRole), MemberRole.of(otherMember, managerRole));
+	private Member createMember() {
+		String email = "ants1234@gmail.com";
+		String nickname = "ants1234";
+		String provider = "local";
+		String password = "ants1234@";
+		String profileUrl = "profileUrl";
+		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
+		return new Member(memberProfile);
 	}
 
 	@DisplayName("회원의 알림 설정을 전부 활성화로 변경한다")
@@ -85,7 +54,39 @@ class MemberTest {
 		// when
 		String actual = member.toString();
 		// then
-		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roles=[])";
+		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roleIds=[])";
 		Assertions.assertThat(actual).isEqualTo(expected);
+	}
+
+	@DisplayName("회원을 생성한다")
+	@Test
+	void canCreated() {
+		Member member = createMember();
+
+		Assertions.assertThat(member).isNotNull();
+		Assertions.assertThat(member.getProfile()).isNotNull();
+	}
+
+	@DisplayName("회원에 Role 식별자값을 추가한다")
+	@Test
+	void addRoleId() {
+		Member member = createMember();
+		Long roleId = 1L;
+
+		member.addRoleId(roleId);
+
+		Assertions.assertThat(member.containsRoleId(roleId)).isTrue();
+	}
+
+	@DisplayName("회원에 Role 식별자값을 제거한다")
+	@Test
+	void removeRoleId() {
+		Member member = createMember();
+		Long roleId = 1L;
+		member.addRoleId(roleId);
+
+		member.removeRoleId(roleId);
+
+		Assertions.assertThat(member.containsRoleId(roleId)).isFalse();
 	}
 }

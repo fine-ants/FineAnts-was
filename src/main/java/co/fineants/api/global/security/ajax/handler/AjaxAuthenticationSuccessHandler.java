@@ -2,6 +2,8 @@ package co.fineants.api.global.security.ajax.handler;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.domain.member.domain.dto.response.LoginResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -30,6 +34,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
 	private final TokenFactory tokenFactory;
+	private final RoleRepository roleRepository;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -40,7 +45,10 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("utf-8");
 
-		Token token = tokenService.generateToken(MemberAuthentication.from(member), new Date());
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		Token token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), new Date());
 		ApiResponse<LoginResponse> body = ApiResponse.success(MemberSuccessCode.OK_LOGIN);
 
 		CookieUtils.setCookie(response, tokenFactory.createAccessTokenCookie(token));

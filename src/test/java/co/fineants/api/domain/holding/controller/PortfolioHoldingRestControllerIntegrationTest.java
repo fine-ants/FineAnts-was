@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +25,11 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.security.factory.TokenFactory;
@@ -65,8 +69,12 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 
 	@Autowired
 	private PurchaseHistoryRepository purchaseHistoryRepository;
+
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	private Cookie accessTokenCookie;
 	private Cookie refreshTokenCookie;
@@ -111,7 +119,10 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		setAuthentication(member);
 
 		// 토큰 생성 및 쿠키 설정
-		Token token = tokenService.generateToken(MemberAuthentication.from(member), new Date());
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		Token token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), new Date());
 		accessTokenCookie = getRestAssuredCookie(tokenFactory.createAccessTokenCookie(token));
 		refreshTokenCookie = getRestAssuredCookie(tokenFactory.createRefreshTokenCookie(token));
 	}

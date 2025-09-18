@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotificationResponse;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
@@ -45,14 +44,14 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void fetchNotifications() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
 		given(mockedMemberNotificationService.searchMemberNotifications(anyLong()))
 			.willReturn(MemberNotificationResponse.create(mockNotifications));
 
 		// when & then
-		mockMvc.perform(get("/api/members/{memberId}/notifications", member.getId()))
+		mockMvc.perform(get("/api/members/{memberId}/notifications", memberId))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
@@ -67,7 +66,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
 		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
@@ -82,7 +81,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.map(MemberNotification::getNotificationId)
 			.toList();
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
 			.andExpect(status().isOk())
@@ -95,7 +94,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readAllNotifications_whenEmptyList_thenResponse400Error() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
 		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
@@ -108,7 +107,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 
 		List<Long> notificationIds = Collections.emptyList();
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
 			.andExpect(status().isBadRequest())
@@ -121,7 +120,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readAllNotifications_whenInvalidInput_thenResponse400Error() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
 		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
@@ -135,7 +134,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("notificationIds", null);
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(requestBodyMap)))
 			.andExpect(status().isBadRequest())
@@ -148,7 +147,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deleteAllNotifications() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
 		List<Long> notificationIds = mockNotifications.stream()
@@ -159,7 +158,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 
 		// when & then
 		mockMvc.perform(delete("/api/members/{memberId}/notifications",
-				member.getId())
+				memberId)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
 			.andExpect(status().isOk())
@@ -172,7 +171,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deleteNotification() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
 
 		MemberNotification mockNotification = MemberNotification.builder()
 			.notificationId(3L)
@@ -187,8 +186,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.willReturn(List.of(mockNotification.getNotificationId()));
 
 		// when & then
-		mockMvc.perform(delete("/api/members/{memberId}/notifications/{notificationId}",
-				member.getId(),
+		mockMvc.perform(delete("/api/members/{memberId}/notifications/{notificationId}", memberId,
 				mockNotification.getNotificationId()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))

@@ -25,8 +25,6 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.member.domain.entity.Role;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
@@ -35,6 +33,7 @@ import co.fineants.api.domain.notificationpreference.repository.NotificationPref
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
@@ -137,7 +136,7 @@ public class MemberService {
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		member = request.toEntity(profileUrl, encryptedPassword);
-		member.addMemberRole(MemberRole.of(member, userRole));
+		member.addRoleId(userRole.getId());
 		// 알림 계정 설정 추가
 		member.setNotificationPreference(NotificationPreference.defaultSetting());
 		// 회원 데이터베이스 저장
