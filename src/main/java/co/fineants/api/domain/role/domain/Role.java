@@ -24,6 +24,7 @@ import lombok.ToString;
 public class Role {
 	@Id
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+	@Column(name = "role_id")
 	private Long id;
 
 	@Column(name = "role_name", nullable = false)
