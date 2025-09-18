@@ -43,9 +43,16 @@ public class Member extends BaseEntity {
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private NotificationPreference notificationPreference;
 
-	// todo: Set<RoleId>로 변경, MemberRoleId 제거
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
 	private final Set<MemberRole> roles = new HashSet<>();
+
+	// @ElementCollection
+	// @CollectionTable(
+	// 	name = "member_role_ids",
+	// 	joinColumns = @JoinColumn(name = "member_id")
+	// )
+	// @Column(name = "role_id")
+	// private final Set<Long> roleIds = new HashSet<>();
 
 	public Member(MemberProfile profile) {
 		setMemberProfile(profile);

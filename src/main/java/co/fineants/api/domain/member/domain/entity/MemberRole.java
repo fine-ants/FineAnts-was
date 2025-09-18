@@ -3,9 +3,11 @@ package co.fineants.api.domain.member.domain.entity;
 import org.springframework.security.core.GrantedAuthority;
 
 import co.fineants.api.domain.role.domain.Role;
-import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -19,8 +21,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = {"member", "role"})
 @Getter
 public class MemberRole {
-	@EmbeddedId
-	private MemberRoleId id;
+	@Id
+	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+	@Column(name = "member_role_id")
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Member member;
