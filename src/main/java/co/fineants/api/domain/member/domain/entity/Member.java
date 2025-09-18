@@ -1,7 +1,6 @@
 package co.fineants.api.domain.member.domain.entity;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -132,11 +131,7 @@ public class Member extends BaseEntity {
 	public Optional<String> getProfileUrl() {
 		return profile.getProfileUrl();
 	}
-
-	public Set<MemberRole> getRoles() {
-		return Collections.unmodifiableSet(roles);
-	}
-
+	
 	public void validateEmail(MemberValidationRule rule) {
 		profile.validateEmail(rule);
 	}
@@ -144,7 +139,7 @@ public class Member extends BaseEntity {
 	public void validateNickname(MemberValidationRule rule) {
 		profile.validateNickname(rule);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Member(id=%d, nickname=%s, email=%s, roleIds=%s)", id, getNickname(), getEmail(),
