@@ -23,8 +23,6 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -40,7 +38,6 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 
@@ -157,33 +154,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
-	}
-
-	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
-	@Test
-	void signup_whenOverProfileImageFile_thenResponse400Error() {
-		// given
-		MultipartFile profileFile = createOverSizeMockProfileFile(); // 3MB
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileFile);
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
-			.hasMessage(profileFile.toString());
-	}
-
-	private static MultipartFile createOverSizeMockProfileFile() {
-		byte[] profile = new byte[3145728];
-		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")

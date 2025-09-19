@@ -266,6 +266,11 @@ public final class TestDataFactory {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static MultipartFile createOverSizeMockProfileFile() {
+		byte[] profile = new byte[3145728];
+		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
+	}
 
 	public static StockDividend createSamsungStockDividend(Stock stock) {
 		Money dividend = Money.won(361);

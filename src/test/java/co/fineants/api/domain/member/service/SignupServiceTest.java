@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
@@ -35,6 +36,7 @@ import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
@@ -363,5 +365,17 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					.isInstanceOf(EmailDuplicateException.class);
 			})
 		);
+	}
+
+	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 이미지를 업로드할 수 없다")
+	@Test
+	void upload_whenOverProfileImageFile_thenResponse400Error() {
+		// given
+		MultipartFile profileFile = TestDataFactory.createOverSizeMockProfileFile(); // 3MB
+		// when
+		Throwable throwable = catchThrowable(() -> service.upload(profileFile));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(MemberProfileUploadException.class);
 	}
 }
