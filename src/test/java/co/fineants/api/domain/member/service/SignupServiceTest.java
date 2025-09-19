@@ -13,7 +13,9 @@ import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,13 +27,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
+import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
@@ -240,5 +245,137 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		Assertions.assertThat(memberRepository.findAll())
 			.hasSize(1)
 			.contains(member);
+	}
+
+	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
+	@Test
+	void signup_whenDefaultProfile_thenSaveDefaultProfileUrl() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
+		);
+		String profileUrl = null;
+		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+			request.getPassword(), profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
+		// when
+		service.signup(member);
+
+		// then
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		Assertions.assertThat(findMember).isNotNull();
+		Assertions.assertThat(findMember.getProfileUrl()).isEmpty();
+	}
+
+	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateNickname() {
+		final String nickname = "일개미1234";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants1234@gmail.com",
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("닉네임이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants2345@gmail.com",
+					"ants2345@",
+					"ants2345@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(NicknameDuplicateException.class);
+			})
+		);
+	}
+
+	@DisplayName("사용자는 로컬 플랫폼의 이메일이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateLocalEmail() {
+		String email = "ants1234@gmail.com";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미1234",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("이메일이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미2345",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(EmailDuplicateException.class);
+			})
+		);
+	}
+
+	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 이미지를 업로드할 수 없다")
+	@Test
+	void upload_whenOverProfileImageFile_thenResponse400Error() {
+		// given
+		MultipartFile profileFile = TestDataFactory.createOverSizeMockProfileFile(); // 3MB
+		// when
+		Throwable throwable = catchThrowable(() -> service.upload(profileFile));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(MemberProfileUploadException.class);
 	}
 }
