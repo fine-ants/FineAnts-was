@@ -20,6 +20,7 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
@@ -86,15 +87,16 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 				Role.create("ROLE_MANAGER", "매니저"),
 				Role.create("ROLE_USER", "회원")
 			);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		assertThat(memberRepository.findAll())
 			.hasSize(3)
 			.containsExactlyInAnyOrder(
 				Member.createMember(MemberProfile.localMemberProfile(adminProperties.getEmail(),
-					adminProperties.getNickname(), adminProperties.getPassword(), null)),
+					adminProperties.getNickname(), adminProperties.getPassword(), null), notificationPreference),
 				Member.createMember(MemberProfile.localMemberProfile(managerProperties.getEmail(),
-					managerProperties.getNickname(), managerProperties.getPassword(), null)),
+					managerProperties.getNickname(), managerProperties.getPassword(), null), notificationPreference),
 				Member.createMember(MemberProfile.localMemberProfile(userProperties.getEmail(),
-					userProperties.getNickname(), userProperties.getPassword(), null))
+					userProperties.getNickname(), userProperties.getPassword(), null), notificationPreference)
 			);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

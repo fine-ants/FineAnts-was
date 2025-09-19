@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
@@ -37,7 +38,6 @@ import co.fineants.api.domain.member.controller.MemberNotificationRestController
 import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.controller.SignUpRestControllerTest;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;
@@ -93,9 +93,7 @@ public abstract class ControllerTestSupport {
 	private ExDividendDateCalculator exDividendDateCalculator;
 
 	protected static Member createMember() {
-		MemberProfile profile = MemberProfile.localMemberProfile("dragonbead95@naver.com", "nemo1234", "nemo1234@",
-			"profileUrl");
-		return Member.createMember(profile);
+		return TestDataFactory.createMember();
 	}
 
 	@BeforeEach
