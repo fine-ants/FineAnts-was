@@ -44,10 +44,6 @@ public class Member extends BaseEntity {
 	@Column(name = "role_id")
 	private final Set<Long> roleIds = new HashSet<>();
 
-	public Member(MemberProfile profile) {
-		setMemberProfile(profile);
-	}
-
 	public Member(MemberProfile profile, NotificationPreference notificationPreference) {
 		setMemberProfile(profile);
 		setNotificationPreference(notificationPreference);
@@ -59,7 +55,7 @@ public class Member extends BaseEntity {
 		}
 		this.profile = profile;
 	}
-	
+
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
 		return new Member(profile, notificationPreference);
 	}
