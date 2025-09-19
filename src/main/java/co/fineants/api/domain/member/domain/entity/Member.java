@@ -59,11 +59,7 @@ public class Member extends BaseEntity {
 		}
 		this.profile = profile;
 	}
-
-	public static Member createMember(MemberProfile profile) {
-		return new Member(profile);
-	}
-
+	
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
 		return new Member(profile, notificationPreference);
 	}
