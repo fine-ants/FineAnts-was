@@ -28,7 +28,6 @@ import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -96,7 +95,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private static MultipartFile createEmptyProfileImageFile() {
 		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
-	
+
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
 	@ParameterizedTest
 	@MethodSource(value = "validChangeProfileSource")
@@ -161,28 +160,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
-	}
-
-	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
-	@Test
-	void signup_whenDefaultProfile_thenSaveDefaultProfileUrl() {
-		// given
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = null;
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-
-		// when
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("nickname", "email", "profileUrl", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", null, "local");
 	}
 
 	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")

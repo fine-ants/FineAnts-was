@@ -13,7 +13,9 @@ import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -248,9 +250,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// given
 		SignUpRequest request = new SignUpRequest(
 			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
 		);
 		String profileUrl = null;
 		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
@@ -264,5 +266,53 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
 		Assertions.assertThat(findMember).isNotNull();
 		Assertions.assertThat(findMember.getProfileUrl()).isEmpty();
+	}
+
+	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateNickname() {
+		final String nickname = "일개미1234";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants1234@gmail.com",
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("닉네임이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants2345@gmail.com",
+					"ants2345@",
+					"ants2345@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(NicknameDuplicateException.class);
+			})
+		);
 	}
 }
