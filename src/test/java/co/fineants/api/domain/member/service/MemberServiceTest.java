@@ -96,20 +96,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private static MultipartFile createEmptyProfileImageFile() {
 		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
-
-	public static Stream<Arguments> signupMethodSource() {
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = createProfileFile();
-		return Stream.of(
-			Arguments.of(request, profileImageFile)
-		);
-	}
-
+	
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
 	@ParameterizedTest
 	@MethodSource(value = "validChangeProfileSource")
@@ -174,25 +161,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
-	}
-
-	@DisplayName("사용자는 일반 회원가입한다")
-	@MethodSource(value = "signupMethodSource")
-	@ParameterizedTest
-	void signup(SignUpRequest request, MultipartFile profileImageFile) {
-		// given
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-
-		// when
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("nickname", "email", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", "local");
-		assertThat(response)
-			.extracting("profileUrl")
-			.isNotNull();
 	}
 
 	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")

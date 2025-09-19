@@ -241,4 +241,28 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			.hasSize(1)
 			.contains(member);
 	}
+
+	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
+	@Test
+	void signup_whenDefaultProfile_thenSaveDefaultProfileUrl() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"dragonbead95@naver.com",
+			"nemo1234@",
+			"nemo1234@"
+		);
+		String profileUrl = null;
+		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+			request.getPassword(), profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
+		// when
+		service.signup(member);
+
+		// then
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		Assertions.assertThat(findMember).isNotNull();
+		Assertions.assertThat(findMember.getProfileUrl()).isEmpty();
+	}
 }
