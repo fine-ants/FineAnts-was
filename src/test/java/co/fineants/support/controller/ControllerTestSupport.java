@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
@@ -91,10 +90,6 @@ public abstract class ControllerTestSupport {
 	@Autowired
 	private PortfolioProperties properties;
 	private ExDividendDateCalculator exDividendDateCalculator;
-
-	protected static Member createMember() {
-		return TestDataFactory.createMember();
-	}
 
 	@BeforeEach
 	void setup() throws Exception {

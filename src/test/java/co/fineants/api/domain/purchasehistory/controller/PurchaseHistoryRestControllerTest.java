@@ -21,6 +21,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -54,7 +55,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	void addPurchaseHistory(Count numShares) throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.of(2023, 10, 23, 10, 0, 0),
@@ -95,7 +96,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void addPurchaseHistoryWithInvalidInput() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory", portfolio.getId(),
 			portfolioHolding.getId());
@@ -124,7 +125,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void addPurchaseHistoryThrowsExceptionWhenTotalInvestmentExceedsBudget() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory", portfolio.getId(),
 			portfolioHolding.getId());
@@ -160,7 +161,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyPurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
 			Money.won(50000), "첫구매", portfolioHolding);
@@ -192,7 +193,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
 			Money.won(50000), "첫구매", portfolioHolding);

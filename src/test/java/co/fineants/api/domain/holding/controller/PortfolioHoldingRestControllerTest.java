@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
@@ -113,7 +114,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		// given
 		given(mockedlocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
@@ -246,7 +247,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
 	@Test
 	void addPortfolioStock() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -280,7 +281,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오 종목을 입력하고 매입 이력 정보를 일부만 입력하는 경우 포트폴리오 종목만 저장된다")
 	@Test
 	void savePortfolioHolding_whenPurchaseHistoryIsNotComplete_thenThrowException() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -314,7 +315,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목만 추가한다")
 	@Test
 	void addPortfolioStockOnly() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -341,7 +342,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목을 추가할때 stockId를 필수로 같이 전송해야 한다")
 	@Test
 	void addPortfolioStockWithStockIdIsNull() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
@@ -365,7 +366,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePortfolioStock() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
@@ -387,7 +388,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePortfolioStocks() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		List<Long> delPortfolioHoldingIds = List.of(1L, 2L);
@@ -414,7 +415,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@ParameterizedTest
 	void deletePortfolioStocks_withInvalidItems(List<Long> portfolioHoldingIds) throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
@@ -437,7 +438,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readMyPortfolioCharts() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
