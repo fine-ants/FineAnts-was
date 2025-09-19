@@ -16,10 +16,9 @@ import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
@@ -43,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
-	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final AdminProperties adminProperties;
 	private final ManagerProperties managerProperties;
@@ -109,8 +107,10 @@ public class SetupDataLoader {
 
 	private void createMemberIfNotFound(String email, String nickname, String password,
 		Set<Role> roleSet) {
-		Member member = memberRepository.save(findOrCreateNewMember(email, nickname, password, roleSet));
-		initializeNotificationPreferenceIfNotExists(member);
+		Member member = findOrCreateNewMember(email, nickname, password, roleSet);
+		NotificationPreference newPreference = NotificationPreference.allActive();
+		member.setNotificationPreference(newPreference);
+		memberRepository.save(member);
 	}
 
 	private Member findOrCreateNewMember(String email, String nickname, String password, Set<Role> roleSet) {
@@ -118,20 +118,12 @@ public class SetupDataLoader {
 			.orElseGet(supplierNewMember(email, nickname, password, roleSet));
 	}
 
-	private void initializeNotificationPreferenceIfNotExists(Member member) {
-		if (member.getNotificationPreference() == null) {
-			NotificationPreference newPreference = NotificationPreference.allActive();
-			member.setNotificationPreference(newPreference);
-			notificationPreferenceRepository.save(newPreference);
-		}
-	}
-
 	@NotNull
 	private Supplier<Member> supplierNewMember(String email, String nickname, String password, Set<Role> roleSet) {
 		return () -> {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
-			Member newMember = Member.localMember(profile);
+			Member newMember = Member.createMember(profile);
 			Set<Long> roleIds = roleSet.stream()
 				.map(Role::getId)
 				.collect(Collectors.toSet());

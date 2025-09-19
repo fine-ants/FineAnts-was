@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,25 +25,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
-class SignupServiceTest extends AbstractContainerBaseTest {
+class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
 	private SignupService service;
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private NotificationPreferenceRepository notificationPreferenceRepository;
 
 	@Autowired
 	private AmazonS3 amazonS3;
@@ -52,6 +51,9 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
+
+	@Autowired
+	private MemberProfileFactory profileFactory;
 
 	private static Stream<Arguments> invalidEmailSource() {
 		return Stream.of(
@@ -83,18 +85,6 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	private static Stream<Arguments> invalidProfileUrlSource() {
 		return Stream.of(
 			Arguments.of((String)null), // null URL
@@ -111,15 +101,14 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 	void should_saveMember_whenSignup() {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", "ants1", "ants1234@", null);
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
+		member.setNotificationPreference(NotificationPreference.defaultSetting());
+
 		// when
 		service.signup(member);
 		// then
 		int memberSize = memberRepository.findAll().size();
 		assertThat(memberSize).isEqualTo(1);
-		
-		int preferenceSize = notificationPreferenceRepository.findAll().size();
-		assertThat(preferenceSize).isEqualTo(1);
 	}
 
 	@DisplayName("사용자는 유효하지 않은 형식의 이메일이 주어졌을때 회원가입에 실패한다")
@@ -128,7 +117,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 	void givenInvalidEmail_whenValidateEmail_thenFailSignup(String email) {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile(email, "ants1", "ants1234@", null);
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(member));
 		// then
@@ -142,7 +131,7 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 	void givenInvalidNickname_whenValidateNickname_thenFailSignup(String nickname) {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(member));
 		// then
@@ -156,12 +145,13 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		// given
 		String nickname = "ants1";
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
+		member.setNotificationPreference(NotificationPreference.defaultSetting());
 		memberRepository.save(member);
 
 		MemberProfile otherProfile = MemberProfile.localMemberProfile("ants4567@gmail.com", nickname, "ants4567@",
 			null);
-		Member otherMember = Member.localMember(otherProfile);
+		Member otherMember = Member.createMember(otherProfile);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(otherMember));
 		// then
@@ -194,6 +184,18 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
 	}
 
+	private static MultipartFile createProfileFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private String extractKeyFromUrl(String url) {
 		Pattern pattern = Pattern.compile(profilePath + "[0-9a-f\\-]+profile\\.jpeg");
 		Matcher matcher = pattern.matcher(url);
@@ -212,5 +214,31 @@ class SignupServiceTest extends AbstractContainerBaseTest {
 			// 테스트 대상 코드
 			service.deleteProfileImageFile(profileUrl);
 		}).doesNotThrowAnyException();
+	}
+
+	@DisplayName("사용자는 일반 회원가입한다")
+	@Test
+	void signup() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
+		);
+		MultipartFile profileImageFile = createProfileFile();
+		String profileUrl = service.upload(profileImageFile).orElse(null);
+		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+			request.getPassword(), profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
+
+		// when
+		service.signup(member);
+
+		// then
+		Assertions.assertThat(memberRepository.findAll())
+			.hasSize(1)
+			.contains(member);
 	}
 }

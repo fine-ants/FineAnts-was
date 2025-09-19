@@ -24,7 +24,6 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +34,8 @@ public class CustomOidcUserService extends AbstractUserService implements OAuth2
 	private final RoleRepository roleRepository;
 
 	public CustomOidcUserService(MemberRepository memberRepository,
-		NotificationPreferenceRepository notificationPreferenceRepository,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
-		super(memberRepository, notificationPreferenceRepository, nicknameGenerator, roleRepository);
+		super(memberRepository, nicknameGenerator, roleRepository);
 		this.roleRepository = roleRepository;
 	}
 

@@ -66,20 +66,6 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
 
-	@DisplayName("회원이 watchlist를 추가한다.")
-	@Test
-	void createWatchList() {
-		// given
-		Member member = memberRepository.save(createMember());
-		CreateWatchListRequest request = new CreateWatchListRequest("My WatchList");
-
-		// when
-		CreateWatchListResponse response = watchListService.createWatchList(member.getId(), request);
-
-		// then
-		assertThat(response.getWatchlistId()).isNotNull();
-	}
-
 	@DisplayName("회원이 watchlist 목록을 조회한다.")
 	@Test
 	void readWatchLists() {
@@ -93,6 +79,20 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 		//then
 		assertThat(response).hasSize(2);
+	}
+
+	@DisplayName("회원이 watchlist를 추가한다.")
+	@Test
+	void createWatchList() {
+		// given
+		Member member = memberRepository.save(createMember());
+		CreateWatchListRequest request = new CreateWatchListRequest("My WatchList");
+
+		// when
+		CreateWatchListResponse response = watchListService.createWatchList(member.getId(), request);
+
+		// then
+		assertThat(response.getWatchlistId()).isNotNull();
 	}
 
 	@DisplayName("회원이 watchlist 단일 목록을 조회한다.")

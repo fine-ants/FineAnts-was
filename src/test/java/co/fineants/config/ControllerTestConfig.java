@@ -32,53 +32,37 @@ import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgume
 @TestConfiguration
 public class ControllerTestConfig {
 	@MockBean
+	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
+	@MockBean
 	private FcmService fcmService;
-
 	@MockBean
 	private MemberNotificationService notificationService;
-
 	@MockBean
 	private MemberNotificationPreferenceService preferenceService;
-
 	@MockBean
 	private MemberService memberService;
-
 	@MockBean
 	private PortfolioService portFolioService;
-
 	@MockBean
 	private PortfolioHoldingService portfolioHoldingService;
-
 	@MockBean
 	private LocalDateTimeService localDateTimeService;
-
 	@MockBean
 	private PortfolioNotificationService portfolioNotificationService;
-
 	@MockBean
 	private PortfolioRepository portfolioRepository;
-
 	@MockBean
 	private PortfolioNotificationSettingService portfolioNotificationSettingService;
-
 	@MockBean
 	private PurchaseHistoryService purchaseHistoryService;
-
 	@MockBean
 	private StockService stockService;
-
 	@MockBean
 	private StockTargetPriceService stockTargetPriceService;
-
 	@MockBean
 	private TargetPriceNotificationService targetPriceNotificationService;
-
 	@MockBean
 	private WatchListService watchListService;
-
-	@MockBean
-	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
-
 	@MockBean
 	private PortfolioStreamer portfolioStreamer;
 

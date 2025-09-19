@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.domain.member.service.VerifyCodeGenerator;
@@ -45,17 +46,13 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 
 public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
-	private MockMvc mockMvc;
-
-	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
-
 	@Autowired
 	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
-
 	@Autowired
 	protected ObjectMapper objectMapper;
-
+	private MockMvc mockMvc;
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
 	@Autowired
 	private SignUpRestController controller;
 
@@ -68,10 +65,11 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
 
-	private void saveMember(String nickname, String email) {
-		Member member = Member.localMember(
-			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
-		signupService.signup(member);
+	public static Stream<Arguments> invalidSignupData() {
+		return Stream.of(
+			Arguments.of("", "", "", ""),
+			Arguments.of("a", "a", "a", "a")
+		);
 	}
 
 	@BeforeEach
@@ -108,6 +106,18 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(201)))
 			.andExpect(jsonPath("status").value(equalTo("Created")))
 			.andExpect(jsonPath("message").value(equalTo("회원가입이 완료되었습니다")));
+	}
+
+	public MultipartFile createMockMultipartFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@DisplayName("사용자는 기본 프로필 사진으로 회원가입 할 수 있다")
@@ -189,6 +199,13 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("Conflict")))
 			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
 			.andExpect(jsonPath("data").value(equalTo("일개미1234")));
+	}
+
+	private void saveMember(String nickname, String email) {
+		Member member = Member.createMember(
+			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
+		member.setNotificationPreference(NotificationPreference.allActive());
+		signupService.signup(member);
 	}
 
 	@DisplayName("사용자는 중복된 이메일로는 회원가입 할 수 없다")
@@ -390,24 +407,5 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(400)))
 			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
-	}
-
-	public MultipartFile createMockMultipartFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static Stream<Arguments> invalidSignupData() {
-		return Stream.of(
-			Arguments.of("", "", "", ""),
-			Arguments.of("a", "a", "a", "a")
-		);
 	}
 }

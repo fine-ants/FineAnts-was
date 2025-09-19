@@ -81,30 +81,6 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	private Portfolio portfolio;
 	private Stock samsung;
 
-	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
-		return new Cookie.Builder(cookie.getName(), cookie.getValue())
-			.setDomain(cookie.getDomain())
-			.setPath(cookie.getPath())
-			.setHttpOnly(cookie.isHttpOnly())
-			.setSecured(cookie.isSecure())
-			.setSameSite(cookie.getSameSite())
-			.build();
-	}
-
-	@NotNull
-	private Map<String, Object> getPortfolioHoldingCreateRequestBodyMap() {
-		Map<String, Object> purchaseHistoryMap = new HashMap<>();
-		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
-		purchaseHistoryMap.put("numShares", 10L);
-		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
-		purchaseHistoryMap.put("memo", "memo");
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "005930");
-		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
-		return requestBodyMap;
-	}
-
 	@BeforeEach
 	void setUp() {
 		RestAssured.port = port;
@@ -125,6 +101,16 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		Token token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), new Date());
 		accessTokenCookie = getRestAssuredCookie(tokenFactory.createAccessTokenCookie(token));
 		refreshTokenCookie = getRestAssuredCookie(tokenFactory.createRefreshTokenCookie(token));
+	}
+
+	private Cookie getRestAssuredCookie(ResponseCookie cookie) {
+		return new Cookie.Builder(cookie.getName(), cookie.getValue())
+			.setDomain(cookie.getDomain())
+			.setPath(cookie.getPath())
+			.setHttpOnly(cookie.isHttpOnly())
+			.setSecured(cookie.isSecure())
+			.setSameSite(cookie.getSameSite())
+			.build();
 	}
 
 	@DisplayName("포트폴리오 종목 및 매입이력 생성")
@@ -152,6 +138,20 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 		assertThat(portfolioHoldingRepository.findById(holdingId)).isPresent();
 		assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(holdingId)).hasSize(1);
 		assertThat(redisTemplate.opsForValue().get("tickerSymbols::" + portfolio.getId())).isNotNull();
+	}
+
+	@NotNull
+	private Map<String, Object> getPortfolioHoldingCreateRequestBodyMap() {
+		Map<String, Object> purchaseHistoryMap = new HashMap<>();
+		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
+		purchaseHistoryMap.put("numShares", 10L);
+		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
+		purchaseHistoryMap.put("memo", "memo");
+
+		Map<String, Object> requestBodyMap = new HashMap<>();
+		requestBodyMap.put("tickerSymbol", "005930");
+		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
+		return requestBodyMap;
 	}
 
 	@DisplayName("같은 종목에 대하여 포트폴리오 종목 생성시 중복적으로 생성되지 않는다")

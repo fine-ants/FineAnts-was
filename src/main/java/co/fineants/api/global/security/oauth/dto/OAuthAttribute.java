@@ -86,6 +86,6 @@ public class OAuthAttribute {
 	public Member toEntity(NicknameGenerator generator) {
 		String nickname = generator.generate();
 		MemberProfile profile = MemberProfile.oauthMemberProfile(email, nickname, provider, profileUrl);
-		return Member.oauthMember(profile);
+		return Member.createMember(profile);
 	}
 }

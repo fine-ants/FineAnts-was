@@ -53,7 +53,7 @@ public class ProfileResponse {
 		private Boolean targetPriceNotify;
 
 		public static NotificationPreference from(
-			co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference preference) {
+			co.fineants.api.domain.member.domain.entity.NotificationPreference preference) {
 			return NotificationPreference.builder()
 				.browserNotify(preference.isBrowserNotify())
 				.targetGainNotify(preference.isTargetGainNotify())

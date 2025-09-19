@@ -82,20 +82,21 @@ import co.fineants.config.ControllerTestConfig;
 public abstract class ControllerTestSupport {
 
 	protected MockMvc mockMvc;
-
-	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
-
 	@Autowired
 	protected ObjectMapper objectMapper;
-
-	@Autowired
-	private PortfolioProperties properties;
-
-	private ExDividendDateCalculator exDividendDateCalculator;
-
 	@Autowired
 	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
+	@Autowired
+	private PortfolioProperties properties;
+	private ExDividendDateCalculator exDividendDateCalculator;
+
+	protected static Member createMember() {
+		MemberProfile profile = MemberProfile.localMemberProfile("dragonbead95@naver.com", "nemo1234", "nemo1234@",
+			"profileUrl");
+		return Member.createMember(profile);
+	}
 
 	@BeforeEach
 	void setup() throws Exception {
@@ -125,11 +126,7 @@ public abstract class ControllerTestSupport {
 		);
 	}
 
-	protected static Member createMember() {
-		MemberProfile profile = MemberProfile.localMemberProfile("dragonbead95@naver.com", "nemo1234", "nemo1234@",
-			"profileUrl");
-		return Member.localMember(profile);
-	}
+	protected abstract Object initController();
 
 	protected Portfolio createPortfolio(Member member) {
 		return createPortfolio(
@@ -181,6 +178,4 @@ public abstract class ControllerTestSupport {
 	protected PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
 		return PortfolioGainHistory.empty(portfolio);
 	}
-
-	protected abstract Object initController();
 }

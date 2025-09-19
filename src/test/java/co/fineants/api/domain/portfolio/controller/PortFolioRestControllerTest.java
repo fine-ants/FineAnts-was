@@ -42,6 +42,12 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 	@Autowired
 	private PortfolioService mockedPortfolioService;
 
+	public static Stream<Arguments> invalidPortfolioInput() {
+		return Stream.of(
+			Arguments.of("", "", 0L, null, -1L)
+		);
+	}
+
 	@Override
 	protected Object initController() {
 		return new PortFolioRestController(mockedPortfolioService);
@@ -232,11 +238,5 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("포트폴리오 삭제가 완료되었습니다")))
 			.andExpect(jsonPath("data").value(equalTo(null)));
-	}
-
-	public static Stream<Arguments> invalidPortfolioInput() {
-		return Stream.of(
-			Arguments.of("", "", 0L, null, -1L)
-		);
 	}
 }

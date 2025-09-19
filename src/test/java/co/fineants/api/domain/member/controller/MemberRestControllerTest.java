@@ -91,6 +91,18 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.profileUrl").value(notNullValue()));
 	}
 
+	public MultipartFile createMockMultipartFile() {
+		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
+		try {
+			Path path = Paths.get(classPathResource.getURI());
+			byte[] profile = Files.readAllBytes(path);
+			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
+				profile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@DisplayName("사용자는 회원의 프로필에서 새 프로필만 수정한다")
 	@Test
 	void changeProfile_whenNewProfile_thenOK() throws Exception {
@@ -125,6 +137,10 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
 			.andExpect(jsonPath("data.user.profileUrl").value(nullValue()));
+	}
+
+	public MultipartFile createEmptyMockMultipartFile() {
+		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 프로필을 유지하고 닉네임만 변경한다")
@@ -172,21 +188,5 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
 			.andExpect(jsonPath("data[0].field").value(equalTo("nickname")))
 			.andExpect(jsonPath("data[0].defaultMessage").value(equalTo("잘못된 입력형식입니다.")));
-	}
-
-	public MultipartFile createMockMultipartFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public MultipartFile createEmptyMockMultipartFile() {
-		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
 }

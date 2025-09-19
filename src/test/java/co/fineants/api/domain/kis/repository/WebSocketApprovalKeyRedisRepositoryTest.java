@@ -18,6 +18,14 @@ class WebSocketApprovalKeyRedisRepositoryTest extends AbstractContainerBaseTest 
 	@Autowired
 	private WebSocketApprovalKeyRedisRepository repository;
 
+	public static Stream<Arguments> invalidApprovalKey() {
+		return Stream.of(
+			Arguments.of(""),
+			Arguments.of(" "),
+			Arguments.of((Object)null)
+		);
+	}
+
 	@DisplayName("웹소켓 접근 키를 저장한다")
 	@Test
 	void saveApprovalKey() {
@@ -39,14 +47,6 @@ class WebSocketApprovalKeyRedisRepositoryTest extends AbstractContainerBaseTest 
 		repository.saveApprovalKey(approvalKey);
 		// then
 		Assertions.assertThat(repository.fetchApprovalKey()).isEmpty();
-	}
-
-	public static Stream<Arguments> invalidApprovalKey() {
-		return Stream.of(
-			Arguments.of(""),
-			Arguments.of(" "),
-			Arguments.of((Object)null)
-		);
 	}
 
 	@DisplayName("웹소켓 접근키를 가져온다")

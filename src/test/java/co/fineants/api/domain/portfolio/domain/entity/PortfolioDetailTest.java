@@ -21,6 +21,16 @@ class PortfolioDetailTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioProperties properties;
 
+	private static Stream<Arguments> invalidPortfolioNames() {
+		return Stream.of(
+			Arguments.of(
+				"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+				"이름이 100글자를 초과"),
+			Arguments.of(" portfolio1", "공백으로 시작함"),
+			Arguments.of("#!@$!@#!@#4!@4", "특수문자가 포함됨")
+		);
+	}
+
 	@DisplayName("포트폴리오 상세 정보를 생성한다")
 	@Test
 	void of() {
@@ -61,16 +71,6 @@ class PortfolioDetailTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(throwable)
 			.isInstanceOf(PortfolioNameInvalidException.class)
 			.hasMessage(String.format("Invalid Portfolio name: %s", name));
-	}
-
-	private static Stream<Arguments> invalidPortfolioNames() {
-		return Stream.of(
-			Arguments.of(
-				"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-				"이름이 100글자를 초과"),
-			Arguments.of(" portfolio1", "공백으로 시작함"),
-			Arguments.of("#!@$!@#!@#4!@4", "특수문자가 포함됨")
-		);
 	}
 
 }

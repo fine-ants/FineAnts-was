@@ -5,6 +5,6 @@ import co.fineants.api.domain.member.domain.entity.MemberProfile;
 
 public class MemberFactory {
 	public Member localMember(MemberProfile profile) {
-		return Member.localMember(profile);
+		return Member.createMember(profile);
 	}
 }

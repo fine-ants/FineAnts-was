@@ -1,49 +1,32 @@
-package co.fineants.api.domain.notificationpreference.domain.entity;
+package co.fineants.api.domain.member.domain.entity;
 
-import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.member.domain.entity.Member;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@EqualsAndHashCode(exclude = {"id", "member"}, callSuper = false)
-public class NotificationPreference extends BaseEntity {
+@EqualsAndHashCode
+public class NotificationPreference {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
+	@Column(name = "browser_notify", nullable = false)
 	private boolean browserNotify;
 
+	@Column(name = "target_gain_notify", nullable = false)
 	private boolean targetGainNotify;
 
+	@Column(name = "max_loss_notify", nullable = false)
 	private boolean maxLossNotify;
 
+	@Column(name = "target_price_notify", nullable = false)
 	private boolean targetPriceNotify;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member member;
-
-	private NotificationPreference(boolean browserNotify, boolean targetGainNotify, boolean maxLossNotify,
+	public NotificationPreference(boolean browserNotify, boolean targetGainNotify, boolean maxLossNotify,
 		boolean targetPriceNotify) {
-		this(null, browserNotify, targetGainNotify, maxLossNotify, targetPriceNotify);
-	}
-
-	private NotificationPreference(Long id, boolean browserNotify, boolean targetGainNotify, boolean maxLossNotify,
-		boolean targetPriceNotify) {
-		this.id = id;
 		this.browserNotify = browserNotify;
 		this.targetGainNotify = targetGainNotify;
 		this.maxLossNotify = maxLossNotify;
@@ -61,13 +44,6 @@ public class NotificationPreference extends BaseEntity {
 	public static NotificationPreference create(boolean browserNotify, boolean targetGainNotify, boolean maxLossNotify,
 		boolean targetPriceNotify) {
 		return new NotificationPreference(browserNotify, targetGainNotify, maxLossNotify, targetPriceNotify);
-	}
-
-	public void setMember(Member member) {
-		this.member = member;
-		if (member != null && member.getNotificationPreference() != this) {
-			member.setNotificationPreference(this);
-		}
 	}
 
 	public void changePreference(NotificationPreference notificationPreference) {
@@ -94,9 +70,5 @@ public class NotificationPreference extends BaseEntity {
 
 	public boolean isPossibleStockTargetPriceNotification() {
 		return this.browserNotify && this.targetPriceNotify;
-	}
-
-	public boolean hasAuthorization(Long memberId) {
-		return member.hasAuthorization(memberId);
 	}
 }

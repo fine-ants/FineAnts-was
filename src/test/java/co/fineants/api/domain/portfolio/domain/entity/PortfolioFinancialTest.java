@@ -16,6 +16,37 @@ import co.fineants.api.global.errors.exception.domain.TargetGainLessThanBudgetEx
 
 class PortfolioFinancialTest extends AbstractContainerBaseTest {
 
+	private static Stream<Arguments> portfolioFinancialInfo() {
+		return Stream.of(
+			Arguments.of(1_000_000, 1_500_000, 900_000),
+			Arguments.of(0, 0, 0),
+			Arguments.of(0, 1_500_000, 900_000),
+			Arguments.of(1_000_000, 0, 0),
+			Arguments.of(1_000_000, 1_500_000, 0),
+			Arguments.of(1_000_000, 0, 900_000)
+		);
+	}
+
+	public static Stream<Arguments> invalidPortfolioFinancialInfoWithTargetGain() {
+		return Stream.of(
+			Arguments.of(1_000_000, 900_000, 900_000, "목표수익금액은 예산보다 작거나 같으면 안된다")
+		);
+	}
+
+	public static Stream<Arguments> invalidPortfolioFinancialInfoWithNegative() {
+		return Stream.of(
+			Arguments.of(-1_000_000, 1_500_000, 900_000, "예산은 음수이면 안된다"),
+			Arguments.of(1_000_000, -1_500_000, 900_000, "목표수익금액은 음수이면 안된다"),
+			Arguments.of(1_000_000, 1_500_000, -900_000, "최대손실금액은 음수이면 안된다")
+		);
+	}
+
+	public static Stream<Arguments> invalidPortfolioFinancialInfoWithMaximumLoss() {
+		return Stream.of(
+			Arguments.of(1_000_000, 1_500_000, 1_500_000, "최대손실금액은 예산보다 크거나 같으면 안된다")
+		);
+	}
+
 	@DisplayName("예산, 목표수익금액, 최대손실금액이 주어지고 포트폴리오 금융 정보 객체를 생성한다")
 	@ParameterizedTest(name = "[{index}] budget:{0}, targetGain:{1}, maximumLoss:{2}")
 	@MethodSource(value = "portfolioFinancialInfo")
@@ -31,17 +62,6 @@ class PortfolioFinancialTest extends AbstractContainerBaseTest {
 		String expected = String.format("(budget=%s, targetGain=%s, maximumLoss=%s)", budgetMoney, targetGainMoney,
 			maximumLossMoney);
 		Assertions.assertThat(financial.toString()).hasToString(expected);
-	}
-
-	private static Stream<Arguments> portfolioFinancialInfo() {
-		return Stream.of(
-			Arguments.of(1_000_000, 1_500_000, 900_000),
-			Arguments.of(0, 0, 0),
-			Arguments.of(0, 1_500_000, 900_000),
-			Arguments.of(1_000_000, 0, 0),
-			Arguments.of(1_000_000, 1_500_000, 0),
-			Arguments.of(1_000_000, 0, 900_000)
-		);
 	}
 
 	@DisplayName("유효하지 않은 목표수익금액이 주어지고 포트폴리오 금융 정보 객체 생성을 실패한다")
@@ -96,25 +116,5 @@ class PortfolioFinancialTest extends AbstractContainerBaseTest {
 			.isInstanceOf(MaximumLossGreaterThanBudgetException.class)
 			.hasMessage(
 				String.format("Maximum loss cannot be greater than budget: %s > %s", maximumLossMoney, budgetMoney));
-	}
-
-	public static Stream<Arguments> invalidPortfolioFinancialInfoWithTargetGain() {
-		return Stream.of(
-			Arguments.of(1_000_000, 900_000, 900_000, "목표수익금액은 예산보다 작거나 같으면 안된다")
-		);
-	}
-
-	public static Stream<Arguments> invalidPortfolioFinancialInfoWithNegative() {
-		return Stream.of(
-			Arguments.of(-1_000_000, 1_500_000, 900_000, "예산은 음수이면 안된다"),
-			Arguments.of(1_000_000, -1_500_000, 900_000, "목표수익금액은 음수이면 안된다"),
-			Arguments.of(1_000_000, 1_500_000, -900_000, "최대손실금액은 음수이면 안된다")
-		);
-	}
-
-	public static Stream<Arguments> invalidPortfolioFinancialInfoWithMaximumLoss() {
-		return Stream.of(
-			Arguments.of(1_000_000, 1_500_000, 1_500_000, "최대손실금액은 예산보다 크거나 같으면 안된다")
-		);
 	}
 }

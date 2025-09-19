@@ -30,6 +30,13 @@ class TargetPriceNotificationRestControllerTest extends ControllerTestSupport {
 	@Autowired
 	private TargetPriceNotificationService mockedTargetPriceNotificationService;
 
+	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
+		return Stream.of(
+			Arguments.of(null, Collections.emptyList()),
+			Arguments.of(null, null)
+		);
+	}
+
 	@Override
 	protected Object initController() {
 		return new TargetPriceNotificationRestController(mockedTargetPriceNotificationService);
@@ -106,12 +113,5 @@ class TargetPriceNotificationRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("해당 종목 지정가 알림을 제거했습니다")))
 			.andExpect(jsonPath("data").value(equalTo(null)));
-	}
-
-	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
-		return Stream.of(
-			Arguments.of(null, Collections.emptyList()),
-			Arguments.of(null, null)
-		);
 	}
 }

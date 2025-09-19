@@ -19,6 +19,7 @@ import co.fineants.api.domain.member.domain.dto.request.VerifyCodeRequest;
 import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.SignupService;
@@ -60,6 +61,7 @@ public class SignUpRestController {
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
 		Member member = memberFactory.localMember(profile);
+		member.setNotificationPreference(NotificationPreference.defaultSetting());
 
 		try {
 			signupService.signup(member);

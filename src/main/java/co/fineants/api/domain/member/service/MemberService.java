@@ -25,11 +25,10 @@ import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -45,7 +44,6 @@ import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
@@ -73,7 +71,6 @@ public class MemberService {
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
-	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final NotificationRepository notificationRepository;
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
@@ -271,8 +268,7 @@ public class MemberService {
 	@Secured("ROLE_USER")
 	public ProfileResponse readProfile(Long memberId) {
 		Member member = findMember(memberId);
-		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
-			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
+		NotificationPreference preference = member.getNotificationPreference();
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
 	}
 

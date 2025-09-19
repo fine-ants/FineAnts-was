@@ -77,6 +77,20 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 
+	private static Stream<Arguments> invalidTargetGain() {
+		return Stream.of(
+			Arguments.of(900000L),
+			Arguments.of(1000000L)
+		);
+	}
+
+	private static Stream<Arguments> invalidMaximumLoss() {
+		return Stream.of(
+			Arguments.of(1000000L),
+			Arguments.of(1100000L)
+		);
+	}
+
 	@DisplayName("회원이 포트폴리오를 추가한다")
 	@CsvSource(value = {
 		"토스증권,1000000,1500000,900000",
@@ -102,6 +116,17 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 			() -> assertThat(response).isNotNull(),
 			() -> assertThat(portfolioRepository.existsById(Objects.requireNonNull(response).getPortfolioId())).isTrue()
 		);
+	}
+
+	private Map<String, Object> createAddPortfolioRequestBodyMap(String securitiesFirm, Long budget, Long targetGain,
+		Long maximumLoss) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("name", "내꿈은 워렌버핏");
+		body.put("securitiesFirm", securitiesFirm);
+		body.put("budget", budget);
+		body.put("targetGain", targetGain);
+		body.put("maximumLoss", maximumLoss);
+		return body;
 	}
 
 	@DisplayName("회원은 포트폴리오를 추가할때 목표수익금액이 예산보다 같거나 작으면 안된다")
@@ -176,6 +201,14 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 			.hasMessage(expected);
 	}
 
+	private Map<String, Object> createAddPortfolioRequestBodyMap() {
+		return createAddPortfolioRequestBodyMap("토스증권");
+	}
+
+	private Map<String, Object> createAddPortfolioRequestBodyMap(String securitiesFirm) {
+		return createAddPortfolioRequestBodyMap(securitiesFirm, 1000000L, 1500000L, 900000L);
+	}
+
 	@DisplayName("회원은 포트폴리오 추가시 목록에 없는 증권사를 입력하여 추가할 수 없다")
 	@Test
 	void addPortfolio_shouldNotAllowNonExistingSecurities() {
@@ -229,6 +262,18 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		assertThat(changePortfolio.getMaximumLoss()).isEqualByComparingTo(Money.won(maximumLoss));
 	}
 
+	private Map<String, Object> createModifiedPortfolioRequestBodyMap(String name, String securitiesFirm, long budget,
+		long targetGain,
+		long maximumLoss) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("name", name);
+		body.put("securitiesFirm", securitiesFirm);
+		body.put("budget", budget);
+		body.put("targetGain", targetGain);
+		body.put("maximumLoss", maximumLoss);
+		return body;
+	}
+
 	@DisplayName("회원은 포트폴리오의 정보를 수정시 이름이 그대로인 경우 그대로 수정합니다.")
 	@Test
 	void updatePortfolio_whenNameUnchanged_thenNoDuplicateCheckAndApplyChanges() {
@@ -254,6 +299,15 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 				Portfolio::getTargetGain, Portfolio::getMaximumLoss)
 			.usingComparatorForType(Money::compareTo, Money.class)
 			.containsExactly("내꿈은 워렌버핏", "미래에셋증권", Money.won(1500000L), Money.won(2000000L), Money.won(900000L));
+	}
+
+	private Map<String, Object> createModifiedPortfolioRequestBodyMap(String name) {
+		return createModifiedPortfolioRequestBodyMap(
+			name,
+			"미래에셋증권",
+			1500000L,
+			2000000L,
+			900000L);
 	}
 
 	@DisplayName("회원이 포트폴리오의 이름을 수정할때 본인이 가지고 있는 다른 포트폴리오의 이름과 중복될 수 없다")
@@ -538,59 +592,5 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
-	}
-
-	private static Stream<Arguments> invalidTargetGain() {
-		return Stream.of(
-			Arguments.of(900000L),
-			Arguments.of(1000000L)
-		);
-	}
-
-	private static Stream<Arguments> invalidMaximumLoss() {
-		return Stream.of(
-			Arguments.of(1000000L),
-			Arguments.of(1100000L)
-		);
-	}
-
-	private Map<String, Object> createModifiedPortfolioRequestBodyMap(String name) {
-		return createModifiedPortfolioRequestBodyMap(
-			name,
-			"미래에셋증권",
-			1500000L,
-			2000000L,
-			900000L);
-	}
-
-	private Map<String, Object> createModifiedPortfolioRequestBodyMap(String name, String securitiesFirm, long budget,
-		long targetGain,
-		long maximumLoss) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("name", name);
-		body.put("securitiesFirm", securitiesFirm);
-		body.put("budget", budget);
-		body.put("targetGain", targetGain);
-		body.put("maximumLoss", maximumLoss);
-		return body;
-	}
-
-	private Map<String, Object> createAddPortfolioRequestBodyMap() {
-		return createAddPortfolioRequestBodyMap("토스증권");
-	}
-
-	private Map<String, Object> createAddPortfolioRequestBodyMap(String securitiesFirm) {
-		return createAddPortfolioRequestBodyMap(securitiesFirm, 1000000L, 1500000L, 900000L);
-	}
-
-	private Map<String, Object> createAddPortfolioRequestBodyMap(String securitiesFirm, Long budget, Long targetGain,
-		Long maximumLoss) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("name", "내꿈은 워렌버핏");
-		body.put("securitiesFirm", securitiesFirm);
-		body.put("budget", budget);
-		body.put("targetGain", targetGain);
-		body.put("maximumLoss", maximumLoss);
-		return body;
 	}
 }

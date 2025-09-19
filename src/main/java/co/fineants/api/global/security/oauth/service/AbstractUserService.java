@@ -7,11 +7,10 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractUserService {
 	private static final String DEFAULT_ROLE = "ROLE_USER";
 	private final MemberRepository memberRepository;
-	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final NicknameGenerator nicknameGenerator;
 	private final RoleRepository roleRepository;
 
@@ -57,7 +55,7 @@ public abstract class AbstractUserService {
 
 		if (member.getNotificationPreference() == null) {
 			NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-			notificationPreferenceRepository.save(notificationPreference);
+			member.setNotificationPreference(notificationPreference);
 		}
 		return memberRepository.save(member);
 	}

@@ -50,12 +50,12 @@ public class SignUpServiceRequest {
 
 	public Member toEntity() {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, null);
-		return Member.localMember(profile);
+		return Member.createMember(profile);
 	}
 
 	public Member toEntity(String profileUrl, String encodedPassword) {
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, encodedPassword, profileUrl);
-		return Member.localMember(profile);
+		return Member.createMember(profile);
 	}
 
 	public boolean matchPassword() {
