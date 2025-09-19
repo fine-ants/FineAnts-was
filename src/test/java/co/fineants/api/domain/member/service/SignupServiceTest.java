@@ -33,6 +33,7 @@ import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
@@ -312,6 +313,54 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 				// then
 				Assertions.assertThat(throwable)
 					.isInstanceOf(NicknameDuplicateException.class);
+			})
+		);
+	}
+
+	@DisplayName("사용자는 로컬 플랫폼의 이메일이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateLocalEmail() {
+		String email = "ants1234@gmail.com";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미1234",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("이메일이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미2345",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+					request.getPassword(), null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Member member = Member.createMember(profile, notificationPreference);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(EmailDuplicateException.class);
 			})
 		);
 	}

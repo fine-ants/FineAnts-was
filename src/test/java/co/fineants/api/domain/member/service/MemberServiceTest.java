@@ -161,30 +161,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
 	}
-
-	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")
-	@Test
-	void signup_whenDuplicatedNickname_thenResponse400Error() {
-		// given
-		String duplicatedNickname = "일개미1234";
-		memberRepository.save(createMember(duplicatedNickname));
-		SignUpRequest request = new SignUpRequest(
-			duplicatedNickname,
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(NicknameDuplicateException.class)
-			.hasMessage(duplicatedNickname);
-	}
-
+	
 	@DisplayName("사용자는 이메일이 중복되어 회원가입 할 수 없다")
 	@Test
 	void signup_whenDuplicatedEmail_thenResponse400Error() {
