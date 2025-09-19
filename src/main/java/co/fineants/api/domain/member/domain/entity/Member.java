@@ -48,6 +48,11 @@ public class Member extends BaseEntity {
 		setMemberProfile(profile);
 	}
 
+	public Member(MemberProfile profile, NotificationPreference notificationPreference) {
+		setMemberProfile(profile);
+		setNotificationPreference(notificationPreference);
+	}
+
 	private void setMemberProfile(MemberProfile profile) {
 		if (profile == null) {
 			throw new IllegalArgumentException("MemberProfile must not be null");
@@ -57,6 +62,10 @@ public class Member extends BaseEntity {
 
 	public static Member createMember(MemberProfile profile) {
 		return new Member(profile);
+	}
+
+	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
+		return new Member(profile, notificationPreference);
 	}
 
 	//** 연관 관계 엔티티 메서드 시작 **//
