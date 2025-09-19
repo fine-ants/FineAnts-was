@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,9 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -48,6 +51,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
+
+	@Autowired
+	private MemberProfileFactory profileFactory;
 
 	private static Stream<Arguments> invalidEmailSource() {
 		return Stream.of(
@@ -208,5 +214,31 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			// 테스트 대상 코드
 			service.deleteProfileImageFile(profileUrl);
 		}).doesNotThrowAnyException();
+	}
+
+	@DisplayName("사용자는 일반 회원가입한다")
+	@Test
+	void signup() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
+		);
+		MultipartFile profileImageFile = createProfileFile();
+		String profileUrl = service.upload(profileImageFile).orElse(null);
+		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
+			request.getPassword(), profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
+
+		// when
+		service.signup(member);
+
+		// then
+		Assertions.assertThat(memberRepository.findAll())
+			.hasSize(1)
+			.contains(member);
 	}
 }
