@@ -1,7 +1,5 @@
 package co.fineants.api.domain.member.domain.dto.request;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -46,10 +44,6 @@ public class SignUpRequest {
 		this.passwordConfirm = passwordConfirm;
 	}
 
-	public SignUpServiceRequest toSignUpServiceRequest(MultipartFile profileImageFile) {
-		return SignUpServiceRequest.create(nickname, email, password, passwordConfirm, profileImageFile);
-	}
-	
 	@Override
 	public String toString() {
 		return String.format("SignUpRequest(nickname=%s, email=%s, password=%s, passwordConfirm=%s)", nickname, email,

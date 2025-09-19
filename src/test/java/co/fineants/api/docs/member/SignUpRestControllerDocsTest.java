@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.SignUpRestController;
-import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupValidatorService;
@@ -38,11 +37,10 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		SignupService signupService = mock(SignupService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
-		MemberFactory memberFactory = new MemberFactory();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory,
-			memberFactory, signupVerificationService, signupValidatorService);
+		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory, signupVerificationService,
+			signupValidatorService);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
