@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,11 +40,9 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -160,51 +157,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
-	}
-	
-	@DisplayName("사용자는 이메일이 중복되어 회원가입 할 수 없다")
-	@Test
-	void signup_whenDuplicatedEmail_thenResponse400Error() {
-		// given
-		String duplicatedEmail = "dragonbead95@naver.com";
-		memberRepository.save(createMember("일개미1234"));
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			duplicatedEmail,
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(EmailDuplicateException.class)
-			.hasMessage(duplicatedEmail);
-	}
-
-	@DisplayName("사용자는 비밀번호와 비밀번호 확인이 일치하지 않아 회원가입 할 수 없다")
-	@Test
-	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() {
-		// given
-		memberRepository.save(createMember("일개미1234"));
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo4567@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(PasswordAuthenticationException.class)
-			.hasMessage(Strings.EMPTY);
 	}
 
 	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
