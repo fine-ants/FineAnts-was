@@ -26,6 +26,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Attributes;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -275,7 +276,7 @@ class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updateStockTargetPrice() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Stock stock = createSamsungStock();
 		StockTargetPrice stockTargetPrice = createStockTargetPrice(member, stock);
 		given(service.updateStockTargetPrice(

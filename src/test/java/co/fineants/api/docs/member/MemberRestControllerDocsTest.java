@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
@@ -126,7 +127,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void changeProfile() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 
 		Map<String, Object> profileInformationMap = Map.of("nickname", "일개미12345");
 		MockMultipartFile profileInformation = new MockMultipartFile(
@@ -160,7 +161,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("message").value(equalTo("프로필이 수정되었습니다")))
 			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
 			.andExpect(jsonPath("data.user.nickname").value(equalTo("일개미12345")))
-			.andExpect(jsonPath("data.user.email").value(equalTo("kim1234@gmail.com")))
+			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
 			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")))
 			.andExpect(jsonPath("data.user.provider").value(equalTo("local")))
 			.andDo(

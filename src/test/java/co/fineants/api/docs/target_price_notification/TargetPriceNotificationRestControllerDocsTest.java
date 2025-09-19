@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -92,7 +93,7 @@ class TargetPriceNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deleteTargetPriceNotification() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Stock stock = createSamsungStock();
 		StockTargetPrice stockTargetPrice = createStockTargetPrice(member, stock);
 		TargetPriceNotification targetPriceNotification = createTargetPriceNotification(stockTargetPrice);
