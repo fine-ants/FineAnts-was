@@ -123,7 +123,7 @@ public class SetupDataLoader {
 		return () -> {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
-			Member newMember = Member.localMember(profile);
+			Member newMember = Member.createMember(profile);
 			Set<Long> roleIds = roleSet.stream()
 				.map(Role::getId)
 				.collect(Collectors.toSet());

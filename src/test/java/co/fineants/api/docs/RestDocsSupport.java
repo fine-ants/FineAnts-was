@@ -106,7 +106,7 @@ public abstract class RestDocsSupport {
 	protected Member createMember() {
 		MemberProfile profile = MemberProfile.localMemberProfile("kim1234@gmail.com", "일개미1234", "kim1234@",
 			"profileUrl");
-		return Member.localMember(profile);
+		return Member.createMember(profile);
 	}
 
 	protected Stock createSamsungStock() {

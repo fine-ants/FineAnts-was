@@ -54,7 +54,7 @@ public final class TestDataFactory {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
 		member.setNotificationPreference(NotificationPreference.allActive());
 		return member;
 	}

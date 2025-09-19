@@ -202,7 +202,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	private void saveMember(String nickname, String email) {
-		Member member = Member.localMember(
+		Member member = Member.createMember(
 			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
 		member.setNotificationPreference(NotificationPreference.allActive());
 		signupService.signup(member);

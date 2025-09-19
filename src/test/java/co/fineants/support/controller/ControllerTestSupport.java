@@ -95,7 +95,7 @@ public abstract class ControllerTestSupport {
 	protected static Member createMember() {
 		MemberProfile profile = MemberProfile.localMemberProfile("dragonbead95@naver.com", "nemo1234", "nemo1234@",
 			"profileUrl");
-		return Member.localMember(profile);
+		return Member.createMember(profile);
 	}
 
 	@BeforeEach

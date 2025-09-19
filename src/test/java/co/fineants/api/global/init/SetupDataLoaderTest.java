@@ -89,11 +89,11 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		assertThat(memberRepository.findAll())
 			.hasSize(3)
 			.containsExactlyInAnyOrder(
-				Member.localMember(MemberProfile.localMemberProfile(adminProperties.getEmail(),
+				Member.createMember(MemberProfile.localMemberProfile(adminProperties.getEmail(),
 					adminProperties.getNickname(), adminProperties.getPassword(), null)),
-				Member.localMember(MemberProfile.localMemberProfile(managerProperties.getEmail(),
+				Member.createMember(MemberProfile.localMemberProfile(managerProperties.getEmail(),
 					managerProperties.getNickname(), managerProperties.getPassword(), null)),
-				Member.localMember(MemberProfile.localMemberProfile(userProperties.getEmail(),
+				Member.createMember(MemberProfile.localMemberProfile(userProperties.getEmail(),
 					userProperties.getNickname(), userProperties.getPassword(), null))
 			);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

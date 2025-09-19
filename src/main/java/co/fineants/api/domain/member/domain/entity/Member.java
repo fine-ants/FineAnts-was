@@ -55,11 +55,7 @@ public class Member extends BaseEntity {
 		this.profile = profile;
 	}
 
-	public static Member oauthMember(MemberProfile profile) {
-		return new Member(profile);
-	}
-
-	public static Member localMember(MemberProfile profile) {
+	public static Member createMember(MemberProfile profile) {
 		return new Member(profile);
 	}
 

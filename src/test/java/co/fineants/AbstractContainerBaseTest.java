@@ -175,7 +175,7 @@ public abstract class AbstractContainerBaseTest {
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		Member member = Member.localMember(profile);
+		Member member = Member.createMember(profile);
 		// 역할 설정
 		member.addRoleId(userRole.getId());
 
@@ -191,7 +191,7 @@ public abstract class AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
 			"profileUrl1");
 		// 회원 생성
-		Member member = Member.oauthMember(profile);
+		Member member = Member.createMember(profile);
 		// 역할 설정
 		member.addRoleId(userRole.getId());
 
