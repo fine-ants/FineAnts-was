@@ -108,8 +108,6 @@ public class SetupDataLoader {
 	private void createMemberIfNotFound(String email, String nickname, String password,
 		Set<Role> roleSet) {
 		Member member = findOrCreateNewMember(email, nickname, password, roleSet);
-		NotificationPreference newPreference = NotificationPreference.allActive();
-		member.setNotificationPreference(newPreference);
 		memberRepository.save(member);
 	}
 
@@ -123,7 +121,8 @@ public class SetupDataLoader {
 		return () -> {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
-			Member newMember = Member.createMember(profile);
+			NotificationPreference notificationPreference = NotificationPreference.allActive();
+			Member newMember = Member.createMember(profile, notificationPreference);
 			Set<Long> roleIds = roleSet.stream()
 				.map(Role::getId)
 				.collect(Collectors.toSet());

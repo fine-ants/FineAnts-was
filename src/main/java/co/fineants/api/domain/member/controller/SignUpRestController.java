@@ -58,8 +58,8 @@ public class SignUpRestController {
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
-		Member member = Member.createMember(profile);
-		member.setNotificationPreference(NotificationPreference.defaultSetting());
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 
 		try {
 			signupService.signup(member);
