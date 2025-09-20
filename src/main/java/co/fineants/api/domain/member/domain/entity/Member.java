@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -112,10 +111,6 @@ public class Member extends BaseEntity {
 
 	public Optional<String> getProfileUrl() {
 		return profile.getProfileUrl();
-	}
-
-	public void validateNickname(MemberValidationRule rule) {
-		profile.validateNickname(rule);
 	}
 
 	@Override
