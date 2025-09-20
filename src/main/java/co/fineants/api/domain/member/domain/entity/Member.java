@@ -44,7 +44,11 @@ public class Member extends BaseEntity {
 	@Column(name = "role_id")
 	private final Set<Long> roleIds = new HashSet<>();
 
-	public Member(MemberProfile profile, NotificationPreference notificationPreference) {
+	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
+		return new Member(profile, notificationPreference);
+	}
+
+	private Member(MemberProfile profile, NotificationPreference notificationPreference) {
 		setMemberProfile(profile);
 		setNotificationPreference(notificationPreference);
 	}
@@ -56,15 +60,11 @@ public class Member extends BaseEntity {
 		this.profile = profile;
 	}
 
-	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
-		return new Member(profile, notificationPreference);
-	}
-
-	//** 연관 관계 엔티티 메서드 시작 **//
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		this.notificationPreference = notificationPreference;
 	}
 
+	//** 연관 관계 엔티티 메서드 시작 **//
 	public void addRoleId(Long roleId) {
 		this.roleIds.add(roleId);
 	}
@@ -82,7 +82,6 @@ public class Member extends BaseEntity {
 	}
 
 	//** 연관 관계 엔티티 메서드 종료 **//
-
 	public boolean hasAuthorization(Long memberId) {
 		return id.equals(memberId);
 	}
@@ -113,10 +112,6 @@ public class Member extends BaseEntity {
 
 	public Optional<String> getProfileUrl() {
 		return profile.getProfileUrl();
-	}
-
-	public void validateEmail(MemberValidationRule rule) {
-		profile.validateEmail(rule);
 	}
 
 	public void validateNickname(MemberValidationRule rule) {
