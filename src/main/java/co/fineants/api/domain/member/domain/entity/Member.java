@@ -97,6 +97,10 @@ public class Member extends BaseEntity {
 		return profile.getPassword();
 	}
 
+	public Optional<String> getProfileUrl() {
+		return profile.getProfileUrl();
+	}
+
 	public String getProvider() {
 		return profile.getProvider();
 	}
@@ -107,10 +111,6 @@ public class Member extends BaseEntity {
 
 	public String getEmail() {
 		return profile.getEmail();
-	}
-
-	public Optional<String> getProfileUrl() {
-		return profile.getProfileUrl();
 	}
 
 	@Override
