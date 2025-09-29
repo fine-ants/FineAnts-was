@@ -38,9 +38,9 @@ public class Member extends BaseEntity {
 	@ElementCollection
 	@CollectionTable(
 		name = "member_role",
-		joinColumns = @JoinColumn(name = "member_id")
+		joinColumns = @JoinColumn(name = "member_id", nullable = false)
 	)
-	@Column(name = "role_id")
+	@Column(name = "role_id", nullable = false)
 	private final Set<Long> roleIds = new HashSet<>();
 
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
