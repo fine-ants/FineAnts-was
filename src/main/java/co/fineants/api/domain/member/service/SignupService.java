@@ -22,7 +22,6 @@ public class SignupService {
 
 	private final SignUpValidator signUpValidator;
 	private final MemberRepository memberRepository;
-	private final MemberAssociationRegistrationService associationRegistrationService;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
 
@@ -32,8 +31,6 @@ public class SignupService {
 		signUpValidator.validate(member);
 		// 회원 저장
 		memberRepository.save(member);
-		// 회원 관련된 연관 데이터 등록
-		associationRegistrationService.registerAll(member);
 	}
 
 	public Optional<String> upload(MultipartFile file) throws MemberProfileUploadException {
