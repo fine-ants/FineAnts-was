@@ -122,11 +122,16 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication)
-			.extracting(Authentication::getPrincipal, Authentication::getCredentials)
-			.containsExactly(adminAuthentication, Strings.EMPTY);
-		assertThat(authentication.getAuthorities().stream()
+			.extracting(Authentication::getPrincipal)
+			.isEqualTo(adminAuthentication);
+		assertThat(authentication)
+			.extracting(Authentication::getCredentials)
+			.isEqualTo(Strings.EMPTY);
+
+		Set<String> authenticationRoleNames = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.toUnmodifiableSet()))
+			.collect(Collectors.toUnmodifiableSet());
+		assertThat(authenticationRoleNames)
 			.containsExactlyElementsOf(adminAuthentication.getRoleSet());
 	}
 
