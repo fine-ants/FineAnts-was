@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -46,7 +47,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	void createPurchaseHistory() throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
@@ -120,7 +121,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updatePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(holding, LocalDateTime.of(2023, 10, 23, 13, 0, 0));
@@ -178,7 +179,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(holding, LocalDateTime.of(2023, 10, 23, 13, 0, 0));

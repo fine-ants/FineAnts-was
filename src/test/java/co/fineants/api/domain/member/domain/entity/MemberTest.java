@@ -36,26 +36,16 @@ class MemberTest {
 	@DisplayName("회원을 생성한다")
 	@Test
 	void canCreated() {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 
 		Assertions.assertThat(member).isNotNull();
 		Assertions.assertThat(member.getProfile()).isNotNull();
 	}
 
-	private Member createMember() {
-		String email = "ants1234@gmail.com";
-		String nickname = "ants1234";
-		String provider = "local";
-		String password = "ants1234@";
-		String profileUrl = "profileUrl";
-		MemberProfile memberProfile = new MemberProfile(email, nickname, provider, password, profileUrl);
-		return new Member(memberProfile);
-	}
-
 	@DisplayName("회원에 Role 식별자값을 추가한다")
 	@Test
 	void addRoleId() {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Long roleId = 1L;
 
 		member.addRoleId(roleId);
@@ -66,7 +56,7 @@ class MemberTest {
 	@DisplayName("회원에 Role 식별자값을 제거한다")
 	@Test
 	void removeRoleId() {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Long roleId = 1L;
 		member.addRoleId(roleId);
 

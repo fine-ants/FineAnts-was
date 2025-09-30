@@ -7,7 +7,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
@@ -36,7 +35,7 @@ public abstract class AbstractUserService {
 	}
 
 	public Member saveOrUpdate(OAuthAttribute attributes) {
-		Member member = attributes.getMemberFrom(memberRepository)
+		Member member = attributes.findMember(memberRepository)
 			.orElseGet(() -> attributes.toEntity(nicknameGenerator));
 		attributes.updateProfileUrlIfAbsent(member);
 
@@ -53,10 +52,6 @@ public abstract class AbstractUserService {
 			.collect(Collectors.toSet());
 		member.addRoleIds(roleIds);
 
-		if (member.getNotificationPreference() == null) {
-			NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-			member.setNotificationPreference(notificationPreference);
-		}
 		return memberRepository.save(member);
 	}
 

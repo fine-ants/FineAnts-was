@@ -3,7 +3,6 @@ package co.fineants.api.domain.member.domain.entity;
 import java.util.Map;
 import java.util.Optional;
 
-import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -66,13 +65,5 @@ public class MemberProfile {
 
 	public Optional<String> getProfileUrl() {
 		return Optional.ofNullable(profileUrl);
-	}
-
-	public void validateEmail(MemberValidationRule rule) {
-		rule.validate(email);
-	}
-
-	public void validateNickname(MemberValidationRule rule) {
-		rule.validate(nickname);
 	}
 }

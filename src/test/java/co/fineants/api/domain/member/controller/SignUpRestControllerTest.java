@@ -34,9 +34,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
 import co.fineants.api.domain.member.service.VerifyCodeGenerator;
@@ -202,9 +201,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	private void saveMember(String nickname, String email) {
-		Member member = Member.createMember(
-			MemberProfile.localMemberProfile(email, nickname, "ants1234", null));
-		member.setNotificationPreference(NotificationPreference.allActive());
+		Member member = TestDataFactory.createMember(nickname, email);
 		signupService.signup(member);
 	}
 

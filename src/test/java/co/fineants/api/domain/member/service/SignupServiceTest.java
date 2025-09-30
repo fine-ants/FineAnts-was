@@ -106,8 +106,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void should_saveMember_whenSignup() {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", "ants1", "ants1234@", null);
-		Member member = Member.createMember(profile);
-		member.setNotificationPreference(NotificationPreference.defaultSetting());
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 
 		// when
 		service.signup(member);
@@ -122,7 +122,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void givenInvalidEmail_whenValidateEmail_thenFailSignup(String email) {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile(email, "ants1", "ants1234@", null);
-		Member member = Member.createMember(profile);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(member));
 		// then
@@ -136,7 +137,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void givenInvalidNickname_whenValidateNickname_thenFailSignup(String nickname) {
 		// given
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
-		Member member = Member.createMember(profile);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(member));
 		// then
@@ -150,13 +152,14 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// given
 		String nickname = "ants1";
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
-		Member member = Member.createMember(profile);
-		member.setNotificationPreference(NotificationPreference.defaultSetting());
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 		memberRepository.save(member);
 
 		MemberProfile otherProfile = MemberProfile.localMemberProfile("ants4567@gmail.com", nickname, "ants4567@",
 			null);
-		Member otherMember = Member.createMember(otherProfile);
+
+		Member otherMember = Member.createMember(otherProfile, notificationPreference);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(otherMember));
 		// then

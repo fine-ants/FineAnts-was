@@ -54,9 +54,8 @@ public final class TestDataFactory {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		Member member = Member.createMember(profile);
-		member.setNotificationPreference(NotificationPreference.allActive());
-		return member;
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		return Member.createMember(profile, notificationPreference);
 	}
 
 	public static Portfolio createPortfolio(Member member) {
@@ -266,7 +265,7 @@ public final class TestDataFactory {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static MultipartFile createOverSizeMockProfileFile() {
 		byte[] profile = new byte[3145728];
 		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);

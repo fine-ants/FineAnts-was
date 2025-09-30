@@ -28,6 +28,6 @@ public class NicknameFormatRule implements MemberValidationRule {
 
 	@Override
 	public void validate(Member member) {
-		member.validateNickname(this);
+		validate(member.getNickname());
 	}
 }

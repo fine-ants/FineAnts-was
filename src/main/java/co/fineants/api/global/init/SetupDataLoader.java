@@ -1,5 +1,6 @@
 package co.fineants.api.global.init;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -108,8 +109,6 @@ public class SetupDataLoader {
 	private void createMemberIfNotFound(String email, String nickname, String password,
 		Set<Role> roleSet) {
 		Member member = findOrCreateNewMember(email, nickname, password, roleSet);
-		NotificationPreference newPreference = NotificationPreference.allActive();
-		member.setNotificationPreference(newPreference);
 		memberRepository.save(member);
 	}
 
@@ -123,7 +122,8 @@ public class SetupDataLoader {
 		return () -> {
 			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
 				null);
-			Member newMember = Member.createMember(profile);
+			NotificationPreference notificationPreference = NotificationPreference.allActive();
+			Member newMember = Member.createMember(profile, notificationPreference);
 			Set<Long> roleIds = roleSet.stream()
 				.map(Role::getId)
 				.collect(Collectors.toSet());
@@ -154,7 +154,14 @@ public class SetupDataLoader {
 
 	private void setupStockDividendResources() {
 		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
-		List<StockDividend> dividends = stockDividendRepository.saveAll(stockDividends);
-		log.info("setupStockDividend count is {}", dividends.size());
+		List<StockDividend> savedStockDividends = new ArrayList<>();
+		for (StockDividend stockDividend : stockDividends) {
+			if (stockDividendRepository.findByTickerSymbolAndRecordDate(stockDividend.getStock().getTickerSymbol(),
+				stockDividend.getDividendDates().getRecordDate()).isEmpty()) {
+				StockDividend saveStockDividend = stockDividendRepository.save(stockDividend);
+				savedStockDividends.add(saveStockDividend);
+			}
+		}
+		log.info("saved StockDividends count is {}", savedStockDividends.size());
 	}
 }

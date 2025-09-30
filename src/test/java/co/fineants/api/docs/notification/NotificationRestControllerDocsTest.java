@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.notification.PortfolioMaximumLossNotifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
@@ -52,7 +53,7 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	void notifyPortfolioTargetGainMessages() throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioNotifyMessage message = (PortfolioNotifyMessage)PortfolioTargetGainNotifiable.from(portfolio, true)
 			.createMessage("token");
@@ -139,7 +140,7 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	void notifyPortfolioMaxLossMessages() throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioNotifyMessage message = (PortfolioNotifyMessage)PortfolioMaximumLossNotifiable.from(portfolio, true)
 			.createMessage("token");
@@ -225,7 +226,7 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	void sendStockTargetPriceNotification() throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Stock stock = createSamsungStock();
 		StockTargetPrice stockTargetPrice = createStockTargetPrice(member, stock);
 		TargetPriceNotification targetPriceNotification = createTargetPriceNotification(stockTargetPrice);

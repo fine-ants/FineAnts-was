@@ -24,6 +24,6 @@ public class EmailDuplicationRule implements MemberValidationRule {
 
 	@Override
 	public void validate(Member member) {
-		member.validateEmail(this);
+		validate(member.getEmail());
 	}
 }

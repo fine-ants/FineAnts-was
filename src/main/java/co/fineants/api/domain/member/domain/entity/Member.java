@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -39,16 +38,16 @@ public class Member extends BaseEntity {
 	@ElementCollection
 	@CollectionTable(
 		name = "member_role",
-		joinColumns = @JoinColumn(name = "member_id")
+		joinColumns = @JoinColumn(name = "member_id", nullable = false)
 	)
-	@Column(name = "role_id")
+	@Column(name = "role_id", nullable = false)
 	private final Set<Long> roleIds = new HashSet<>();
 
-	public Member(MemberProfile profile) {
-		setMemberProfile(profile);
+	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
+		return new Member(profile, notificationPreference);
 	}
 
-	public Member(MemberProfile profile, NotificationPreference notificationPreference) {
+	private Member(MemberProfile profile, NotificationPreference notificationPreference) {
 		setMemberProfile(profile);
 		setNotificationPreference(notificationPreference);
 	}
@@ -60,19 +59,11 @@ public class Member extends BaseEntity {
 		this.profile = profile;
 	}
 
-	public static Member createMember(MemberProfile profile) {
-		return new Member(profile);
-	}
-
-	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
-		return new Member(profile, notificationPreference);
-	}
-
-	//** 연관 관계 엔티티 메서드 시작 **//
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		this.notificationPreference = notificationPreference;
 	}
 
+	//** 연관 관계 엔티티 메서드 시작 **//
 	public void addRoleId(Long roleId) {
 		this.roleIds.add(roleId);
 	}
@@ -90,7 +81,6 @@ public class Member extends BaseEntity {
 	}
 
 	//** 연관 관계 엔티티 메서드 종료 **//
-
 	public boolean hasAuthorization(Long memberId) {
 		return id.equals(memberId);
 	}
@@ -107,6 +97,10 @@ public class Member extends BaseEntity {
 		return profile.getPassword();
 	}
 
+	public Optional<String> getProfileUrl() {
+		return profile.getProfileUrl();
+	}
+
 	public String getProvider() {
 		return profile.getProvider();
 	}
@@ -117,18 +111,6 @@ public class Member extends BaseEntity {
 
 	public String getEmail() {
 		return profile.getEmail();
-	}
-
-	public Optional<String> getProfileUrl() {
-		return profile.getProfileUrl();
-	}
-
-	public void validateEmail(MemberValidationRule rule) {
-		profile.validateEmail(rule);
-	}
-
-	public void validateNickname(MemberValidationRule rule) {
-		profile.validateNickname(rule);
 	}
 
 	@Override

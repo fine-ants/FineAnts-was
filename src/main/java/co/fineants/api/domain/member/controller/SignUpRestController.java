@@ -20,7 +20,6 @@ import co.fineants.api.domain.member.domain.dto.request.VerifyEmailRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.member.domain.factory.MemberFactory;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupValidatorService;
@@ -43,7 +42,6 @@ public class SignUpRestController {
 	private final SignupService signupService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberProfileFactory memberProfileFactory;
-	private final MemberFactory memberFactory;
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
 
@@ -60,8 +58,8 @@ public class SignUpRestController {
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
 		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
 			encodedPassword, profileUrl);
-		Member member = memberFactory.localMember(profile);
-		member.setNotificationPreference(NotificationPreference.defaultSetting());
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Member member = Member.createMember(profile, notificationPreference);
 
 		try {
 			signupService.signup(member);

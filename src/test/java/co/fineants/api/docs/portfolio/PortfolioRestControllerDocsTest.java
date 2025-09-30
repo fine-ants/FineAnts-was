@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Bank;
@@ -60,7 +61,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void createPortfolio() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		PortfolioCreateRequest request = PortfolioCreateRequest.create(
 			"내꿈은 워렌버핏",
 			"토스",
@@ -206,7 +207,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void searchMyAllPortfolioNames() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioNameItem item = PortfolioNameItem.from(portfolio);
 		given(portFolioService.readMyAllPortfolioNames(anyLong()))
 			.willReturn(PortfolioNameResponse.from(List.of(item)));
@@ -250,7 +251,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updatePortfolio() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		given(portFolioService.updatePortfolio(
 			any(PortfolioModifyRequest.class),
@@ -308,7 +309,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePortfolio() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		// when & then
@@ -345,7 +346,7 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePortfolios() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		Map<String, Object> body = Map.of(

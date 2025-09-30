@@ -22,9 +22,6 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
-logging:
-  level:
-    co: debug
 cron:
   expression:
     reload-stocks: '0 0 8 * * ?'

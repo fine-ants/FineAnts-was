@@ -175,12 +175,10 @@ public abstract class AbstractContainerBaseTest {
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		Member member = Member.createMember(profile);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정
 		member.addRoleId(userRole.getId());
-
-		// 계정 알림 설정
-		member.setNotificationPreference(NotificationPreference.allActive());
 		return member;
 	}
 
@@ -190,13 +188,11 @@ public abstract class AbstractContainerBaseTest {
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
 			"profileUrl1");
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		// 회원 생성
-		Member member = Member.createMember(profile);
+		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정
 		member.addRoleId(userRole.getId());
-
-		// 계정 알림 설정
-		member.setNotificationPreference(NotificationPreference.allActive());
 		return member;
 	}
 

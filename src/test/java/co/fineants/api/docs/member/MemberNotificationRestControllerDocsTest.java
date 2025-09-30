@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberNotificationRestController;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
@@ -48,7 +49,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	void fetchNotifications() throws Exception {
 		// given
 		Long memberId = 1L;
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 

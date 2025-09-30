@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -39,7 +40,7 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyNotificationTargetGain() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		long portfolioId = portfolio.getId();
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "true");
@@ -72,7 +73,7 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyNotificationTargetGainWithInActive() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		long portfolioId = portfolio.getId();
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "false");
@@ -105,7 +106,7 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyNotificationMaximumLoss() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		long portfolioId = portfolio.getId();
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "true");
@@ -138,7 +139,7 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyNotificationMaximumLossWithInActive() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		long portfolioId = portfolio.getId();
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "false");

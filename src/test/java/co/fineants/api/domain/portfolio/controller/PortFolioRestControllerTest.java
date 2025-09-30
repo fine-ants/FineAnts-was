@@ -22,6 +22,7 @@ import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
@@ -59,7 +60,7 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 	void createPortfolio_whenAddPortfolio_thenSavePortfolio(Long budget, Long targetGain, Long maximumLoss) throws
 		Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		PortFolioCreateResponse response = PortFolioCreateResponse.from(
 			createPortfolio(
 				member,
@@ -168,7 +169,7 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 	@ParameterizedTest
 	void updatePortfolio(Long budget, Long targetGain, Long maximumLoss) throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(
 			member,
 			"내꿈은 워렌버핏",
