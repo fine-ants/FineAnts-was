@@ -18,10 +18,10 @@ public class RoleSetupDataLoader {
 
 	@Transactional
 	public void setupRoles(RoleProperties roleProperties) {
-		if (roleProperties == null || roleProperties.getRolePropertyList() == null) {
+		if (roleProperties == null || roleProperties.getProperties() == null) {
 			return;
 		}
-		for (RoleProperties.RoleProperty roleProperty : roleProperties.getRolePropertyList()) {
+		for (RoleProperties.RoleProperty roleProperty : roleProperties.getProperties()) {
 			Role role = findOrCreateRole(roleProperty);
 			roleRepository.save(role);
 		}
