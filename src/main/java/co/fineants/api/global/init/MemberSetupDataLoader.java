@@ -1,8 +1,5 @@
 package co.fineants.api.global.init;
 
-import java.util.function.Supplier;
-
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +10,6 @@ import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
-import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.MemberProperties;
 
@@ -35,7 +31,7 @@ public class MemberSetupDataLoader {
 	public void setupMembers(MemberProperties memberProperties) {
 		for (MemberProperties.MemberAuthProperty properties : memberProperties.getProperties()) {
 			Role role = roleRepository.findRoleByRoleName(properties.getRoleName())
-				.orElseThrow((Supplier<NotFoundException>)() -> new RoleNotFoundException(Strings.EMPTY));
+				.orElseThrow(() -> new RoleNotFoundException(properties.getRoleName()));
 			saveMember(properties, role);
 		}
 	}
