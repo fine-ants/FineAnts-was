@@ -56,4 +56,13 @@ class RoleSetupDataLoaderTest extends AbstractContainerBaseTest {
 			.hasSize(3)
 			.containsExactlyInAnyOrder(userRole, managerRole, adminRole);
 	}
+
+	@Test
+	void setupRoles_whenRolePropertiesIsNull_thenNoRolesSaved() {
+		RoleProperties roleProperties = null;
+
+		loader.setupRoles(roleProperties);
+
+		Assertions.assertThat(repository.findAll()).isEmpty();
+	}
 }

@@ -18,6 +18,9 @@ public class RoleSetupDataLoader {
 
 	@Transactional
 	public void setupRoles(RoleProperties roleProperties) {
+		if (roleProperties == null || roleProperties.getRolePropertyList() == null) {
+			return;
+		}
 		for (RoleProperties.RoleProperty roleProperty : roleProperties.getRolePropertyList()) {
 			Role role = findOrCreateRole(roleProperty);
 			roleRepository.save(role);
