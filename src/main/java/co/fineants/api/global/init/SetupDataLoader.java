@@ -10,7 +10,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
@@ -37,7 +37,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class SetupDataLoader {
