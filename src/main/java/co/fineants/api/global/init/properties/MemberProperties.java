@@ -13,7 +13,7 @@ public class MemberProperties {
 	private final List<MemberAuthProperties> properties;
 
 	@ConstructorBinding
-	public MemberProperties(MemberAuthProperties user, MemberAuthProperties manager, MemberAuthProperties admin) {
-		this.properties = List.of(user, manager, admin);
+	public MemberProperties(List<MemberAuthProperties> properties) {
+		this.properties = properties;
 	}
 }
