@@ -11,6 +11,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
+import co.fineants.api.global.init.properties.MemberProperties;
 
 class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -22,6 +23,9 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	private MemberProperties memberProperties;
 
 	@BeforeEach
 	void setUp() {
@@ -36,7 +40,7 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 	@Test
 	@Transactional
 	void setupMembers() {
-		loader.setupMembers();
+		loader.setupMembers(memberProperties);
 
 		Assertions.assertThat(memberRepository.findAll())
 			.hasSize(3);

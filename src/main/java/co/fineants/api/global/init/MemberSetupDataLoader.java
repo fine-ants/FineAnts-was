@@ -26,18 +26,16 @@ public class MemberSetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final MemberProperties memberProperties;
 
 	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
-		PasswordEncoder passwordEncoder, MemberProperties memberProperties) {
+		PasswordEncoder passwordEncoder) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.memberProperties = memberProperties;
 	}
 
 	@Transactional
-	public void setupMembers() {
+	public void setupMembers(MemberProperties memberProperties) {
 		for (MemberProperties.MemberAuthProperty properties : memberProperties.getProperties()) {
 			Role role = roleRepository.findRoleByRoleName(properties.getRoleName())
 				.orElseThrow(supplierNotFoundRoleException());
