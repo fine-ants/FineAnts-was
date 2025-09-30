@@ -1,8 +1,6 @@
 package co.fineants.api.global.init;
 
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,31 +66,5 @@ public class MemberSetupDataLoader {
 	@NotNull
 	private static Supplier<NotFoundException> supplierNotFoundRoleException() {
 		return () -> new RoleNotFoundException(Strings.EMPTY);
-	}
-
-	private void createMemberIfNotFound(String email, String nickname, String password,
-		Set<Role> roleSet) {
-		Member member = findOrCreateNewMember(email, nickname, password, roleSet);
-		memberRepository.save(member);
-	}
-
-	private Member findOrCreateNewMember(String email, String nickname, String password, Set<Role> roleSet) {
-		return memberRepository.findMemberByEmailAndProvider(email, "local")
-			.orElseGet(supplierNewMember(email, nickname, password, roleSet));
-	}
-
-	@NotNull
-	private Supplier<Member> supplierNewMember(String email, String nickname, String password, Set<Role> roleSet) {
-		return () -> {
-			MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, passwordEncoder.encode(password),
-				null);
-			NotificationPreference notificationPreference = NotificationPreference.allActive();
-			Member newMember = Member.createMember(profile, notificationPreference);
-			Set<Long> roleIds = roleSet.stream()
-				.map(Role::getId)
-				.collect(Collectors.toSet());
-			newMember.addRoleIds(roleIds);
-			return newMember;
-		};
 	}
 }
