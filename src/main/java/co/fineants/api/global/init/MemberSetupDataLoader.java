@@ -17,6 +17,8 @@ import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
+import co.fineants.api.global.init.properties.AdminProperties;
+import co.fineants.api.global.init.properties.ManagerProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import jakarta.validation.constraints.NotNull;
 
@@ -26,12 +28,12 @@ public class MemberSetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
 	private final UserProperties userProperties;
-	private final UserProperties managerProperties;
-	private final UserProperties adminProperties;
+	private final ManagerProperties managerProperties;
+	private final AdminProperties adminProperties;
 	private final PasswordEncoder passwordEncoder;
 
 	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
-		UserProperties userProperties, UserProperties managerProperties, UserProperties adminProperties,
+		UserProperties userProperties, ManagerProperties managerProperties, AdminProperties adminProperties,
 		PasswordEncoder passwordEncoder) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;
