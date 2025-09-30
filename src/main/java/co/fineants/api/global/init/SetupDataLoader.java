@@ -47,33 +47,20 @@ public class SetupDataLoader {
 	private final AdminProperties adminProperties;
 	private final ManagerProperties managerProperties;
 	private final UserProperties userProperties;
-	private final RoleProperties roleProperties;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
 	private final FetchDividendService fetchDividendService;
 	private final FetchStockService fetchStockService;
+	private final RoleSetupDataLoader roleSetupDataLoader;
+	private final RoleProperties roleProperties;
 
 	@Transactional
 	public void setupResources() {
-		setupSecurityResources();
+		roleSetupDataLoader.setupRoles(roleProperties);
 		setupMemberResources();
 		setAdminAuthentication();
 		setupStockResources();
 		setupStockDividendResources();
-	}
-
-	private void setupSecurityResources() {
-		roleProperties.getRolePropertyList().forEach(this::saveRoleIfNotFound);
-	}
-
-	private void saveRoleIfNotFound(RoleProperties.RoleProperty roleProperty) {
-		roleRepository.save(findOrCreateRole(roleProperty));
-	}
-
-	@NotNull
-	private Role findOrCreateRole(RoleProperties.RoleProperty roleProperty) {
-		return roleRepository.findRoleByRoleName(roleProperty.getRoleName())
-			.orElseGet(roleProperty::toRoleEntity);
 	}
 
 	private void setupMemberResources() {
