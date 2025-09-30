@@ -39,13 +39,16 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 		loader.setupMembers();
 
 		Assertions.assertThat(memberRepository.findAll())
-			.hasSize(2);
+			.hasSize(3);
 
 		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
 		Role managerRole = roleRepository.findRoleByRoleName("ROLE_MANAGER").orElseThrow();
+		Role adminRole = roleRepository.findRoleByRoleName("ROLE_ADMIN").orElseThrow();
 		Assertions.assertThat(memberRepository.findAll().get(0).getRoleIds())
 			.contains(userRole.getId());
 		Assertions.assertThat(memberRepository.findAll().get(1).getRoleIds())
 			.contains(managerRole.getId());
+		Assertions.assertThat(memberRepository.findAll().get(2).getRoleIds())
+			.contains(adminRole.getId());
 	}
 }
