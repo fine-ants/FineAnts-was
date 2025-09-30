@@ -22,7 +22,6 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
@@ -38,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
-	private final AdminProperties adminProperties;
 	private final StockRepository stockRepository;
 	private final StockDividendRepository stockDividendRepository;
 	private final FetchDividendService fetchDividendService;
