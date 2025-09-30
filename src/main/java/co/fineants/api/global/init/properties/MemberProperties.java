@@ -10,10 +10,10 @@ import lombok.Getter;
 @Getter
 @ConfigurationProperties(value = "member")
 public class MemberProperties {
-	private final List<MemberAuthProperties> properties;
+	private final List<MemberAuthProperty> properties;
 
 	@ConstructorBinding
-	public MemberProperties(List<MemberAuthProperties> properties) {
+	public MemberProperties(List<MemberAuthProperty> properties) {
 		this.properties = properties;
 	}
 }

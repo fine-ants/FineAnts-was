@@ -17,7 +17,7 @@ import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.init.properties.MemberAuthProperties;
+import co.fineants.api.global.init.properties.MemberAuthProperty;
 import co.fineants.api.global.init.properties.MemberProperties;
 import jakarta.validation.constraints.NotNull;
 
@@ -39,14 +39,14 @@ public class MemberSetupDataLoader {
 
 	@Transactional
 	public void setupMembers() {
-		for (MemberAuthProperties properties : memberProperties.getProperties()) {
+		for (MemberAuthProperty properties : memberProperties.getProperties()) {
 			Role role = roleRepository.findRoleByRoleName(properties.getRoleName())
 				.orElseThrow(supplierNotFoundRoleException());
 			saveMember(properties, role);
 		}
 	}
 
-	private void saveMember(MemberAuthProperties properties, Role role) {
+	private void saveMember(MemberAuthProperty properties, Role role) {
 		String email = properties.getEmail();
 		String provider = properties.getProvider();
 		if (isEmptyMemberBy(email, provider)) {
@@ -60,7 +60,7 @@ public class MemberSetupDataLoader {
 		return memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty();
 	}
 
-	private Member createMember(MemberAuthProperties properties) {
+	private Member createMember(MemberAuthProperty properties) {
 		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
 			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
 			null);
