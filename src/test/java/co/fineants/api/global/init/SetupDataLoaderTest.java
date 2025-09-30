@@ -2,6 +2,7 @@ package co.fineants.api.global.init;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,8 +29,7 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.init.properties.AdminProperties;
-import co.fineants.api.global.init.properties.ManagerProperties;
-import co.fineants.api.global.init.properties.UserProperties;
+import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
@@ -49,10 +49,7 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	private AdminProperties adminProperties;
 
 	@Autowired
-	private ManagerProperties managerProperties;
-
-	@Autowired
-	private UserProperties userProperties;
+	private MemberProperties memberProperties;
 
 	@Autowired
 	private StockCsvReader stockCsvReader;
@@ -80,6 +77,17 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		// when
 		setupDataLoader.setupResources();
 		// then
+		assertRoles();
+		assertMembers();
+		assertAdminAuthentication();
+		assertThat(stockRepository.findAll())
+			.containsExactlyInAnyOrderElementsOf(stocks);
+		assertThat(stockDividendRepository.findAll())
+			.hasSizeGreaterThanOrEqualTo(1)
+			.containsExactlyInAnyOrderElementsOf(stockDividends);
+	}
+
+	private void assertRoles() {
 		assertThat(roleRepository.findAll())
 			.hasSize(3)
 			.containsExactlyInAnyOrder(
@@ -87,40 +95,39 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 				Role.create("ROLE_MANAGER", "매니저"),
 				Role.create("ROLE_USER", "회원")
 			);
+	}
+
+	private void assertMembers() {
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		List<Member> expectedMembers = new ArrayList<>();
+		for (MemberProperties.MemberAuthProperty property : memberProperties.getProperties()) {
+			MemberProfile profile = MemberProfile.localMemberProfile(property.getEmail(),
+				property.getNickname(), property.getPassword(), null);
+			expectedMembers.add(Member.createMember(profile, notificationPreference));
+		}
 		assertThat(memberRepository.findAll())
 			.hasSize(3)
-			.containsExactlyInAnyOrder(
-				Member.createMember(MemberProfile.localMemberProfile(adminProperties.getEmail(),
-					adminProperties.getNickname(), adminProperties.getPassword(), null), notificationPreference),
-				Member.createMember(MemberProfile.localMemberProfile(managerProperties.getEmail(),
-					managerProperties.getNickname(), managerProperties.getPassword(), null), notificationPreference),
-				Member.createMember(MemberProfile.localMemberProfile(userProperties.getEmail(),
-					userProperties.getNickname(), userProperties.getPassword(), null), notificationPreference)
-			);
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			.containsExactlyElementsOf(expectedMembers);
+	}
 
+	private void assertAdminAuthentication() {
 		Member member = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
 			.orElseThrow();
 		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
 			.map(Role::getRoleName)
 			.collect(Collectors.toSet());
-		MemberAuthentication memberAuthentication = MemberAuthentication.from(
+		MemberAuthentication adminAuthentication = MemberAuthentication.from(
 			member,
 			roleNames
 		);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication)
 			.extracting(Authentication::getPrincipal, Authentication::getCredentials)
-			.containsExactly(memberAuthentication, Strings.EMPTY);
+			.containsExactly(adminAuthentication, Strings.EMPTY);
 		assertThat(authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.toUnmodifiableSet()))
-			.containsExactlyElementsOf(memberAuthentication.getRoleSet());
-		assertThat(stockRepository.findAll())
-			.containsExactlyInAnyOrderElementsOf(stocks);
-		assertThat(stockDividendRepository.findAll())
-			.hasSizeGreaterThanOrEqualTo(1)
-			.containsExactlyInAnyOrderElementsOf(stockDividends);
+			.containsExactlyElementsOf(adminAuthentication.getRoleSet());
 	}
 
 	private List<Stock> writeStocks(int limit) {
