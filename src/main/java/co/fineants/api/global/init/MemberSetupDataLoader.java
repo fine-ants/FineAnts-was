@@ -45,14 +45,17 @@ public class MemberSetupDataLoader {
 
 	@Transactional
 	public void setupMembers() {
-		saveUserRoleMember(userProperties);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
+			.orElseThrow(supplierNotFoundRoleException());
+		saveUserRoleMember(userProperties, userRole);
 	}
 
-	private void saveUserRoleMember(UserProperties properties) {
+	private void saveUserRoleMember(UserProperties properties, Role role) {
 		String email = properties.getEmail();
 		String provider = "local";
 		if (isEmptyMemberBy(email, provider)) {
 			Member member = createMember(properties);
+			member.addRoleId(role.getId());
 			memberRepository.save(member);
 		}
 	}

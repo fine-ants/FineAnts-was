@@ -5,9 +5,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.role.domain.Role;
 
 class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -16,6 +19,9 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -28,10 +34,14 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 	}
 
 	@Test
+	@Transactional
 	void setupMembers() {
 		loader.setupMembers();
 
 		Assertions.assertThat(memberRepository.findAll())
 			.hasSize(1);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Assertions.assertThat(memberRepository.findAll().get(0).getRoleIds())
+			.contains(userRole.getId());
 	}
 }
