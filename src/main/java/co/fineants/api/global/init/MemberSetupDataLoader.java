@@ -17,9 +17,8 @@ import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.init.properties.AdminProperties;
-import co.fineants.api.global.init.properties.ManagerProperties;
-import co.fineants.api.global.init.properties.UserProperties;
+import co.fineants.api.global.init.properties.MemberAuthProperties;
+import co.fineants.api.global.init.properties.MemberProperties;
 import jakarta.validation.constraints.NotNull;
 
 @Service
@@ -27,36 +26,29 @@ public class MemberSetupDataLoader {
 
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
-	private final UserProperties userProperties;
-	private final ManagerProperties managerProperties;
-	private final AdminProperties adminProperties;
 	private final PasswordEncoder passwordEncoder;
+	private final MemberProperties memberProperties;
 
 	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
-		UserProperties userProperties, ManagerProperties managerProperties, AdminProperties adminProperties,
-		PasswordEncoder passwordEncoder) {
+		PasswordEncoder passwordEncoder, MemberProperties memberProperties) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;
-		this.userProperties = userProperties;
-		this.managerProperties = managerProperties;
-		this.adminProperties = adminProperties;
 		this.passwordEncoder = passwordEncoder;
+		this.memberProperties = memberProperties;
 	}
 
 	@Transactional
 	public void setupMembers() {
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(supplierNotFoundRoleException());
-		saveUserRoleMember(userProperties, userRole);
-
-		Role managerRole = roleRepository.findRoleByRoleName("ROLE_MANAGER")
-			.orElseThrow(supplierNotFoundRoleException());
-		saveManagerRoleMember(managerProperties, managerRole);
+		for (MemberAuthProperties properties : memberProperties.getProperties()) {
+			Role role = roleRepository.findRoleByRoleName(properties.getRoleName())
+				.orElseThrow(supplierNotFoundRoleException());
+			saveMember(properties, role);
+		}
 	}
 
-	private void saveUserRoleMember(UserProperties properties, Role role) {
+	private void saveMember(MemberAuthProperties properties, Role role) {
 		String email = properties.getEmail();
-		String provider = "local";
+		String provider = properties.getProvider();
 		if (isEmptyMemberBy(email, provider)) {
 			Member member = createMember(properties);
 			member.addRoleId(role.getId());
@@ -68,55 +60,12 @@ public class MemberSetupDataLoader {
 		return memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty();
 	}
 
-	private Member createMember(UserProperties properties) {
+	private Member createMember(MemberAuthProperties properties) {
 		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
 			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
 			null);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
-	}
-
-	private void saveManagerRoleMember(ManagerProperties properties, Role role) {
-		String email = properties.getEmail();
-		String provider = "local";
-		if (isEmptyMemberBy(email, provider)) {
-			Member member = createMember(properties);
-			member.addRoleId(role.getId());
-			memberRepository.save(member);
-		}
-	}
-
-	private Member createMember(ManagerProperties properties) {
-		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
-			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
-			null);
-		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
-	}
-
-	private void setupMemberResources() {
-		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
-			.orElseThrow(supplierNotFoundRoleException());
-		Role managerRole = roleRepository.findRoleByRoleName("ROLE_MANAGER")
-			.orElseThrow(supplierNotFoundRoleException());
-		Role adminRole = roleRepository.findRoleByRoleName("ROLE_ADMIN")
-			.orElseThrow(supplierNotFoundRoleException());
-
-		createMemberIfNotFound(
-			userProperties.getEmail(),
-			userProperties.getNickname(),
-			userProperties.getPassword(),
-			Set.of(userRole));
-		createMemberIfNotFound(
-			adminProperties.getEmail(),
-			adminProperties.getNickname(),
-			adminProperties.getPassword(),
-			Set.of(adminRole));
-		createMemberIfNotFound(
-			managerProperties.getEmail(),
-			managerProperties.getNickname(),
-			managerProperties.getPassword(),
-			Set.of(managerRole));
 	}
 
 	@NotNull

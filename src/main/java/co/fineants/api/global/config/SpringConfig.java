@@ -13,6 +13,7 @@ import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.global.common.csv.CsvProperties;
 import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.ManagerProperties;
+import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.init.properties.UserProperties;
 import co.fineants.api.global.security.ajax.config.ActuatorProperties;
@@ -30,9 +31,9 @@ import co.fineants.api.global.security.ajax.config.ActuatorProperties;
 	ActuatorProperties.class,
 	NicknameProperties.class,
 	EmailProperties.class,
-	CsvProperties.class
-}
-)
+	CsvProperties.class,
+	MemberProperties.class
+})
 @Configuration
 public class SpringConfig {
 }
