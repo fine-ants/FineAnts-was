@@ -44,4 +44,16 @@ class RoleSetupDataLoaderTest extends AbstractContainerBaseTest {
 			.containsExactlyInAnyOrder(userRole, managerRole, adminRole);
 	}
 
+	@Test
+	void setupRoles_whenTwice_thenNotDuplicateSavedRoles() {
+		loader.setupRoles(roleProperties);
+		loader.setupRoles(roleProperties);
+
+		Role userRole = Role.create("ROLE_USER", "회원");
+		Role managerRole = Role.create("ROLE_MANAGER", "매니저");
+		Role adminRole = Role.create("ROLE_ADMIN", "관리자");
+		Assertions.assertThat(repository.findAll())
+			.hasSize(3)
+			.containsExactlyInAnyOrder(userRole, managerRole, adminRole);
+	}
 }
