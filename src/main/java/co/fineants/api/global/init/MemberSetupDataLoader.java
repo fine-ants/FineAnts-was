@@ -16,7 +16,6 @@ import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.NotFoundException;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.MemberProperties;
-import jakarta.validation.constraints.NotNull;
 
 @Service
 public class MemberSetupDataLoader {
@@ -36,7 +35,7 @@ public class MemberSetupDataLoader {
 	public void setupMembers(MemberProperties memberProperties) {
 		for (MemberProperties.MemberAuthProperty properties : memberProperties.getProperties()) {
 			Role role = roleRepository.findRoleByRoleName(properties.getRoleName())
-				.orElseThrow(supplierNotFoundRoleException());
+				.orElseThrow((Supplier<NotFoundException>)() -> new RoleNotFoundException(Strings.EMPTY));
 			saveMember(properties, role);
 		}
 	}
@@ -63,8 +62,4 @@ public class MemberSetupDataLoader {
 		return Member.createMember(profile, notificationPreference);
 	}
 
-	@NotNull
-	private static Supplier<NotFoundException> supplierNotFoundRoleException() {
-		return () -> new RoleNotFoundException(Strings.EMPTY);
-	}
 }
