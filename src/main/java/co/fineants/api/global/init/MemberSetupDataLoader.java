@@ -44,13 +44,17 @@ public class MemberSetupDataLoader {
 	@Transactional
 	public void setupMembers() {
 		// 기본 사용자 생성
-		String email = userProperties.getEmail();
+		saveUserRoleMember(userProperties);
+	}
+
+	private void saveUserRoleMember(UserProperties properties) {
+		String email = properties.getEmail();
 		String provider = "local";
 		// 이미 존재하는 경우 생성하지 않음
 		if (memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty()) {
 			// 멤버가 존재하지 않으면 새로 생성
-			MemberProfile profile = MemberProfile.localMemberProfile(userProperties.getEmail(),
-				userProperties.getNickname(), passwordEncoder.encode(userProperties.getPassword()),
+			MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
+				properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
 				null);
 			NotificationPreference notificationPreference = NotificationPreference.allActive();
 			Member member = Member.createMember(profile, notificationPreference);
