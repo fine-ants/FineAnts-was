@@ -59,9 +59,7 @@ class RoleSetupDataLoaderTest extends AbstractContainerBaseTest {
 
 	@Test
 	void setupRoles_whenRolePropertiesIsNull_thenNoRolesSaved() {
-		RoleProperties roleProperties = null;
-
-		loader.setupRoles(roleProperties);
+		loader.setupRoles(null);
 
 		Assertions.assertThat(repository.findAll()).isEmpty();
 	}
