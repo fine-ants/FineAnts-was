@@ -58,9 +58,15 @@ public class SetupDataLoader {
 	}
 
 	private void setAdminAuthentication() {
-		Member admin = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
-			.orElseThrow(() -> new MemberNotFoundException(adminProperties.getEmail()));
-		Role roleAdmin = roleRepository.findRoleByRoleName("ROLE_ADMIN")
+		MemberProperties.MemberAuthProperty adminProperty = memberProperties.getProperties().stream()
+			.filter(prop -> prop.getRoleName().equals("ROLE_ADMIN"))
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("No admin properties configured"));
+
+		Member admin = memberRepository.findMemberByEmailAndProvider(adminProperty.getEmail(),
+				adminProperty.getProvider())
+			.orElseThrow(() -> new MemberNotFoundException(adminProperty.getEmail()));
+		Role roleAdmin = roleRepository.findRoleByRoleName(adminProperty.getRoleName())
 			.orElseThrow(supplierNotFoundRoleException());
 		Set<String> roleNames = Set.of(roleAdmin.getRoleName());
 		MemberAuthentication memberAuthentication = MemberAuthentication.from(admin, roleNames);

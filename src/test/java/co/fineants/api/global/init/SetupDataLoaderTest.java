@@ -28,7 +28,6 @@ import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
-import co.fineants.api.global.init.properties.AdminProperties;
 import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.infra.s3.service.WriteDividendService;
@@ -44,9 +43,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private AdminProperties adminProperties;
 
 	@Autowired
 	private MemberProperties memberProperties;
@@ -111,13 +107,17 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 	}
 
 	private void assertAdminAuthentication() {
-		Member member = memberRepository.findMemberByEmailAndProvider(adminProperties.getEmail(), "local")
+		MemberProperties.MemberAuthProperty adminProperty = memberProperties.getProperties().stream()
+			.filter(prop -> prop.getRoleName().equals("ROLE_ADMIN"))
+			.findAny()
 			.orElseThrow();
-		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+		Member findAdminMember = memberRepository.findMemberByEmailAndProvider(adminProperty.getEmail(),
+			adminProperty.getProvider()).orElseThrow();
+		Set<String> roleNames = roleRepository.findAllById(findAdminMember.getRoleIds()).stream()
 			.map(Role::getRoleName)
 			.collect(Collectors.toSet());
 		MemberAuthentication adminAuthentication = MemberAuthentication.from(
-			member,
+			findAdminMember,
 			roleNames
 		);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
