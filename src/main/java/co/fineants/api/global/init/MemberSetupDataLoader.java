@@ -48,6 +48,10 @@ public class MemberSetupDataLoader {
 		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER")
 			.orElseThrow(supplierNotFoundRoleException());
 		saveUserRoleMember(userProperties, userRole);
+
+		Role managerRole = roleRepository.findRoleByRoleName("ROLE_MANAGER")
+			.orElseThrow(supplierNotFoundRoleException());
+		saveManagerRoleMember(managerProperties, managerRole);
 	}
 
 	private void saveUserRoleMember(UserProperties properties, Role role) {
@@ -65,6 +69,24 @@ public class MemberSetupDataLoader {
 	}
 
 	private Member createMember(UserProperties properties) {
+		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
+			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
+			null);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		return Member.createMember(profile, notificationPreference);
+	}
+
+	private void saveManagerRoleMember(ManagerProperties properties, Role role) {
+		String email = properties.getEmail();
+		String provider = "local";
+		if (isEmptyMemberBy(email, provider)) {
+			Member member = createMember(properties);
+			member.addRoleId(role.getId());
+			memberRepository.save(member);
+		}
+	}
+
+	private Member createMember(ManagerProperties properties) {
 		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
 			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
 			null);
