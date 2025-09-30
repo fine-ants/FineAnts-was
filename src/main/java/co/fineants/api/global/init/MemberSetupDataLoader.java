@@ -53,13 +53,17 @@ public class MemberSetupDataLoader {
 		// 이미 존재하는 경우 생성하지 않음
 		if (memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty()) {
 			// 멤버가 존재하지 않으면 새로 생성
-			MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
-				properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
-				null);
-			NotificationPreference notificationPreference = NotificationPreference.allActive();
-			Member member = Member.createMember(profile, notificationPreference);
-			memberRepository.save(member);
+			saveMember(properties);
 		}
+	}
+
+	private void saveMember(UserProperties properties) {
+		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
+			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
+			null);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Member member = Member.createMember(profile, notificationPreference);
+		memberRepository.save(member);
 	}
 
 	private void setupMemberResources() {
