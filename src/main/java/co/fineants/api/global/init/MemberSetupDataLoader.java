@@ -43,19 +43,20 @@ public class MemberSetupDataLoader {
 
 	@Transactional
 	public void setupMembers() {
-		// 기본 사용자 생성
 		saveUserRoleMember(userProperties);
 	}
 
 	private void saveUserRoleMember(UserProperties properties) {
 		String email = properties.getEmail();
 		String provider = "local";
-		// 이미 존재하는 경우 생성하지 않음
-		if (memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty()) {
-			// 멤버가 존재하지 않으면 새로 생성
+		if (isEmptyMemberBy(email, provider)) {
 			Member member = createMember(properties);
 			memberRepository.save(member);
 		}
+	}
+
+	private boolean isEmptyMemberBy(String email, String provider) {
+		return memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty();
 	}
 
 	private Member createMember(UserProperties properties) {
