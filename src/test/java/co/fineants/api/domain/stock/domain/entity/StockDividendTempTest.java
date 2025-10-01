@@ -18,4 +18,14 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(sum).isEqualTo(Money.won(3610));
 	}
+
+	@Test
+	void calculateDividendSum_whenNumSharesIsZero_thenReturnZero() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		Count numShares = Count.zero();
+
+		Expression sum = stockDividendTemp.calculateDividendSum(numShares);
+
+		Assertions.assertThat(sum).isEqualTo(Money.won(0));
+	}
 }
