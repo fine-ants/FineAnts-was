@@ -1,5 +1,7 @@
 package co.fineants.api.domain.stock.domain.entity;
 
+import java.time.LocalDate;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,5 +29,15 @@ class StockDividendTempTest {
 		Expression sum = stockDividendTemp.calculateDividendSum(numShares);
 
 		Assertions.assertThat(sum).isEqualTo(Money.won(0));
+	}
+
+	@Test
+	void isCurrentMonthPaymentDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate today = LocalDate.of(2023, 5, 1);
+
+		boolean actual = stockDividendTemp.isCurrentMonthPaymentDate(today);
+
+		Assertions.assertThat(actual).isTrue();
 	}
 }

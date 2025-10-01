@@ -1,5 +1,7 @@
 package co.fineants.api.domain.stock.domain.entity;
 
+import java.time.LocalDate;
+
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
@@ -35,5 +37,9 @@ public class StockDividendTemp {
 
 	public Expression calculateDividendSum(Count numShares) {
 		return numShares.multiply(dividend);
+	}
+
+	public boolean isCurrentMonthPaymentDate(LocalDate today) {
+		return dividendDates.isCurrentMonthPaymentDate(today);
 	}
 }
