@@ -22,4 +22,14 @@ class StockSetupDataLoaderTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(stockRepository.findAll()).hasSizeGreaterThan(2802);
 	}
 
+	@Test
+	void setupStocks_whenCalledTwice_thenNoDuplicateEntries() {
+		loader.setupStocks();
+		int initialSize = stockRepository.findAll().size();
+
+		loader.setupStocks();
+		int newSize = stockRepository.findAll().size();
+
+		Assertions.assertThat(newSize).isEqualTo(initialSize);
+	}
 }
