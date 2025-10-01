@@ -13,9 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
@@ -24,6 +26,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -311,5 +314,16 @@ public final class TestDataFactory {
 			dividendDates,
 			false
 		);
+	}
+
+	public static PurchaseHistory createPurchaseHistory(LocalDate purchaseDate, PortfolioHolding holding) {
+		Count numShares = Count.from(5);
+		Money purchasePerShare = Money.won(10000);
+		String memo = "첫구매";
+		return PurchaseHistory.create(purchaseDate.atStartOfDay(), numShares, purchasePerShare, memo, holding);
+	}
+
+	public static PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
+		return PortfolioHolding.of(portfolio, stock);
 	}
 }
