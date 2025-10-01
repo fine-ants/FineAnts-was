@@ -58,4 +58,32 @@ class StockRepositoryTest extends AbstractContainerBaseTest {
 			.hasSize(1)
 			.containsExactlyInAnyOrder(stockDividendTemp);
 	}
+
+	@DisplayName("종목의 배당금을 삭제한다")
+	@Test
+	void shouldDeleteStockDividend() {
+		// given
+		Stock stock = TestDataFactory.createSamsungStock();
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividendTemp stockDividendTemp = new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false
+		);
+		stock.addStockDividendTemp(stockDividendTemp);
+		stockRepository.save(stock);
+
+		// when
+		Stock findStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
+		findStock.removeStockDividendTemp(stockDividendTemp);
+		stockRepository.save(findStock);
+
+		// then
+		Stock updatedStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
+		Assertions.assertThat(updatedStock.getStockDividendTemps()).isEmpty();
+	}
 }

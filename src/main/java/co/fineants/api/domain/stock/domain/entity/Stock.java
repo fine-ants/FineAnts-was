@@ -97,6 +97,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		}
 	}
 
+	public void removeStockDividendTemp(StockDividendTemp stockDividendTemp) {
+		stockDividendTemps.remove(stockDividendTemp);
+	}
+
 	public List<StockDividend> getCurrentMonthDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
 		return stockDividends.stream()
