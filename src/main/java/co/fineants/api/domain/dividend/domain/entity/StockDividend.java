@@ -83,7 +83,6 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 
 	// 주식 개수에 따른 배당금 합계 계산
 	// 배당금 합계 = 주당 배당금 * 주식 개수
-
 	public Expression calculateDividendSum(Count numShares) {
 		return numShares.multiply(dividend);
 	}
@@ -158,7 +157,7 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 	public boolean hasInRangeForRecordDate(LocalDate from, LocalDate to) {
 		return dividendDates.hasInRangeForRecordDate(from, to);
 	}
-	
+
 	public boolean isSatisfiedBy(PurchaseHistory history) {
 		return dividendDates.isSatisfiedBy(history);
 	}

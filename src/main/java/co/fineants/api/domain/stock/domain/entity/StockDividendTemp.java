@@ -1,5 +1,7 @@
 package co.fineants.api.domain.stock.domain.entity;
 
+import co.fineants.api.domain.common.count.Count;
+import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
@@ -29,5 +31,9 @@ public class StockDividendTemp {
 		this.dividend = dividend;
 		this.dividendDates = dividendDates;
 		this.isDeleted = isDeleted;
+	}
+
+	public Expression calculateDividendSum(Count numShares) {
+		return numShares.multiply(dividend);
 	}
 }

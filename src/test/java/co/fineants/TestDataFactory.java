@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -26,6 +27,7 @@ import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 
 public final class TestDataFactory {
 	private TestDataFactory() {
@@ -296,5 +298,18 @@ public final class TestDataFactory {
 			kakaoStock
 		);
 		return stockDividend2;
+	}
+
+	public static StockDividendTemp createSamsungStockDividendTemp() {
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false
+		);
 	}
 }
