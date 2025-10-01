@@ -50,4 +50,11 @@ public class StockDividendTemp {
 		return dividendDates.isPurchaseDateBeforeExDividendDate(history);
 	}
 
+	public boolean isCurrentYearPaymentDate(LocalDate today) {
+		return dividendDates.isCurrentYearPaymentDate(today);
+	}
+
+	public boolean isSatisfiedBy(PurchaseHistory history) {
+		return dividendDates.isSatisfiedBy(history);
+	}
 }

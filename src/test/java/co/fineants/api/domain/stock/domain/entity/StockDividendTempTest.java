@@ -64,4 +64,15 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(actual).isTrue();
 	}
+
+	@DisplayName("현재 날짜가 배당금 지급일이 속한 연도와 같으면 true를 반환한다")
+	@Test
+	void isCurrentYearPaymentDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate today = LocalDate.of(2023, 5, 1);
+
+		boolean actual = stockDividendTemp.isCurrentYearPaymentDate(today);
+
+		Assertions.assertThat(actual).isTrue();
+	}
 }

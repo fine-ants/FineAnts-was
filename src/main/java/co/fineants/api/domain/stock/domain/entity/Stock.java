@@ -108,9 +108,9 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.toList();
 	}
 
-	public List<StockDividend> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
+	public List<StockDividendTemp> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
-		return stockDividends.stream()
+		return stockDividendTemps.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(today))
 			.toList();
 	}
