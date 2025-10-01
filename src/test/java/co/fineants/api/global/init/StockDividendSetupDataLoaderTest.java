@@ -1,12 +1,28 @@
 package co.fineants.api.global.init;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.parser.StockCsvParser;
+import co.fineants.api.infra.s3.service.DeleteDividendService;
+import co.fineants.api.infra.s3.service.DeleteStockService;
+import co.fineants.api.infra.s3.service.WriteDividendService;
+import co.fineants.api.infra.s3.service.WriteStockService;
 
 class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -19,16 +35,50 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockSetupDataLoader stockLoader;
 
+	@Autowired
+	private StockCsvParser stockCsvParser;
+
+	@Autowired
+	private WriteStockService writeStockService;
+
+	@Autowired
+	private StockDividendCsvParser stockDividendCsvParser;
+
+	@Autowired
+	private WriteDividendService writeDividendService;
+
+	@Autowired
+	private DeleteStockService deleteStockService;
+
+	@Autowired
+	private DeleteDividendService deleteDividendService;
+
 	@BeforeEach
-	void setUp() {
+	void setUp() throws IOException {
+		InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
+		List<Stock> stocks = stockCsvParser.parse(inputStream);
+		writeStockService.writeStocks(stocks);
+
+		inputStream = new ClassPathResource("dividends.csv").getInputStream();
+		Map<String, Stock> stockMap = stocks.stream()
+			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
+		List<StockDividend> dividends = stockDividendCsvParser.parse(inputStream, stockMap);
+		writeDividendService.writeDividend(dividends);
+
 		stockLoader.setupStocks();
+	}
+
+	@AfterEach
+	void tearDown() {
+		deleteStockService.delete();
+		deleteDividendService.delete();
 	}
 
 	@Test
 	void setupStockDividends() {
 		loader.setupStockDividends();
 
-		Assertions.assertThat(repository.findAll()).hasSizeGreaterThan(0);
+		Assertions.assertThat(repository.findAll()).hasSize(326);
 	}
 
 	@Test
@@ -39,6 +89,9 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 		loader.setupStockDividends();
 		int newSize = repository.findAll().size();
 
-		Assertions.assertThat(newSize).isEqualTo(initialSize);
+		Assertions.assertThat(initialSize).isEqualTo(326);
+		Assertions.assertThat(newSize)
+			.isEqualTo(326)
+			.isEqualTo(initialSize);
 	}
 }
