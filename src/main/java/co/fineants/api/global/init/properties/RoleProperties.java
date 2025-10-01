@@ -12,11 +12,11 @@ import lombok.Getter;
 @ConfigurationProperties(prefix = "role")
 public class RoleProperties {
 
-	private final List<RoleProperty> rolePropertyList;
+	private final List<RoleProperty> properties;
 
 	@ConstructorBinding
-	public RoleProperties(RoleProperty admin, RoleProperty manager, RoleProperty user) {
-		this.rolePropertyList = List.of(admin, manager, user);
+	public RoleProperties(List<RoleProperty> properties) {
+		this.properties = properties;
 	}
 
 	@Getter
