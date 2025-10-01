@@ -1,3 +1,13 @@
+-- 0. member_role 테이블의 중복 데이터 제거
+WITH duplicates AS (SELECT member_role_id,
+                           ROW_NUMBER() OVER (PARTITION BY member_id, role_role_id ORDER BY member_role_id) AS rn
+                    FROM member_role)
+DELETE
+FROM member_role
+WHERE member_role_id IN (SELECT member_role_id
+                         FROM duplicates
+                         WHERE rn > 1);
+
 -- 1. 임시 테이블 생성 (기존 데이터 백업용)
 CREATE TABLE member_role_backup AS
 SELECT member_id AS member_id, role_role_id AS role_id

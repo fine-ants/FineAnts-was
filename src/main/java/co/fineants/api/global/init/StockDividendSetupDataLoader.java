@@ -32,7 +32,8 @@ public class StockDividendSetupDataLoader {
 		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
 		List<StockDividend> savedStockDividends = new ArrayList<>();
 		for (StockDividend stockDividend : stockDividends) {
-			if (stockDividendRepository.findByTickerSymbolAndRecordDate(stockDividend.getStock().getTickerSymbol(),
+			if (stockDividendRepository.findByTickerSymbolAndRecordDateIncludingDeleted(
+				stockDividend.getStock().getTickerSymbol(),
 				stockDividend.getDividendDates().getRecordDate()).isEmpty()) {
 				StockDividend saveStockDividend = stockDividendRepository.save(stockDividend);
 				savedStockDividends.add(saveStockDividend);
