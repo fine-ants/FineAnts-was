@@ -158,11 +158,7 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 	public boolean hasInRangeForRecordDate(LocalDate from, LocalDate to) {
 		return dividendDates.hasInRangeForRecordDate(from, to);
 	}
-
-	public boolean equalPaymentDate(LocalDate paymentDate) {
-		return dividendDates.equalPaymentDate(paymentDate);
-	}
-
+	
 	public boolean isSatisfiedBy(PurchaseHistory history) {
 		return dividendDates.isSatisfiedBy(history);
 	}
