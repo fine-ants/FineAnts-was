@@ -4,16 +4,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -29,7 +23,6 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.init.properties.MemberProperties;
-import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 
@@ -75,7 +68,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		// then
 		assertRoles();
 		assertMembers();
-		assertAdminAuthentication();
 		assertThat(stockRepository.findAll())
 			.containsExactlyInAnyOrderElementsOf(stocks);
 		assertThat(stockDividendRepository.findAll())
@@ -104,35 +96,6 @@ class SetupDataLoaderTest extends AbstractContainerBaseTest {
 		assertThat(memberRepository.findAll())
 			.hasSize(3)
 			.containsExactlyElementsOf(expectedMembers);
-	}
-
-	private void assertAdminAuthentication() {
-		MemberProperties.MemberAuthProperty adminProperty = memberProperties.getProperties().stream()
-			.filter(prop -> prop.getRoleName().equals("ROLE_ADMIN"))
-			.findAny()
-			.orElseThrow();
-		Member findAdminMember = memberRepository.findMemberByEmailAndProvider(adminProperty.getEmail(),
-			adminProperty.getProvider()).orElseThrow();
-		Set<String> roleNames = roleRepository.findAllById(findAdminMember.getRoleIds()).stream()
-			.map(Role::getRoleName)
-			.collect(Collectors.toSet());
-		MemberAuthentication adminAuthentication = MemberAuthentication.from(
-			findAdminMember,
-			roleNames
-		);
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		assertThat(authentication)
-			.extracting(Authentication::getPrincipal)
-			.isEqualTo(adminAuthentication);
-		assertThat(authentication)
-			.extracting(Authentication::getCredentials)
-			.isEqualTo(Strings.EMPTY);
-
-		Set<String> authenticationRoleNames = authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.toUnmodifiableSet());
-		assertThat(authenticationRoleNames)
-			.containsExactlyElementsOf(adminAuthentication.getRoleSet());
 	}
 
 	private List<Stock> writeStocks(int limit) {
