@@ -23,11 +23,15 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.converter.MarketConverter;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -55,6 +59,14 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	@OneToMany(mappedBy = "stock", fetch = FetchType.LAZY)
 	private final List<StockDividend> stockDividends = new ArrayList<>();
 
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(
+		name = "stock_dividend_temp",
+		joinColumns = @JoinColumn(name = "ticker_symbol", nullable = false)
+	)
+	@OrderColumn(name = "line_idx", nullable = false)
+	private final List<StockDividendTemp> stockDividendTemps = new ArrayList<>();
+
 	private static final String TICKER_PREFIX = "TS";
 
 	private Stock(String tickerSymbol, String companyName, String companyNameEng, String stockCode, String sector,
@@ -76,6 +88,12 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public void addStockDividend(StockDividend stockDividend) {
 		if (!stockDividends.contains(stockDividend)) {
 			stockDividends.add(stockDividend);
+		}
+	}
+
+	public void addStockDividendTemp(StockDividendTemp stockDividendTemp) {
+		if (!stockDividendTemps.contains(stockDividendTemp)) {
+			stockDividendTemps.add(stockDividendTemp);
 		}
 	}
 
@@ -246,5 +264,9 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	public void savePrice(PriceRepository repository, long price) {
 		repository.savePrice(tickerSymbol, price);
+	}
+
+	public List<StockDividendTemp> getStockDividendTemps() {
+		return Collections.unmodifiableList(stockDividendTemps);
 	}
 }
