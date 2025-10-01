@@ -56,7 +56,7 @@ class MemberRepositoryTest extends AbstractContainerBaseTest {
 		member.addRoleId(roleUser.getId());
 		Member saveMember = repository.save(member);
 		// when
-		repository.save(member);
+		repository.save(saveMember);
 		// then
 		Member findMember = repository.findById(saveMember.getId()).orElseThrow();
 		Assertions.assertThat(findMember.getRoleIds()).hasSize(1);

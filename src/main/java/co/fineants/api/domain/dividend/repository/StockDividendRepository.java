@@ -30,6 +30,12 @@ public interface StockDividendRepository extends JpaRepository<StockDividend, Lo
 	Optional<StockDividend> findByTickerSymbolAndRecordDate(@Param("tickerSymbol") String tickerSymbol,
 		@Param("recordDate") LocalDate recordDate);
 
+	@Query("select sd from StockDividend sd join fetch sd.stock s "
+		+ "where s.tickerSymbol = :tickerSymbol and sd.dividendDates.recordDate = :recordDate "
+		+ "order by s.tickerSymbol, sd.dividendDates.recordDate")
+	Optional<StockDividend> findByTickerSymbolAndRecordDateIncludingDeleted(@Param("tickerSymbol") String tickerSymbol,
+		@Param("recordDate") LocalDate recordDate);
+
 	@Modifying
 	@Query("update StockDividend sd set sd.isDeleted = true "
 		+ "where sd.stock.tickerSymbol in :tickerSymbols")
