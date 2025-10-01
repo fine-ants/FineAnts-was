@@ -191,6 +191,13 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(prices).hasSize(tickers.size());
 	}
 
+	private List<Stock> saveStocks(int limit) {
+		return stockRepository.saveAll(stockCsvReader.readStockCsv()
+			.stream()
+			.limit(limit)
+			.toList());
+	}
+
 	@DisplayName("현재가를 갱신할때 액세스 토큰의 만료시간이 1시간 이전어서 새로운 액세스 토큰을 재발급한다")
 	@Test
 	void refreshStockCurrentPrice_whenAccessTokenSoonExpired_thenFetchAccessToken() {
@@ -408,6 +415,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			);
 	}
 
+	private List<Stock> saveStocks() {
+		return saveStocks(0);
+	}
+
 	@DisplayName("사용자는 삼성전자의 올해 배당일정을 조회한다")
 	@Test
 	void fetchDividend() {
@@ -450,16 +461,5 @@ class KisServiceTest extends AbstractContainerBaseTest {
 				KisDividend.create("005930", Money.won(300), LocalDate.of(2024, 3, 1), LocalDate.of(2024, 5, 1)))
 			.expectComplete()
 			.verify();
-	}
-
-	private List<Stock> saveStocks() {
-		return saveStocks(0);
-	}
-
-	private List<Stock> saveStocks(int limit) {
-		return stockRepository.saveAll(stockCsvReader.readStockCsv()
-			.stream()
-			.limit(limit)
-			.toList());
 	}
 }

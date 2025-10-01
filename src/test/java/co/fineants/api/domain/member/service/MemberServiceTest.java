@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,11 +23,8 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -42,11 +38,8 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.ImageSizeExceededInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -93,26 +86,8 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	private static MultipartFile createOverSizeMockProfileFile() {
-		byte[] profile = new byte[3145728];
-		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
-	}
-
 	private static MultipartFile createEmptyProfileImageFile() {
 		return new MockMultipartFile("profileImageFile", new byte[] {});
-	}
-
-	public static Stream<Arguments> signupMethodSource() {
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = createProfileFile();
-		return Stream.of(
-			Arguments.of(request, profileImageFile)
-		);
 	}
 
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
@@ -179,137 +154,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(MemberProfileNotChangeException.class)
 			.hasMessage(serviceRequest.toString());
-	}
-
-	@DisplayName("사용자는 일반 회원가입한다")
-	@MethodSource(value = "signupMethodSource")
-	@ParameterizedTest
-	void signup(SignUpRequest request, MultipartFile profileImageFile) {
-		// given
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-
-		// when
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("nickname", "email", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", "local");
-		assertThat(response)
-			.extracting("profileUrl")
-			.isNotNull();
-	}
-
-	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
-	@Test
-	void signup_whenDefaultProfile_thenSaveDefaultProfileUrl() {
-		// given
-		SignUpRequest request = new SignUpRequest(
-			"일개미1234",
-			"dragonbead95@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		MultipartFile profileImageFile = null;
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileImageFile);
-
-		// when
-		SignUpServiceResponse response = memberService.signup(serviceRequest);
-
-		// then
-		assertThat(response)
-			.extracting("nickname", "email", "profileUrl", "provider")
-			.containsExactlyInAnyOrder("일개미1234", "dragonbead95@naver.com", null, "local");
-	}
-
-	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")
-	@Test
-	void signup_whenDuplicatedNickname_thenResponse400Error() {
-		// given
-		String duplicatedNickname = "일개미1234";
-		memberRepository.save(createMember(duplicatedNickname));
-		SignUpRequest request = new SignUpRequest(
-			duplicatedNickname,
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(NicknameDuplicateException.class)
-			.hasMessage(duplicatedNickname);
-	}
-
-	@DisplayName("사용자는 이메일이 중복되어 회원가입 할 수 없다")
-	@Test
-	void signup_whenDuplicatedEmail_thenResponse400Error() {
-		// given
-		String duplicatedEmail = "dragonbead95@naver.com";
-		memberRepository.save(createMember("일개미1234"));
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			duplicatedEmail,
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(EmailDuplicateException.class)
-			.hasMessage(duplicatedEmail);
-	}
-
-	@DisplayName("사용자는 비밀번호와 비밀번호 확인이 일치하지 않아 회원가입 할 수 없다")
-	@Test
-	void signup_whenNotMatchPasswordAndPasswordConfirm_thenResponse400Error() {
-		// given
-		memberRepository.save(createMember("일개미1234"));
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo4567@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, createProfileFile());
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(PasswordAuthenticationException.class)
-			.hasMessage(Strings.EMPTY);
-	}
-
-	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 회원가입 할 수 없다")
-	@Test
-	void signup_whenOverProfileImageFile_thenResponse400Error() {
-		// given
-		MultipartFile profileFile = createOverSizeMockProfileFile(); // 3MB
-		SignUpRequest request = new SignUpRequest(
-			"일개미4567",
-			"nemo1234@naver.com",
-			"nemo1234@",
-			"nemo1234@"
-		);
-		SignUpServiceRequest serviceRequest = SignUpServiceRequest.of(request, profileFile);
-
-		// when
-		Throwable throwable = catchThrowable(() -> memberService.signup(serviceRequest));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(ImageSizeExceededInvalidInputException.class)
-			.hasMessage(profileFile.toString());
 	}
 
 	@DisplayName("사용자는 프로필을 조회합니다.")

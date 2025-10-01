@@ -42,6 +42,13 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 	@Autowired
 	private StockTargetPriceService mockedStockTargetPriceService;
 
+	public static Stream<Arguments> invalidTargetPrice() {
+		return Stream.of(
+			Arguments.of(null, -1L),
+			Arguments.of(null, null)
+		);
+	}
+
 	@Override
 	protected Object initController() {
 		return new StockTargetPriceRestController(mockedStockTargetPriceService);
@@ -228,12 +235,5 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
 			.andExpect(jsonPath("data").isArray());
-	}
-
-	public static Stream<Arguments> invalidTargetPrice() {
-		return Stream.of(
-			Arguments.of(null, -1L),
-			Arguments.of(null, null)
-		);
 	}
 }

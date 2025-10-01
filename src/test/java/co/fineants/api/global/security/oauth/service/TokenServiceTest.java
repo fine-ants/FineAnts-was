@@ -48,6 +48,18 @@ class TokenServiceTest {
 		);
 	}
 
+	@NotNull
+	private MemberAuthentication createMemberAuthentication() {
+		return MemberAuthentication.create(
+			1L,
+			"user1@gmail.com",
+			"ant1111",
+			"local",
+			"profileUrl",
+			Set.of("ROLE_USER")
+		);
+	}
+
 	@DisplayName("토큰을 검증한다")
 	@Test
 	void verifyToken() {
@@ -119,17 +131,5 @@ class TokenServiceTest {
 		Token newToken = tokenService.refreshToken(token.getRefreshToken(), LocalDateTime.now());
 		// then
 		assertThat(newToken).isNotNull();
-	}
-
-	@NotNull
-	private MemberAuthentication createMemberAuthentication() {
-		return MemberAuthentication.create(
-			1L,
-			"user1@gmail.com",
-			"ant1111",
-			"local",
-			"profileUrl",
-			Set.of("ROLE_USER")
-		);
 	}
 }

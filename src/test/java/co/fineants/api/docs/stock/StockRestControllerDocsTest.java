@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
@@ -306,7 +307,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void getStock() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		holding.addPurchaseHistory(createPurchaseHistory(holding, LocalDateTime.now()));

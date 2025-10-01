@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import lombok.Getter;
@@ -72,9 +73,10 @@ public class OAuthAttribute {
 		return new OAuthAttribute(attributes, nameAttributeKey, email, profileUrl, "naver", sub);
 	}
 
-	public Optional<Member> getMemberFrom(MemberRepository repository) {
+	public Optional<Member> findMember(MemberRepository repository) {
 		return repository.findMemberByEmailAndProvider(email, provider)
-			.stream().findAny();
+			.stream()
+			.findAny();
 	}
 
 	public void updateProfileUrlIfAbsent(Member member) {
@@ -86,6 +88,7 @@ public class OAuthAttribute {
 	public Member toEntity(NicknameGenerator generator) {
 		String nickname = generator.generate();
 		MemberProfile profile = MemberProfile.oauthMemberProfile(email, nickname, provider, profileUrl);
-		return Member.oauthMember(profile);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		return Member.createMember(profile, notificationPreference);
 	}
 }

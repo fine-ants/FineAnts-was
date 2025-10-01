@@ -22,6 +22,6 @@ public class NicknameDuplicationRule implements MemberValidationRule {
 
 	@Override
 	public void validate(Member member) {
-		member.validateNickname(this);
+		validate(member.getNickname());
 	}
 }

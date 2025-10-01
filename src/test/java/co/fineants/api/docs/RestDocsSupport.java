@@ -41,7 +41,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessage;
 import co.fineants.api.domain.notification.domain.dto.response.PortfolioNotifyMessage;
 import co.fineants.api.domain.notification.domain.dto.response.StockNotifyMessage;
@@ -67,12 +66,9 @@ import jakarta.servlet.http.Cookie;
 
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class RestDocsSupport {
-	protected MockMvc mockMvc;
-
-	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
-
 	private final PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권", "FineAnts"});
-
+	protected MockMvc mockMvc;
+	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
 	private ExDividendDateCalculator exDividendDateCalculator;
 
 	@BeforeEach
@@ -104,11 +100,7 @@ public abstract class RestDocsSupport {
 		);
 	}
 
-	protected Member createMember() {
-		MemberProfile profile = MemberProfile.localMemberProfile("kim1234@gmail.com", "일개미1234", "kim1234@",
-			"profileUrl");
-		return Member.localMember(1L, profile);
-	}
+	protected abstract Object initController();
 
 	protected Stock createSamsungStock() {
 		return Stock.of("005930", "삼성전자보통주", "SamsungElectronics", "KR7005930003", "전기전자", Market.KOSPI);
@@ -268,6 +260,4 @@ public abstract class RestDocsSupport {
 		int start = cookieString.indexOf("=") + 1;
 		return new Cookie(cookie.getName(), cookieString.substring(start));
 	}
-
-	protected abstract Object initController();
 }

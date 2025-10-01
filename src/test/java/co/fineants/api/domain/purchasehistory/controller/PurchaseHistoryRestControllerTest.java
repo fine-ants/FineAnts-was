@@ -21,6 +21,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -53,7 +54,8 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@ParameterizedTest
 	void addPurchaseHistory(Count numShares) throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.of(2023, 10, 23, 10, 0, 0),
@@ -72,7 +74,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 			anyLong(),
 			anyLong()
 		)).willReturn(
-			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), member.getId())
+			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), memberId)
 		);
 		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
 
@@ -87,14 +89,14 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("message").value(equalTo("매입 이력이 추가되었습니다")))
 			.andExpect(jsonPath("data.id").value(equalTo(purchaseHistory.getId().intValue())))
 			.andExpect(jsonPath("data.portfolioId").value(equalTo(portfolio.getId().intValue())))
-			.andExpect(jsonPath("data.memberId").value(equalTo(member.getId().intValue())));
+			.andExpect(jsonPath("data.memberId").value(equalTo(memberId.intValue())));
 	}
 
 	@DisplayName("사용자가 매입 이력 추가시 유효하지 않은 입력으로 추가할 수 없다")
 	@Test
 	void addPurchaseHistoryWithInvalidInput() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory", portfolio.getId(),
 			portfolioHolding.getId());
@@ -123,7 +125,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void addPurchaseHistoryThrowsExceptionWhenTotalInvestmentExceedsBudget() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory", portfolio.getId(),
 			portfolioHolding.getId());
@@ -159,7 +161,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void modifyPurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
 			Money.won(50000), "첫구매", portfolioHolding);
@@ -191,7 +193,7 @@ class PurchaseHistoryRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
 		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
 			Money.won(50000), "첫구매", portfolioHolding);

@@ -2,7 +2,6 @@ package co.fineants.api.domain.member.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.annotation.Secured;
@@ -20,18 +19,12 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.PasswordModifyRequest;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
-import co.fineants.api.domain.member.domain.dto.request.SignUpServiceRequest;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
-import co.fineants.api.domain.member.domain.dto.response.SignUpServiceResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -42,14 +35,11 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NotificationPreferenceNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
-import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.util.CookieUtils;
@@ -65,7 +55,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberService {
 
-	public static final String LOCAL_PROVIDER = "local";
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
@@ -74,13 +63,11 @@ public class MemberService {
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
-	private final NotificationPreferenceRepository notificationPreferenceRepository;
 	private final NotificationRepository notificationRepository;
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
 	private final TokenManagementService tokenManagementService;
-	private final RoleRepository roleRepository;
 	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
@@ -114,67 +101,10 @@ public class MemberService {
 		CookieUtils.setCookie(response, expiredRefreshTokenCookie);
 	}
 
-	@Transactional
-	public SignUpServiceResponse signup(SignUpServiceRequest request) throws
-		EmailDuplicateException,
-		NicknameDuplicateException,
-		PasswordAuthenticationException {
-		Member member = request.toEntity();
-		verifyEmail(member);
-		verifyNickname(member);
-		verifyPassword(request);
-
-		// 프로필 이미지 파일 S3에 업로드
-		String profileUrl = null;
-		if (request.hasProfileImageFile()) {
-			profileUrl = uploadProfileImageFile(request.profileImageFile());
-		}
-
-		// 비밀번호 암호화
-		String encryptedPassword = request.encodePasswordBy(passwordEncoder);
-		// 역할 추가
-		String roleName = "ROLE_USER";
-		Role userRole = roleRepository.findRoleByRoleName(roleName)
-			.orElseThrow(() -> new RoleNotFoundException(roleName));
-		member = request.toEntity(profileUrl, encryptedPassword);
-		member.addMemberRole(MemberRole.of(member, userRole));
-		// 알림 계정 설정 추가
-		member.setNotificationPreference(NotificationPreference.defaultSetting());
-		// 회원 데이터베이스 저장
-		Member saveMember = memberRepository.save(member);
-
-		log.info("일반 회원가입 결과 : {}", saveMember);
-		return SignUpServiceResponse.from(saveMember);
-	}
-
-	private String uploadProfileImageFile(MultipartFile profileImageFile) {
-		return Optional.ofNullable(profileImageFile)
-			.map(writeProfileImageFileService::upload)
-			.orElse(null);
-	}
-
-	private void verifyEmail(Member member) throws EmailDuplicateException {
-		if (memberRepository.findMemberByEmailAndProvider(member.getEmail(), LOCAL_PROVIDER).isPresent()) {
-			throw new EmailDuplicateException(member.getEmail());
-		}
-	}
-
-	private void verifyNickname(Member member) throws NicknameDuplicateException {
-		if (memberRepository.findMemberByNickname(member.getNickname()).isPresent()) {
-			throw new NicknameDuplicateException(member.getNickname());
-		}
-	}
-
 	// memberId을 제외한 다른 nickname이 존재하는지 검증
 	private void verifyNickname(String nickname, Long memberId) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
 			throw new NicknameDuplicateException(nickname);
-		}
-	}
-
-	private void verifyPassword(SignUpServiceRequest request) throws PasswordAuthenticationException {
-		if (!request.matchPassword()) {
-			throw new PasswordAuthenticationException();
 		}
 	}
 
@@ -272,8 +202,7 @@ public class MemberService {
 	@Secured("ROLE_USER")
 	public ProfileResponse readProfile(Long memberId) {
 		Member member = findMember(memberId);
-		NotificationPreference preference = notificationPreferenceRepository.findByMemberId(member.getId())
-			.orElseThrow(() -> new NotificationPreferenceNotFoundException(memberId.toString()));
+		NotificationPreference preference = member.getNotificationPreference();
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
 	}
 

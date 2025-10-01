@@ -3,6 +3,8 @@ package co.fineants;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.AfterEach;
@@ -36,15 +38,14 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.MemberRole;
-import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.notificationpreference.domain.entity.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
@@ -73,16 +74,14 @@ import okhttp3.mockwebserver.MockResponse;
 @Testcontainers
 @WithMockMemberAuthentication
 public abstract class AbstractContainerBaseTest {
-	private static final String REDIS_IMAGE = "redis:7-alpine";
-	private static final int REDIS_PORT = 6379;
-
-	private static final GenericContainer REDIS_CONTAINER = new GenericContainer(REDIS_IMAGE)
-		.withExposedPorts(REDIS_PORT)
-		.withReuse(true);
-
 	public static final LocalStackContainer LOCAL_STACK_CONTAINER = new LocalStackContainer(
 		DockerImageName.parse("localstack/localstack"))
 		.withServices(LocalStackContainer.Service.S3)
+		.withReuse(true);
+	private static final String REDIS_IMAGE = "redis:7-alpine";
+	private static final int REDIS_PORT = 6379;
+	private static final GenericContainer REDIS_CONTAINER = new GenericContainer(REDIS_IMAGE)
+		.withExposedPorts(REDIS_PORT)
 		.withReuse(true);
 
 	static {
@@ -176,12 +175,10 @@ public abstract class AbstractContainerBaseTest {
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
-		Member member = Member.localMember(profile);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정
-		member.addMemberRole(MemberRole.of(member, userRole));
-
-		// 계정 알림 설정
-		member.setNotificationPreference(NotificationPreference.allActive());
+		member.addRoleId(userRole.getId());
 		return member;
 	}
 
@@ -191,13 +188,11 @@ public abstract class AbstractContainerBaseTest {
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
 			"profileUrl1");
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		// 회원 생성
-		Member member = Member.oauthMember(profile);
+		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정
-		member.addMemberRole(MemberRole.of(member, userRole));
-
-		// 계정 알림 설정
-		member.setNotificationPreference(NotificationPreference.allActive());
+		member.addRoleId(userRole.getId());
 		return member;
 	}
 
@@ -215,16 +210,6 @@ public abstract class AbstractContainerBaseTest {
 		return createPortfolio(
 			member,
 			Money.won(1000000)
-		);
-	}
-
-	protected Portfolio createPortfolio(Member member, String name) {
-		return createPortfolio(
-			member,
-			name,
-			Money.won(1000000L),
-			Money.won(1500000L),
-			Money.won(900000L)
 		);
 	}
 
@@ -246,6 +231,16 @@ public abstract class AbstractContainerBaseTest {
 			detail,
 			financial,
 			member
+		);
+	}
+
+	protected Portfolio createPortfolio(Member member, String name) {
+		return createPortfolio(
+			member,
+			name,
+			Money.won(1000000L),
+			Money.won(1500000L),
+			Money.won(900000L)
 		);
 	}
 
@@ -277,11 +272,6 @@ public abstract class AbstractContainerBaseTest {
 
 	protected PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
 		return PortfolioHolding.of(portfolio, stock);
-	}
-
-	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
 	protected StockDividend createStockDividend(Money dividend, LocalDate recordDate,
@@ -360,6 +350,11 @@ public abstract class AbstractContainerBaseTest {
 		);
 	}
 
+	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
+		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
+		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
+	}
+
 	protected List<StockDividend> createStockDividendThisYearWith(Stock stock) {
 		return List.of(
 			createStockDividend(
@@ -392,7 +387,10 @@ public abstract class AbstractContainerBaseTest {
 	}
 
 	public void setAuthentication(Member member) {
-		MemberAuthentication memberAuthentication = MemberAuthentication.from(member);
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		MemberAuthentication memberAuthentication = MemberAuthentication.from(member, roleNames);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 			memberAuthentication,
 			Strings.EMPTY,

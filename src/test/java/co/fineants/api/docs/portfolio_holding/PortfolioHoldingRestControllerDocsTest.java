@@ -24,6 +24,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
@@ -109,7 +110,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void createPortfolioHolding() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		given(portfolioHoldingFacade.createPortfolioHolding(
@@ -174,7 +175,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readPortfolioHoldings() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
@@ -361,7 +362,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readPortfolioHoldingsInRealTime() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		StreamMessage portfolioStreamMessage = mock(StreamMessage.class);
@@ -401,7 +402,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readPortfolioCharts() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		int samsungValuation = 600000;
 		int samsungTotalGain = 100000;
 		int cash = 500000;
@@ -547,7 +548,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePortfolioHolding() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 
@@ -586,7 +587,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePortfolioHoldings() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Map<String, Object> body = Map.of(
 			"portfolioHoldingIds", List.of(1, 2)
 		);

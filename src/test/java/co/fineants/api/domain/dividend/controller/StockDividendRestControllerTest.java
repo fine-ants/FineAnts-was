@@ -45,17 +45,13 @@ import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 @WithMockUser(roles = {"ADMIN"})
 class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
-	private MockMvc mockMvc;
-
-	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
-
 	@Autowired
 	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
-
 	@Autowired
 	protected ObjectMapper objectMapper;
-
+	private MockMvc mockMvc;
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
 	@Autowired
 	private StockDividendRestController controller;
 
@@ -82,12 +78,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WriteDividendService writeDividendService;
-
-	private void assertDividendFile() {
-		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
-
-		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
-	}
 
 	@BeforeEach
 	void setUp() {
@@ -129,6 +119,12 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("배당금 데이터 작성에 성공하였습니다")))
 			.andExpect(jsonPath("data").value(nullValue()));
 		assertDividendFile();
+	}
+
+	private void assertDividendFile() {
+		InputStream inputStream = remoteFileFetcher.read(dividendPath).orElseThrow();
+
+		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
 	}
 
 	@DisplayName("원격 저장소에 배당금 데이터를 갱신한다")

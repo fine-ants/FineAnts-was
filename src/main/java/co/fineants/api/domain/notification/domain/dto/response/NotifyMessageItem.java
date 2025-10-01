@@ -24,6 +24,19 @@ public abstract class NotifyMessageItem implements Comparable<NotifyMessageItem>
 	private String link;
 	private List<String> messageIds;
 
+	public NotifyMessageItem(Long notificationId, Boolean isRead, String title, String content, NotificationType type,
+		String referenceId, Long memberId, String link, List<String> messageIds) {
+		this.notificationId = notificationId;
+		this.isRead = isRead;
+		this.title = title;
+		this.content = content;
+		this.type = type;
+		this.referenceId = referenceId;
+		this.memberId = memberId;
+		this.link = link;
+		this.messageIds = messageIds;
+	}
+
 	public static NotifyMessageItem portfolioNotifyMessageItem(
 		Long notificationId,
 		Boolean isRead,

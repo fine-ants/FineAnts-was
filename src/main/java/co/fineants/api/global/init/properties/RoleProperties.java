@@ -5,18 +5,18 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
-import co.fineants.api.domain.member.domain.entity.Role;
+import co.fineants.api.domain.role.domain.Role;
 import lombok.Getter;
 
 @Getter
 @ConfigurationProperties(prefix = "role")
 public class RoleProperties {
 
-	private final List<RoleProperty> rolePropertyList;
+	private final List<RoleProperty> properties;
 
 	@ConstructorBinding
-	public RoleProperties(RoleProperty admin, RoleProperty manager, RoleProperty user) {
-		this.rolePropertyList = List.of(admin, manager, user);
+	public RoleProperties(List<RoleProperty> properties) {
+		this.properties = properties;
 	}
 
 	@Getter

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
@@ -121,7 +122,7 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readPieChart() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);

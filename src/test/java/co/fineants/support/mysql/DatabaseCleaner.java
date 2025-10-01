@@ -17,10 +17,14 @@ import jakarta.persistence.PersistenceContext;
 @Profile("test")
 public class DatabaseCleaner implements InitializingBean {
 
+	private final List<String> tableNames = new ArrayList<>();
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	private final List<String> tableNames = new ArrayList<>();
+	@Override
+	public void afterPropertiesSet() {
+		findDatabaseTableNames();
+	}
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
@@ -30,11 +34,6 @@ public class DatabaseCleaner implements InitializingBean {
 			String tableName = (String)tableInfo;
 			tableNames.add(tableName);
 		}
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		findDatabaseTableNames();
 	}
 
 	@Transactional

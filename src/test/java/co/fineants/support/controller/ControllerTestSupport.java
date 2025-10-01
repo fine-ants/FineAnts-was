@@ -37,7 +37,6 @@ import co.fineants.api.domain.member.controller.MemberNotificationRestController
 import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.controller.SignUpRestControllerTest;
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;
@@ -82,20 +81,15 @@ import co.fineants.config.ControllerTestConfig;
 public abstract class ControllerTestSupport {
 
 	protected MockMvc mockMvc;
-
-	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
-
 	@Autowired
 	protected ObjectMapper objectMapper;
-
-	@Autowired
-	private PortfolioProperties properties;
-
-	private ExDividendDateCalculator exDividendDateCalculator;
-
 	@Autowired
 	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
+	@Autowired
+	private PortfolioProperties properties;
+	private ExDividendDateCalculator exDividendDateCalculator;
 
 	@BeforeEach
 	void setup() throws Exception {
@@ -125,11 +119,7 @@ public abstract class ControllerTestSupport {
 		);
 	}
 
-	protected static Member createMember() {
-		MemberProfile profile = MemberProfile.localMemberProfile("dragonbead95@naver.com", "nemo1234", "nemo1234@",
-			"profileUrl");
-		return Member.localMember(1L, profile);
-	}
+	protected abstract Object initController();
 
 	protected Portfolio createPortfolio(Member member) {
 		return createPortfolio(
@@ -181,6 +171,4 @@ public abstract class ControllerTestSupport {
 	protected PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
 		return PortfolioGainHistory.empty(portfolio);
 	}
-
-	protected abstract Object initController();
 }

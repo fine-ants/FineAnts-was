@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.notification.PortfolioMaximumLossNotifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
@@ -30,6 +31,7 @@ import co.fineants.api.domain.notification.domain.dto.response.PortfolioNotifyMe
 import co.fineants.api.domain.notification.domain.dto.response.PortfolioNotifyMessageItem;
 import co.fineants.api.domain.notification.domain.dto.response.StockNotifyMessage;
 import co.fineants.api.domain.notification.domain.entity.Notification;
+import co.fineants.api.domain.notification.domain.entity.StockTargetPriceNotification;
 import co.fineants.api.domain.notification.service.NotificationService;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -50,12 +52,25 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void notifyPortfolioTargetGainMessages() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioNotifyMessage message = (PortfolioNotifyMessage)PortfolioTargetGainNotifiable.from(portfolio, true)
 			.createMessage("token");
 		Notification notification = createPortfolioNotification(message, portfolio, member);
-		PortfolioNotifyMessageItem item = (PortfolioNotifyMessageItem)PortfolioNotifyMessageItem.from(notification);
+
+		PortfolioNotifyMessageItem item = PortfolioNotifyMessageItem.builder()
+			.notificationId(notification.getId())
+			.isRead(notification.getIsRead())
+			.title(notification.getTitle())
+			.content(notification.getContent())
+			.type(notification.getType())
+			.referenceId(notification.getReferenceId())
+			.memberId(memberId)
+			.link(notification.getLink())
+			.messageIds(notification.getMessageIds())
+			.name(notification.getName())
+			.build();
 		List<NotifyMessageItem> items = List.of(item);
 
 		given(service.notifyTargetGain(anyLong())).willReturn(items);
@@ -124,12 +139,25 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void notifyPortfolioMaxLossMessages() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		PortfolioNotifyMessage message = (PortfolioNotifyMessage)PortfolioMaximumLossNotifiable.from(portfolio, true)
 			.createMessage("token");
+
 		Notification notification = createPortfolioNotification(message, portfolio, member);
-		PortfolioNotifyMessageItem item = (PortfolioNotifyMessageItem)PortfolioNotifyMessageItem.from(notification);
+		PortfolioNotifyMessageItem item = PortfolioNotifyMessageItem.builder()
+			.notificationId(notification.getId())
+			.isRead(notification.getIsRead())
+			.title(notification.getTitle())
+			.content(notification.getContent())
+			.type(notification.getType())
+			.referenceId(notification.getReferenceId())
+			.memberId(memberId)
+			.link(notification.getLink())
+			.messageIds(notification.getMessageIds())
+			.name(notification.getName())
+			.build();
 		List<NotifyMessageItem> items = List.of(item);
 		given(service.notifyMaxLoss(anyLong())).willReturn(items);
 
@@ -197,20 +225,35 @@ class NotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void sendStockTargetPriceNotification() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
+		Member member = TestDataFactory.createMember();
 		Stock stock = createSamsungStock();
 		StockTargetPrice stockTargetPrice = createStockTargetPrice(member, stock);
 		TargetPriceNotification targetPriceNotification = createTargetPriceNotification(stockTargetPrice);
 		NotifyMessage message = TargetPriceNotificationNotifiable.from(targetPriceNotification, true)
 			.createMessage("token");
 		Notification notification = createStockNotification((StockNotifyMessage)message, member);
-		TargetPriceNotifyMessageItem item = (TargetPriceNotifyMessageItem)TargetPriceNotifyMessageItem.from(
-			notification);
+
+		StockTargetPriceNotification stockTargetPriceNotification = (StockTargetPriceNotification)notification;
+		TargetPriceNotifyMessageItem item = TargetPriceNotifyMessageItem.builder()
+			.notificationId(notification.getId())
+			.isRead(notification.getIsRead())
+			.title(notification.getTitle())
+			.content(notification.getContent())
+			.type(notification.getType())
+			.referenceId(notification.getReferenceId())
+			.memberId(memberId)
+			.link(notification.getLink())
+			.messageIds(notification.getMessageIds())
+			.stockName(stockTargetPriceNotification.getStockName())
+			.targetPrice(stockTargetPriceNotification.getTargetPrice())
+			.targetPriceNotificationId(stockTargetPriceNotification.getTargetPriceNotificationId())
+			.build();
 		given(service.notifyTargetPrice(anyLong())).willReturn(List.of(item));
 
 		// when
 		mockMvc.perform(RestDocumentationRequestBuilders.post("/api/stocks/target-price/notifications/send")
-				.queryParam("memberId", String.valueOf(member.getId()))
+				.queryParam("memberId", memberId.toString())
 				.cookie(createTokenCookies()))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("code").value(equalTo(201)))

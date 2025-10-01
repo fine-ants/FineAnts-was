@@ -42,7 +42,7 @@ import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockServic
 @Configuration
 @Profile(value = {"gcp"})
 public class GoogleCloudStorageConfig {
-
+	
 	@Value("${gcp.storage.bucket}")
 	private String bucketName;
 

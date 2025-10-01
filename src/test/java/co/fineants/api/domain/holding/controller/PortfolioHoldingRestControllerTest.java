@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
@@ -72,6 +73,13 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	private PortfolioCalculator calculator;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 
+	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
+		return Stream.of(
+			Arguments.of(Collections.emptyList()),
+			Arguments.of((Object)null)
+		);
+	}
+
 	@Override
 	protected Object initController() {
 		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
@@ -106,7 +114,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		// given
 		given(mockedlocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
@@ -182,6 +190,46 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo").value(equalTo("첫구매")));
 	}
 
+	private List<StockDividend> createStockDividendWith(Stock stock) {
+		return List.of(
+			createStockDividend(
+				LocalDate.of(2022, 3, 30),
+				LocalDate.of(2022, 5, 17),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 6, 29),
+				LocalDate.of(2022, 8, 16),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 9, 29),
+				LocalDate.of(2022, 11, 15),
+				stock
+			),
+			createStockDividend(
+				LocalDate.of(2022, 12, 30),
+				LocalDate.of(2023, 4, 14),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 3, 30),
+				LocalDate.of(2023, 5, 17),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 6, 29),
+				LocalDate.of(2023, 8, 16),
+				stock),
+			createStockDividend(
+				LocalDate.of(2023, 9, 27),
+				LocalDate.of(2023, 11, 20),
+				stock),
+			createStockDividend(
+				LocalDate.of(2024, 3, 30),
+				LocalDate.of(2024, 5, 17),
+				stock)
+		);
+	}
+
 	@DisplayName("존재하지 않는 포트폴리오 번호를 가지고 포트폴리오 상세 정보를 가져올 수 없다")
 	@Test
 	void readMyPortfolioStocksWithNotExistPortfolioId() throws Exception {
@@ -199,7 +247,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
 	@Test
 	void addPortfolioStock() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -233,7 +281,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오 종목을 입력하고 매입 이력 정보를 일부만 입력하는 경우 포트폴리오 종목만 저장된다")
 	@Test
 	void savePortfolioHolding_whenPurchaseHistoryIsNotComplete_thenThrowException() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -267,7 +315,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목만 추가한다")
 	@Test
 	void addPortfolioStockOnly() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 
@@ -294,7 +342,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@DisplayName("사용자는 포트폴리오에 종목을 추가할때 stockId를 필수로 같이 전송해야 한다")
 	@Test
 	void addPortfolioStockWithStockIdIsNull() throws Exception {
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
@@ -318,7 +366,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePortfolioStock() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
@@ -340,7 +388,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void deletePortfolioStocks() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		List<Long> delPortfolioHoldingIds = List.of(1L, 2L);
@@ -367,7 +415,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@ParameterizedTest
 	void deletePortfolioStocks_withInvalidItems(List<Long> portfolioHoldingIds) throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
@@ -390,7 +438,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Test
 	void readMyPortfolioCharts() throws Exception {
 		// given
-		Member member = createMember();
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
@@ -461,52 +509,5 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.dividendChart[10].amount").value(equalTo(1083)))
 			.andExpect(jsonPath("data.dividendChart[11].month").value(equalTo(12)))
 			.andExpect(jsonPath("data.dividendChart[11].amount").value(equalTo(0)));
-	}
-
-	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
-		return Stream.of(
-			Arguments.of(Collections.emptyList()),
-			Arguments.of((Object)null)
-		);
-	}
-
-	private List<StockDividend> createStockDividendWith(Stock stock) {
-		return List.of(
-			createStockDividend(
-				LocalDate.of(2022, 3, 30),
-				LocalDate.of(2022, 5, 17),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 6, 29),
-				LocalDate.of(2022, 8, 16),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 9, 29),
-				LocalDate.of(2022, 11, 15),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 12, 30),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 3, 30),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 6, 29),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 9, 27),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 3, 30),
-				LocalDate.of(2024, 5, 17),
-				stock)
-		);
 	}
 }

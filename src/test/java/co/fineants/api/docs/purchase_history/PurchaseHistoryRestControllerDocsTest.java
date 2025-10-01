@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.member.domain.entity.Member;
@@ -45,7 +46,8 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void createPurchaseHistory() throws Exception {
 		// given
-		Member member = createMember();
+		Long memberId = 1L;
+		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
@@ -63,7 +65,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 			anyLong(),
 			anyLong()
 		)).willReturn(
-			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), member.getId())
+			PurchaseHistoryCreateResponse.from(purchaseHistory, portfolio.getId(), memberId)
 		);
 
 		// when & then
@@ -79,7 +81,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("message").value(equalTo("매입 이력이 추가되었습니다")))
 			.andExpect(jsonPath("data.id").value(equalTo(purchaseHistory.getId().intValue())))
 			.andExpect(jsonPath("data.portfolioId").value(equalTo(portfolio.getId().intValue())))
-			.andExpect(jsonPath("data.memberId").value(equalTo(member.getId().intValue())))
+			.andExpect(jsonPath("data.memberId").value(equalTo(memberId.intValue())))
 			.andDo(
 				document(
 					"purchase_history-create",
@@ -119,7 +121,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updatePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(holding, LocalDateTime.of(2023, 10, 23, 13, 0, 0));
@@ -177,7 +179,7 @@ class PurchaseHistoryRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void deletePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(holding, LocalDateTime.of(2023, 10, 23, 13, 0, 0));

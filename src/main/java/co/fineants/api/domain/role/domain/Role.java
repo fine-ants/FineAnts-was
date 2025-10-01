@@ -1,11 +1,10 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.api.domain.role.domain;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,7 +23,7 @@ import lombok.ToString;
 @Getter
 public class Role {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	@Column(name = "role_id")
 	private Long id;
 
@@ -34,11 +33,17 @@ public class Role {
 	@Column(name = "role_description")
 	private String roleDescription;
 
+	public Role(String roleName, String roleDescription) {
+		this.roleName = roleName;
+		this.roleDescription = roleDescription;
+	}
+
 	public static Role create(String roleName, String roleDesc) {
-		return new Role(null, roleName, roleDesc);
+		return new Role(roleName, roleDesc);
 	}
 
 	public SimpleGrantedAuthority toSimpleGrantedAuthority() {
 		return new SimpleGrantedAuthority(roleName);
 	}
+
 }

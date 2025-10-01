@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Attributes;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
@@ -38,7 +39,7 @@ class PortfolioNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updateNotificationTargetGain() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 
 		given(service.updateNotificationTargetGain(
 			ArgumentMatchers.anyBoolean(),
@@ -93,7 +94,7 @@ class PortfolioNotificationRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void updateNotificationMaximumLoss() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(createMember());
+		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 
 		given(service.updateNotificationMaximumLoss(
 			anyBoolean(),

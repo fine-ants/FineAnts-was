@@ -1,9 +1,13 @@
 package co.fineants.api.global.security.oauth.service;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -20,17 +24,19 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.notificationpreference.repository.NotificationPreferenceRepository;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CustomOidcUserService extends AbstractUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
+	private final RoleRepository roleRepository;
+
 	public CustomOidcUserService(MemberRepository memberRepository,
-		NotificationPreferenceRepository notificationPreferenceRepository,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
-		super(memberRepository, notificationPreferenceRepository, nicknameGenerator, roleRepository);
+		super(memberRepository, nicknameGenerator, roleRepository);
+		this.roleRepository = roleRepository;
 	}
 
 	@Override
@@ -45,11 +51,20 @@ public class CustomOidcUserService extends AbstractUserService implements OAuth2
 
 	@Override
 	OAuth2User createOAuth2User(Member member, OAuth2UserRequest userRequest, String sub) {
-		Collection<? extends GrantedAuthority> authorities = member.getSimpleGrantedAuthorities();
+		Collection<? extends GrantedAuthority> authorities = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.map(SimpleGrantedAuthority::new)
+			.toList();
 
 		OidcIdToken idToken = ((OidcUserRequest)userRequest).getIdToken();
 		Map<String, Object> claims = idToken.getClaims();
-		Map<String, Object> memberAttribute = member.toAttributeMap();
+		Map<String, Object> memberAttribute = new HashMap<>();
+		memberAttribute.put("id", member.getId());
+		memberAttribute.putAll(member.getProfile().toMap());
+		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
+			.map(Role::getRoleName)
+			.collect(Collectors.toSet());
+		memberAttribute.put("roles", roleNames);
 		memberAttribute.putAll(claims);
 
 		OidcUserInfo userInfo = new OidcUserInfo(memberAttribute);
