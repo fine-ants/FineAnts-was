@@ -1,6 +1,8 @@
 package co.fineants.api.domain.stock.domain.entity;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
@@ -56,5 +58,30 @@ public class StockDividendTemp {
 
 	public boolean isSatisfiedBy(PurchaseHistory history) {
 		return dividendDates.isSatisfiedBy(history);
+	}
+
+	public boolean isCurrentYearRecordDate(LocalDate localDate) {
+		return dividendDates.isCurrentYearRecordDate(localDate);
+	}
+
+	public boolean canReceiveDividendOn(PurchaseHistory history) {
+		return history.canReceiveDividendOn(dividendDates);
+	}
+
+	public Month getMonthByPaymentDate() {
+		return dividendDates.getPaymentDateMonth();
+	}
+
+	public boolean isLastYearPaymentDate(LocalDate lastYearLocalDate) {
+		return dividendDates.isLastYearPaymentDate(lastYearLocalDate);
+	}
+
+	public boolean isDuplicatedRecordDate(List<StockDividendTemp> currentYearStockDividends) {
+		return currentYearStockDividends.stream()
+			.anyMatch(stockDividend -> stockDividend.getQuarter().equals(getQuarter()));
+	}
+
+	private Integer getQuarter() {
+		return dividendDates.getQuarterWithRecordDate();
 	}
 }

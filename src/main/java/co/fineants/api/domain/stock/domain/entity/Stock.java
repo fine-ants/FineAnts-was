@@ -118,9 +118,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public Map<Month, Expression> createMonthlyDividends(List<PurchaseHistory> purchaseHistories,
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
-		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(currentLocalDate);
+		List<StockDividendTemp> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+			currentLocalDate);
 
-		for (StockDividend stockDividend : currentYearStockDividends) {
+		for (StockDividendTemp stockDividend : currentYearStockDividends) {
 			for (PurchaseHistory purchaseHistory : purchaseHistories) {
 				if (stockDividend.canReceiveDividendOn(purchaseHistory)) {
 					Month paymentMonth = stockDividend.getMonthByPaymentDate();
@@ -134,8 +135,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	@NotNull
-	private List<StockDividend> getStockDividendsWithCurrentYearRecordDateBy(LocalDate currentLocalDate) {
-		return stockDividends.stream()
+	private List<StockDividendTemp> getStockDividendsWithCurrentYearRecordDateBy(LocalDate currentLocalDate) {
+		return stockDividendTemps.stream()
 			.filter(stockDividend -> stockDividend.isCurrentYearRecordDate(currentLocalDate))
 			.toList();
 	}
@@ -144,12 +145,13 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
 		// 0. 현재년도에 해당하는 배당금 정보를 필터링하여 별도 저장합니다.
-		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(currentLocalDate);
+		List<StockDividendTemp> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+			currentLocalDate);
 
 		// 1. 배당금 데이터 중에서 현금지급일자가 작년도에 해당하는 배당금 정보를 필터링합니다.
 		// 2. 1단계에서 필터링한 배당금 데이터들중 0단계에서 별도 저장한 현재년도의 분기 배당금과 중복되는 배당금 정보를 필터링합니다.
 		LocalDate lastYearLocalDate = currentLocalDate.minusYears(1L);
-		stockDividends.stream()
+		stockDividendTemps.stream()
 			.filter(stockDividend -> stockDividend.isLastYearPaymentDate(lastYearLocalDate))
 			.filter(stockDividend -> !stockDividend.isDuplicatedRecordDate(currentYearStockDividends))
 			.forEach(stockDividend -> {

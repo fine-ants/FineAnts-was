@@ -3,6 +3,7 @@ package co.fineants.api.domain.stock.domain.entity;
 import java.time.LocalDate;
 
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,15 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 
 class StockDividendTempTest {
+	@NotNull
+	private PurchaseHistory createPurchaseHistory(LocalDate purchaseDate) {
+		Member member = TestDataFactory.createMember();
+		Portfolio portfolio = TestDataFactory.createPortfolio(member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(portfolio, stock);
+		return TestDataFactory.createPurchaseHistory(purchaseDate, holding);
+	}
+
 	@DisplayName("보유 주식 수에 따른 배당금 합계를 계산한다")
 	@Test
 	void calculateDividendSum() {
@@ -53,12 +63,7 @@ class StockDividendTempTest {
 	@Test
 	void isPurchaseDateBeforeExDividendDate() {
 		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
-		LocalDate purchaseDate = LocalDate.of(2023, 3, 29);
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = TestDataFactory.createPortfolio(member);
-		Stock stock = TestDataFactory.createSamsungStock();
-		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(portfolio, stock);
-		PurchaseHistory history = TestDataFactory.createPurchaseHistory(purchaseDate, holding);
+		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
 
 		boolean actual = stockDividendTemp.isPurchaseDateBeforeExDividendDate(history);
 
@@ -74,5 +79,16 @@ class StockDividendTempTest {
 		boolean actual = stockDividendTemp.isCurrentYearPaymentDate(today);
 
 		Assertions.assertThat(actual).isTrue();
+	}
+
+	@DisplayName("구매 이력이 배당금 수령 조건을 만족하면 true를 반환한다")
+	@Test
+	void isSatisfiedBy() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
+
+		boolean satisfiedBy = stockDividendTemp.isSatisfiedBy(history);
+
+		Assertions.assertThat(satisfiedBy).isTrue();
 	}
 }
