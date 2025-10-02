@@ -124,4 +124,15 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(monthByPaymentDate).isEqualTo(java.time.Month.MAY);
 	}
+
+	@DisplayName("지난해 배당금 지급일이 속한 연도와 같으면 true를 반환한다")
+	@Test
+	void isLastYearPaymentDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate lastYearLocalDate = LocalDate.of(2023, 5, 1);
+
+		boolean lastYearPaymentDate = stockDividendTemp.isLastYearPaymentDate(lastYearLocalDate);
+
+		Assertions.assertThat(lastYearPaymentDate).isTrue();
+	}
 }
