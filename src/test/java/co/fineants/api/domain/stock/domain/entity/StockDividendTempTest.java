@@ -1,6 +1,7 @@
 package co.fineants.api.domain.stock.domain.entity;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
@@ -112,5 +113,15 @@ class StockDividendTempTest {
 		boolean canReceiveDividendOn = stockDividendTemp.canReceiveDividendOn(history);
 
 		Assertions.assertThat(canReceiveDividendOn).isTrue();
+	}
+
+	@DisplayName("배당금 지급일이 속한 월을 반환한다")
+	@Test
+	void getMonthByPaymentDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+
+		Month monthByPaymentDate = stockDividendTemp.getMonthByPaymentDate();
+
+		Assertions.assertThat(monthByPaymentDate).isEqualTo(java.time.Month.MAY);
 	}
 }
