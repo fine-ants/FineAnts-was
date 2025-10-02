@@ -76,22 +76,6 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 		return new StockDividend(id, dividend, dividendDates, stock);
 	}
 
-	public void change(StockDividend stockDividend) {
-		this.dividend = stockDividend.getDividend();
-		this.dividendDates = stockDividend.getDividendDates();
-	}
-
-	/**
-	 * 배당 일정 정보들을 파싱하여 반환
-	 * format :  tickerSymbol:dividend:recordDate:exDividendDate:paymentDate
-	 *   - ex) 005930:361:2022-08-01:2022-08-01:2022-08-01, 005930:361:2022-08-01:2022-08-01:null
-	 * @return 배당 일정 정보 요약
-	 */
-	public String parse() {
-		String dividendDateString = dividendDates.parse();
-		return String.format("%s:%s:%s", stock.getTickerSymbol(), dividend, dividendDateString);
-	}
-
 	@Override
 	public String toCsvLine() {
 		return String.join(",",
@@ -100,9 +84,5 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 			dividendDates.basicIsoForRecordDate(),
 			dividendDates.basicIsoForPaymentDate(),
 			this.stock.getStockCode());
-	}
-
-	public boolean hasPaymentDate() {
-		return dividendDates.hasPaymentDate();
 	}
 }

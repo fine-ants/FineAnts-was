@@ -18,7 +18,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
@@ -38,9 +37,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockDividendRepository stockDividendRepository;
-
-	@Autowired
-	private KisAccessTokenRepository kisAccessTokenRepository;
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
