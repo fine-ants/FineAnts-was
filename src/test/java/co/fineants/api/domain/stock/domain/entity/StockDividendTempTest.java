@@ -159,4 +159,15 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(paymentInCurrentYear).isTrue();
 	}
+
+	@DisplayName("배당금 기준일이 주어진 날짜와 같으면 true를 반환한다")
+	@Test
+	void equalRecordDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+
+		boolean actual = stockDividendTemp.equalRecordDate(recordDate);
+
+		Assertions.assertThat(actual).isTrue();
+	}
 }

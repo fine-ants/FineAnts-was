@@ -88,4 +88,8 @@ public class StockDividendTemp {
 	public boolean isPaymentInCurrentYear(LocalDate localDate) {
 		return dividendDates.isPaymentInCurrentYear(localDate);
 	}
+
+	public boolean equalRecordDate(LocalDate recordDate) {
+		return dividendDates.equalRecordDate(recordDate);
+	}
 }

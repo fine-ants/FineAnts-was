@@ -218,9 +218,9 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	public List<Month> getDividendMonths(LocalDateTimeService localDateTimeService) {
-		return stockDividends.stream()
+		return stockDividendTemps.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getMonthByPaymentDate)
+			.map(StockDividendTemp::getMonthByPaymentDate)
 			.toList();
 	}
 	// ticker 및 recordDate 기준으로 KisDividend가 매치되어 있는지 확인
@@ -229,7 +229,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return false;
 		}
-		return stockDividends.stream()
+		return stockDividendTemps.stream()
 			.anyMatch(s -> s.equalRecordDate(recordDate));
 	}
 
