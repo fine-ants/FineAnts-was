@@ -102,4 +102,15 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(currentYearRecordDate).isTrue();
 	}
+
+	@DisplayName("구매 이력이 배당금 수령 조건을 만족하면 true를 반환한다")
+	@Test
+	void canReceiveDividendOn() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
+
+		boolean canReceiveDividendOn = stockDividendTemp.canReceiveDividendOn(history);
+
+		Assertions.assertThat(canReceiveDividendOn).isTrue();
+	}
 }
