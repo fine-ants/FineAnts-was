@@ -18,6 +18,7 @@ import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -94,11 +95,11 @@ public class StockDividendService {
 
 	private void updateStockDividendWithPaymentDate(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
 		// 현금 지급일을 가지고 있지 않은 배당 일정 조회
-		List<StockDividend> changedStockDividends = kisDividends.stream()
+		List<StockDividendTemp> changedStockDividends = kisDividends.stream()
 			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
 			.filter(kisDividend -> kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
 			.map(kisDividend -> {
-				StockDividend stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
+				StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
 					.orElse(null);
 				if (stockDividend == null || stockDividend.hasPaymentDate()) {
 					return null;
@@ -114,7 +115,8 @@ public class StockDividendService {
 			.filter(Objects::nonNull)
 			.toList();
 		log.info("changedStockDividends : {}", changedStockDividends);
-		stockDividendRepository.saveAll(changedStockDividends);
+		// todo: 저장 처리
+		// stockDividendRepository.saveAll(changedStockDividends);
 	}
 
 	private void addNewStockDividend(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
@@ -139,11 +141,12 @@ public class StockDividendService {
 		int lastYear = 1;
 		LocalDate from = now.minusYears(lastYear).with(TemporalAdjusters.firstDayOfYear());
 		LocalDate to = now.with(TemporalAdjusters.lastDayOfYear());
-		List<StockDividend> deleteStockDividends = stockMap.values().stream()
+		List<StockDividendTemp> deleteStockDividends = stockMap.values().stream()
 			.map(stock -> stock.getStockDividendNotInRange(from, to))
 			.flatMap(Collection::stream)
 			.toList();
-		stockDividendRepository.deleteAllInBatch(deleteStockDividends);
+		// todo: delete 처리
+		// stockDividendRepository.deleteAllInBatch(deleteStockDividends);
 		log.info("deleteStockDividends : {}", deleteStockDividends);
 	}
 

@@ -9,6 +9,7 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
+import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -91,5 +92,20 @@ public class StockDividendTemp {
 
 	public boolean equalRecordDate(LocalDate recordDate) {
 		return dividendDates.equalRecordDate(recordDate);
+	}
+
+	public boolean hasInRangeForRecordDate(LocalDate from, LocalDate to) {
+		return dividendDates.hasInRangeForRecordDate(from, to);
+	}
+
+	public boolean hasPaymentDate() {
+		return dividendDates.hasPaymentDate();
+	}
+
+	// TODO: add test
+	public void change(StockDividend changeStockDividend) {
+		this.dividend = changeStockDividend.getDividend();
+		this.dividendDates = changeStockDividend.getDividendDates();
+		this.isDeleted = changeStockDividend.isDeleted();
 	}
 }

@@ -233,17 +233,17 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.anyMatch(s -> s.equalRecordDate(recordDate));
 	}
 
-	public Optional<StockDividend> getStockDividendBy(String tickerSymbol, LocalDate recordDate) {
+	public Optional<StockDividendTemp> getStockDividendBy(String tickerSymbol, LocalDate recordDate) {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return Optional.empty();
 		}
-		return stockDividends.stream()
+		return stockDividendTemps.stream()
 			.filter(s -> s.equalRecordDate(recordDate))
 			.findAny();
 	}
 
-	public List<StockDividend> getStockDividendNotInRange(LocalDate from, LocalDate to) {
-		return stockDividends.stream()
+	public List<StockDividendTemp> getStockDividendNotInRange(LocalDate from, LocalDate to) {
+		return stockDividendTemps.stream()
 			.filter(stockDividend -> !stockDividend.hasInRangeForRecordDate(from, to))
 			.toList();
 	}
@@ -259,11 +259,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			sector,
 			market.name());
 	}
-
-	public List<StockDividend> getStockDividends() {
-		return Collections.unmodifiableList(stockDividends);
-	}
-
+	
 	public Optional<Money> fetchPrice(PriceRepository repository) {
 		return repository.fetchPriceBy(tickerSymbol);
 	}

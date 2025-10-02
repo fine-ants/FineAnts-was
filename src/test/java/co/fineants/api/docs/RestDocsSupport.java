@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
@@ -53,6 +54,7 @@ import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -132,6 +134,7 @@ public abstract class RestDocsSupport {
 	}
 
 	protected List<StockDividend> createStockDividendWith(Stock stock) {
+		List<StockDividendTemp> stockDividendTemps = TestDataFactory.createStockDividend();
 		return List.of(
 			createStockDividend(
 				LocalDate.of(2022, 3, 31),

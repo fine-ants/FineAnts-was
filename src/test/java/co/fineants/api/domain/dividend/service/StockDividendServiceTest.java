@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
@@ -42,7 +43,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	private KisAccessTokenRepository kisAccessTokenRepository;
 
 	@Autowired
-	private LocalDateTimeService mockedLocalDateTimeService;
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@Autowired
 	private KisService mockedKisService;
@@ -57,66 +58,14 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void initializeStockDividend() {
 		// given
-		Stock samsung = stockRepository.save(this.createSamsungStock());
-		List<StockDividend> stockDividends = stockDividendRepository.saveAll(createSamsungDividends(samsung));
-		writeDividendService.writeDividend(stockDividends);
+		Stock samsung = createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
+		Stock stock = stockRepository.save(samsung);
+		writeDividendService.writeDividend(stock.getStockDividends());
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
 		assertThat(stockDividendRepository.findAllStockDividends()).hasSize(9);
-	}
-
-	private List<StockDividend> createSamsungDividends(Stock stock) {
-		return List.of(
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 3, 31),
-				LocalDate.of(2022, 5, 17),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 6, 30),
-				LocalDate.of(2022, 8, 16),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 9, 30),
-				LocalDate.of(2022, 11, 15),
-				stock
-			),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2023, 12, 31),
-				LocalDate.of(2024, 4, 19),
-				stock),
-			createStockDividend(
-				Money.won(361L),
-				LocalDate.of(2024, 3, 31),
-				null,
-				stock)
-		);
 	}
 
 	@DisplayName("배당 일정을 최신화한다")
@@ -124,10 +73,10 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	void refreshStockDividend() {
 		// given
 		Stock samsung = createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
 		Stock kakao = createKakaoStock();
+		TestDataFactory.createKakaoStockDividends().forEach(kakao::addStockDividendTemp);
 		stockRepository.saveAll(List.of(samsung, kakao));
-		stockDividendRepository.saveAll(createSamsungDividends(samsung));
-		stockDividendRepository.saveAll(createKakaoDividends(kakao));
 
 		// 새로운 배정 기준일이 생김
 		// 기존 데이터에 현금 배당 지급일이 새로 할당됨
@@ -185,7 +134,8 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 				null
 			)
 		));
-		given(mockedLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 4, 17));
+		given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2024, 4, 17));
 		// when
 		stockDividendService.reloadStockDividend();
 
@@ -203,22 +153,5 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 				"005930:₩361:2024-06-30:2024-06-28:null", // false 2024-06-29
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);
-	}
-
-	private List<StockDividend> createKakaoDividends(Stock stock) {
-		return List.of(
-			createStockDividend(
-				Money.won(61L),
-				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 25),
-				stock
-			),
-			createStockDividend(
-				Money.won(61L),
-				LocalDate.of(2024, 2, 29),
-				null,
-				stock
-			)
-		);
 	}
 }

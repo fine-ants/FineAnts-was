@@ -170,4 +170,27 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(actual).isTrue();
 	}
+
+	@DisplayName("배당금 기준일이 주어진 날짜 범위에 속하면 true를 반환한다")
+	@Test
+	void hasInRangeForRecordDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate from = LocalDate.of(2023, 1, 1);
+		LocalDate to = LocalDate.of(2023, 12, 31);
+
+		boolean actual = stockDividendTemp.hasInRangeForRecordDate(from, to);
+
+		Assertions.assertThat(actual).isTrue();
+	}
+
+	@DisplayName("배당금 지급일이 존재하면 true를 반환한다")
+	@Test
+	void hasPaymentDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+
+		boolean actual = stockDividendTemp.hasPaymentDate();
+
+		Assertions.assertThat(actual).isTrue();
+
+	}
 }

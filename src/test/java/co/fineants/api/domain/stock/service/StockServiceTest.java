@@ -92,8 +92,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void getDetailedStock() {
 		// given
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
+		Stock samsung = createSamsungStock();
+		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		Stock saveSamsung = stockRepository.save(samsung);
 
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
 		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 49000L));
@@ -122,15 +123,15 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				.usingComparatorForType(Money::compareTo, Money.class)
 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
 				.containsExactlyInAnyOrder(
-					stock.getStockCode(),
-					stock.getTickerSymbol(),
-					stock.getCompanyName(),
-					stock.getCompanyNameEng(),
-					stock.getMarket(),
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
 					Money.won(50000),
 					Money.won(1000),
 					Percentage.from(0.0204),
-					stock.getSector(),
+					saveSamsung.getSector(),
 					Money.won(1083),
 					Percentage.from(0.0217)
 				)
@@ -141,16 +142,17 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void getDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
 		// given
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
+		Stock samsung = createSamsungStock();
+		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		Stock saveSamsung = stockRepository.save(samsung);
 
 		given(kisClient.fetchAccessToken())
 			.willReturn(
 				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusDays(1), 3600 * 24)));
 		given(kisClient.fetchCurrentPrice(anyString()))
-			.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L)));
+			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
 		given(kisClient.fetchClosingPrice(anyString()))
-			.willReturn(Mono.just(KisClosingPrice.create(stock.getTickerSymbol(), 49000L)));
+			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
 
 		String tickerSymbol = "005930";
 		// when
@@ -173,15 +175,15 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				.usingComparatorForType(Money::compareTo, Money.class)
 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
 				.containsExactlyInAnyOrder(
-					stock.getStockCode(),
-					stock.getTickerSymbol(),
-					stock.getCompanyName(),
-					stock.getCompanyNameEng(),
-					stock.getMarket(),
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
 					Money.won(50000),
 					Money.won(1000),
 					Percentage.from(0.0204),
-					stock.getSector(),
+					saveSamsung.getSector(),
 					Money.won(1083),
 					Percentage.from(0.0217)
 				)
@@ -292,7 +294,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	void givenStocks_whenSyncAllStocksWithLatestData_thenUpdateLatestData() {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(samsung));
+		createStockDividendWith().forEach(samsung::addStockDividendTemp);
 		given(mockedKisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				samsung.getStockCode(),
