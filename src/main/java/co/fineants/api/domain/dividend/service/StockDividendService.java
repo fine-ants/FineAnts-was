@@ -93,41 +93,35 @@ public class StockDividendService {
 
 	private void updateStockDividendWithPaymentDate(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
 		// 현금 지급일을 가지고 있지 않은 배당 일정 조회
-		for (KisDividend kisDividend : kisDividends) {
-			if (!kisDividend.containsFrom(stockMap)) {
-				continue;
-			}
-			if (!kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap)) {
-				continue;
-			}
-			StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
-				.orElse(null);
-			if (stockDividend == null || stockDividend.hasPaymentDate()) {
-				continue;
-			}
-			StockDividendTemp changeStockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
-			if (!changeStockDividendTemp.hasPaymentDate()) {
-				continue;
-			}
-			stockDividend.change(changeStockDividendTemp);
-			log.info("update StockDividendTemp with paymentDate : {}", stockDividend);
-		}
+		kisDividends.stream()
+			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
+			.filter(kisDividend -> kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
+			.forEach(kisDividend -> {
+				StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
+					.orElse(null);
+				if (stockDividend == null || stockDividend.hasPaymentDate()) {
+					return;
+				}
+				StockDividendTemp changeStockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+				if (!changeStockDividendTemp.hasPaymentDate()) {
+					return;
+				}
+				stockDividend.change(changeStockDividendTemp);
+				log.info("update StockDividendTemp with paymentDate : {}", stockDividend);
+			});
 	}
 
 	private void addNewStockDividend(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
 		// 배당금 정보를 stock에 추가하기
-		for (KisDividend kisDividend : kisDividends) {
-			if (!kisDividend.containsFrom(stockMap)) {
-				continue;
-			}
-			if (kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap)) {
-				continue;
-			}
-			String tickerSymbol = kisDividend.getTickerSymbol();
-			StockDividendTemp stockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
-			stockMap.get(tickerSymbol).addStockDividendTemp(stockDividendTemp);
-			log.info("add new StockDividendTemp : {}", stockDividendTemp);
-		}
+		kisDividends.stream()
+			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
+			.filter(kisDividend -> !kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
+			.forEach(kisDividend -> {
+				String tickerSymbol = kisDividend.getTickerSymbol();
+				StockDividendTemp stockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+				stockMap.get(tickerSymbol).addStockDividendTemp(stockDividendTemp);
+				log.info("add new StockDividendTemp : {}", stockDividendTemp);
+			});
 	}
 
 	/**
