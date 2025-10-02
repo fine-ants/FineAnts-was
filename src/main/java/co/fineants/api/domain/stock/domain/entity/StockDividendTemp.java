@@ -84,4 +84,8 @@ public class StockDividendTemp {
 	private Integer getQuarter() {
 		return dividendDates.getQuarterWithRecordDate();
 	}
+
+	public boolean isPaymentInCurrentYear(LocalDate localDate) {
+		return dividendDates.isPaymentInCurrentYear(localDate);
+	}
 }

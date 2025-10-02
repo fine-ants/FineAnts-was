@@ -175,18 +175,18 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	public Expression getAnnualDividend(LocalDateTimeService localDateTimeService) {
-		return stockDividends.stream()
+		return stockDividendTemps.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getDividend)
+			.map(StockDividendTemp::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
 	}
 
 	public RateDivision getAnnualDividendYield(CurrentPriceRedisRepository manager,
 		LocalDateTimeService localDateTimeService) {
-		Expression dividends = stockDividends.stream()
+		Expression dividends = stockDividendTemps.stream()
 			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getDividend)
+			.map(StockDividendTemp::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
 		return dividends.divide(getCurrentPrice(manager));
