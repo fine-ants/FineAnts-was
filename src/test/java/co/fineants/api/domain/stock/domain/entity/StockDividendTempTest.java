@@ -135,4 +135,17 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(lastYearPaymentDate).isTrue();
 	}
+
+	@DisplayName("배당금 기준일이 중복되는지 확인한다")
+	@Test
+	void isDuplicatedRecordDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividendTemp stockDividendTemp2 = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividendTemp stockDividendTemp3 = TestDataFactory.createSamsungStockDividendTemp();
+
+		boolean actual = stockDividendTemp.isDuplicatedRecordDate(
+			java.util.List.of(stockDividendTemp2, stockDividendTemp3));
+
+		Assertions.assertThat(actual).isTrue();
+	}
 }
