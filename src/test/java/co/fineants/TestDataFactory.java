@@ -376,49 +376,50 @@ public final class TestDataFactory {
 	}
 
 	public static List<StockDividendTemp> createSamsungStockDividends() {
+		Money dividend = Money.won(361L);
 		return List.of(
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2022, 3, 31),
 				LocalDate.of(2022, 5, 17)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2022, 6, 30),
 				LocalDate.of(2022, 8, 16)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2022, 9, 30),
 				LocalDate.of(2022, 11, 15)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2022, 12, 31),
 				LocalDate.of(2023, 4, 14)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2023, 3, 31),
 				LocalDate.of(2023, 5, 17)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2023, 6, 30),
 				LocalDate.of(2023, 8, 16)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2023, 9, 30),
 				LocalDate.of(2023, 11, 20)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2023, 12, 31),
 				LocalDate.of(2024, 4, 19)
 			),
 			createStockDividend(
-				Money.won(361L),
+				dividend,
 				LocalDate.of(2024, 3, 31),
 				null
 			)

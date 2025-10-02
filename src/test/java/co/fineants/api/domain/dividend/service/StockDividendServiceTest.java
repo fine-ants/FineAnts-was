@@ -86,7 +86,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		String kakaoTickerSymbol = "035720";
 		int kakaoDividend = 61;
 
-		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
 		given(mockedKisService.fetchDividendsBetween(
 			ArgumentMatchers.any(LocalDate.class),
 			ArgumentMatchers.any(LocalDate.class)
@@ -142,7 +141,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		// then
 		List<StockDividend> stockDividends = stockDividendRepository.findAllStockDividends();
 		assertThat(stockDividends)
-			.hasSize(7)
+			.hasSize(8)
 			.map(StockDividend::parse)
 			.containsExactlyInAnyOrder(
 				"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
@@ -151,6 +150,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 				"005930:₩361:2023-12-31:2023-12-28:2024-04-19",
 				"005930:₩361:2024-03-31:2024-03-29:2024-05-17", // false 2024-03-30
 				"005930:₩361:2024-06-30:2024-06-28:null", // false 2024-06-29
+				"035720:₩61:2022-12-31:2023-12-30:2023-04-25",
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);
 	}
