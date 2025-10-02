@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
@@ -50,6 +51,16 @@ public class KisDividend implements Comparable<KisDividend> {
 	public StockDividend toEntity(Long id, Stock stock, ExDividendDateCalculator exDividendDateCalculator) {
 		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate, stock);
+	}
+
+	public StockDividendTemp toEntity(ExDividendDateCalculator exDividendDateCalculator) {
+		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false
+		);
 	}
 
 	public boolean containsFrom(Map<String, Stock> stockMap) {

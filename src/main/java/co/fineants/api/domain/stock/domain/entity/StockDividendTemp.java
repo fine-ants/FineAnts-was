@@ -9,7 +9,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -103,9 +102,25 @@ public class StockDividendTemp {
 	}
 
 	// TODO: add test
-	public void change(StockDividend changeStockDividend) {
-		this.dividend = changeStockDividend.getDividend();
-		this.dividendDates = changeStockDividend.getDividendDates();
-		this.isDeleted = changeStockDividend.isDeleted();
+	public void change(StockDividendTemp changeStockDividend) {
+		this.dividend = changeStockDividend.dividend;
+		this.dividendDates = changeStockDividend.dividendDates;
+		this.isDeleted = changeStockDividend.isDeleted;
+	}
+
+	/**
+	 * 배당 일정 정보들을 파싱하여 반환
+	 * format :  tickerSymbol:dividend:recordDate:exDividendDate:paymentDate
+	 *   - ex) 005930:361:2022-08-01:2022-08-01:2022-08-01, 005930:361:2022-08-01:2022-08-01:null
+	 * @return 배당 일정 정보 요약
+	 */
+	public String parse(String tickerSymbol) {
+		String dividendDateString = dividendDates.parse();
+		return String.format("%s:%s:%s", tickerSymbol, dividend, dividendDateString);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("배당금(배당금=%s, 배당일정=%s, 삭제여부=%s)", dividend, dividendDates, isDeleted);
 	}
 }

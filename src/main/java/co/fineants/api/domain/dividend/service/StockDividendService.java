@@ -2,10 +2,8 @@ package co.fineants.api.domain.dividend.service;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.annotation.Secured;
@@ -95,41 +93,41 @@ public class StockDividendService {
 
 	private void updateStockDividendWithPaymentDate(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
 		// 현금 지급일을 가지고 있지 않은 배당 일정 조회
-		List<StockDividendTemp> changedStockDividends = kisDividends.stream()
-			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
-			.filter(kisDividend -> kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
-			.map(kisDividend -> {
-				StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
-					.orElse(null);
-				if (stockDividend == null || stockDividend.hasPaymentDate()) {
-					return null;
-				}
-				StockDividend changeStockDividend = kisDividend.toEntity(kisDividend.getStockBy(stockMap),
-					exDividendDateCalculator);
-				if (!changeStockDividend.hasPaymentDate()) {
-					return null;
-				}
-				stockDividend.change(changeStockDividend);
-				return stockDividend;
-			})
-			.filter(Objects::nonNull)
-			.toList();
-		log.info("changedStockDividends : {}", changedStockDividends);
-		// todo: 저장 처리
-		// stockDividendRepository.saveAll(changedStockDividends);
+		for (KisDividend kisDividend : kisDividends) {
+			if (!kisDividend.containsFrom(stockMap)) {
+				continue;
+			}
+			if (!kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap)) {
+				continue;
+			}
+			StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
+				.orElse(null);
+			if (stockDividend == null || stockDividend.hasPaymentDate()) {
+				continue;
+			}
+			StockDividendTemp changeStockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+			if (!changeStockDividendTemp.hasPaymentDate()) {
+				continue;
+			}
+			stockDividend.change(changeStockDividendTemp);
+			log.info("update StockDividendTemp with paymentDate : {}", stockDividend);
+		}
 	}
 
 	private void addNewStockDividend(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
-		// 추가된 배당 일정 탐색
-		List<StockDividend> addStockDividends = kisDividends.stream()
-			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
-			.filter(kisDividend -> !kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
-			.map(kisDividend -> kisDividend.toEntity(kisDividend.getStockBy(stockMap), exDividendDateCalculator))
-			.toList();
-
-		// 탐색된 데이터들 배당 일정 추가
-		stockDividendRepository.saveAll(addStockDividends);
-		log.info("addStockDividends : {}", addStockDividends);
+		// 배당금 정보를 stock에 추가하기
+		for (KisDividend kisDividend : kisDividends) {
+			if (!kisDividend.containsFrom(stockMap)) {
+				continue;
+			}
+			if (kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap)) {
+				continue;
+			}
+			String tickerSymbol = kisDividend.getTickerSymbol();
+			StockDividendTemp stockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+			stockMap.get(tickerSymbol).addStockDividendTemp(stockDividendTemp);
+			log.info("add new StockDividendTemp : {}", stockDividendTemp);
+		}
 	}
 
 	/**
@@ -141,13 +139,11 @@ public class StockDividendService {
 		int lastYear = 1;
 		LocalDate from = now.minusYears(lastYear).with(TemporalAdjusters.firstDayOfYear());
 		LocalDate to = now.with(TemporalAdjusters.lastDayOfYear());
-		List<StockDividendTemp> deleteStockDividends = stockMap.values().stream()
-			.map(stock -> stock.getStockDividendNotInRange(from, to))
-			.flatMap(Collection::stream)
-			.toList();
-		// todo: delete 처리
-		// stockDividendRepository.deleteAllInBatch(deleteStockDividends);
-		log.info("deleteStockDividends : {}", deleteStockDividends);
+		for (Stock stock : stockMap.values()) {
+			List<StockDividendTemp> deleteStockDividendTemps = stock.getStockDividendNotInRange(from, to);
+			deleteStockDividendTemps.forEach(stock::removeStockDividendTemp);
+			log.info("delete StockDividendTemps not in range from {} to {} : {}", from, to, deleteStockDividendTemps);
+		}
 	}
 
 	@Transactional(readOnly = true)

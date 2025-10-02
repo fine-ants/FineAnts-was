@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
@@ -68,6 +68,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		assertThat(stockDividendRepository.findAllStockDividends()).hasSize(9);
 	}
 
+	@Transactional
 	@DisplayName("배당 일정을 최신화한다")
 	@Test
 	void refreshStockDividend() {
@@ -139,18 +140,24 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		stockDividendService.reloadStockDividend();
 
 		// then
-		List<StockDividend> stockDividends = stockDividendRepository.findAllStockDividends();
-		assertThat(stockDividends)
-			.hasSize(8)
-			.map(StockDividend::parse)
+		Stock findSamsungStock = stockRepository.findByTickerSymbol(samsungTickerSymbol).orElseThrow();
+		assertThat(findSamsungStock.getStockDividendTemps())
+			.hasSize(6)
+			.map(temp -> temp.parse(findSamsungStock.getTickerSymbol()))
 			.containsExactlyInAnyOrder(
 				"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
 				"005930:₩361:2023-06-30:2023-06-29:2023-08-16",
 				"005930:₩361:2023-09-30:2023-09-27:2023-11-20",
 				"005930:₩361:2023-12-31:2023-12-28:2024-04-19",
-				"005930:₩361:2024-03-31:2024-03-29:2024-05-17", // false 2024-03-30
-				"005930:₩361:2024-06-30:2024-06-28:null", // false 2024-06-29
-				"035720:₩61:2022-12-31:2023-12-30:2023-04-25",
+				"005930:₩361:2024-03-31:2024-03-29:2024-05-17",
+				"005930:₩361:2024-06-30:2024-06-28:null"
+			);
+
+		Stock findKakaoStock = stockRepository.findByTickerSymbol(kakaoTickerSymbol).orElseThrow();
+		assertThat(findKakaoStock.getStockDividendTemps())
+			.hasSize(1)
+			.map(temp -> temp.parse(findKakaoStock.getTickerSymbol()))
+			.containsExactlyInAnyOrder(
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);
 	}
