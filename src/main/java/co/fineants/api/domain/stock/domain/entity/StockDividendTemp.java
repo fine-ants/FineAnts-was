@@ -60,6 +60,7 @@ public class StockDividendTemp {
 		return dividendDates.isSatisfiedBy(history);
 	}
 
+	// todo: add tests
 	public boolean isCurrentYearRecordDate(LocalDate localDate) {
 		return dividendDates.isCurrentYearRecordDate(localDate);
 	}

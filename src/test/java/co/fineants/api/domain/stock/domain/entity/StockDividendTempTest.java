@@ -91,4 +91,15 @@ class StockDividendTempTest {
 
 		Assertions.assertThat(satisfiedBy).isTrue();
 	}
+
+	@DisplayName("현재 날짜가 배당금 기준일이 속한 연도와 같으면 true를 반환한다")
+	@Test
+	void isCurrentYearRecordDate() {
+		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		LocalDate today = LocalDate.of(2023, 2, 1);
+
+		boolean currentYearRecordDate = stockDividendTemp.isCurrentYearRecordDate(today);
+
+		Assertions.assertThat(currentYearRecordDate).isTrue();
+	}
 }
