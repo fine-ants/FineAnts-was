@@ -85,12 +85,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return new Stock(tickerSymbol, companyName, companyNameEng, stockCode, sector, market);
 	}
 
-	public void addStockDividend(StockDividend stockDividend) {
-		if (!stockDividends.contains(stockDividend)) {
-			stockDividends.add(stockDividend);
-		}
-	}
-
 	public void addStockDividendTemp(StockDividendTemp stockDividendTemp) {
 		if (!stockDividendTemps.contains(stockDividendTemp)) {
 			stockDividendTemps.add(stockDividendTemp);
@@ -259,7 +253,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			sector,
 			market.name());
 	}
-	
+
 	public Optional<Money> fetchPrice(PriceRepository repository) {
 		return repository.fetchPriceBy(tickerSymbol);
 	}
