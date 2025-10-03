@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -50,6 +51,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	/**
 	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
 	 */
+	@Transactional
 	@DisplayName("배당일정을 초기화한다")
 	@Test
 	void initializeStockDividend() {
@@ -61,7 +63,8 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
-		assertThat(stockDividendRepository.findAllStockDividends()).hasSize(9);
+		Stock findStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
+		Assertions.assertThat(findStock.getStockDividendTemps()).hasSize(9);
 	}
 
 	@Transactional

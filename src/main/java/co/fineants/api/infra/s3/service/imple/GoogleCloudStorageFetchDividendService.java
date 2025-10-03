@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -57,5 +58,10 @@ public class GoogleCloudStorageFetchDividendService implements FetchDividendServ
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
 		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
+	}
+
+	@Override
+	public Map<String, List<StockDividendTemp>> fetchDividendEntityInTemp(List<Stock> stocks) {
+		return Collections.emptyMap();
 	}
 }

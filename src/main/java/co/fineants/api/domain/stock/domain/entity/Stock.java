@@ -265,4 +265,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public List<StockDividendTemp> getStockDividendTemps() {
 		return Collections.unmodifiableList(stockDividendTemps);
 	}
+
+	public void clearStockDividendTemps() {
+		stockDividendTemps.clear();
+	}
 }

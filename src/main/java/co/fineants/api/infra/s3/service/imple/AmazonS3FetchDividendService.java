@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -59,5 +60,11 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
 
 		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
+	}
+
+	@Override
+	public Map<String, List<StockDividendTemp>> fetchDividendEntityInTemp(List<Stock> stocks) {
+		// todo: implement method
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 }

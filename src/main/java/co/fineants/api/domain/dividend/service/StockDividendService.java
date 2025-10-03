@@ -2,11 +2,11 @@ package co.fineants.api.domain.dividend.service;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,15 +42,22 @@ public class StockDividendService {
 	 * - 이 메서드는 서버 시작시 수행됨
 	 */
 	@Transactional
-	@Secured("ROLE_ADMIN")
 	public void initializeStockDividend() {
+		List<Stock> stocks = stockRepository.findAll();
 		// 기존 종목 배당금 데이터 삭제
-		stockDividendRepository.deleteAllInBatch();
+		for (Stock stock : stocks) {
+			stock.clearStockDividendTemps();
+		}
 
 		// S3에 저장된 종목 배당금으로 초기화
-		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
-		List<StockDividend> saveStockDividends = stockDividendRepository.saveAll(stockDividends);
-		log.info("save StockDividends size : {}", saveStockDividends.size());
+		Map<String, List<StockDividendTemp>> stockDividendMap = fetchDividendService.fetchDividendEntityInTemp(stocks);
+
+		// 종목에 배당금 데이터 추가
+		for (Stock stock : stocks) {
+			List<StockDividendTemp> stockDividendTemps = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+				Collections.emptyList());
+			stockDividendTemps.forEach(stock::addStockDividendTemp);
+		}
 	}
 
 	/**
