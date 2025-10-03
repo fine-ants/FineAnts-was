@@ -317,10 +317,12 @@ public final class TestDataFactory {
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		String tickerSymbol = "005930";
 		return new StockDividendTemp(
 			dividend,
 			dividendDates,
-			false
+			false,
+			tickerSymbol
 		);
 	}
 
@@ -335,135 +337,159 @@ public final class TestDataFactory {
 		return PortfolioHolding.of(portfolio, stock);
 	}
 
-	public static List<StockDividendTemp> createStockDividend() {
+	public static List<StockDividendTemp> createStockDividend(String tickerSymbol) {
 		return List.of(
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14)
+				LocalDate.of(2023, 4, 14),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17)
+				LocalDate.of(2023, 5, 17),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16)
+				LocalDate.of(2023, 8, 16),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20)
+				LocalDate.of(2023, 11, 20),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2024, 3, 31),
-				LocalDate.of(2024, 5, 17)
+				LocalDate.of(2024, 5, 17),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2024, 6, 30),
-				LocalDate.of(2024, 8, 16)
+				LocalDate.of(2024, 8, 16),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(361L),
 				LocalDate.of(2024, 9, 30),
-				LocalDate.of(2024, 11, 20)
+				LocalDate.of(2024, 11, 20),
+				tickerSymbol
 			)
 		);
 	}
 
 	public static List<StockDividendTemp> createSamsungStockDividends() {
+		String tickerSymbol = "005930";
 		Money dividend = Money.won(361L);
 		return List.of(
 			createStockDividend(
 				dividend,
 				LocalDate.of(2022, 3, 31),
-				LocalDate.of(2022, 5, 17)
+				LocalDate.of(2022, 5, 17),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2022, 6, 30),
-				LocalDate.of(2022, 8, 16)
+				LocalDate.of(2022, 8, 16),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2022, 9, 30),
-				LocalDate.of(2022, 11, 15)
+				LocalDate.of(2022, 11, 15),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14)
+				LocalDate.of(2023, 4, 14),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17)
+				LocalDate.of(2023, 5, 17),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16)
+				LocalDate.of(2023, 8, 16),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20)
+				LocalDate.of(2023, 11, 20),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2023, 12, 31),
-				LocalDate.of(2024, 4, 19)
+				LocalDate.of(2024, 4, 19),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2024, 3, 31),
-				null
+				null,
+				tickerSymbol
 			)
 		);
 	}
 
-	private static StockDividendTemp createStockDividend(Money dividend, LocalDate recordDate, LocalDate paymentDate) {
+	private static StockDividendTemp createStockDividend(Money dividend, LocalDate recordDate, LocalDate paymentDate,
+		String tickerSymbol) {
 		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		return new StockDividendTemp(dividend, dividendDates, false);
+		return new StockDividendTemp(dividend, dividendDates, false, tickerSymbol);
 	}
 
-	public static List<StockDividendTemp> createStockDividendThisYearWith() {
+	public static List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
 		Money dividend = Money.won(361L);
 		return List.of(
 			createStockDividend(
 				dividend,
 				LocalDate.of(2024, 3, 31),
-				LocalDate.of(2024, 5, 17)
+				LocalDate.of(2024, 5, 17),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2024, 6, 30),
-				LocalDate.of(2024, 8, 16)
+				LocalDate.of(2024, 8, 16),
+				tickerSymbol
 			),
 			createStockDividend(
 				dividend,
 				LocalDate.of(2024, 9, 30),
-				LocalDate.of(2024, 11, 20)
+				LocalDate.of(2024, 11, 20),
+				tickerSymbol
 			)
 		);
 	}
 
 	public static List<StockDividendTemp> createKakaoStockDividends() {
+		String tickerSymbol = "035720";
 		return List.of(
 			createStockDividend(
 				Money.won(61L),
 				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 25)
+				LocalDate.of(2023, 4, 25),
+				tickerSymbol
 			),
 			createStockDividend(
 				Money.won(61L),
 				LocalDate.of(2024, 2, 29),
-				null
+				null,
+				tickerSymbol
 			)
 		);
 	}

@@ -47,7 +47,8 @@ class StockRepositoryTest extends AbstractContainerBaseTest {
 		StockDividendTemp stockDividendTemp = new StockDividendTemp(
 			dividend,
 			dividendDates,
-			false
+			false,
+			stock.getTickerSymbol()
 		);
 		stock.addStockDividendTemp(stockDividendTemp);
 		// when
@@ -72,7 +73,8 @@ class StockRepositoryTest extends AbstractContainerBaseTest {
 		StockDividendTemp stockDividendTemp = new StockDividendTemp(
 			dividend,
 			dividendDates,
-			false
+			false,
+			stock.getTickerSymbol()
 		);
 		stock.addStockDividendTemp(stockDividendTemp);
 		stockRepository.save(stock);

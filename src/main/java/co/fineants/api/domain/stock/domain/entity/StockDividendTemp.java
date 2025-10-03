@@ -14,12 +14,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Embeddable
 @EqualsAndHashCode(of = {"dividendDates"})
 public class StockDividendTemp {
+
 	@Getter
 	@Convert(converter = MoneyConverter.class)
 	@Column(precision = 19, nullable = false)
@@ -31,13 +33,17 @@ public class StockDividendTemp {
 	@Column(name = "is_deleted", nullable = false)
 	private boolean isDeleted;
 
+	@Transient
+	private String tickerSymbol;
+
 	protected StockDividendTemp() {
 	}
 
-	public StockDividendTemp(Money dividend, DividendDates dividendDates, boolean isDeleted) {
+	public StockDividendTemp(Money dividend, DividendDates dividendDates, boolean isDeleted, String tickerSymbol) {
 		this.dividend = dividend;
 		this.dividendDates = dividendDates;
 		this.isDeleted = isDeleted;
+		this.tickerSymbol = tickerSymbol;
 	}
 
 	public Expression calculateDividendSum(Count numShares) {

@@ -98,7 +98,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		portfolio.setLocalDateTimeService(spyLocalDateTimeService);
 		Stock samsung = createSamsungStock();
-		createStockDividendThisYearWith().forEach(samsung::addStockDividendTemp);
+		createStockDividendThisYearWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		Stock stock = stockRepository.save(samsung);
 		given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
@@ -236,7 +236,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock samsung = createSamsungStock();
-		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		Stock stock = stockRepository.save(samsung);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
@@ -308,7 +308,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member, Money.zero()));
 		Stock stock = stockRepository.save(createSamsungStock());
-		List<StockDividendTemp> stockDividends = createStockDividendWith();
+		List<StockDividendTemp> stockDividends = createStockDividendWith(stock.getTickerSymbol());
 		stockDividends.forEach(stock::addStockDividendTemp);
 
 		setAuthentication(member);
@@ -348,7 +348,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Member hacker = memberRepository.save(createMember("hacker"));
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
-		List<StockDividendTemp> stockDividends = createStockDividendWith();
+		List<StockDividendTemp> stockDividends = createStockDividendWith(stock.getTickerSymbol());
 		stockDividends.forEach(stock::addStockDividendTemp);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
@@ -376,7 +376,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
 		Stock stock2 = stockRepository.save(createKakaoStock());
-		List<StockDividendTemp> stockDividends = createStockDividendWith();
+		List<StockDividendTemp> stockDividends = createStockDividendWith(stock.getTickerSymbol());
 		stockDividends.forEach(stock::addStockDividendTemp);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));

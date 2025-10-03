@@ -116,7 +116,8 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 		StockDividendTemp stockDividendTemp = new StockDividendTemp(
 			dividend,
 			dividendDates,
-			isDeleted
+			isDeleted,
+			stock.getTickerSymbol()
 		);
 		stock.addStockDividendTemp(stockDividendTemp);
 		stockRepository.save(stock);

@@ -93,7 +93,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	void getDetailedStock() {
 		// given
 		Stock samsung = createSamsungStock();
-		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		Stock saveSamsung = stockRepository.save(samsung);
 
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
@@ -143,7 +143,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	void getDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
 		// given
 		Stock samsung = createSamsungStock();
-		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		Stock saveSamsung = stockRepository.save(samsung);
 
 		given(kisClient.fetchAccessToken())
@@ -294,7 +294,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	void givenStocks_whenSyncAllStocksWithLatestData_thenUpdateLatestData() {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
-		createStockDividendWith().forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		given(mockedKisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				samsung.getStockCode(),

@@ -274,7 +274,7 @@ public abstract class AbstractContainerBaseTest {
 	protected PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
 		return PortfolioHolding.of(portfolio, stock);
 	}
-	
+
 	protected PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
 		Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 		return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
@@ -312,8 +312,8 @@ public abstract class AbstractContainerBaseTest {
 			.toList();
 	}
 
-	protected List<StockDividendTemp> createStockDividendWith() {
-		return TestDataFactory.createStockDividend();
+	protected List<StockDividendTemp> createStockDividendWith(String tickerSymbol) {
+		return TestDataFactory.createStockDividend(tickerSymbol);
 	}
 
 	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
@@ -321,8 +321,8 @@ public abstract class AbstractContainerBaseTest {
 		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
-	protected List<StockDividendTemp> createStockDividendThisYearWith() {
-		return TestDataFactory.createStockDividendThisYearWith();
+	protected List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
+		return TestDataFactory.createStockDividendThisYearWith(tickerSymbol);
 	}
 
 	protected Cookie[] createTokenCookies() {

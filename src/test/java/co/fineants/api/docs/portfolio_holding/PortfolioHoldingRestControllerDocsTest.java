@@ -56,7 +56,6 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import reactor.core.publisher.Flux;
@@ -179,8 +178,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		List<StockDividendTemp> stockDividends = TestDataFactory.createStockDividend();
-		stockDividends.forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		portfolioHolding.addPurchaseHistory(
 			createPurchaseHistory(portfolioHolding, LocalDateTime.of(2023, 11, 1, 9, 30, 0)));

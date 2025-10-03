@@ -59,7 +59,8 @@ public class KisDividend implements Comparable<KisDividend> {
 		return new StockDividendTemp(
 			dividend,
 			dividendDates,
-			false
+			false,
+			tickerSymbol
 		);
 	}
 

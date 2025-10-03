@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,14 +27,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -54,7 +50,6 @@ import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -131,53 +126,6 @@ public abstract class RestDocsSupport {
 
 	protected PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
 		return PortfolioGainHistory.empty(portfolio);
-	}
-
-	protected List<StockDividend> createStockDividendWith(Stock stock) {
-		List<StockDividendTemp> stockDividendTemps = TestDataFactory.createStockDividend();
-		return List.of(
-			createStockDividend(
-				LocalDate.of(2022, 3, 31),
-				LocalDate.of(2022, 5, 17),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 6, 30),
-				LocalDate.of(2022, 8, 16),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 9, 30),
-				LocalDate.of(2022, 11, 15),
-				stock
-			),
-			createStockDividend(
-				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 3, 31),
-				LocalDate.of(2024, 5, 17),
-				stock)
-		);
-	}
-
-	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate,
-		Stock stock) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
 	protected Notification createPortfolioNotification(PortfolioNotifyMessage message, Portfolio portfolio,

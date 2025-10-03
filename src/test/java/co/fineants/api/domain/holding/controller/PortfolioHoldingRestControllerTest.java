@@ -55,7 +55,6 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -118,8 +117,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		List<StockDividendTemp> stockDividends = TestDataFactory.createStockDividend();
-		stockDividends.forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -402,8 +400,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		List<StockDividendTemp> stockDividends = TestDataFactory.createStockDividend();
-		stockDividends.forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		portfolio.addHolding(portfolioHolding);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
