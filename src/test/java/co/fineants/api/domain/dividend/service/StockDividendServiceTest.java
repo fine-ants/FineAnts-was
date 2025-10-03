@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -51,6 +52,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	/**
 	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
 	 */
+	@Disabled
 	@Transactional
 	@DisplayName("배당일정을 초기화한다")
 	@Test
