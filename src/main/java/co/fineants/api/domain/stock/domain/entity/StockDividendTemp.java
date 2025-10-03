@@ -10,6 +10,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.global.common.csv.CsvLineConvertible;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
@@ -20,7 +21,7 @@ import lombok.Getter;
 
 @Embeddable
 @EqualsAndHashCode(of = {"dividendDates", "tickerSymbol"})
-public class StockDividendTemp {
+public class StockDividendTemp implements CsvLineConvertible {
 
 	@Getter
 	@Convert(converter = MoneyConverter.class)
@@ -122,6 +123,17 @@ public class StockDividendTemp {
 	public String parse(String tickerSymbol) {
 		String dividendDateString = dividendDates.parse();
 		return String.format("%s:%s:%s", tickerSymbol, dividend, dividendDateString);
+	}
+
+	@Override
+	public String toCsvLine() {
+		return String.join(",",
+			tickerSymbol,
+			dividend.toRawAmount(),
+			dividendDates.basicIsoForRecordDate(),
+			dividendDates.basicIsoForPaymentDate(),
+			Boolean.toString(isDeleted)
+		);
 	}
 
 	@Override
