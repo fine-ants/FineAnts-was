@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Embeddable
-@EqualsAndHashCode(of = {"dividendDates"})
+@EqualsAndHashCode(of = {"dividendDates", "tickerSymbol"})
 public class StockDividendTemp {
 
 	@Getter
@@ -107,7 +107,6 @@ public class StockDividendTemp {
 		return dividendDates.hasPaymentDate();
 	}
 
-	// TODO: add test
 	public void change(StockDividendTemp changeStockDividend) {
 		this.dividend = changeStockDividend.dividend;
 		this.dividendDates = changeStockDividend.dividendDates;
