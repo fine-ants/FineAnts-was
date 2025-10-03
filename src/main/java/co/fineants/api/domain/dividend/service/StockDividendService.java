@@ -50,13 +50,15 @@ public class StockDividendService {
 		}
 
 		// S3에 저장된 종목 배당금으로 초기화
-		Map<String, List<StockDividendTemp>> stockDividendMap = fetchDividendService.fetchDividendEntityInTemp(stocks);
+		List<StockDividendTemp> stockDividendTemps = fetchDividendService.fetchDividendEntityIn(stocks);
+		Map<String, List<StockDividendTemp>> stockDividendMap = stockDividendTemps.stream()
+			.collect(Collectors.groupingBy(StockDividendTemp::getTickerSymbol));
 
 		// 종목에 배당금 데이터 추가
 		for (Stock stock : stocks) {
-			List<StockDividendTemp> stockDividendTemps = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+			List<StockDividendTemp> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
 				Collections.emptyList());
-			stockDividendTemps.forEach(stock::addStockDividendTemp);
+			findStockDividends.forEach(stock::addStockDividendTemp);
 		}
 	}
 

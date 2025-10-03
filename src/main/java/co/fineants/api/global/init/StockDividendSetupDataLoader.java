@@ -1,13 +1,14 @@
 package co.fineants.api.global.init;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,27 +19,22 @@ public class StockDividendSetupDataLoader {
 
 	private final FetchDividendService fetchDividendService;
 	private final StockRepository stockRepository;
-	private final StockDividendRepository stockDividendRepository;
 
-	public StockDividendSetupDataLoader(FetchDividendService fetchDividendService, StockRepository stockRepository,
-		StockDividendRepository stockDividendRepository) {
+	public StockDividendSetupDataLoader(FetchDividendService fetchDividendService, StockRepository stockRepository) {
 		this.fetchDividendService = fetchDividendService;
 		this.stockRepository = stockRepository;
-		this.stockDividendRepository = stockDividendRepository;
 	}
 
 	@Transactional
 	public void setupStockDividends() {
-		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
-		List<StockDividend> savedStockDividends = new ArrayList<>();
-		for (StockDividend stockDividend : stockDividends) {
-			if (stockDividendRepository.findByTickerSymbolAndRecordDateIncludingDeleted(
-				stockDividend.getStock().getTickerSymbol(),
-				stockDividend.getDividendDates().getRecordDate()).isEmpty()) {
-				StockDividend saveStockDividend = stockDividendRepository.save(stockDividend);
-				savedStockDividends.add(saveStockDividend);
-			}
+		List<Stock> stocks = stockRepository.findAll();
+		List<StockDividendTemp> stockDividends = fetchDividendService.fetchDividendEntityIn(stocks);
+		Map<String, List<StockDividendTemp>> stockDividendMap = stockDividends.stream()
+			.collect(Collectors.groupingBy(StockDividendTemp::getTickerSymbol));
+		for (Stock stock : stocks) {
+			List<StockDividendTemp> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+				List.of());
+			findStockDividends.forEach(stock::addStockDividendTemp);
 		}
-		log.info("saved StockDividends count is {}", savedStockDividends.size());
 	}
 }

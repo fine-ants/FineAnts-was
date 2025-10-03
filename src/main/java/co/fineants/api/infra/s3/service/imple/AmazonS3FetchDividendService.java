@@ -3,12 +3,9 @@ package co.fineants.api.infra.s3.service.imple;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
@@ -55,16 +52,7 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	}
 
 	@Override
-	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
-		Map<String, Stock> stockMap = stocks.stream()
-			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
-
-		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow(), stockMap);
-	}
-
-	@Override
-	public Map<String, List<StockDividendTemp>> fetchDividendEntityInTemp(List<Stock> stocks) {
-		// todo: implement method
-		throw new UnsupportedOperationException("Not implemented yet");
+	public List<StockDividendTemp> fetchDividendEntityIn(List<Stock> stocks) {
+		return stockDividendCsvParser.parse(fileFetcher.read(dividendPath).orElseThrow());
 	}
 }

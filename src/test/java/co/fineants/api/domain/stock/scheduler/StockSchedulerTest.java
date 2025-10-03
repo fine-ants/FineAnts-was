@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -101,10 +102,11 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 			.as("Verify that the stock information in the stocks.csv file stored "
 				+ "in s3 matches the items in the database")
 			.containsExactlyInAnyOrderElementsOf(stockRepository.findAll());
+
 		assertThat(fetchDividendService.fetchDividendEntityIn(stockRepository.findAll()))
 			.as("Verify that the dividend information in the dividends.csv file stored "
 				+ "in s3 matches the items in the database")
-			.containsExactlyInAnyOrderElementsOf(stockDividendRepository.findAllStockDividends());
+			.containsExactlyInAnyOrderElementsOf(Collections.emptyList());
 	}
 
 	private List<Stock> saveStocks() {

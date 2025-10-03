@@ -136,6 +136,10 @@ public class StockDividendTemp implements CsvLineConvertible {
 		);
 	}
 
+	public String getTickerSymbol() {
+		return tickerSymbol;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("배당금(배당금=%s, 배당일정=%s, 삭제여부=%s)", dividend, dividendDates, isDeleted);

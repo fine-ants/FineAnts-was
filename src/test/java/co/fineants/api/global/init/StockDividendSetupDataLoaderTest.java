@@ -3,8 +3,6 @@ package co.fineants.api.global.init;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -14,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteStockService;
@@ -60,10 +58,8 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 		writeStockService.writeStocks(stocks);
 
 		inputStream = new ClassPathResource("dividends.csv").getInputStream();
-		Map<String, Stock> stockMap = stocks.stream()
-			.collect(Collectors.toMap(Stock::getStockCode, stock -> stock));
-		List<StockDividend> dividends = stockDividendCsvParser.parse(inputStream, stockMap);
-		writeDividendService.writeDividend(dividends);
+		List<StockDividendTemp> dividends = stockDividendCsvParser.parse(inputStream);
+		writeDividendService.writeDividendTemp(dividends.toArray(new StockDividendTemp[0]));
 
 		stockLoader.setupStocks();
 	}

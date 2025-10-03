@@ -1,31 +1,38 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
-import co.fineants.api.global.common.csv.CsvFormatter;
-import co.fineants.api.infra.s3.service.RemoteFileUploader;
+import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
-class AmazonS3WriteDividendServiceTest {
+class AmazonS3WriteDividendServiceTest extends AbstractContainerBaseTest {
 
+	@Autowired
 	private WriteDividendService service;
+
+	@Autowired
+	private FetchDividendService fetchDividendService;
+
+	@Autowired
+	private StockRepository stockRepository;
 
 	@BeforeEach
 	void setUp() {
-		CsvFormatter<StockDividend> formatter = new CsvFormatter<>(",",
-			new String[] {"id", "dividend", "recordDate", "paymentDate", "stockCode"});
-		RemoteFileUploader fileUploader = Mockito.mock(RemoteFileUploader.class);
-		String filePath = "local/dividend/dividends.csv";
-		service = new AmazonS3WriteDividendService(formatter, fileUploader, filePath);
+		Stock samsung = TestDataFactory.createSamsungStock();
+		stockRepository.save(samsung);
 	}
 
 	@Test
@@ -55,5 +62,10 @@ class AmazonS3WriteDividendServiceTest {
 		);
 
 		service.writeDividendTemp(stockDividendTemp);
+
+		Stock findStock = stockRepository.findByTickerSymbol(tickerSymbol).orElseThrow();
+		List<StockDividendTemp> actual = fetchDividendService.fetchDividendEntityIn(List.of(findStock));
+		List<StockDividendTemp> expected = List.of(stockDividendTemp);
+		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 }
