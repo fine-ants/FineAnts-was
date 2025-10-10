@@ -108,7 +108,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 		assertThat(actual)
 			.as("Verify that the dividend information in the dividends.csv file stored "
 				+ "in s3 matches the items in the database")
-			.hasSizeGreaterThanOrEqualTo(1);
+			.hasSize(200);
 	}
 
 	private List<Stock> saveStocks() {

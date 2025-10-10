@@ -27,6 +27,7 @@ public class StockDividendTemp implements CsvLineConvertible {
 	@Column(precision = 19, nullable = false)
 	private Money dividend;
 
+	@Getter
 	@Embedded
 	private DividendDates dividendDates;
 

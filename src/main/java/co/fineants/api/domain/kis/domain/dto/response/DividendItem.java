@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -33,6 +34,18 @@ public class DividendItem {
 		return new DividendItem(
 			stockDividend.getId(),
 			stockDividend.getStock().getTickerSymbol(),
+			stockDividend.getDividend(),
+			dividendDates.getRecordDate(),
+			dividendDates.getExDividendDate(),
+			dividendDates.getPaymentDate()
+		);
+	}
+
+	public static DividendItem from(StockDividendTemp stockDividend) {
+		DividendDates dividendDates = stockDividend.getDividendDates();
+		return new DividendItem(
+			null,
+			stockDividend.getTickerSymbol(),
 			stockDividend.getDividend(),
 			dividendDates.getRecordDate(),
 			dividendDates.getExDividendDate(),
