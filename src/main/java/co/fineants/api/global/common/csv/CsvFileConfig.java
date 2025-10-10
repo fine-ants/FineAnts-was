@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 
 @Configuration
 public class CsvFileConfig {
@@ -26,7 +26,7 @@ public class CsvFileConfig {
 	}
 
 	@Bean
-	public CsvFormatter<StockDividend> stockDividendCsvFormatter() {
+	public CsvFormatter<StockDividendTemp> stockDividendCsvFormatter() {
 		CsvProperties.CsvFormat csvFormat = csvProperties.getStockDividend();
 		String delimiter = csvFormat.delimiter();
 		List<String> headers = csvFormat.headers();

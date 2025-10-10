@@ -1,7 +1,5 @@
 package co.fineants.api.domain.dividend.domain.entity;
 
-import java.time.LocalDate;
-
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
@@ -50,32 +48,7 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ticker_symbol")
 	private Stock stock;
-
-	private StockDividend(Long id, Money dividend, DividendDates dividendDates, Stock stock) {
-		this.id = id;
-		this.dividend = dividend;
-		this.dividendDates = dividendDates;
-		this.isDeleted = false;
-		this.stock = stock;
-	}
-
-	public static StockDividend create(Money dividend, LocalDate recordDate, LocalDate exDividendDate,
-		LocalDate paymentDate, Stock stock) {
-		DividendDates dividendDates = DividendDates.withPaymentDate(recordDate, exDividendDate, paymentDate);
-		return create(null, dividend, dividendDates, stock);
-	}
-
-	public static StockDividend create(Long id, Money dividend, LocalDate recordDate, LocalDate exDividendDate,
-		LocalDate paymentDate,
-		Stock stock) {
-		DividendDates dividendDates = DividendDates.withPaymentDate(recordDate, exDividendDate, paymentDate);
-		return create(id, dividend, dividendDates, stock);
-	}
-
-	public static StockDividend create(Long id, Money dividend, DividendDates dividendDates, Stock stock) {
-		return new StockDividend(id, dividend, dividendDates, stock);
-	}
-
+	
 	@Override
 	public String toCsvLine() {
 		return String.join(",",

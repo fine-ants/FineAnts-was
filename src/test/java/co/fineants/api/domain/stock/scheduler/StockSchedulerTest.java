@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
@@ -37,9 +36,6 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
 	private StockCsvReader stockCsvReader;

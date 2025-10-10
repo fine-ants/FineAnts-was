@@ -18,7 +18,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -65,9 +64,6 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
 	private LocalDateTimeService spyedLocalDateTimeService;

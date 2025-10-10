@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
@@ -33,7 +32,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class StockAndDividendManager {
 	private final StockRepository stockRepository;
-	private final StockDividendRepository dividendRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final ExDividendDateCalculator exDividendDateCalculator;
@@ -141,10 +139,6 @@ public class StockAndDividendManager {
 	 * @param tickerSymbols 삭제할 종목의 티커 심볼
 	 */
 	private Set<String> deleteStocks(Set<String> tickerSymbols) {
-		// 종목의 배당금 삭제
-		int deletedDividendCount = dividendRepository.deleteByTickerSymbols(tickerSymbols);
-		log.info("delete dividends for TickerSymbols : {}, deleteCount={}", tickerSymbols, deletedDividendCount);
-
 		// 종목 삭제
 		int deletedStockCount = stockRepository.deleteAllByTickerSymbols(tickerSymbols);
 		log.info("delete stocks for TickerSymbols : {}, deleteCount={}", tickerSymbols, deletedStockCount);

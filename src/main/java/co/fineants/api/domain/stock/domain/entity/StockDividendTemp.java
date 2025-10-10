@@ -32,8 +32,9 @@ public class StockDividendTemp implements CsvLineConvertible {
 	private DividendDates dividendDates;
 
 	@Column(name = "is_deleted", nullable = false)
-	private boolean isDeleted;
+	private Boolean isDeleted;
 
+	@Getter
 	@Column(name = "ticker_symbol", nullable = false, insertable = false, updatable = false)
 	private String tickerSymbol;
 
@@ -134,10 +135,6 @@ public class StockDividendTemp implements CsvLineConvertible {
 			dividendDates.basicIsoForPaymentDate(),
 			Boolean.toString(isDeleted)
 		);
-	}
-
-	public String getTickerSymbol() {
-		return tickerSymbol;
 	}
 
 	@Override

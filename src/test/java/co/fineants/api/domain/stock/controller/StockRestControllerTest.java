@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
@@ -32,10 +31,6 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
-
 	@Autowired
 	private PriceRepository priceRepository;
 

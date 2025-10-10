@@ -23,7 +23,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
@@ -66,9 +65,6 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
 	private StockRepository stockRepository;

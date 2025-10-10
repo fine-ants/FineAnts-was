@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
@@ -39,7 +38,6 @@ public class StockService {
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockQueryRepository stockQueryRepository;
 	private final StockAndDividendManager stockAndDividendManager;
-	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;

@@ -42,7 +42,7 @@ class AmazonS3WriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Test
 	void writeDividend_whenDividendIsEmpty() {
-		Assertions.assertThatCode(service::writeDividend).doesNotThrowAnyException();
+		Assertions.assertThatCode(service::writeDividendTemp).doesNotThrowAnyException();
 	}
 
 	@Test

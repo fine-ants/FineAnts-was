@@ -19,7 +19,6 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
@@ -283,32 +282,6 @@ public final class TestDataFactory {
 	public static MultipartFile createOverSizeMockProfileFile() {
 		byte[] profile = new byte[3145728];
 		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
-	}
-
-	public static StockDividend createSamsungStockDividend(Stock stock) {
-		Money dividend = Money.won(361);
-		LocalDate recordDate = LocalDate.of(2023, 3, 31);
-		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
-		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
-		return StockDividend.create(
-			1L,
-			dividend,
-			recordDate,
-			exDividendDate,
-			paymentDate,
-			stock
-		);
-	}
-
-	public static StockDividend createKakaoStockDividend(Stock kakaoStock) {
-		return StockDividend.create(
-			2L,
-			Money.won(68),
-			LocalDate.of(2025, 3, 10),
-			LocalDate.of(2025, 3, 7),
-			LocalDate.of(2025, 4, 24),
-			kakaoStock
-		);
 	}
 
 	public static StockDividendTemp createKakaoStockDividend() {

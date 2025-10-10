@@ -22,7 +22,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
@@ -31,7 +30,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
@@ -56,12 +54,6 @@ class StockServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
-
-	@Autowired
-	private KisAccessTokenRepository kisAccessTokenRepository;
 
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;

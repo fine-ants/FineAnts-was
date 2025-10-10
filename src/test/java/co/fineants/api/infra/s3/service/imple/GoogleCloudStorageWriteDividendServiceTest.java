@@ -37,7 +37,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend() {
-		service.writeDividend();
+		service.writeDividendTemp();
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(service).isInstanceOf(GoogleCloudStorageWriteDividendService.class);
