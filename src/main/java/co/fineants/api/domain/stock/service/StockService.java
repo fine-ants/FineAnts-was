@@ -2,6 +2,8 @@ package co.fineants.api.domain.stock.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,5 +117,12 @@ public class StockService {
 	@Transactional(readOnly = true)
 	public void writeDividendCsvToBucket() {
 		writeStockService.writeStocks(stockRepository.findAll());
+	}
+
+	@Transactional
+	public Set<StockDividendTemp> getAllStockDividends() {
+		return stockRepository.findAll().stream()
+			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
@@ -150,7 +149,9 @@ public class StockDividendService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<StockDividend> findAllStockDividends() {
-		return stockDividendRepository.findAllStockDividends();
+	public List<StockDividendTemp> findAllStockDividends() {
+		return stockRepository.findAll().stream()
+			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.toList();
 	}
 }

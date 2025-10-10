@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -62,9 +60,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private StockDividendRepository stockDividendRepository;
-
-	@Autowired
 	private RemoteFileFetcher remoteFileFetcher;
 
 	@Value("${aws.s3.dividend-csv-path}")
@@ -91,16 +86,10 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.alwaysDo(print())
 			.build();
 
-		Stock samsung = stockRepository.save(createSamsungStock());
-		StockDividend samsungStockDividend = StockDividend.create(
-			1L,
-			Money.won(361),
-			LocalDate.of(2023, 3, 31),
-			LocalDate.of(2023, 3, 30),
-			LocalDate.of(2023, 5, 17),
-			samsung
-		);
-		stockDividendRepository.save(samsungStockDividend);
+		Stock samsung = createSamsungStock();
+		StockDividendTemp samsungStockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		samsung.addStockDividendTemp(samsungStockDividend);
+		stockRepository.save(samsung);
 	}
 
 	@AfterEach
@@ -130,6 +119,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
 	}
 
+	@Transactional
 	@DisplayName("원격 저장소에 배당금 데이터를 갱신한다")
 	@Test
 	void refreshStockDividend() throws Exception {
@@ -163,7 +153,8 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("배당 일정 최신화 완료")))
 			.andExpect(jsonPath("data").value(nullValue()));
-		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(3);
+		stockRepository.findByTickerSymbol("005930")
+			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividendTemps()).hasSize(3));
 	}
 
 	@Transactional
