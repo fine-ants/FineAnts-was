@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
@@ -35,9 +35,6 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
@@ -59,7 +56,8 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		Stock samsung = createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
 		Stock stock = stockRepository.save(samsung);
-		writeDividendService.writeDividend(stock.getStockDividends());
+		StockDividendTemp[] stockDividends = stock.getStockDividendTemps().toArray(StockDividendTemp[]::new);
+		writeDividendService.writeDividendTemp(stockDividends);
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
