@@ -15,6 +15,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.dividend.controller.StockDividendRestController;
 import co.fineants.api.domain.dividend.service.StockDividendService;
+import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.success.StockDividendSuccessCode;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
@@ -24,7 +25,8 @@ class StockDividendRestControllerDocsTest extends RestDocsSupport {
 	protected Object initController() {
 		StockDividendService service = Mockito.mock(StockDividendService.class);
 		WriteDividendService writeDividendService = Mockito.mock(WriteDividendService.class);
-		return new StockDividendRestController(service, writeDividendService);
+		StockService stockService = Mockito.mock(StockService.class);
+		return new StockDividendRestController(service, writeDividendService, stockService);
 	}
 
 	@DisplayName("관리자는 배당일정을 초기화한다")
