@@ -311,6 +311,21 @@ public final class TestDataFactory {
 		);
 	}
 
+	public static StockDividendTemp createKakaoStockDividend() {
+		Money dividend = Money.won(68);
+		LocalDate recordDate = LocalDate.of(2025, 3, 10);
+		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
+		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		String tickerSymbol = "035720";
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false,
+			tickerSymbol
+		);
+	}
+
 	public static StockDividendTemp createSamsungStockDividendTemp() {
 		Money dividend = Money.won(361);
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
@@ -26,13 +25,10 @@ class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
+		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		Stock kakaoStock = TestDataFactory.createKakaoStock();
-		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend(kakaoStock);
-
-		writeDividendService.writeDividend(List.of(stockDividend, stockDividend2));
+		writeDividendService.writeDividendTemp(stockDividend, stockDividend2);
 	}
 
 	@Test
