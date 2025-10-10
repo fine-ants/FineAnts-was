@@ -15,7 +15,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -34,7 +33,7 @@ public class StockDividendTemp implements CsvLineConvertible {
 	@Column(name = "is_deleted", nullable = false)
 	private boolean isDeleted;
 
-	@Transient
+	@Column(name = "ticker_symbol", nullable = false, insertable = false, updatable = false)
 	private String tickerSymbol;
 
 	protected StockDividendTemp() {
