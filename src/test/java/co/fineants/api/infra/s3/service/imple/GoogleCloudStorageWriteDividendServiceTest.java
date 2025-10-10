@@ -1,7 +1,6 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.io.InputStream;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;
@@ -49,10 +47,9 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend_whenDataIsOne() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
+		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
 
-		service.writeDividend(List.of(stockDividend));
+		service.writeDividendTemp(stockDividend);
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
@@ -61,13 +58,10 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend_whenDataIsTwo() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
+		StockDividendTemp stockDividend1 = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		Stock kakaoStock = TestDataFactory.createKakaoStock();
-		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend(kakaoStock);
-
-		service.writeDividend(List.of(stockDividend, stockDividend2));
+		service.writeDividendTemp(stockDividend1, stockDividend2);
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
