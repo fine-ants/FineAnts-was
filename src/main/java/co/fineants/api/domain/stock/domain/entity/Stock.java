@@ -15,7 +15,6 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -30,7 +29,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -40,7 +38,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@ToString(exclude = "stockDividends")
+@ToString(exclude = "stockDividendTemps")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "stockCode", callSuper = false)
 @Entity
@@ -55,9 +53,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	@Convert(converter = MarketConverter.class)
 	private Market market;
 	private boolean isDeleted;
-
-	@OneToMany(mappedBy = "stock", fetch = FetchType.LAZY)
-	private final List<StockDividend> stockDividends = new ArrayList<>();
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(
