@@ -12,9 +12,6 @@ import org.springframework.http.HttpStatus;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -109,17 +106,8 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void getStock() {
 		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend(stock);
-		Money dividend = samsungStockDividend.getDividend();
-		DividendDates dividendDates = samsungStockDividend.getDividendDates();
-		boolean isDeleted = samsungStockDividend.isDeleted();
-		StockDividendTemp stockDividendTemp = new StockDividendTemp(
-			dividend,
-			dividendDates,
-			isDeleted,
-			stock.getTickerSymbol()
-		);
-		stock.addStockDividendTemp(stockDividendTemp);
+		StockDividendTemp samsungStockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		stock.addStockDividendTemp(samsungStockDividend);
 		stockRepository.save(stock);
 
 		int currentPrice = 68000;

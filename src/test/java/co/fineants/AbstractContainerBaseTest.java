@@ -1,6 +1,5 @@
 package co.fineants;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.testcontainers.utility.DockerImageName;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
@@ -314,11 +312,6 @@ public abstract class AbstractContainerBaseTest {
 
 	protected List<StockDividendTemp> createStockDividendWith(String tickerSymbol) {
 		return TestDataFactory.createStockDividend(tickerSymbol);
-	}
-
-	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
 	protected List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
