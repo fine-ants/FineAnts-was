@@ -14,7 +14,6 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -128,7 +127,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		FileContentComparator.compare(inputStream, "src/test/resources/gold_dividends.csv");
 	}
 
-	@Disabled
 	@DisplayName("원격 저장소에 배당금 데이터를 갱신한다")
 	@Test
 	void refreshStockDividend() throws Exception {
@@ -165,7 +163,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(3);
 	}
 
-	@Disabled
 	@DisplayName("배당금 데이터를 초기화한다")
 	@Test
 	void initializeStockDividend() throws Exception {
