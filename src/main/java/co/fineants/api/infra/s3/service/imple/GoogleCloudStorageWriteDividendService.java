@@ -36,7 +36,9 @@ public class GoogleCloudStorageWriteDividendService implements WriteDividendServ
 
 	@Override
 	public void writeDividendTemp(StockDividendTemp... dividends) {
-		// TODO: implement writeDividendTemp
-		throw new UnsupportedOperationException("Not implemented yet");
+		String[] headers = {"tickerSymbol", "dividend", "recordDate", "paymentDate", "isDeleted"};
+		CsvFormatter<StockDividendTemp> csvFormatter = new CsvFormatter<>(",", headers);
+		String content = csvFormatter.format(dividends);
+		uploader.upload(content, dividendPath);
 	}
 }
