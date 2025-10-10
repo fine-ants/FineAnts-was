@@ -16,12 +16,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
@@ -40,10 +40,12 @@ import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchStockService;
+import jakarta.persistence.EntityManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -81,6 +83,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private EntityManager entityManager;
 
 	@BeforeEach
 	void setUp() {
@@ -190,13 +195,13 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
+	@Transactional
 	@DisplayName("상장된 종목과 폐지된 종목을 조회하여 최신화한다")
 	@Test
 	void reloadStocks() {
 		// given
 		Stock nokwon = stockRepository.save(createNokwonCI());
 
-		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
 		StockDataResponse.StockIntegrationInfo hynix = StockDataResponse.StockIntegrationInfo.create(
 			"000660",
 			"에스케이하이닉스보통주",
@@ -235,6 +240,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// when
 		StockReloadResponse response = stockService.reloadStocks();
 		// then
+		entityManager.flush();
+		entityManager.clear();
+
 		assertThat(response).isNotNull();
 		assertThat(response.getAddedStocks()).hasSize(1);
 		assertThat(response.getDeletedStocks()).hasSize(1);
@@ -242,11 +250,10 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		Stock deletedStock = stockRepository.findByTickerSymbolIncludingDeleted(nokwon.getTickerSymbol()).orElseThrow();
 		assertThat(deletedStock.isDeleted()).isTrue();
 
-		List<StockDividend> hynixDividends = stockDividendRepository.findStockDividendsByTickerSymbol(
-			hynix.getTickerSymbol());
-		assertThat(hynixDividends)
+		Stock findHynix = stockRepository.findByTickerSymbol(hynix.getTickerSymbol()).orElseThrow();
+		assertThat(findHynix.getStockDividendTemps())
 			.hasSize(2)
-			.extracting(StockDividend::getDividend, StockDividend::getDividendDates)
+			.extracting(StockDividendTemp::getDividend, StockDividendTemp::getDividendDates)
 			.usingComparatorForType(Money::compareTo, Money.class)
 			.containsExactly(
 				Tuple.tuple(

@@ -51,6 +51,10 @@ public class StockAndDividendManager {
 	public StockReloadResponse reloadStocks() {
 		// 신규 상장 종목 저장
 		List<Stock> ipoStocks = fetchIpoStocks();
+		List<Stock> saveIpoStocks = stockRepository.saveAll(ipoStocks);
+		Set<String> addedStocks = saveIpoStocks.stream()
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
 
 		// 상장 폐지 종목 조회
 		Map<Boolean, List<Stock>> partitionedStocksForDelisted = fetchPartitionedStocksForDelisted()
@@ -62,12 +66,6 @@ public class StockAndDividendManager {
 
 		// 올해 신규 배당 일정 저장
 		List<StockDividendTemp> addedDividends = fetchDividend(partitionedStocksForDelisted.get(false));
-
-		// 신규 상장 종목 저장
-		List<Stock> saveIpoStocks = stockRepository.saveAll(ipoStocks);
-		Set<String> addedStocks = saveIpoStocks.stream()
-			.map(Stock::getTickerSymbol)
-			.collect(Collectors.toUnmodifiableSet());
 
 		// 신규 배당일정을 종목에 추가
 		List<Stock> allStocks = stockRepository.findAll();
