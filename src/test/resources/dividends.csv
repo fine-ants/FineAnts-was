@@ -1,4 +1,4 @@
-id,dividend,recordDate,paymentDate,stockCode
+tickerSymbol,dividend,recordDate,paymentDate,isDeleted
 1,2500,20240327,20240418,KR7029780004
 2,0,20240630,,KR7001080001
 3,100,20240329,20240419,KR7009180001
