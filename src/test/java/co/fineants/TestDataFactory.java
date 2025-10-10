@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -13,9 +14,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
+import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
+import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
@@ -23,11 +31,17 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 
 public final class TestDataFactory {
+
+	private static final ExDividendDateCalculator exDividendDateCalculator = new FileExDividendDateCalculator(
+		new FileHolidayRepository(new HolidayFileReader()));
+
 	private TestDataFactory() {
 
 	}
@@ -287,7 +301,7 @@ public final class TestDataFactory {
 	}
 
 	public static StockDividend createKakaoStockDividend(Stock kakaoStock) {
-		StockDividend stockDividend2 = StockDividend.create(
+		return StockDividend.create(
 			2L,
 			Money.won(68),
 			LocalDate.of(2025, 3, 10),
@@ -295,6 +309,203 @@ public final class TestDataFactory {
 			LocalDate.of(2025, 4, 24),
 			kakaoStock
 		);
-		return stockDividend2;
+	}
+
+	public static StockDividendTemp createKakaoStockDividend() {
+		Money dividend = Money.won(68);
+		LocalDate recordDate = LocalDate.of(2025, 3, 10);
+		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
+		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		String tickerSymbol = "035720";
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false,
+			tickerSymbol
+		);
+	}
+
+	public static StockDividendTemp createSamsungStockDividendTemp() {
+		Money dividend = Money.won(361);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		String tickerSymbol = "005930";
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false,
+			tickerSymbol
+		);
+	}
+
+	public static PurchaseHistory createPurchaseHistory(LocalDate purchaseDate, PortfolioHolding holding) {
+		Count numShares = Count.from(5);
+		Money purchasePerShare = Money.won(10000);
+		String memo = "첫구매";
+		return PurchaseHistory.create(purchaseDate.atStartOfDay(), numShares, purchasePerShare, memo, holding);
+	}
+
+	public static PortfolioHolding createPortfolioHolding(Portfolio portfolio, Stock stock) {
+		return PortfolioHolding.of(portfolio, stock);
+	}
+
+	public static List<StockDividendTemp> createStockDividend(String tickerSymbol) {
+		return List.of(
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2022, 12, 31),
+				LocalDate.of(2023, 4, 14),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 3, 31),
+				LocalDate.of(2023, 5, 17),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 6, 30),
+				LocalDate.of(2023, 8, 16),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2023, 9, 30),
+				LocalDate.of(2023, 11, 20),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2024, 3, 31),
+				LocalDate.of(2024, 5, 17),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2024, 6, 30),
+				LocalDate.of(2024, 8, 16),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(361L),
+				LocalDate.of(2024, 9, 30),
+				LocalDate.of(2024, 11, 20),
+				tickerSymbol
+			)
+		);
+	}
+
+	public static List<StockDividendTemp> createSamsungStockDividends() {
+		String tickerSymbol = "005930";
+		Money dividend = Money.won(361L);
+		return List.of(
+			createStockDividend(
+				dividend,
+				LocalDate.of(2022, 3, 31),
+				LocalDate.of(2022, 5, 17),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2022, 6, 30),
+				LocalDate.of(2022, 8, 16),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2022, 9, 30),
+				LocalDate.of(2022, 11, 15),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2022, 12, 31),
+				LocalDate.of(2023, 4, 14),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2023, 3, 31),
+				LocalDate.of(2023, 5, 17),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2023, 6, 30),
+				LocalDate.of(2023, 8, 16),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2023, 9, 30),
+				LocalDate.of(2023, 11, 20),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2023, 12, 31),
+				LocalDate.of(2024, 4, 19),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2024, 3, 31),
+				null,
+				tickerSymbol
+			)
+		);
+	}
+
+	private static StockDividendTemp createStockDividend(Money dividend, LocalDate recordDate, LocalDate paymentDate,
+		String tickerSymbol) {
+		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		return new StockDividendTemp(dividend, dividendDates, false, tickerSymbol);
+	}
+
+	public static List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
+		Money dividend = Money.won(361L);
+		return List.of(
+			createStockDividend(
+				dividend,
+				LocalDate.of(2024, 3, 31),
+				LocalDate.of(2024, 5, 17),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2024, 6, 30),
+				LocalDate.of(2024, 8, 16),
+				tickerSymbol
+			),
+			createStockDividend(
+				dividend,
+				LocalDate.of(2024, 9, 30),
+				LocalDate.of(2024, 11, 20),
+				tickerSymbol
+			)
+		);
+	}
+
+	public static List<StockDividendTemp> createKakaoStockDividends() {
+		String tickerSymbol = "035720";
+		return List.of(
+			createStockDividend(
+				Money.won(61L),
+				LocalDate.of(2022, 12, 31),
+				LocalDate.of(2023, 4, 25),
+				tickerSymbol
+			),
+			createStockDividend(
+				Money.won(61L),
+				LocalDate.of(2024, 2, 29),
+				null,
+				tickerSymbol
+			)
+		);
 	}
 }

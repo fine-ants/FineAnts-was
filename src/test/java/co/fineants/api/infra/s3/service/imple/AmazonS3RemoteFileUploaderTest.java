@@ -53,7 +53,7 @@ class AmazonS3RemoteFileUploaderTest extends AbstractContainerBaseTest {
 
 	@Test
 	void upload_whenFileContentIsEmpty_thenUploadEmptyFile() {
-		String fileContent = "id,dividend,recordDate,paymentDate,stockCode";
+		String fileContent = "tickerSymbol,dividend,recordDate,paymentDate,isDeleted";
 		String filePath = "local/dividend/dividends.csv";
 
 		fileUploader.upload(fileContent, filePath);

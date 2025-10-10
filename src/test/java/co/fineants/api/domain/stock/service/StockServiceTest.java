@@ -16,12 +16,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
@@ -40,10 +40,12 @@ import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchStockService;
+import jakarta.persistence.EntityManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -82,6 +84,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
 
+	@Autowired
+	private EntityManager entityManager;
+
 	@BeforeEach
 	void setUp() {
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
@@ -92,8 +97,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void getDetailedStock() {
 		// given
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
+		Stock samsung = createSamsungStock();
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
+		Stock saveSamsung = stockRepository.save(samsung);
 
 		currentPriceRedisRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
 		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 49000L));
@@ -122,15 +128,15 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				.usingComparatorForType(Money::compareTo, Money.class)
 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
 				.containsExactlyInAnyOrder(
-					stock.getStockCode(),
-					stock.getTickerSymbol(),
-					stock.getCompanyName(),
-					stock.getCompanyNameEng(),
-					stock.getMarket(),
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
 					Money.won(50000),
 					Money.won(1000),
 					Percentage.from(0.0204),
-					stock.getSector(),
+					saveSamsung.getSector(),
 					Money.won(1083),
 					Percentage.from(0.0217)
 				)
@@ -141,16 +147,17 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void getDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
 		// given
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
+		Stock samsung = createSamsungStock();
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
+		Stock saveSamsung = stockRepository.save(samsung);
 
 		given(kisClient.fetchAccessToken())
 			.willReturn(
 				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusDays(1), 3600 * 24)));
 		given(kisClient.fetchCurrentPrice(anyString()))
-			.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L)));
+			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
 		given(kisClient.fetchClosingPrice(anyString()))
-			.willReturn(Mono.just(KisClosingPrice.create(stock.getTickerSymbol(), 49000L)));
+			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
 
 		String tickerSymbol = "005930";
 		// when
@@ -173,28 +180,28 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				.usingComparatorForType(Money::compareTo, Money.class)
 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
 				.containsExactlyInAnyOrder(
-					stock.getStockCode(),
-					stock.getTickerSymbol(),
-					stock.getCompanyName(),
-					stock.getCompanyNameEng(),
-					stock.getMarket(),
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
 					Money.won(50000),
 					Money.won(1000),
 					Percentage.from(0.0204),
-					stock.getSector(),
+					saveSamsung.getSector(),
 					Money.won(1083),
 					Percentage.from(0.0217)
 				)
 		);
 	}
 
+	@Transactional
 	@DisplayName("상장된 종목과 폐지된 종목을 조회하여 최신화한다")
 	@Test
 	void reloadStocks() {
 		// given
 		Stock nokwon = stockRepository.save(createNokwonCI());
 
-		kisAccessTokenRepository.refreshAccessToken(createKisAccessToken());
 		StockDataResponse.StockIntegrationInfo hynix = StockDataResponse.StockIntegrationInfo.create(
 			"000660",
 			"에스케이하이닉스보통주",
@@ -233,6 +240,9 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		// when
 		StockReloadResponse response = stockService.reloadStocks();
 		// then
+		entityManager.flush();
+		entityManager.clear();
+
 		assertThat(response).isNotNull();
 		assertThat(response.getAddedStocks()).hasSize(1);
 		assertThat(response.getDeletedStocks()).hasSize(1);
@@ -240,11 +250,10 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		Stock deletedStock = stockRepository.findByTickerSymbolIncludingDeleted(nokwon.getTickerSymbol()).orElseThrow();
 		assertThat(deletedStock.isDeleted()).isTrue();
 
-		List<StockDividend> hynixDividends = stockDividendRepository.findStockDividendsByTickerSymbol(
-			hynix.getTickerSymbol());
-		assertThat(hynixDividends)
+		Stock findHynix = stockRepository.findByTickerSymbol(hynix.getTickerSymbol()).orElseThrow();
+		assertThat(findHynix.getStockDividendTemps())
 			.hasSize(2)
-			.extracting(StockDividend::getDividend, StockDividend::getDividendDates)
+			.extracting(StockDividendTemp::getDividend, StockDividendTemp::getDividendDates)
 			.usingComparatorForType(Money::compareTo, Money.class)
 			.containsExactly(
 				Tuple.tuple(
@@ -292,7 +301,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	void givenStocks_whenSyncAllStocksWithLatestData_thenUpdateLatestData() {
 		// given
 		Stock samsung = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(samsung));
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
 		given(mockedKisService.fetchSearchStockInfo(samsung.getTickerSymbol()))
 			.willReturn(Mono.just(KisSearchStockInfo.listedStock(
 				samsung.getStockCode(),

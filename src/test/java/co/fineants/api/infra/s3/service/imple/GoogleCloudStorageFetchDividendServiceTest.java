@@ -11,8 +11,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -35,13 +35,9 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 
 	@BeforeEach
 	void setUp() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
-
-		Stock kakaoStock = TestDataFactory.createKakaoStock();
-		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend(kakaoStock);
-
-		writeDividendService.writeDividend(List.of(stockDividend, stockDividend2));
+		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
+		writeDividendService.writeDividendTemp(stockDividend, stockDividend2);
 	}
 
 	@Test
@@ -58,7 +54,7 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void fetchDividendEntityIn_whenStockIsEmpty() {
-		List<StockDividend> list = service.fetchDividendEntityIn(List.of());
+		List<StockDividendTemp> list = service.fetchDividendEntityIn(List.of());
 
 		Assertions.assertThat(list).isEmpty();
 	}
@@ -68,7 +64,7 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 		Stock stock = TestDataFactory.createSamsungStock();
 		Stock kakaoStock = TestDataFactory.createKakaoStock();
 
-		List<StockDividend> list = service.fetchDividendEntityIn(List.of(stock, kakaoStock));
+		List<StockDividendTemp> list = service.fetchDividendEntityIn(List.of(stock, kakaoStock));
 
 		Assertions.assertThat(list).hasSize(2);
 	}

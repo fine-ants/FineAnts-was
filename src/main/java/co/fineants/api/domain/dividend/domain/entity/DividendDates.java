@@ -128,4 +128,9 @@ public class DividendDates {
 		}
 		return paymentDate.getMonth() == today.getMonth() && paymentDate.getYear() == today.getYear();
 	}
+
+	@Override
+	public String toString() {
+		return String.format("(기준일=%s, 배당락일=%s, 지급일=%s)", recordDate, exDividendDate, paymentDate);
+	}
 }

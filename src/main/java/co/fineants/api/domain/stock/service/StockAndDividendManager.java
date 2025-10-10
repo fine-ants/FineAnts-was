@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,18 +12,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
-import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +50,11 @@ public class StockAndDividendManager {
 	@Transactional
 	public StockReloadResponse reloadStocks() {
 		// 신규 상장 종목 저장
-		Set<String> ipoTickerSymbols = saveIpoStocks();
+		List<Stock> ipoStocks = fetchIpoStocks();
+		List<Stock> saveIpoStocks = stockRepository.saveAll(ipoStocks);
+		Set<String> addedStocks = saveIpoStocks.stream()
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
 
 		// 상장 폐지 종목 조회
 		Map<Boolean, List<Stock>> partitionedStocksForDelisted = fetchPartitionedStocksForDelisted()
@@ -64,28 +65,41 @@ public class StockAndDividendManager {
 		Set<String> deletedStocks = deleteStocks(partitionedStocksForDelisted.get(true));
 
 		// 올해 신규 배당 일정 저장
-		Set<DividendItem> addedDividends = reloadDividends(partitionedStocksForDelisted.get(false));
+		List<StockDividendTemp> addedDividends = fetchDividend(partitionedStocksForDelisted.get(false));
 
-		return StockReloadResponse.create(ipoTickerSymbols, deletedStocks, addedDividends);
+		// 신규 배당일정을 종목에 추가
+		List<Stock> allStocks = stockRepository.findAll();
+		Map<String, Stock> stockMap = allStocks.stream()
+			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
+		for (StockDividendTemp dividend : addedDividends) {
+			String dividendTickerSymbol = dividend.getTickerSymbol();
+			if (!stockMap.containsKey(dividendTickerSymbol)) {
+				continue;
+			}
+			Stock findStock = stockMap.get(dividendTickerSymbol);
+			findStock.addStockDividendTemp(dividend);
+		}
+
+		// 배당 일정 매핑
+		Set<DividendItem> addedDividendsItems = mapDividendItems(addedDividends);
+		return StockReloadResponse.create(addedStocks, deletedStocks, addedDividendsItems);
 	}
 
 	@NotNull
-	private Set<DividendItem> reloadDividends(List<Stock> stocks) {
+	private List<StockDividendTemp> fetchDividend(List<Stock> stocks) {
 		return Stream.of(stocks)
 			.map(this::mapTickerSymbols)
-			.map(this::reloadDividend)
-			.map(this::mapDividendItems)
+			.map(this::fetchDividend)
 			.flatMap(Collection::stream)
-			.collect(Collectors.toUnmodifiableSet());
+			.toList();
 	}
 
 	@NotNull
 	private Set<String> deleteStocks(List<Stock> stocks) {
-		return Stream.of(stocks)
-			.map(this::mapTickerSymbols)
-			.map(this::deleteStocks)
-			.flatMap(Collection::stream)
+		Set<String> deleteTickerSymbols = stocks.stream()
+			.map(Stock::getTickerSymbol)
 			.collect(Collectors.toUnmodifiableSet());
+		return this.deleteStocks(deleteTickerSymbols);
 	}
 
 	/**
@@ -96,8 +110,8 @@ public class StockAndDividendManager {
 	 * @return 신규 상장 종목 티커 심볼
 	 */
 	@NotNull
-	private Set<String> saveIpoStocks() {
-		List<Stock> stocks = kisService.fetchStockInfoInRangedIpo()
+	private List<Stock> fetchIpoStocks() {
+		return kisService.fetchStockInfoInRangedIpo()
 			.map(StockDataResponse.StockIntegrationInfo::toEntity)
 			.onErrorResume(throwable -> {
 				log.error("fetchStockInfoInRangedIpo error message is {}", throwable.getMessage());
@@ -106,14 +120,9 @@ public class StockAndDividendManager {
 			.collectList()
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
-
-		return stockRepository.saveAll(stocks).stream()
-			.peek(stock -> log.info("save ipoStock is {}", stock))
-			.map(Stock::getTickerSymbol)
-			.collect(Collectors.toUnmodifiableSet());
 	}
 
-	private Set<DividendItem> mapDividendItems(List<StockDividend> stockDividends) {
+	private Set<DividendItem> mapDividendItems(List<StockDividendTemp> stockDividends) {
 		return stockDividends.stream()
 			.map(DividendItem::from)
 			.collect(Collectors.toUnmodifiableSet());
@@ -176,47 +185,28 @@ public class StockAndDividendManager {
 	}
 
 	/**
-	 * 신규 배당 일정 저장
+	 * 신규 배당 일정 조회
 	 * 수행 과정
 	 * - 배당 일정 조회
 	 * - 배당 일정 저장
 	 * @param tickerSymbols 배당 일정을 조회할 종목의 티커 심볼
-	 * @return 저장된 배당 일정
+	 * @return 배당 일정
 	 */
-	private List<StockDividend> reloadDividend(Set<String> tickerSymbols) {
+	private List<StockDividendTemp> fetchDividend(Set<String> tickerSymbols) {
 		// 올해 배당 일정 조회
 		int concurrency = 20;
-		List<StockDividend> stockDividends = Flux.fromIterable(tickerSymbols)
+		// 배당 일정 반환
+		return Flux.fromIterable(tickerSymbols)
 			.flatMap(kisService::fetchDividend, concurrency)
 			.delayElements(delayManager.delay())
 			.collectList()
 			.onErrorResume(throwable -> {
-				log.error("reloadDividend error message is {}", throwable.getMessage());
+				log.error("fetchDividend error message is {}", throwable.getMessage());
 				return Mono.empty();
 			})
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList).stream()
-			.map(this::mapStockDividend)
+			.map(dividend -> dividend.toEntity(exDividendDateCalculator))
 			.toList();
-		// 배당 일정 저장
-		return dividendRepository.saveAll(stockDividends);
-	}
-
-	// 조회한 배당금을 엔티티 종목의 배당금으로 매핑
-	private StockDividend mapStockDividend(KisDividend dividend) {
-		return dividendRepository.findByTickerSymbolAndRecordDate(dividend.getTickerSymbol(), dividend.getRecordDate())
-			.map(existStockDividend -> dividend.toEntity(existStockDividend.getId(), existStockDividend.getStock(),
-				exDividendDateCalculator))
-			.orElseGet(supplierNewStockDividend(dividend));
-	}
-
-	@NotNull
-	private Supplier<StockDividend> supplierNewStockDividend(KisDividend dividend) {
-		return () -> dividend.toEntity(findStockBy(dividend.getTickerSymbol()), exDividendDateCalculator);
-	}
-
-	private Stock findStockBy(String tickerSymbol) {
-		return stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
-			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 }

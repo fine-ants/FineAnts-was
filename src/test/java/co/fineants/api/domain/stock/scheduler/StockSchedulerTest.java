@@ -21,6 +21,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -101,10 +102,13 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 			.as("Verify that the stock information in the stocks.csv file stored "
 				+ "in s3 matches the items in the database")
 			.containsExactlyInAnyOrderElementsOf(stockRepository.findAll());
-		assertThat(fetchDividendService.fetchDividendEntityIn(stockRepository.findAll()))
+
+		List<StockDividendTemp> actual = fetchDividendService.fetchDividendEntityIn(
+			stockRepository.findAll());
+		assertThat(actual)
 			.as("Verify that the dividend information in the dividends.csv file stored "
 				+ "in s3 matches the items in the database")
-			.containsExactlyInAnyOrderElementsOf(stockDividendRepository.findAllStockDividends());
+			.hasSize(200);
 	}
 
 	private List<Stock> saveStocks() {

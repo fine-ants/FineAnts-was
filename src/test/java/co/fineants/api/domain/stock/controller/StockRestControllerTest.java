@@ -12,12 +12,15 @@ import org.springframework.http.HttpStatus;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
@@ -106,10 +109,18 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void getStock() {
 		Stock stock = TestDataFactory.createSamsungStock();
-		stockRepository.save(stock);
-
 		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend(stock);
-		stockDividendRepository.save(samsungStockDividend);
+		Money dividend = samsungStockDividend.getDividend();
+		DividendDates dividendDates = samsungStockDividend.getDividendDates();
+		boolean isDeleted = samsungStockDividend.isDeleted();
+		StockDividendTemp stockDividendTemp = new StockDividendTemp(
+			dividend,
+			dividendDates,
+			isDeleted,
+			stock.getTickerSymbol()
+		);
+		stock.addStockDividendTemp(stockDividendTemp);
+		stockRepository.save(stock);
 
 		int currentPrice = 68000;
 		priceRepository.savePrice(stock, currentPrice);

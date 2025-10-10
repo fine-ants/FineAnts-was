@@ -1,15 +1,10 @@
 package co.fineants.api.domain.dividend.domain.entity;
 
 import java.time.LocalDate;
-import java.time.Month;
-import java.util.List;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.common.count.Count;
-import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
-import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 import jakarta.persistence.Column;
@@ -81,34 +76,6 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 		return new StockDividend(id, dividend, dividendDates, stock);
 	}
 
-	// 주식 개수에 따른 배당금 합계 계산
-	// 배당금 합계 = 주당 배당금 * 주식 개수
-
-	public Expression calculateDividendSum(Count numShares) {
-		return numShares.multiply(dividend);
-	}
-
-	public boolean isDuplicatedRecordDate(List<StockDividend> currentYearStockDividends) {
-		return currentYearStockDividends.stream()
-			.anyMatch(stockDividend -> stockDividend.getQuarter().equals(getQuarter()));
-	}
-
-	public void change(StockDividend stockDividend) {
-		this.dividend = stockDividend.getDividend();
-		this.dividendDates = stockDividend.getDividendDates();
-	}
-
-	/**
-	 * 배당 일정 정보들을 파싱하여 반환
-	 * format :  tickerSymbol:dividend:recordDate:exDividendDate:paymentDate
-	 *   - ex) 005930:361:2022-08-01:2022-08-01:2022-08-01, 005930:361:2022-08-01:2022-08-01:null
-	 * @return 배당 일정 정보 요약
-	 */
-	public String parse() {
-		String dividendDateString = dividendDates.parse();
-		return String.format("%s:%s:%s", stock.getTickerSymbol(), dividend, dividendDateString);
-	}
-
 	@Override
 	public String toCsvLine() {
 		return String.join(",",
@@ -117,61 +84,5 @@ public class StockDividend extends BaseEntity implements CsvLineConvertible {
 			dividendDates.basicIsoForRecordDate(),
 			dividendDates.basicIsoForPaymentDate(),
 			this.stock.getStockCode());
-	}
-
-	public boolean canReceiveDividendOn(PurchaseHistory history) {
-		return history.canReceiveDividendOn(dividendDates);
-	}
-
-	public Month getMonthByPaymentDate() {
-		return dividendDates.getPaymentDateMonth();
-	}
-
-	public boolean isCurrentYearRecordDate(LocalDate localDate) {
-		return dividendDates.isCurrentYearRecordDate(localDate);
-	}
-
-	public boolean isLastYearPaymentDate(LocalDate lastYearLocalDate) {
-		return dividendDates.isLastYearPaymentDate(lastYearLocalDate);
-	}
-
-	private Integer getQuarter() {
-		return dividendDates.getQuarterWithRecordDate();
-	}
-
-	public boolean isCurrentYearPaymentDate(LocalDate today) {
-		return dividendDates.isCurrentYearPaymentDate(today);
-	}
-
-	public boolean equalRecordDate(LocalDate recordDate) {
-		return dividendDates.equalRecordDate(recordDate);
-	}
-
-	public boolean hasPaymentDate() {
-		return dividendDates.hasPaymentDate();
-	}
-
-	public boolean isPaymentInCurrentYear(LocalDate localDate) {
-		return dividendDates.isPaymentInCurrentYear(localDate);
-	}
-
-	public boolean hasInRangeForRecordDate(LocalDate from, LocalDate to) {
-		return dividendDates.hasInRangeForRecordDate(from, to);
-	}
-
-	public boolean equalPaymentDate(LocalDate paymentDate) {
-		return dividendDates.equalPaymentDate(paymentDate);
-	}
-
-	public boolean isSatisfiedBy(PurchaseHistory history) {
-		return dividendDates.isSatisfiedBy(history);
-	}
-
-	public boolean isPurchaseDateBeforeExDividendDate(PurchaseHistory history) {
-		return dividendDates.isPurchaseDateBeforeExDividendDate(history);
-	}
-
-	public boolean isCurrentMonthPaymentDate(LocalDate today) {
-		return dividendDates.isCurrentMonthPaymentDate(today);
 	}
 }

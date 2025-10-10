@@ -97,9 +97,9 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
-
+		Stock samsung = createSamsungStock();
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
+		Stock stock = stockRepository.save(samsung);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2024, 9, 26, 0, 0, 0);

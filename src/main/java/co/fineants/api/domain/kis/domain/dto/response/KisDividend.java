@@ -15,8 +15,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,6 +53,17 @@ public class KisDividend implements Comparable<KisDividend> {
 		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate, stock);
 	}
 
+	public StockDividendTemp toEntity(ExDividendDateCalculator exDividendDateCalculator) {
+		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		return new StockDividendTemp(
+			dividend,
+			dividendDates,
+			false,
+			tickerSymbol
+		);
+	}
+
 	public boolean containsFrom(Map<String, Stock> stockMap) {
 		return stockMap.containsKey(tickerSymbol);
 	}
@@ -62,7 +75,7 @@ public class KisDividend implements Comparable<KisDividend> {
 		return stockMap.get(tickerSymbol).matchByTickerSymbolAndRecordDate(tickerSymbol, recordDate);
 	}
 
-	public Optional<StockDividend> getStockDividendByTickerSymbolAndRecordDateFrom(Map<String, Stock> stockMap) {
+	public Optional<StockDividendTemp> getStockDividendByTickerSymbolAndRecordDateFrom(Map<String, Stock> stockMap) {
 		if (!stockMap.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}

@@ -24,7 +24,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -34,6 +33,7 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 class PortfolioCalculatorTest extends AbstractContainerBaseTest {
@@ -203,8 +203,8 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		List<StockDividend> stockDividends = createStockDividendWith(stock);
-		stockDividends.forEach(stock::addStockDividend);
+		List<StockDividendTemp> stockDividends = createStockDividendWith(stock.getTickerSymbol());
+		stockDividends.forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 
 		PurchaseHistory purchaseHistory = createPurchaseHistory(null, LocalDateTime.of(2023, 3, 1, 9, 30),
@@ -434,7 +434,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calCurrentMonthDividendBy() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40000L),
@@ -454,7 +454,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calCurrentMonthDividendBy_givenHoldings_whenCalCurrentMonthDividend_thenReturnSumOfHoldings() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40000L),
@@ -473,7 +473,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void givenStockAndPurchaseHistories_whenCalCurrentMonthExpectDividend_thenReturnSumOfDividend() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40000L),
@@ -493,7 +493,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calAnnualDividendBy_givenPortfolio_whenCalAnnualDividend_thenReturnSumOfAnnualDividend() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40000L),
@@ -512,7 +512,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calAnnualDividendYieldBy_givenPortfolio_whenCalAnnualDividendYield_thenReturnPercentOfAnnualDividend() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
@@ -532,7 +532,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calAnnualInvestmentDividendYieldBy() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
@@ -552,7 +552,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 	void calAnnualInvestmentDividendYield() {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
@@ -890,7 +890,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		PurchaseHistory history = createPurchaseHistory(null, purchaseDate, Count.from(3), Money.won(40000L),
@@ -931,7 +931,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		PurchaseHistory history = createPurchaseHistory(null, purchaseDate, Count.from(3), Money.won(40000L),
@@ -964,7 +964,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
 			"메모", holding);
@@ -1068,7 +1068,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
 			"메모", holding);
@@ -1204,7 +1204,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
 			"메모", holding);
@@ -1224,7 +1224,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		PurchaseHistory history = createPurchaseHistory(null, purchaseDate, Count.from(3), Money.won(40000L),
@@ -1260,7 +1260,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		PurchaseHistory history = createPurchaseHistory(null, purchaseDate, Count.from(3), Money.won(40000L),
@@ -1303,7 +1303,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
 		currentPriceRepository.savePrice(stock, currentPrice);
-		createStockDividendWith(stock).forEach(stock::addStockDividend);
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
 		PurchaseHistory history = createPurchaseHistory(null, purchaseDate, Count.from(3), Money.won(40000L),

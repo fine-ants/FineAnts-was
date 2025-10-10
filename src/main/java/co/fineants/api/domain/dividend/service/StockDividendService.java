@@ -2,22 +2,20 @@ package co.fineants.api.domain.dividend.service;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -43,15 +41,24 @@ public class StockDividendService {
 	 * - 이 메서드는 서버 시작시 수행됨
 	 */
 	@Transactional
-	@Secured("ROLE_ADMIN")
 	public void initializeStockDividend() {
+		List<Stock> stocks = stockRepository.findAll();
 		// 기존 종목 배당금 데이터 삭제
-		stockDividendRepository.deleteAllInBatch();
+		for (Stock stock : stocks) {
+			stock.clearStockDividendTemps();
+		}
 
 		// S3에 저장된 종목 배당금으로 초기화
-		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stockRepository.findAll());
-		List<StockDividend> saveStockDividends = stockDividendRepository.saveAll(stockDividends);
-		log.info("save StockDividends size : {}", saveStockDividends.size());
+		List<StockDividendTemp> stockDividendTemps = fetchDividendService.fetchDividendEntityIn(stocks);
+		Map<String, List<StockDividendTemp>> stockDividendMap = stockDividendTemps.stream()
+			.collect(Collectors.groupingBy(StockDividendTemp::getTickerSymbol));
+
+		// 종목에 배당금 데이터 추가
+		for (Stock stock : stocks) {
+			List<StockDividendTemp> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+				Collections.emptyList());
+			findStockDividends.forEach(stock::addStockDividendTemp);
+		}
 	}
 
 	/**
@@ -94,40 +101,35 @@ public class StockDividendService {
 
 	private void updateStockDividendWithPaymentDate(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
 		// 현금 지급일을 가지고 있지 않은 배당 일정 조회
-		List<StockDividend> changedStockDividends = kisDividends.stream()
+		kisDividends.stream()
 			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
 			.filter(kisDividend -> kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
-			.map(kisDividend -> {
-				StockDividend stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
+			.forEach(kisDividend -> {
+				StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
 					.orElse(null);
 				if (stockDividend == null || stockDividend.hasPaymentDate()) {
-					return null;
+					return;
 				}
-				StockDividend changeStockDividend = kisDividend.toEntity(kisDividend.getStockBy(stockMap),
-					exDividendDateCalculator);
-				if (!changeStockDividend.hasPaymentDate()) {
-					return null;
+				StockDividendTemp changeStockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+				if (!changeStockDividendTemp.hasPaymentDate()) {
+					return;
 				}
-				stockDividend.change(changeStockDividend);
-				return stockDividend;
-			})
-			.filter(Objects::nonNull)
-			.toList();
-		log.info("changedStockDividends : {}", changedStockDividends);
-		stockDividendRepository.saveAll(changedStockDividends);
+				stockDividend.change(changeStockDividendTemp);
+				log.info("update StockDividendTemp with paymentDate : {}", stockDividend);
+			});
 	}
 
 	private void addNewStockDividend(List<KisDividend> kisDividends, Map<String, Stock> stockMap) {
-		// 추가된 배당 일정 탐색
-		List<StockDividend> addStockDividends = kisDividends.stream()
+		// 배당금 정보를 stock에 추가하기
+		kisDividends.stream()
 			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
 			.filter(kisDividend -> !kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
-			.map(kisDividend -> kisDividend.toEntity(kisDividend.getStockBy(stockMap), exDividendDateCalculator))
-			.toList();
-
-		// 탐색된 데이터들 배당 일정 추가
-		stockDividendRepository.saveAll(addStockDividends);
-		log.info("addStockDividends : {}", addStockDividends);
+			.forEach(kisDividend -> {
+				String tickerSymbol = kisDividend.getTickerSymbol();
+				StockDividendTemp stockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
+				stockMap.get(tickerSymbol).addStockDividendTemp(stockDividendTemp);
+				log.info("add new StockDividendTemp : {}", stockDividendTemp);
+			});
 	}
 
 	/**
@@ -139,16 +141,17 @@ public class StockDividendService {
 		int lastYear = 1;
 		LocalDate from = now.minusYears(lastYear).with(TemporalAdjusters.firstDayOfYear());
 		LocalDate to = now.with(TemporalAdjusters.lastDayOfYear());
-		List<StockDividend> deleteStockDividends = stockMap.values().stream()
-			.map(stock -> stock.getStockDividendNotInRange(from, to))
-			.flatMap(Collection::stream)
-			.toList();
-		stockDividendRepository.deleteAllInBatch(deleteStockDividends);
-		log.info("deleteStockDividends : {}", deleteStockDividends);
+		for (Stock stock : stockMap.values()) {
+			List<StockDividendTemp> deleteStockDividendTemps = stock.getStockDividendNotInRange(from, to);
+			deleteStockDividendTemps.forEach(stock::removeStockDividendTemp);
+			log.info("delete StockDividendTemps not in range from {} to {} : {}", from, to, deleteStockDividendTemps);
+		}
 	}
 
 	@Transactional(readOnly = true)
-	public List<StockDividend> findAllStockDividends() {
-		return stockDividendRepository.findAllStockDividends();
+	public List<StockDividendTemp> findAllStockDividends() {
+		return stockRepository.findAll().stream()
+			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.toList();
 	}
 }

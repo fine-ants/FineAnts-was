@@ -48,6 +48,7 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -274,12 +275,6 @@ public abstract class AbstractContainerBaseTest {
 		return PortfolioHolding.of(portfolio, stock);
 	}
 
-	protected StockDividend createStockDividend(Money dividend, LocalDate recordDate,
-		LocalDate paymentDate, Stock stock) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(dividend, recordDate, exDividendDate, paymentDate, stock);
-	}
-
 	protected PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
 		Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 		return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
@@ -317,37 +312,8 @@ public abstract class AbstractContainerBaseTest {
 			.toList();
 	}
 
-	protected List<StockDividend> createStockDividendWith(Stock stock) {
-		return List.of(
-			createStockDividend(
-				LocalDate.of(2022, 12, 31),
-				LocalDate.of(2023, 4, 14),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 3, 31),
-				LocalDate.of(2023, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 6, 30),
-				LocalDate.of(2023, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2023, 9, 30),
-				LocalDate.of(2023, 11, 20),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 3, 31),
-				LocalDate.of(2024, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 6, 30),
-				LocalDate.of(2024, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 9, 30),
-				LocalDate.of(2024, 11, 20),
-				stock)
-		);
+	protected List<StockDividendTemp> createStockDividendWith(String tickerSymbol) {
+		return TestDataFactory.createStockDividend(tickerSymbol);
 	}
 
 	protected StockDividend createStockDividend(LocalDate recordDate, LocalDate paymentDate, Stock stock) {
@@ -355,21 +321,8 @@ public abstract class AbstractContainerBaseTest {
 		return StockDividend.create(Money.won(361), recordDate, exDividendDate, paymentDate, stock);
 	}
 
-	protected List<StockDividend> createStockDividendThisYearWith(Stock stock) {
-		return List.of(
-			createStockDividend(
-				LocalDate.of(2024, 3, 31),
-				LocalDate.of(2024, 5, 17),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 6, 30),
-				LocalDate.of(2024, 8, 16),
-				stock),
-			createStockDividend(
-				LocalDate.of(2024, 9, 30),
-				LocalDate.of(2024, 11, 20),
-				stock)
-		);
+	protected List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
+		return TestDataFactory.createStockDividendThisYearWith(tickerSymbol);
 	}
 
 	protected Cookie[] createTokenCookies() {
