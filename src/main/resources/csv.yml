@@ -12,8 +12,8 @@ csv:
   stockDividend:
     delimiter: ","
     headers:
-      - id
+      - tickerSymbol
       - dividend
       - recordDate
       - paymentDate
-      - stockCode
+      - isDeleted

@@ -34,7 +34,6 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void canCreated() {
-		Assertions.assertThat(service).isNotNull();
 		Assertions.assertThat(service).isInstanceOf(GoogleCloudStorageWriteDividendService.class);
 	}
 
