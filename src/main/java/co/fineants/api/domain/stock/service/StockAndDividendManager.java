@@ -53,7 +53,7 @@ public class StockAndDividendManager {
 	@Transactional
 	public StockReloadResponse reloadStocks() {
 		// 신규 상장 종목 저장
-		Set<String> ipoTickerSymbols = saveIpoStocks();
+		List<Stock> ipoStocks = fetchIpoStocks();
 
 		// 상장 폐지 종목 조회
 		Map<Boolean, List<Stock>> partitionedStocksForDelisted = fetchPartitionedStocksForDelisted()
@@ -66,7 +66,12 @@ public class StockAndDividendManager {
 		// 올해 신규 배당 일정 저장
 		Set<DividendItem> addedDividends = reloadDividends(partitionedStocksForDelisted.get(false));
 
-		return StockReloadResponse.create(ipoTickerSymbols, deletedStocks, addedDividends);
+		// 신규 상장 종목 저장
+		List<Stock> saveIpoStocks = stockRepository.saveAll(ipoStocks);
+		Set<String> addedStocks = saveIpoStocks.stream()
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
+		return StockReloadResponse.create(addedStocks, deletedStocks, addedDividends);
 	}
 
 	@NotNull
@@ -81,11 +86,10 @@ public class StockAndDividendManager {
 
 	@NotNull
 	private Set<String> deleteStocks(List<Stock> stocks) {
-		return Stream.of(stocks)
-			.map(this::mapTickerSymbols)
-			.map(this::deleteStocks)
-			.flatMap(Collection::stream)
+		Set<String> deleteTickerSymbols = stocks.stream()
+			.map(Stock::getTickerSymbol)
 			.collect(Collectors.toUnmodifiableSet());
+		return this.deleteStocks(deleteTickerSymbols);
 	}
 
 	/**
@@ -96,8 +100,8 @@ public class StockAndDividendManager {
 	 * @return 신규 상장 종목 티커 심볼
 	 */
 	@NotNull
-	private Set<String> saveIpoStocks() {
-		List<Stock> stocks = kisService.fetchStockInfoInRangedIpo()
+	private List<Stock> fetchIpoStocks() {
+		return kisService.fetchStockInfoInRangedIpo()
 			.map(StockDataResponse.StockIntegrationInfo::toEntity)
 			.onErrorResume(throwable -> {
 				log.error("fetchStockInfoInRangedIpo error message is {}", throwable.getMessage());
@@ -106,11 +110,6 @@ public class StockAndDividendManager {
 			.collectList()
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
-
-		return stockRepository.saveAll(stocks).stream()
-			.peek(stock -> log.info("save ipoStock is {}", stock))
-			.map(Stock::getTickerSymbol)
-			.collect(Collectors.toUnmodifiableSet());
 	}
 
 	private Set<DividendItem> mapDividendItems(List<StockDividend> stockDividends) {

@@ -16,6 +16,7 @@ import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockQueryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -69,9 +70,16 @@ public class StockService {
 	public StockReloadResponse reloadStocks() {
 		StockReloadResponse response = stockAndDividendManager.reloadStocks();
 		log.info("refreshStocks response : {}", response);
-		writeStockService.writeStocks(stockRepository.findAll());
-		writeDividendService.writeDividend(stockDividendRepository.findAll());
+		List<Stock> stocks = stockRepository.findAll();
+		writeStockService.writeStocks(stocks);
+		writeDividendService.writeDividendTemp(getStockDividendArray(stocks));
 		return response;
+	}
+
+	private StockDividendTemp[] getStockDividendArray(List<Stock> stocks) {
+		return stocks.stream()
+			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.toArray(StockDividendTemp[]::new);
 	}
 
 	/**

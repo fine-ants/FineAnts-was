@@ -127,7 +127,7 @@ public class StockDividendTemp implements CsvLineConvertible {
 	@Override
 	public String toCsvLine() {
 		return String.join(",",
-			tickerSymbol,
+			getTickerSymbol(),
 			dividend.toRawAmount(),
 			dividendDates.basicIsoForRecordDate(),
 			dividendDates.basicIsoForPaymentDate(),
