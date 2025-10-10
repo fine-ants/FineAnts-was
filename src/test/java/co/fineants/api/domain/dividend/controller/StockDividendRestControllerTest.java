@@ -23,16 +23,19 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
@@ -163,27 +166,13 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(3);
 	}
 
+	@Transactional
 	@DisplayName("배당금 데이터를 초기화한다")
 	@Test
 	void initializeStockDividend() throws Exception {
 		// given
-		StockDividend stockDividend1 = StockDividend.create(
-			2L,
-			Money.won(361),
-			LocalDate.of(2024, 3, 31),
-			LocalDate.of(2023, 3, 30),
-			LocalDate.of(2023, 5, 20),
-			createSamsungStock()
-		);
-		StockDividend stockDividend2 = StockDividend.create(
-			3L,
-			Money.won(361),
-			LocalDate.of(2024, 6, 30),
-			LocalDate.of(2023, 6, 28),
-			LocalDate.of(2023, 8, 20),
-			createSamsungStock()
-		);
-		writeDividendService.writeDividend(stockDividend1, stockDividend2);
+		StockDividendTemp[] dividends = TestDataFactory.createSamsungStockDividends().toArray(StockDividendTemp[]::new);
+		writeDividendService.writeDividendTemp(dividends);
 		// when & then
 		mockMvc.perform(post("/api/dividends/init")
 				.cookie(createTokenCookies()))
@@ -192,6 +181,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("배당 일정이 초기화되었습니다")))
 			.andExpect(jsonPath("data").value(nullValue()));
-		Assertions.assertThat(stockDividendRepository.findAll()).hasSize(2);
+		stockRepository.findByTickerSymbol("005930")
+			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividendTemps()).hasSize(9));
 	}
 }
