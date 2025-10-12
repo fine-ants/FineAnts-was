@@ -57,7 +57,13 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(
 		name = "stock_dividend",
-		joinColumns = @JoinColumn(name = "ticker_symbol", nullable = false)
+		joinColumns = @JoinColumn(name = "ticker_symbol", nullable = false),
+		uniqueConstraints = {
+			@jakarta.persistence.UniqueConstraint(
+				name = "uk_stock_dividend_ticker_symbol_record_date",
+				columnNames = {"ticker_symbol", "record_date"}
+			)
+		}
 	)
 	@OrderColumn(name = "line_idx", nullable = false)
 	private final List<StockDividend> stockDividends = new ArrayList<>();

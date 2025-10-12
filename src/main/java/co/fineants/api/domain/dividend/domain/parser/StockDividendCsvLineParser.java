@@ -1,5 +1,7 @@
 package co.fineants.api.domain.dividend.domain.parser;
 
+import static co.fineants.api.domain.stock.domain.entity.StockDividend.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -19,7 +21,7 @@ public class StockDividendCsvLineParser {
 	private final ExDividendDateCalculator calculator;
 
 	public StockDividend parseCsvLine(String[] data) {
-		String tickerSymbol = data[0];
+		String tickerSymbol = data[0].replace(TICKER_PREFIX, Strings.EMPTY);
 		Money dividend = Money.won(Long.parseLong(data[1]));
 		LocalDate recordDate = basicIso(data[2]);
 		LocalDate exDividendDate = calculator.calculate(recordDate);

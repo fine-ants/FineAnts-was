@@ -38,6 +38,8 @@ public class StockDividend implements CsvLineConvertible {
 	@Column(name = "ticker_symbol", nullable = false, insertable = false, updatable = false)
 	private String tickerSymbol;
 
+	public static final String TICKER_PREFIX = "TS";
+
 	protected StockDividend() {
 	}
 
@@ -128,8 +130,9 @@ public class StockDividend implements CsvLineConvertible {
 
 	@Override
 	public String toCsvLine() {
+		String ticker = String.format("%s%s", TICKER_PREFIX, tickerSymbol);
 		return String.join(",",
-			getTickerSymbol(),
+			ticker,
 			dividend.toRawAmount(),
 			dividendDates.basicIsoForRecordDate(),
 			dividendDates.basicIsoForPaymentDate(),

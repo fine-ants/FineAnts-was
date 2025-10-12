@@ -191,6 +191,15 @@ class StockDividendTest {
 		boolean actual = stockDividend.hasPaymentDate();
 
 		Assertions.assertThat(actual).isTrue();
+	}
 
+	@DisplayName("티커 정보를 포맷팅한다")
+	@Test
+	void toCsvLine() {
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+
+		String line = stockDividend.toCsvLine();
+
+		Assertions.assertThat(line).isEqualTo("TS005930,361,20230331,20230517,false");
 	}
 }

@@ -56,8 +56,8 @@ public class GoogleCloudStorageFetchDividendService implements FetchDividendServ
 	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
-		List<StockDividend> stockDividends = stockDividendCsvParser.parse(
-			fileFetcher.read(dividendPath).orElseThrow());
+		InputStream inputStream = fileFetcher.read(dividendPath).orElseGet(InputStream::nullInputStream);
+		List<StockDividend> stockDividends = stockDividendCsvParser.parse(inputStream);
 		return stockDividends.stream()
 			.filter(dividend -> stockMap.containsKey(dividend.getTickerSymbol()))
 			.toList();

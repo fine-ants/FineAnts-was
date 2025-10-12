@@ -1,6 +1,7 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +58,8 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
-		List<StockDividend> stockDividends = stockDividendCsvParser.parse(
-			fileFetcher.read(dividendPath).orElseThrow());
+		InputStream inputStream = fileFetcher.read(dividendPath).orElseGet(InputStream::nullInputStream);
+		List<StockDividend> stockDividends = stockDividendCsvParser.parse(inputStream);
 		return stockDividends.stream()
 			.filter(stockDividend -> stockMap.containsKey(stockDividend.getTickerSymbol()))
 			.toList();
