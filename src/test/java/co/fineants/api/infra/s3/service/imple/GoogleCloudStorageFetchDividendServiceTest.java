@@ -13,8 +13,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.infra.s3.dto.StockDividendDto;
-import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;
@@ -26,9 +24,6 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 
 	@Autowired
 	private WriteDividendService writeDividendService;
-
-	@Autowired
-	private DeleteDividendService deleteDividendService;
 
 	@Autowired
 	private FetchDividendService service;
@@ -46,13 +41,6 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 	}
 
 	@Test
-	void fetchDividend() {
-		List<StockDividendDto> list = service.fetchDividend();
-
-		Assertions.assertThat(list).hasSize(2);
-	}
-
-	@Test
 	void fetchDividendEntityIn_whenStockIsEmpty() {
 		List<StockDividend> list = service.fetchDividendEntityIn(List.of());
 
@@ -67,14 +55,5 @@ class GoogleCloudStorageFetchDividendServiceTest extends AbstractContainerBaseTe
 		List<StockDividend> list = service.fetchDividendEntityIn(List.of(stock, kakaoStock));
 
 		Assertions.assertThat(list).hasSize(2);
-	}
-
-	@Test
-	void fetchDividend_whenDividendFileIsNotExist() {
-		deleteDividendService.delete();
-
-		List<StockDividendDto> list = service.fetchDividend();
-
-		Assertions.assertThat(list).isEmpty();
 	}
 }

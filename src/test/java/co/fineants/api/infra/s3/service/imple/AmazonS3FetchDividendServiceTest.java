@@ -11,7 +11,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
@@ -34,13 +33,6 @@ class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
-	}
-
-	@Test
-	void fetchDividend() {
-		List<StockDividendDto> list = service.fetchDividend();
-
-		Assertions.assertThat(list).hasSize(2);
 	}
 
 	@Test

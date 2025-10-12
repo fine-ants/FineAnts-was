@@ -2,7 +2,6 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,16 +32,6 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 		this.fileFetcher = fileFetcher;
 		this.dividendPath = dividendPath;
 		this.stockDividendCsvParser = stockDividendCsvParser;
-	}
-
-	@Override
-	public List<StockDividendDto> fetchDividend() {
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(fileFetcher.read(dividendPath).orElseThrow()))) {
-			return getStockDividendDtoList(reader);
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to read dividend file from S3", e);
-		}
 	}
 
 	@NotNull
