@@ -178,7 +178,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		portfolioHolding.addPurchaseHistory(
 			createPurchaseHistory(portfolioHolding, LocalDateTime.of(2023, 11, 1, 9, 30, 0)));

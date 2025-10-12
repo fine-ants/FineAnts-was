@@ -17,7 +17,7 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 
-class StockDividendTempTest {
+class StockDividendTest {
 	@NotNull
 	private PurchaseHistory createPurchaseHistory(LocalDate purchaseDate) {
 		Member member = TestDataFactory.createMember();
@@ -30,10 +30,10 @@ class StockDividendTempTest {
 	@DisplayName("보유 주식 수에 따른 배당금 합계를 계산한다")
 	@Test
 	void calculateDividendSum() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		Count numShares = Count.from(10);
 
-		Expression sum = stockDividendTemp.calculateDividendSum(numShares);
+		Expression sum = stockDividend.calculateDividendSum(numShares);
 
 		Assertions.assertThat(sum).isEqualTo(Money.won(3610));
 	}
@@ -41,10 +41,10 @@ class StockDividendTempTest {
 	@DisplayName("보유 주식 수가 0이면 배당금 합계는 0원이다")
 	@Test
 	void calculateDividendSum_whenNumSharesIsZero_thenReturnZero() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		Count numShares = Count.zero();
 
-		Expression sum = stockDividendTemp.calculateDividendSum(numShares);
+		Expression sum = stockDividend.calculateDividendSum(numShares);
 
 		Assertions.assertThat(sum).isEqualTo(Money.won(0));
 	}
@@ -52,10 +52,10 @@ class StockDividendTempTest {
 	@DisplayName("현재 날짜가 배당금 지급일이 속한 달과 같으면 true를 반환한다")
 	@Test
 	void isCurrentMonthPaymentDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate today = LocalDate.of(2023, 5, 1);
 
-		boolean actual = stockDividendTemp.isCurrentMonthPaymentDate(today);
+		boolean actual = stockDividend.isCurrentMonthPaymentDate(today);
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -63,10 +63,10 @@ class StockDividendTempTest {
 	@DisplayName("구매일자가 배당락일 이전이면 true를 반환한다")
 	@Test
 	void isPurchaseDateBeforeExDividendDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
 
-		boolean actual = stockDividendTemp.isPurchaseDateBeforeExDividendDate(history);
+		boolean actual = stockDividend.isPurchaseDateBeforeExDividendDate(history);
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -74,10 +74,10 @@ class StockDividendTempTest {
 	@DisplayName("현재 날짜가 배당금 지급일이 속한 연도와 같으면 true를 반환한다")
 	@Test
 	void isCurrentYearPaymentDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate today = LocalDate.of(2023, 5, 1);
 
-		boolean actual = stockDividendTemp.isCurrentYearPaymentDate(today);
+		boolean actual = stockDividend.isCurrentYearPaymentDate(today);
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -85,10 +85,10 @@ class StockDividendTempTest {
 	@DisplayName("구매 이력이 배당금 수령 조건을 만족하면 true를 반환한다")
 	@Test
 	void isSatisfiedBy() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
 
-		boolean satisfiedBy = stockDividendTemp.isSatisfiedBy(history);
+		boolean satisfiedBy = stockDividend.isSatisfiedBy(history);
 
 		Assertions.assertThat(satisfiedBy).isTrue();
 	}
@@ -96,10 +96,10 @@ class StockDividendTempTest {
 	@DisplayName("현재 날짜가 배당금 기준일이 속한 연도와 같으면 true를 반환한다")
 	@Test
 	void isCurrentYearRecordDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate today = LocalDate.of(2023, 2, 1);
 
-		boolean currentYearRecordDate = stockDividendTemp.isCurrentYearRecordDate(today);
+		boolean currentYearRecordDate = stockDividend.isCurrentYearRecordDate(today);
 
 		Assertions.assertThat(currentYearRecordDate).isTrue();
 	}
@@ -107,10 +107,10 @@ class StockDividendTempTest {
 	@DisplayName("구매 이력이 배당금 수령 조건을 만족하면 true를 반환한다")
 	@Test
 	void canReceiveDividendOn() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		PurchaseHistory history = createPurchaseHistory(LocalDate.of(2023, 3, 29));
 
-		boolean canReceiveDividendOn = stockDividendTemp.canReceiveDividendOn(history);
+		boolean canReceiveDividendOn = stockDividend.canReceiveDividendOn(history);
 
 		Assertions.assertThat(canReceiveDividendOn).isTrue();
 	}
@@ -118,9 +118,9 @@ class StockDividendTempTest {
 	@DisplayName("배당금 지급일이 속한 월을 반환한다")
 	@Test
 	void getMonthByPaymentDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 
-		Month monthByPaymentDate = stockDividendTemp.getMonthByPaymentDate();
+		Month monthByPaymentDate = stockDividend.getMonthByPaymentDate();
 
 		Assertions.assertThat(monthByPaymentDate).isEqualTo(java.time.Month.MAY);
 	}
@@ -128,10 +128,10 @@ class StockDividendTempTest {
 	@DisplayName("지난해 배당금 지급일이 속한 연도와 같으면 true를 반환한다")
 	@Test
 	void isLastYearPaymentDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate lastYearLocalDate = LocalDate.of(2023, 5, 1);
 
-		boolean lastYearPaymentDate = stockDividendTemp.isLastYearPaymentDate(lastYearLocalDate);
+		boolean lastYearPaymentDate = stockDividend.isLastYearPaymentDate(lastYearLocalDate);
 
 		Assertions.assertThat(lastYearPaymentDate).isTrue();
 	}
@@ -139,12 +139,12 @@ class StockDividendTempTest {
 	@DisplayName("배당금 기준일이 중복되는지 확인한다")
 	@Test
 	void isDuplicatedRecordDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividendTemp2 = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividendTemp3 = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend3 = TestDataFactory.createSamsungStockDividend();
 
-		boolean actual = stockDividendTemp.isDuplicatedRecordDate(
-			java.util.List.of(stockDividendTemp2, stockDividendTemp3));
+		boolean actual = stockDividend.isDuplicatedRecordDate(
+			java.util.List.of(stockDividend2, stockDividend3));
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -152,10 +152,10 @@ class StockDividendTempTest {
 	@DisplayName("배당금 지급일이 속한 연도가 현재 연도와 같으면 true를 반환한다")
 	@Test
 	void isPaymentInCurrentYear() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate localDate = LocalDate.of(2023, 5, 1);
 
-		boolean paymentInCurrentYear = stockDividendTemp.isPaymentInCurrentYear(localDate);
+		boolean paymentInCurrentYear = stockDividend.isPaymentInCurrentYear(localDate);
 
 		Assertions.assertThat(paymentInCurrentYear).isTrue();
 	}
@@ -163,10 +163,10 @@ class StockDividendTempTest {
 	@DisplayName("배당금 기준일이 주어진 날짜와 같으면 true를 반환한다")
 	@Test
 	void equalRecordDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);
 
-		boolean actual = stockDividendTemp.equalRecordDate(recordDate);
+		boolean actual = stockDividend.equalRecordDate(recordDate);
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -174,11 +174,11 @@ class StockDividendTempTest {
 	@DisplayName("배당금 기준일이 주어진 날짜 범위에 속하면 true를 반환한다")
 	@Test
 	void hasInRangeForRecordDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		LocalDate from = LocalDate.of(2023, 1, 1);
 		LocalDate to = LocalDate.of(2023, 12, 31);
 
-		boolean actual = stockDividendTemp.hasInRangeForRecordDate(from, to);
+		boolean actual = stockDividend.hasInRangeForRecordDate(from, to);
 
 		Assertions.assertThat(actual).isTrue();
 	}
@@ -186,11 +186,20 @@ class StockDividendTempTest {
 	@DisplayName("배당금 지급일이 존재하면 true를 반환한다")
 	@Test
 	void hasPaymentDate() {
-		StockDividendTemp stockDividendTemp = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 
-		boolean actual = stockDividendTemp.hasPaymentDate();
+		boolean actual = stockDividend.hasPaymentDate();
 
 		Assertions.assertThat(actual).isTrue();
+	}
 
+	@DisplayName("티커 정보를 포맷팅한다")
+	@Test
+	void toCsvLine() {
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+
+		String line = stockDividend.toCsvLine();
+
+		Assertions.assertThat(line).isEqualTo("TS005930,361,20230331,20230517,false");
 	}
 }

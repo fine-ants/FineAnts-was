@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -52,8 +51,6 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 	@Autowired
 	private StockRepository stockRepository;
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 	@Autowired
@@ -98,7 +95,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock samsung = createSamsungStock();
-		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividend);
 		Stock stock = stockRepository.save(samsung);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 

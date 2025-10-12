@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 
 @Configuration
 public class CsvFileConfig {

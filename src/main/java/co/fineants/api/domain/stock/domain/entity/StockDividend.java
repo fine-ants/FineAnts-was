@@ -20,7 +20,7 @@ import lombok.Getter;
 
 @Embeddable
 @EqualsAndHashCode(of = {"dividendDates", "tickerSymbol"})
-public class StockDividendTemp implements CsvLineConvertible {
+public class StockDividend implements CsvLineConvertible {
 
 	@Getter
 	@Convert(converter = MoneyConverter.class)
@@ -32,15 +32,18 @@ public class StockDividendTemp implements CsvLineConvertible {
 	private DividendDates dividendDates;
 
 	@Column(name = "is_deleted", nullable = false)
-	private boolean isDeleted;
+	private Boolean isDeleted;
 
+	@Getter
 	@Column(name = "ticker_symbol", nullable = false, insertable = false, updatable = false)
 	private String tickerSymbol;
 
-	protected StockDividendTemp() {
+	public static final String TICKER_PREFIX = "TS";
+
+	protected StockDividend() {
 	}
 
-	public StockDividendTemp(Money dividend, DividendDates dividendDates, boolean isDeleted, String tickerSymbol) {
+	public StockDividend(Money dividend, DividendDates dividendDates, boolean isDeleted, String tickerSymbol) {
 		this.dividend = dividend;
 		this.dividendDates = dividendDates;
 		this.isDeleted = isDeleted;
@@ -83,7 +86,7 @@ public class StockDividendTemp implements CsvLineConvertible {
 		return dividendDates.isLastYearPaymentDate(lastYearLocalDate);
 	}
 
-	public boolean isDuplicatedRecordDate(List<StockDividendTemp> currentYearStockDividends) {
+	public boolean isDuplicatedRecordDate(List<StockDividend> currentYearStockDividends) {
 		return currentYearStockDividends.stream()
 			.anyMatch(stockDividend -> stockDividend.getQuarter().equals(getQuarter()));
 	}
@@ -108,7 +111,7 @@ public class StockDividendTemp implements CsvLineConvertible {
 		return dividendDates.hasPaymentDate();
 	}
 
-	public void change(StockDividendTemp changeStockDividend) {
+	public void change(StockDividend changeStockDividend) {
 		this.dividend = changeStockDividend.dividend;
 		this.dividendDates = changeStockDividend.dividendDates;
 		this.isDeleted = changeStockDividend.isDeleted;
@@ -127,17 +130,14 @@ public class StockDividendTemp implements CsvLineConvertible {
 
 	@Override
 	public String toCsvLine() {
+		String ticker = String.format("%s%s", TICKER_PREFIX, tickerSymbol);
 		return String.join(",",
-			getTickerSymbol(),
+			ticker,
 			dividend.toRawAmount(),
 			dividendDates.basicIsoForRecordDate(),
 			dividendDates.basicIsoForPaymentDate(),
 			Boolean.toString(isDeleted)
 		);
-	}
-
-	public String getTickerSymbol() {
-		return tickerSymbol;
 	}
 
 	@Override

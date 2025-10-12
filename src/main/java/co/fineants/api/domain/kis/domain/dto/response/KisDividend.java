@@ -16,9 +16,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -43,20 +42,10 @@ public class KisDividend implements Comparable<KisDividend> {
 		return new KisDividend(tickerSymbol, dividend, recordDate, paymentDate);
 	}
 
-	public StockDividend toEntity(Stock stock, ExDividendDateCalculator exDividendDateCalculator) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(dividend, recordDate, exDividendDate, paymentDate, stock);
-	}
-
-	public StockDividend toEntity(Long id, Stock stock, ExDividendDateCalculator exDividendDateCalculator) {
-		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
-		return StockDividend.create(id, dividend, recordDate, exDividendDate, paymentDate, stock);
-	}
-
-	public StockDividendTemp toEntity(ExDividendDateCalculator exDividendDateCalculator) {
+	public StockDividend toEntity(ExDividendDateCalculator exDividendDateCalculator) {
 		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		return new StockDividendTemp(
+		return new StockDividend(
 			dividend,
 			dividendDates,
 			false,
@@ -75,7 +64,7 @@ public class KisDividend implements Comparable<KisDividend> {
 		return stockMap.get(tickerSymbol).matchByTickerSymbolAndRecordDate(tickerSymbol, recordDate);
 	}
 
-	public Optional<StockDividendTemp> getStockDividendByTickerSymbolAndRecordDateFrom(Map<String, Stock> stockMap) {
+	public Optional<StockDividend> getStockDividendByTickerSymbolAndRecordDateFrom(Map<String, Stock> stockMap) {
 		if (!stockMap.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}

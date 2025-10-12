@@ -11,11 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -28,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StockDividendService {
 
 	private final StockRepository stockRepository;
-	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final ExDividendDateCalculator exDividendDateCalculator;
@@ -45,19 +43,19 @@ public class StockDividendService {
 		List<Stock> stocks = stockRepository.findAll();
 		// 기존 종목 배당금 데이터 삭제
 		for (Stock stock : stocks) {
-			stock.clearStockDividendTemps();
+			stock.clearStockDividend();
 		}
 
 		// S3에 저장된 종목 배당금으로 초기화
-		List<StockDividendTemp> stockDividendTemps = fetchDividendService.fetchDividendEntityIn(stocks);
-		Map<String, List<StockDividendTemp>> stockDividendMap = stockDividendTemps.stream()
-			.collect(Collectors.groupingBy(StockDividendTemp::getTickerSymbol));
+		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stocks);
+		Map<String, List<StockDividend>> stockDividendMap = stockDividends.stream()
+			.collect(Collectors.groupingBy(StockDividend::getTickerSymbol));
 
 		// 종목에 배당금 데이터 추가
 		for (Stock stock : stocks) {
-			List<StockDividendTemp> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+			List<StockDividend> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
 				Collections.emptyList());
-			findStockDividends.forEach(stock::addStockDividendTemp);
+			findStockDividends.forEach(stock::addStockDividend);
 		}
 	}
 
@@ -105,17 +103,17 @@ public class StockDividendService {
 			.filter(kisDividend -> kisDividend.containsFrom(stockMap))
 			.filter(kisDividend -> kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
 			.forEach(kisDividend -> {
-				StockDividendTemp stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
+				StockDividend stockDividend = kisDividend.getStockDividendByTickerSymbolAndRecordDateFrom(stockMap)
 					.orElse(null);
 				if (stockDividend == null || stockDividend.hasPaymentDate()) {
 					return;
 				}
-				StockDividendTemp changeStockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
-				if (!changeStockDividendTemp.hasPaymentDate()) {
+				StockDividend changeStockDividend = kisDividend.toEntity(exDividendDateCalculator);
+				if (!changeStockDividend.hasPaymentDate()) {
 					return;
 				}
-				stockDividend.change(changeStockDividendTemp);
-				log.info("update StockDividendTemp with paymentDate : {}", stockDividend);
+				stockDividend.change(changeStockDividend);
+				log.info("update StockDividend with paymentDate : {}", stockDividend);
 			});
 	}
 
@@ -126,9 +124,9 @@ public class StockDividendService {
 			.filter(kisDividend -> !kisDividend.matchTickerSymbolAndRecordDateFrom(stockMap))
 			.forEach(kisDividend -> {
 				String tickerSymbol = kisDividend.getTickerSymbol();
-				StockDividendTemp stockDividendTemp = kisDividend.toEntity(exDividendDateCalculator);
-				stockMap.get(tickerSymbol).addStockDividendTemp(stockDividendTemp);
-				log.info("add new StockDividendTemp : {}", stockDividendTemp);
+				StockDividend stockDividend = kisDividend.toEntity(exDividendDateCalculator);
+				stockMap.get(tickerSymbol).addStockDividend(stockDividend);
+				log.info("add new StockDividend : {}", stockDividend);
 			});
 	}
 
@@ -142,16 +140,16 @@ public class StockDividendService {
 		LocalDate from = now.minusYears(lastYear).with(TemporalAdjusters.firstDayOfYear());
 		LocalDate to = now.with(TemporalAdjusters.lastDayOfYear());
 		for (Stock stock : stockMap.values()) {
-			List<StockDividendTemp> deleteStockDividendTemps = stock.getStockDividendNotInRange(from, to);
-			deleteStockDividendTemps.forEach(stock::removeStockDividendTemp);
-			log.info("delete StockDividendTemps not in range from {} to {} : {}", from, to, deleteStockDividendTemps);
+			List<StockDividend> deleteStockDividends = stock.getStockDividendNotInRange(from, to);
+			deleteStockDividends.forEach(stock::removeStockDividend);
+			log.info("delete StockDividendTemps not in range from {} to {} : {}", from, to, deleteStockDividends);
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public List<StockDividendTemp> findAllStockDividends() {
+	public List<StockDividend> findAllStockDividends() {
 		return stockRepository.findAll().stream()
-			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.flatMap(stock -> stock.getStockDividends().stream())
 			.toList();
 	}
 }

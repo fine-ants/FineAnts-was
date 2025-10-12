@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +28,13 @@ public class StockDividendSetupDataLoader {
 	@Transactional
 	public void setupStockDividends() {
 		List<Stock> stocks = stockRepository.findAll();
-		List<StockDividendTemp> stockDividends = fetchDividendService.fetchDividendEntityIn(stocks);
-		Map<String, List<StockDividendTemp>> stockDividendMap = stockDividends.stream()
-			.collect(Collectors.groupingBy(StockDividendTemp::getTickerSymbol));
+		List<StockDividend> stockDividends = fetchDividendService.fetchDividendEntityIn(stocks);
+		Map<String, List<StockDividend>> stockDividendMap = stockDividends.stream()
+			.collect(Collectors.groupingBy(StockDividend::getTickerSymbol));
 		for (Stock stock : stocks) {
-			List<StockDividendTemp> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
+			List<StockDividend> findStockDividends = stockDividendMap.getOrDefault(stock.getTickerSymbol(),
 				List.of());
-			findStockDividends.forEach(stock::addStockDividendTemp);
+			findStockDividends.forEach(stock::addStockDividend);
 		}
 	}
 }

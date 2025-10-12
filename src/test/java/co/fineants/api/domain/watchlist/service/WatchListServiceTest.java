@@ -18,7 +18,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -67,9 +66,6 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private StockDividendRepository stockDividendRepository;
-
-	@Autowired
 	private LocalDateTimeService spyedLocalDateTimeService;
 
 	@DisplayName("회원이 watchlist 목록을 조회한다.")
@@ -109,7 +105,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			.willReturn(LocalDate.of(2024, 6, 20));
 		Member member = memberRepository.save(createMember());
 		Stock samsung = createSamsungStock();
-		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		Stock stock = stockRepository.save(samsung);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
@@ -150,8 +146,9 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(createMember());
 		Member hacker = memberRepository.save(createMember("hacker"));
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.save(createStockDividend(LocalDate.now(), LocalDate.now(), stock));
+		Stock stock = createSamsungStock();
+		stock.addStockDividend(TestDataFactory.createSamsungStockDividend());
+		stock = stockRepository.save(stock);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
 		watchStockRepository.save(createWatchStock(watchList, stock));

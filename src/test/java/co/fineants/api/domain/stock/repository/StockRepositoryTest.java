@@ -14,7 +14,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 
 @Transactional
 class StockRepositoryTest extends AbstractContainerBaseTest {
@@ -44,20 +44,20 @@ class StockRepositoryTest extends AbstractContainerBaseTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		StockDividendTemp stockDividendTemp = new StockDividendTemp(
+		StockDividend stockDividend = new StockDividend(
 			dividend,
 			dividendDates,
 			false,
 			stock.getTickerSymbol()
 		);
-		stock.addStockDividendTemp(stockDividendTemp);
+		stock.addStockDividend(stockDividend);
 		// when
 		stockRepository.save(stock);
 		// then
 		Stock findStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
-		Assertions.assertThat(findStock.getStockDividendTemps())
+		Assertions.assertThat(findStock.getStockDividends())
 			.hasSize(1)
-			.containsExactlyInAnyOrder(stockDividendTemp);
+			.containsExactlyInAnyOrder(stockDividend);
 	}
 
 	@DisplayName("종목의 배당금을 삭제한다")
@@ -70,22 +70,22 @@ class StockRepositoryTest extends AbstractContainerBaseTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		StockDividendTemp stockDividendTemp = new StockDividendTemp(
+		StockDividend stockDividend = new StockDividend(
 			dividend,
 			dividendDates,
 			false,
 			stock.getTickerSymbol()
 		);
-		stock.addStockDividendTemp(stockDividendTemp);
+		stock.addStockDividend(stockDividend);
 		stockRepository.save(stock);
 
 		// when
 		Stock findStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
-		findStock.removeStockDividendTemp(stockDividendTemp);
+		findStock.removeStockDividend(stockDividend);
 		stockRepository.save(findStock);
 
 		// then
 		Stock updatedStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
-		Assertions.assertThat(updatedStock.getStockDividendTemps()).isEmpty();
+		Assertions.assertThat(updatedStock.getStockDividends()).isEmpty();
 	}
 }

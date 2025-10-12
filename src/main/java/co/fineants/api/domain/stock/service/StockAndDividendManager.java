@@ -12,14 +12,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import jakarta.validation.constraints.NotNull;
@@ -33,7 +32,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class StockAndDividendManager {
 	private final StockRepository stockRepository;
-	private final StockDividendRepository dividendRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final ExDividendDateCalculator exDividendDateCalculator;
@@ -65,19 +63,19 @@ public class StockAndDividendManager {
 		Set<String> deletedStocks = deleteStocks(partitionedStocksForDelisted.get(true));
 
 		// 올해 신규 배당 일정 저장
-		List<StockDividendTemp> addedDividends = fetchDividend(partitionedStocksForDelisted.get(false));
+		List<StockDividend> addedDividends = fetchDividend(partitionedStocksForDelisted.get(false));
 
 		// 신규 배당일정을 종목에 추가
 		List<Stock> allStocks = stockRepository.findAll();
 		Map<String, Stock> stockMap = allStocks.stream()
 			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
-		for (StockDividendTemp dividend : addedDividends) {
+		for (StockDividend dividend : addedDividends) {
 			String dividendTickerSymbol = dividend.getTickerSymbol();
 			if (!stockMap.containsKey(dividendTickerSymbol)) {
 				continue;
 			}
 			Stock findStock = stockMap.get(dividendTickerSymbol);
-			findStock.addStockDividendTemp(dividend);
+			findStock.addStockDividend(dividend);
 		}
 
 		// 배당 일정 매핑
@@ -86,7 +84,7 @@ public class StockAndDividendManager {
 	}
 
 	@NotNull
-	private List<StockDividendTemp> fetchDividend(List<Stock> stocks) {
+	private List<StockDividend> fetchDividend(List<Stock> stocks) {
 		return Stream.of(stocks)
 			.map(this::mapTickerSymbols)
 			.map(this::fetchDividend)
@@ -122,7 +120,7 @@ public class StockAndDividendManager {
 			.orElseGet(Collections::emptyList);
 	}
 
-	private Set<DividendItem> mapDividendItems(List<StockDividendTemp> stockDividends) {
+	private Set<DividendItem> mapDividendItems(List<StockDividend> stockDividends) {
 		return stockDividends.stream()
 			.map(DividendItem::from)
 			.collect(Collectors.toUnmodifiableSet());
@@ -141,10 +139,6 @@ public class StockAndDividendManager {
 	 * @param tickerSymbols 삭제할 종목의 티커 심볼
 	 */
 	private Set<String> deleteStocks(Set<String> tickerSymbols) {
-		// 종목의 배당금 삭제
-		int deletedDividendCount = dividendRepository.deleteByTickerSymbols(tickerSymbols);
-		log.info("delete dividends for TickerSymbols : {}, deleteCount={}", tickerSymbols, deletedDividendCount);
-
 		// 종목 삭제
 		int deletedStockCount = stockRepository.deleteAllByTickerSymbols(tickerSymbols);
 		log.info("delete stocks for TickerSymbols : {}, deleteCount={}", tickerSymbols, deletedStockCount);
@@ -192,7 +186,7 @@ public class StockAndDividendManager {
 	 * @param tickerSymbols 배당 일정을 조회할 종목의 티커 심볼
 	 * @return 배당 일정
 	 */
-	private List<StockDividendTemp> fetchDividend(Set<String> tickerSymbols) {
+	private List<StockDividend> fetchDividend(Set<String> tickerSymbols) {
 		// 올해 배당 일정 조회
 		int concurrency = 20;
 		// 배당 일정 반환

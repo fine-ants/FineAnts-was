@@ -33,7 +33,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
@@ -87,8 +87,8 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.build();
 
 		Stock samsung = createSamsungStock();
-		StockDividendTemp samsungStockDividend = TestDataFactory.createSamsungStockDividendTemp();
-		samsung.addStockDividendTemp(samsungStockDividend);
+		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend();
+		samsung.addStockDividend(samsungStockDividend);
 		stockRepository.save(samsung);
 	}
 
@@ -154,7 +154,7 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("배당 일정 최신화 완료")))
 			.andExpect(jsonPath("data").value(nullValue()));
 		stockRepository.findByTickerSymbol("005930")
-			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividendTemps()).hasSize(3));
+			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividends()).hasSize(3));
 	}
 
 	@Transactional
@@ -162,8 +162,8 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void initializeStockDividend() throws Exception {
 		// given
-		StockDividendTemp[] dividends = TestDataFactory.createSamsungStockDividends().toArray(StockDividendTemp[]::new);
-		writeDividendService.writeDividendTemp(dividends);
+		StockDividend[] dividends = TestDataFactory.createSamsungStockDividends().toArray(StockDividend[]::new);
+		writeDividendService.writeDividend(dividends);
 		// when & then
 		mockMvc.perform(post("/api/dividends/init")
 				.cookie(createTokenCookies()))
@@ -173,6 +173,6 @@ class StockDividendRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("배당 일정이 초기화되었습니다")))
 			.andExpect(jsonPath("data").value(nullValue()));
 		stockRepository.findByTickerSymbol("005930")
-			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividendTemps()).hasSize(9));
+			.ifPresent(stock -> Assertions.assertThat(stock.getStockDividends()).hasSize(9));
 	}
 }

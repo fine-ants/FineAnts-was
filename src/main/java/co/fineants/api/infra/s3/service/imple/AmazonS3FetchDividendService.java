@@ -1,7 +1,7 @@
 package co.fineants.api.infra.s3.service.imple;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -34,16 +34,6 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 		this.stockDividendCsvParser = stockDividendCsvParser;
 	}
 
-	@Override
-	public List<StockDividendDto> fetchDividend() {
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(fileFetcher.read(dividendPath).orElseThrow()))) {
-			return getStockDividendDtoList(reader);
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to read dividend file from S3", e);
-		}
-	}
-
 	@NotNull
 	private List<StockDividendDto> getStockDividendDtoList(BufferedReader reader) {
 		return reader.lines()
@@ -54,11 +44,11 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	}
 
 	@Override
-	public List<StockDividendTemp> fetchDividendEntityIn(List<Stock> stocks) {
+	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
-		List<StockDividendTemp> stockDividends = stockDividendCsvParser.parse(
-			fileFetcher.read(dividendPath).orElseThrow());
+		InputStream inputStream = fileFetcher.read(dividendPath).orElseGet(InputStream::nullInputStream);
+		List<StockDividend> stockDividends = stockDividendCsvParser.parse(inputStream);
 		return stockDividends.stream()
 			.filter(stockDividend -> stockMap.containsKey(stockDividend.getTickerSymbol()))
 			.toList();
