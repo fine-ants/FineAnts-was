@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -35,10 +35,10 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 
 	@BeforeEach
 	void setUp() {
-		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		writeDividendService.writeDividendTemp(stockDividend, stockDividend2);
+		writeDividendService.writeDividend(stockDividend, stockDividend2);
 	}
 
 	@AfterEach

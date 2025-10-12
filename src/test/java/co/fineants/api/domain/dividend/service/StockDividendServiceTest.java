@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -20,14 +19,13 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithMockUser(roles = {"ADMIN"})
 class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -54,15 +52,15 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	void initializeStockDividend() {
 		// given
 		Stock samsung = createSamsungStock();
-		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		Stock stock = stockRepository.save(samsung);
-		StockDividendTemp[] stockDividends = stock.getStockDividendTemps().toArray(StockDividendTemp[]::new);
-		writeDividendService.writeDividendTemp(stockDividends);
+		StockDividend[] stockDividends = stock.getStockDividends().toArray(StockDividend[]::new);
+		writeDividendService.writeDividend(stockDividends);
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
 		Stock findStock = stockRepository.findByTickerSymbol(stock.getTickerSymbol()).orElseThrow();
-		Assertions.assertThat(findStock.getStockDividendTemps()).hasSize(9);
+		Assertions.assertThat(findStock.getStockDividends()).hasSize(9);
 	}
 
 	@Transactional
@@ -71,9 +69,9 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	void refreshStockDividend() {
 		// given
 		Stock samsung = createSamsungStock();
-		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		Stock kakao = createKakaoStock();
-		TestDataFactory.createKakaoStockDividends().forEach(kakao::addStockDividendTemp);
+		TestDataFactory.createKakaoStockDividends().forEach(kakao::addStockDividend);
 		stockRepository.saveAll(List.of(samsung, kakao));
 
 		// 새로운 배정 기준일이 생김
@@ -138,9 +136,9 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Stock findSamsungStock = stockRepository.findByTickerSymbol(samsungTickerSymbol).orElseThrow();
-		assertThat(findSamsungStock.getStockDividendTemps())
+		assertThat(findSamsungStock.getStockDividends())
 			.hasSize(6)
-			.map(temp -> temp.parse(findSamsungStock.getTickerSymbol()))
+			.map(stockDividend -> stockDividend.parse(findSamsungStock.getTickerSymbol()))
 			.containsExactlyInAnyOrder(
 				"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
 				"005930:₩361:2023-06-30:2023-06-29:2023-08-16",
@@ -151,9 +149,9 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 			);
 
 		Stock findKakaoStock = stockRepository.findByTickerSymbol(kakaoTickerSymbol).orElseThrow();
-		assertThat(findKakaoStock.getStockDividendTemps())
+		assertThat(findKakaoStock.getStockDividends())
 			.hasSize(1)
-			.map(temp -> temp.parse(findKakaoStock.getTickerSymbol()))
+			.map(stockDividend -> stockDividend.parse(findKakaoStock.getTickerSymbol()))
 			.containsExactlyInAnyOrder(
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);

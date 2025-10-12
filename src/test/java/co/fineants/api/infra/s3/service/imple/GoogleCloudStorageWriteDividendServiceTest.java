@@ -11,7 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;
@@ -37,7 +37,7 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend() {
-		service.writeDividendTemp();
+		service.writeDividend();
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(service).isInstanceOf(GoogleCloudStorageWriteDividendService.class);
@@ -47,9 +47,9 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend_whenDataIsOne() {
-		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 
-		service.writeDividendTemp(stockDividend);
+		service.writeDividend(stockDividend);
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();
@@ -58,10 +58,10 @@ class GoogleCloudStorageWriteDividendServiceTest extends AbstractContainerBaseTe
 
 	@Test
 	void writeDividend_whenDataIsTwo() {
-		StockDividendTemp stockDividend1 = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
+		StockDividend stockDividend1 = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		service.writeDividendTemp(stockDividend1, stockDividend2);
+		service.writeDividend(stockDividend1, stockDividend2);
 
 		InputStream inputStream = fetcher.read(dividendPath).orElseThrow();
 		Assertions.assertThat(inputStream).isNotNull();

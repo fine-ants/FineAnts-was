@@ -1,18 +1,18 @@
 package co.fineants.api.infra.s3.service.imple;
 
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 
 public class GoogleCloudStorageWriteDividendService implements WriteDividendService {
 
-	private final CsvFormatter<StockDividendTemp> formatter;
+	private final CsvFormatter<StockDividend> formatter;
 	private final RemoteFileUploader uploader;
 	private final String dividendPath;
 
 	public GoogleCloudStorageWriteDividendService(
-		CsvFormatter<StockDividendTemp> formatter,
+		CsvFormatter<StockDividend> formatter,
 		RemoteFileUploader uploader,
 		String dividendPath) {
 		this.formatter = formatter;
@@ -21,7 +21,7 @@ public class GoogleCloudStorageWriteDividendService implements WriteDividendServ
 	}
 
 	@Override
-	public void writeDividendTemp(StockDividendTemp... dividends) {
+	public void writeDividend(StockDividend... dividends) {
 		String content = formatter.format(dividends);
 		uploader.upload(content, dividendPath);
 	}

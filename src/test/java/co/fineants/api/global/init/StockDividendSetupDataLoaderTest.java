@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
@@ -61,8 +61,8 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 		writeStockService.writeStocks(stocks);
 
 		inputStream = new ClassPathResource("dividends.csv").getInputStream();
-		List<StockDividendTemp> dividends = stockDividendCsvParser.parse(inputStream);
-		writeDividendService.writeDividendTemp(dividends.toArray(new StockDividendTemp[0]));
+		List<StockDividend> dividends = stockDividendCsvParser.parse(inputStream);
+		writeDividendService.writeDividend(dividends.toArray(new StockDividend[0]));
 
 		stockLoader.setupStocks();
 	}
@@ -78,8 +78,8 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 	void setupStockDividends() {
 		loader.setupStockDividends();
 
-		Set<StockDividendTemp> stockDividends = stockRepository.findAll().stream()
-			.flatMap(stock -> stock.getStockDividendTemps().stream())
+		Set<StockDividend> stockDividends = stockRepository.findAll().stream()
+			.flatMap(stock -> stock.getStockDividends().stream())
 			.collect(Collectors.toUnmodifiableSet());
 		Assertions.assertThat(stockDividends).hasSize(3);
 	}
@@ -90,13 +90,13 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 		loader.setupStockDividends();
 
 		int initialSize = stockRepository.findAll().stream()
-			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.flatMap(stock -> stock.getStockDividends().stream())
 			.collect(Collectors.toUnmodifiableSet())
 			.size();
 
 		loader.setupStockDividends();
 		int newSize = stockRepository.findAll().stream()
-			.flatMap(stock -> stock.getStockDividendTemps().stream())
+			.flatMap(stock -> stock.getStockDividends().stream())
 			.collect(Collectors.toUnmodifiableSet())
 			.size();
 

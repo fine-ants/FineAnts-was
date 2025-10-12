@@ -5,12 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 class StockDividendCsvFormatterTest {
 
-	private CsvFormatter<StockDividendTemp> formatter;
+	private CsvFormatter<StockDividend> formatter;
 
 	@BeforeEach
 	void setUp() {
@@ -28,7 +28,7 @@ class StockDividendCsvFormatterTest {
 
 	@Test
 	void format_whenDataIsOne() {
-		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
 		String content = formatter.format(stockDividend);
 
 		Assertions.assertThat(content).isNotNull();
@@ -37,8 +37,8 @@ class StockDividendCsvFormatterTest {
 
 	@Test
 	void format_whenDateIsTwo() {
-		StockDividendTemp stockDividend1 = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
+		StockDividend stockDividend1 = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend();
 		String content = formatter.format(stockDividend1, stockDividend2);
 
 		Assertions.assertThat(content).isNotNull();

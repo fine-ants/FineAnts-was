@@ -13,7 +13,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
@@ -42,7 +42,7 @@ class AmazonS3WriteDividendServiceTest extends AbstractContainerBaseTest {
 
 	@Test
 	void writeDividend_whenDividendIsEmpty() {
-		Assertions.assertThatCode(service::writeDividendTemp).doesNotThrowAnyException();
+		Assertions.assertThatCode(service::writeDividend).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -54,18 +54,18 @@ class AmazonS3WriteDividendServiceTest extends AbstractContainerBaseTest {
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
 		boolean isDeleted = false;
 		String tickerSymbol = "005930";
-		StockDividendTemp stockDividendTemp = new StockDividendTemp(
+		StockDividend stockDividend = new StockDividend(
 			dividend,
 			dividendDates,
 			isDeleted,
 			tickerSymbol
 		);
 
-		service.writeDividendTemp(stockDividendTemp);
+		service.writeDividend(stockDividend);
 
 		Stock findStock = stockRepository.findByTickerSymbol(tickerSymbol).orElseThrow();
-		List<StockDividendTemp> actual = fetchDividendService.fetchDividendEntityIn(List.of(findStock));
-		List<StockDividendTemp> expected = List.of(stockDividendTemp);
+		List<StockDividend> actual = fetchDividendService.fetchDividendEntityIn(List.of(findStock));
+		List<StockDividend> expected = List.of(stockDividend);
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 }

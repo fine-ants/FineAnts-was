@@ -34,7 +34,7 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 
 public final class TestDataFactory {
 
@@ -140,14 +140,14 @@ public final class TestDataFactory {
 		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);
 	}
 
-	public static StockDividendTemp createKakaoStockDividend() {
+	public static StockDividend createKakaoStockDividend() {
 		Money dividend = Money.won(68);
 		LocalDate recordDate = LocalDate.of(2025, 3, 10);
 		LocalDate exDividendDate = LocalDate.of(2025, 3, 7);
 		LocalDate paymentDate = LocalDate.of(2025, 4, 24);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
 		String tickerSymbol = "035720";
-		return new StockDividendTemp(
+		return new StockDividend(
 			dividend,
 			dividendDates,
 			false,
@@ -155,14 +155,14 @@ public final class TestDataFactory {
 		);
 	}
 
-	public static StockDividendTemp createSamsungStockDividendTemp() {
+	public static StockDividend createSamsungStockDividend() {
 		Money dividend = Money.won(361);
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);
 		LocalDate exDividendDate = LocalDate.of(2023, 3, 30);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 17);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
 		String tickerSymbol = "005930";
-		return new StockDividendTemp(
+		return new StockDividend(
 			dividend,
 			dividendDates,
 			false,
@@ -181,7 +181,7 @@ public final class TestDataFactory {
 		return PortfolioHolding.of(portfolio, stock);
 	}
 
-	public static List<StockDividendTemp> createStockDividend(String tickerSymbol) {
+	public static List<StockDividend> createStockDividend(String tickerSymbol) {
 		return List.of(
 			createStockDividend(
 				Money.won(361L),
@@ -228,7 +228,7 @@ public final class TestDataFactory {
 		);
 	}
 
-	public static List<StockDividendTemp> createSamsungStockDividends() {
+	public static List<StockDividend> createSamsungStockDividends() {
 		String tickerSymbol = "005930";
 		Money dividend = Money.won(361L);
 		return List.of(
@@ -289,14 +289,14 @@ public final class TestDataFactory {
 		);
 	}
 
-	private static StockDividendTemp createStockDividend(Money dividend, LocalDate recordDate, LocalDate paymentDate,
+	private static StockDividend createStockDividend(Money dividend, LocalDate recordDate, LocalDate paymentDate,
 		String tickerSymbol) {
 		LocalDate exDividendDate = exDividendDateCalculator.calculate(recordDate);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		return new StockDividendTemp(dividend, dividendDates, false, tickerSymbol);
+		return new StockDividend(dividend, dividendDates, false, tickerSymbol);
 	}
 
-	public static List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
+	public static List<StockDividend> createStockDividendThisYearWith(String tickerSymbol) {
 		Money dividend = Money.won(361L);
 		return List.of(
 			createStockDividend(
@@ -320,7 +320,7 @@ public final class TestDataFactory {
 		);
 	}
 
-	public static List<StockDividendTemp> createKakaoStockDividends() {
+	public static List<StockDividend> createKakaoStockDividends() {
 		String tickerSymbol = "035720";
 		return List.of(
 			createStockDividend(

@@ -46,7 +46,7 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -310,11 +310,11 @@ public abstract class AbstractContainerBaseTest {
 			.toList();
 	}
 
-	protected List<StockDividendTemp> createStockDividendWith(String tickerSymbol) {
+	protected List<StockDividend> createStockDividendWith(String tickerSymbol) {
 		return TestDataFactory.createStockDividend(tickerSymbol);
 	}
 
-	protected List<StockDividendTemp> createStockDividendThisYearWith(String tickerSymbol) {
+	protected List<StockDividend> createStockDividendThisYearWith(String tickerSymbol) {
 		return TestDataFactory.createStockDividendThisYearWith(tickerSymbol);
 	}
 

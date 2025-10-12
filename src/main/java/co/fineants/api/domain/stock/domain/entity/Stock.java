@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@ToString(exclude = "stockDividendTemps")
+@ToString(exclude = "stockDividends")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "stockCode", callSuper = false)
 @Entity
@@ -56,11 +56,11 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(
-		name = "stock_dividend_temp",
+		name = "stock_dividend",
 		joinColumns = @JoinColumn(name = "ticker_symbol", nullable = false)
 	)
 	@OrderColumn(name = "line_idx", nullable = false)
-	private final List<StockDividendTemp> stockDividendTemps = new ArrayList<>();
+	private final List<StockDividend> stockDividends = new ArrayList<>();
 
 	private static final String TICKER_PREFIX = "TS";
 
@@ -80,26 +80,26 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return new Stock(tickerSymbol, companyName, companyNameEng, stockCode, sector, market);
 	}
 
-	public void addStockDividendTemp(StockDividendTemp stockDividendTemp) {
-		if (!stockDividendTemps.contains(stockDividendTemp)) {
-			stockDividendTemps.add(stockDividendTemp);
+	public void addStockDividend(StockDividend stockDividend) {
+		if (!stockDividends.contains(stockDividend)) {
+			stockDividends.add(stockDividend);
 		}
 	}
 
-	public void removeStockDividendTemp(StockDividendTemp stockDividendTemp) {
-		stockDividendTemps.remove(stockDividendTemp);
+	public void removeStockDividend(StockDividend stockDividend) {
+		stockDividends.remove(stockDividend);
 	}
 
-	public List<StockDividendTemp> getCurrentMonthDividends(LocalDateTimeService localDateTimeService) {
+	public List<StockDividend> getCurrentMonthDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentMonthPaymentDate(today))
 			.toList();
 	}
 
-	public List<StockDividendTemp> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
+	public List<StockDividend> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(today))
 			.toList();
 	}
@@ -107,10 +107,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public Map<Month, Expression> createMonthlyDividends(List<PurchaseHistory> purchaseHistories,
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
-		List<StockDividendTemp> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
 			currentLocalDate);
 
-		for (StockDividendTemp stockDividend : currentYearStockDividends) {
+		for (StockDividend stockDividend : currentYearStockDividends) {
 			for (PurchaseHistory purchaseHistory : purchaseHistories) {
 				if (stockDividend.canReceiveDividendOn(purchaseHistory)) {
 					Month paymentMonth = stockDividend.getMonthByPaymentDate();
@@ -124,8 +124,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	@NotNull
-	private List<StockDividendTemp> getStockDividendsWithCurrentYearRecordDateBy(LocalDate currentLocalDate) {
-		return stockDividendTemps.stream()
+	private List<StockDividend> getStockDividendsWithCurrentYearRecordDateBy(LocalDate currentLocalDate) {
+		return stockDividends.stream()
 			.filter(stockDividend -> stockDividend.isCurrentYearRecordDate(currentLocalDate))
 			.toList();
 	}
@@ -134,13 +134,13 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
 		// 0. 현재년도에 해당하는 배당금 정보를 필터링하여 별도 저장합니다.
-		List<StockDividendTemp> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
 			currentLocalDate);
 
 		// 1. 배당금 데이터 중에서 현금지급일자가 작년도에 해당하는 배당금 정보를 필터링합니다.
 		// 2. 1단계에서 필터링한 배당금 데이터들중 0단계에서 별도 저장한 현재년도의 분기 배당금과 중복되는 배당금 정보를 필터링합니다.
 		LocalDate lastYearLocalDate = currentLocalDate.minusYears(1L);
-		stockDividendTemps.stream()
+		stockDividends.stream()
 			.filter(stockDividend -> stockDividend.isLastYearPaymentDate(lastYearLocalDate))
 			.filter(stockDividend -> !stockDividend.isDuplicatedRecordDate(currentYearStockDividends))
 			.forEach(stockDividend -> {
@@ -164,18 +164,18 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	public Expression getAnnualDividend(LocalDateTimeService localDateTimeService) {
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividendTemp::getDividend)
+			.map(StockDividend::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
 	}
 
 	public RateDivision getAnnualDividendYield(CurrentPriceRedisRepository manager,
 		LocalDateTimeService localDateTimeService) {
-		Expression dividends = stockDividendTemps.stream()
+		Expression dividends = stockDividends.stream()
 			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividendTemp::getDividend)
+			.map(StockDividend::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
 		return dividends.divide(getCurrentPrice(manager));
@@ -207,9 +207,9 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	}
 
 	public List<Month> getDividendMonths(LocalDateTimeService localDateTimeService) {
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividendTemp::getMonthByPaymentDate)
+			.map(StockDividend::getMonthByPaymentDate)
 			.toList();
 	}
 	// ticker 및 recordDate 기준으로 KisDividend가 매치되어 있는지 확인
@@ -218,21 +218,21 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return false;
 		}
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.anyMatch(s -> s.equalRecordDate(recordDate));
 	}
 
-	public Optional<StockDividendTemp> getStockDividendBy(String tickerSymbol, LocalDate recordDate) {
+	public Optional<StockDividend> getStockDividendBy(String tickerSymbol, LocalDate recordDate) {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return Optional.empty();
 		}
-		return stockDividendTemps.stream()
+		return stockDividends.stream()
 			.filter(s -> s.equalRecordDate(recordDate))
 			.findAny();
 	}
 
-	public List<StockDividendTemp> getStockDividendNotInRange(LocalDate from, LocalDate to) {
-		return stockDividendTemps.stream()
+	public List<StockDividend> getStockDividendNotInRange(LocalDate from, LocalDate to) {
+		return stockDividends.stream()
 			.filter(stockDividend -> !stockDividend.hasInRangeForRecordDate(from, to))
 			.toList();
 	}
@@ -257,11 +257,11 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		repository.savePrice(tickerSymbol, price);
 	}
 
-	public List<StockDividendTemp> getStockDividendTemps() {
-		return Collections.unmodifiableList(stockDividendTemps);
+	public List<StockDividend> getStockDividends() {
+		return Collections.unmodifiableList(stockDividends);
 	}
 
-	public void clearStockDividendTemps() {
-		stockDividendTemps.clear();
+	public void clearStockDividend() {
+		stockDividends.clear();
 	}
 }

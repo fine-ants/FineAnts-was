@@ -105,7 +105,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			.willReturn(LocalDate.of(2024, 6, 20));
 		Member member = memberRepository.save(createMember());
 		Stock samsung = createSamsungStock();
-		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividendTemp);
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		Stock stock = stockRepository.save(samsung);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
@@ -147,7 +147,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Member hacker = memberRepository.save(createMember("hacker"));
 		Stock stock = createSamsungStock();
-		stock.addStockDividendTemp(TestDataFactory.createSamsungStockDividendTemp());
+		stock.addStockDividend(TestDataFactory.createSamsungStockDividend());
 		stock = stockRepository.save(stock);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));

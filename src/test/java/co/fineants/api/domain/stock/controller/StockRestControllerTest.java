@@ -16,7 +16,7 @@ import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
@@ -101,8 +101,8 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void getStock() {
 		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividendTemp samsungStockDividend = TestDataFactory.createSamsungStockDividendTemp();
-		stock.addStockDividendTemp(samsungStockDividend);
+		StockDividend samsungStockDividend = TestDataFactory.createSamsungStockDividend();
+		stock.addStockDividend(samsungStockDividend);
 		stockRepository.save(stock);
 
 		int currentPrice = 68000;

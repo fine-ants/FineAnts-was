@@ -95,7 +95,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock samsung = createSamsungStock();
-		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividendTemp);
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividend);
 		Stock stock = stockRepository.save(samsung);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 

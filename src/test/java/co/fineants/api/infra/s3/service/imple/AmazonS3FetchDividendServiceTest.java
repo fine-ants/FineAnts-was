@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
@@ -25,10 +25,10 @@ class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		StockDividendTemp stockDividend = TestDataFactory.createSamsungStockDividendTemp();
-		StockDividendTemp stockDividend2 = TestDataFactory.createKakaoStockDividend();
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		writeDividendService.writeDividendTemp(stockDividend, stockDividend2);
+		writeDividendService.writeDividend(stockDividend, stockDividend2);
 	}
 
 	@Test
@@ -46,7 +46,7 @@ class AmazonS3FetchDividendServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchDividendEntity() {
 		List<Stock> stocks = List.of(TestDataFactory.createSamsungStock(), TestDataFactory.createKakaoStock());
-		List<StockDividendTemp> list = service.fetchDividendEntityIn(stocks);
+		List<StockDividend> list = service.fetchDividendEntityIn(stocks);
 
 		Assertions.assertThat(list).hasSize(2);
 	}

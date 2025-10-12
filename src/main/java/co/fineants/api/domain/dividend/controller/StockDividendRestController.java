@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.domain.dividend.service.StockDividendService;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockDividendSuccessCode;
@@ -39,8 +39,8 @@ public class StockDividendRestController {
 	@PostMapping("/write/csv")
 	@Secured("ROLE_ADMIN")
 	public ApiResponse<Void> writeDividendCsvToBucket() {
-		StockDividendTemp[] stockDividends = stockService.getAllStockDividends().toArray(StockDividendTemp[]::new);
-		writeDividendService.writeDividendTemp(stockDividends);
+		StockDividend[] stockDividends = stockService.getAllStockDividends().toArray(StockDividend[]::new);
+		writeDividendService.writeDividend(stockDividends);
 		return ApiResponse.success(StockDividendSuccessCode.OK_WRITE_DIVIDENDS_CSV);
 	}
 }

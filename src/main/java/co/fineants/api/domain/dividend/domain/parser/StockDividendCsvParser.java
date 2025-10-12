@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,7 +20,7 @@ public class StockDividendCsvParser {
 		this.stockDividendCsvLineParser = stockDividendCsvLineParser;
 	}
 
-	public List<StockDividendTemp> parse(InputStream inputStream) {
+	public List<StockDividend> parse(InputStream inputStream) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 			return reader.lines()
 				.skip(1) // Skip header line

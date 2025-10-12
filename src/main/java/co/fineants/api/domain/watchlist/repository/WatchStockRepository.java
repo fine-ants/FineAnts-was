@@ -13,7 +13,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 public interface WatchStockRepository extends JpaRepository<WatchStock, Long> {
 	List<WatchStock> findByWatchList(WatchList watchList);
 
-	@EntityGraph(attributePaths = {"stock", "stock.stockDividendTemps"})
+	@EntityGraph(attributePaths = {"stock", "stock.stockDividends"})
 	List<WatchStock> findWithStockAndDividendsByWatchList(WatchList watchList);
 
 	void deleteByWatchListAndStock_TickerSymbolIn(WatchList watchList, List<String> tickerSymbols);

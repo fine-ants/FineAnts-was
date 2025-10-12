@@ -15,7 +15,7 @@ import com.google.cloud.storage.StorageOptions;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
@@ -65,7 +65,7 @@ public class GoogleCloudStorageConfig {
 
 	@Bean
 	public WriteDividendService writeDividendService(
-		CsvFormatter<StockDividendTemp> formatter,
+		CsvFormatter<StockDividend> formatter,
 		RemoteFileUploader uploader,
 		@Value("${gcp.storage.dividend-csv-path}") String dividendPath) {
 		return new GoogleCloudStorageWriteDividendService(formatter, uploader, dividendPath);

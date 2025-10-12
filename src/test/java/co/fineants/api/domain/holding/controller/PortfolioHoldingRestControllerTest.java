@@ -117,7 +117,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
 		Count numShares = Count.from(3);
@@ -400,7 +400,7 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 60_000L);
-		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividendTemp);
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		portfolio.addHolding(portfolioHolding);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividendTemp;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
@@ -54,10 +54,10 @@ public class AmazonS3FetchDividendService implements FetchDividendService {
 	}
 
 	@Override
-	public List<StockDividendTemp> fetchDividendEntityIn(List<Stock> stocks) {
+	public List<StockDividend> fetchDividendEntityIn(List<Stock> stocks) {
 		Map<String, Stock> stockMap = stocks.stream()
 			.collect(Collectors.toMap(Stock::getTickerSymbol, stock -> stock));
-		List<StockDividendTemp> stockDividends = stockDividendCsvParser.parse(
+		List<StockDividend> stockDividends = stockDividendCsvParser.parse(
 			fileFetcher.read(dividendPath).orElseThrow());
 		return stockDividends.stream()
 			.filter(stockDividend -> stockMap.containsKey(stockDividend.getTickerSymbol()))
