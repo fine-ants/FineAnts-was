@@ -6,9 +6,6 @@ import java.time.format.DateTimeFormatter;
 import com.google.common.base.Strings;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.domain.entity.Stock;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -55,16 +52,5 @@ public class Dividend {
 	public static Dividend create(LocalDate recordDate, LocalDate paymentDate, String tickerSymbol, String name,
 		Money dividend) {
 		return new Dividend(recordDate, paymentDate, tickerSymbol, name, dividend);
-	}
-
-	public StockDividend toEntity(Stock stock, ExDividendDateCalculator calculator) {
-		LocalDate exDividendDate = calculator.calculate(recordDate);
-		return StockDividend.create(
-			amount,
-			recordDate,
-			exDividendDate,
-			paymentDate,
-			stock
-		);
 	}
 }

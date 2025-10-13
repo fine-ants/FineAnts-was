@@ -15,7 +15,6 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -23,11 +22,14 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.converter.MarketConverter;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -52,7 +54,18 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	private Market market;
 	private boolean isDeleted;
 
-	@OneToMany(mappedBy = "stock", fetch = FetchType.LAZY)
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(
+		name = "stock_dividend",
+		joinColumns = @JoinColumn(name = "ticker_symbol", nullable = false),
+		uniqueConstraints = {
+			@jakarta.persistence.UniqueConstraint(
+				name = "uk_stock_dividend_ticker_symbol_record_date",
+				columnNames = {"ticker_symbol", "record_date"}
+			)
+		}
+	)
+	@OrderColumn(name = "line_idx", nullable = false)
 	private final List<StockDividend> stockDividends = new ArrayList<>();
 
 	private static final String TICKER_PREFIX = "TS";
@@ -79,6 +92,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		}
 	}
 
+	public void removeStockDividend(StockDividend stockDividend) {
+		stockDividends.remove(stockDividend);
+	}
+
 	public List<StockDividend> getCurrentMonthDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
 		return stockDividends.stream()
@@ -96,7 +113,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public Map<Month, Expression> createMonthlyDividends(List<PurchaseHistory> purchaseHistories,
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
-		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(currentLocalDate);
+		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+			currentLocalDate);
 
 		for (StockDividend stockDividend : currentYearStockDividends) {
 			for (PurchaseHistory purchaseHistory : purchaseHistories) {
@@ -122,7 +140,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		LocalDate currentLocalDate) {
 		Map<Month, Expression> result = initMonthlyDividendMap();
 		// 0. 현재년도에 해당하는 배당금 정보를 필터링하여 별도 저장합니다.
-		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(currentLocalDate);
+		List<StockDividend> currentYearStockDividends = getStockDividendsWithCurrentYearRecordDateBy(
+			currentLocalDate);
 
 		// 1. 배당금 데이터 중에서 현금지급일자가 작년도에 해당하는 배당금 정보를 필터링합니다.
 		// 2. 1단계에서 필터링한 배당금 데이터들중 0단계에서 별도 저장한 현재년도의 분기 배당금과 중복되는 배당금 정보를 필터링합니다.
@@ -236,15 +255,19 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			market.name());
 	}
 
-	public List<StockDividend> getStockDividends() {
-		return Collections.unmodifiableList(stockDividends);
-	}
-
 	public Optional<Money> fetchPrice(PriceRepository repository) {
 		return repository.fetchPriceBy(tickerSymbol);
 	}
 
 	public void savePrice(PriceRepository repository, long price) {
 		repository.savePrice(tickerSymbol, price);
+	}
+
+	public List<StockDividend> getStockDividends() {
+		return Collections.unmodifiableList(stockDividends);
+	}
+
+	public void clearStockDividend() {
+		stockDividends.clear();
 	}
 }

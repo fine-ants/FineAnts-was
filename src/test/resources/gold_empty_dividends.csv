@@ -1,1 +1,1 @@
-id,dividend,recordDate,paymentDate,stockCode
+tickerSymbol,dividend,recordDate,paymentDate,isDeleted

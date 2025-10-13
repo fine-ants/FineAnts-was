@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -52,8 +51,6 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 	@Autowired
 	private StockRepository stockRepository;
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 	@Autowired
@@ -97,9 +94,9 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
-
+		Stock samsung = createSamsungStock();
+		createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividend);
+		Stock stock = stockRepository.save(samsung);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2024, 9, 26, 0, 0, 0);

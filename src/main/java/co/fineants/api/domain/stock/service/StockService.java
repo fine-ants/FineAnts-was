@@ -2,11 +2,12 @@ package co.fineants.api.domain.stock.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
@@ -16,6 +17,7 @@ import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.repository.StockQueryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -36,7 +38,6 @@ public class StockService {
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockQueryRepository stockQueryRepository;
 	private final StockAndDividendManager stockAndDividendManager;
-	private final StockDividendRepository stockDividendRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;
@@ -69,9 +70,16 @@ public class StockService {
 	public StockReloadResponse reloadStocks() {
 		StockReloadResponse response = stockAndDividendManager.reloadStocks();
 		log.info("refreshStocks response : {}", response);
-		writeStockService.writeStocks(stockRepository.findAll());
-		writeDividendService.writeDividend(stockDividendRepository.findAll());
+		List<Stock> stocks = stockRepository.findAll();
+		writeStockService.writeStocks(stocks);
+		writeDividendService.writeDividend(getStockDividendArray(stocks));
 		return response;
+	}
+
+	private StockDividend[] getStockDividendArray(List<Stock> stocks) {
+		return stocks.stream()
+			.flatMap(stock -> stock.getStockDividends().stream())
+			.toArray(StockDividend[]::new);
 	}
 
 	/**
@@ -107,5 +115,12 @@ public class StockService {
 	@Transactional(readOnly = true)
 	public void writeDividendCsvToBucket() {
 		writeStockService.writeStocks(stockRepository.findAll());
+	}
+
+	@Transactional
+	public Set<StockDividend> getAllStockDividends() {
+		return stockRepository.findAll().stream()
+			.flatMap(stock -> stock.getStockDividends().stream())
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }

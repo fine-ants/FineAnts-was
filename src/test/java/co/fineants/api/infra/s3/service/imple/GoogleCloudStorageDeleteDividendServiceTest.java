@@ -1,7 +1,5 @@
 package co.fineants.api.infra.s3.service.imple;
 
-import java.util.List;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,11 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.infra.s3.dto.StockDividendDto;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
-import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;
 import co.fineants.config.GoogleCloudStorageTestConfig;
@@ -31,18 +26,12 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 	@Autowired
 	private WriteDividendService writeDividendService;
 
-	@Autowired
-	private FetchDividendService fetchDividendService;
-
 	@BeforeEach
 	void setUp() {
-		Stock stock = TestDataFactory.createSamsungStock();
-		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend(stock);
+		StockDividend stockDividend = TestDataFactory.createSamsungStockDividend();
+		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend();
 
-		Stock kakaoStock = TestDataFactory.createKakaoStock();
-		StockDividend stockDividend2 = TestDataFactory.createKakaoStockDividend(kakaoStock);
-
-		writeDividendService.writeDividend(List.of(stockDividend, stockDividend2));
+		writeDividendService.writeDividend(stockDividend, stockDividend2);
 	}
 
 	@AfterEach
@@ -53,15 +42,6 @@ class GoogleCloudStorageDeleteDividendServiceTest extends AbstractContainerBaseT
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
-	}
-
-	@Test
-	void delete() {
-		service.delete();
-
-		List<StockDividendDto> list = fetchDividendService.fetchDividend();
-
-		Assertions.assertThat(list).isEmpty();
 	}
 
 	@Test

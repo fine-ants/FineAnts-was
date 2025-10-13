@@ -10,13 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -37,6 +38,7 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 
@@ -64,7 +66,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private StockDividendRepository stockDividendRepository;
+	private LocalDateTimeService spyedLocalDateTimeService;
 
 	@DisplayName("회원이 watchlist 목록을 조회한다.")
 	@Test
@@ -99,9 +101,12 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void readWatchList() {
 		// given
+		BDDMockito.given(spyedLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2024, 6, 20));
 		Member member = memberRepository.save(createMember());
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.save(createStockDividend(LocalDate.now(), LocalDate.now(), stock));
+		Stock samsung = createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
+		Stock stock = stockRepository.save(samsung);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
 		watchStockRepository.save(createWatchStock(watchList, stock));
@@ -141,8 +146,9 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(createMember());
 		Member hacker = memberRepository.save(createMember("hacker"));
-		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.save(createStockDividend(LocalDate.now(), LocalDate.now(), stock));
+		Stock stock = createSamsungStock();
+		stock.addStockDividend(TestDataFactory.createSamsungStockDividend());
+		stock = stockRepository.save(stock);
 
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
 		watchStockRepository.save(createWatchStock(watchList, stock));

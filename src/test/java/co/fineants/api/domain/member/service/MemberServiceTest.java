@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.repository.StockDividendRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequest;
@@ -63,10 +62,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private TargetPriceNotificationRepository targetPriceNotificationRepository;
-
-	@Autowired
-	private StockDividendRepository stockDividendRepository;
-
 	@Autowired
 	private StockRepository stockRepository;
 
@@ -183,7 +178,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock stock = stockRepository.save(createSamsungStock());
-		stockDividendRepository.saveAll(createStockDividendWith(stock));
+		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);

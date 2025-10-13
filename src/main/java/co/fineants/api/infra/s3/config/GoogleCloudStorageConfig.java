@@ -12,10 +12,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
-import co.fineants.api.domain.dividend.domain.entity.StockDividend;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.stock.parser.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
@@ -42,7 +42,7 @@ import co.fineants.api.infra.s3.service.imple.GoogleCloudStorageWriteStockServic
 @Configuration
 @Profile(value = {"gcp"})
 public class GoogleCloudStorageConfig {
-	
+
 	@Value("${gcp.storage.bucket}")
 	private String bucketName;
 
