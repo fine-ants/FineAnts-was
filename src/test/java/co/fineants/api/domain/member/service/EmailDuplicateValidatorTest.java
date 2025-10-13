@@ -1,18 +1,30 @@
 package co.fineants.api.domain.member.service;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
+import co.fineants.api.domain.member.repository.MemberRepository;
 
 class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private EmailDuplicateValidator validator;
 
+	@Autowired
+	private MemberRepository repository;
+
+	@AfterEach
+	void tearDown() {
+		repository.deleteAll();
+	}
+
 	@Test
 	void hasMemberWith_whenExistMember_thenReturnTrue() {
+		repository.save(TestDataFactory.createMember());
 		String provider = "local";
 		String email = "dragonbead95@naver.com";
 
