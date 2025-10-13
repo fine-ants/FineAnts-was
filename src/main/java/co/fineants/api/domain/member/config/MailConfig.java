@@ -12,7 +12,7 @@ import co.fineants.api.domain.member.service.VerifyCodeMailHtmlRender;
 public class MailConfig {
 	@Bean
 	public VerifyCodeMailHtmlRender mailHtmlRender(
-		@Value("${mail.templates.path.verify-code}") String templateName,
+		@Value("${mail.templates.path.isDuplicate-code}") String templateName,
 		SpringTemplateEngine engine) {
 		return new VerifyCodeMailHtmlRender(templateName, engine);
 	}

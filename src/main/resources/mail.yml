@@ -1,5 +1,5 @@
 mail:
   templates:
     path:
-      verify-code: "mail-templates/verify-email_template"
+      verify-code: "mail-templates/isDuplicate-email_template"
       exchange-rate-error: "mail-templates/exchange-rate-fail-notification_template"

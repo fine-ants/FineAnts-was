@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 class NicknameDuplicateValidatorTest {
 
 	@Test
-	void verify() {
+	void isDuplicate_whenDuplicatedNickname_thenReturnTrue() {
 		NicknameDuplicateValidator validator = new NicknameDuplicateValidator();
 		String nickname = "ants1234";
 
-		boolean actual = validator.verify(nickname);
+		boolean actual = validator.isDuplicate(nickname);
 
-		Assertions.assertThat(actual).isFalse();
+		Assertions.assertThat(actual).isTrue();
 	}
 }

@@ -20,7 +20,7 @@ class VerifyCodeMailHtmlRenderTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		String templateName = "mail-templates/verify-email_template";
+		String templateName = "mail-templates/isDuplicate-email_template";
 		mailHtmlRender = new VerifyCodeMailHtmlRender(templateName, engine);
 	}
 
