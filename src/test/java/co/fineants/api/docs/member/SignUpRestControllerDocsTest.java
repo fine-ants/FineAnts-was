@@ -226,7 +226,7 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("data").value(equalTo(null)))
 			.andDo(
 				document(
-					"member_email_validation_code-isDuplicate",
+					"member_email_validation_code-hasMemberWith",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
