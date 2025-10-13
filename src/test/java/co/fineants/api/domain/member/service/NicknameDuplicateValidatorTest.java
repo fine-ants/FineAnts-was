@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 
 class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 
@@ -17,6 +19,9 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
+	@Autowired
+	private NicknameFactory factory;
+
 	@AfterEach
 	void tearDown() {
 		memberRepository.deleteAll();
@@ -25,7 +30,7 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@Test
 	void isDuplicate_whenDuplicatedNickname_thenReturnTrue() {
 		memberRepository.save(TestDataFactory.createMember());
-		String nickname = "nemo1234";
+		Nickname nickname = factory.create("nemo1234");
 
 		boolean actual = validator.isDuplicate(nickname);
 
@@ -34,7 +39,7 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 
 	@Test
 	void isDuplicate_whenNotDuplicatedNickname_thenReturnFalse() {
-		String nickname = "nemo2345";
+		Nickname nickname = factory.create("nemo2345");
 
 		boolean actual = validator.isDuplicate(nickname);
 

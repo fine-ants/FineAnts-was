@@ -7,6 +7,7 @@ import co.fineants.api.domain.member.properties.EmailProperties;
 import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.domain.validator.domain.member.EmailDuplicationRule;
 import co.fineants.api.domain.validator.domain.member.EmailFormatRule;
@@ -36,8 +37,9 @@ public class MemberRuleConfig {
 	}
 
 	@Bean
-	public NicknameDuplicationRule nicknameDuplicationRule(NicknameDuplicateValidator validator) {
-		return new NicknameDuplicationRule(validator);
+	public NicknameDuplicationRule nicknameDuplicationRule(NicknameDuplicateValidator validator,
+		NicknameFactory factory) {
+		return new NicknameDuplicationRule(validator, factory);
 	}
 
 	@Bean

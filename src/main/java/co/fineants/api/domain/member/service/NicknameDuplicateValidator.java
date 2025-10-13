@@ -3,6 +3,7 @@ package co.fineants.api.domain.member.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.repository.MemberRepository;
 
 @Service
@@ -21,7 +22,7 @@ public class NicknameDuplicateValidator {
 	 * @return true: 중복, false: 중복 아님
 	 */
 	@Transactional(readOnly = true)
-	public boolean isDuplicate(String nickname) {
-		return memberRepository.findMemberByNickname(nickname).isPresent();
+	public boolean isDuplicate(Nickname nickname) {
+		return memberRepository.findMemberByNickname(nickname.getValue()).isPresent();
 	}
 }
