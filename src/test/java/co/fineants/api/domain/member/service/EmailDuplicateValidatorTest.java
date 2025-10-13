@@ -16,7 +16,7 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 		String provider = "local";
 		String email = "dragonbead95@naver.com";
 
-		boolean actual = validator.hasMemberWith(provider, email);
+		boolean actual = validator.hasMemberWith(email, provider);
 
 		Assertions.assertThat(actual).isTrue();
 	}
