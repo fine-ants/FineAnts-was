@@ -1,7 +1,5 @@
 package co.fineants.api.domain.member.service.factory;
 
-import java.util.regex.Pattern;
-
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.member.domain.entity.Nickname;
@@ -18,8 +16,10 @@ public class NicknameFactory {
 	}
 
 	public Nickname create(String value) {
-		Pattern pattern = nicknameProperties.getNicknamePattern();
-		if (!pattern.matcher(value).matches()) {
+		if (value == null || value.isBlank()) {
+			throw new NicknameInvalidInputException(value);
+		}
+		if (!nicknameProperties.getNicknamePattern().matcher(value).matches()) {
 			throw new NicknameInvalidInputException(value);
 		}
 		return new Nickname(value);

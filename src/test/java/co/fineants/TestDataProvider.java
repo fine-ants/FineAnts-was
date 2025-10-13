@@ -15,4 +15,15 @@ public class TestDataProvider {
 			Arguments.of("개미1234")
 		);
 	}
+
+	public static Stream<Arguments> invalidNicknameValues() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of("ThisNicknameIsWayTooLongToBeValid"),
+			Arguments.of("Invalid@Name!"),
+			Arguments.of("Name With Spaces"),
+			Arguments.of("Special#Char$")
+		);
+	}
 }
