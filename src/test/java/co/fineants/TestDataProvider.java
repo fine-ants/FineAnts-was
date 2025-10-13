@@ -21,6 +21,7 @@ public class TestDataProvider {
 		return Stream.of(
 			Arguments.of((Object)null),
 			Arguments.of(""),
+			Arguments.of(" "),
 			Arguments.of("a".repeat(101)),
 			Arguments.of("Invalid@Name!"),
 			Arguments.of("Name With Spaces"),
