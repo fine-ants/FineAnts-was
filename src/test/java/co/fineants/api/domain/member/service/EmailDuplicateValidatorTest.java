@@ -34,4 +34,15 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 
 		Assertions.assertThat(actual).isTrue();
 	}
+
+	@DisplayName("로컬 회원의 이메일이 중복되지 않아서 false를 반환한다")
+	@Test
+	void hasMemberWith_whenNotExistMember_thenReturnFalse() {
+		String provider = "local";
+		String email = "dragonbead95@naver.com";
+
+		boolean actual = validator.hasMemberWith(email, provider);
+
+		Assertions.assertThat(actual).isFalse();
+	}
 }
