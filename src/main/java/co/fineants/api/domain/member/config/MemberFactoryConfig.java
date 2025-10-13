@@ -5,18 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import co.fineants.api.domain.member.domain.factory.ExchangeRateErrorMimeMessageFactory;
-import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.domain.factory.VerifyCodeMimeMessageFactory;
 import co.fineants.api.domain.member.service.ExchangeRateErrorMailHtmlRender;
 import co.fineants.api.domain.member.service.VerifyCodeMailHtmlRender;
 
 @Configuration
 public class MemberFactoryConfig {
-
-	@Bean
-	public MemberProfileFactory memberProfileFactory() {
-		return new MemberProfileFactory();
-	}
 
 	@Bean
 	public VerifyCodeMimeMessageFactory verifyCodeMimeMessageFactory(VerifyCodeMailHtmlRender render,

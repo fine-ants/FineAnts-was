@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 	@Query("select distinct m from Member m "
@@ -15,11 +16,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	Optional<Member> findMemberByEmailAndProvider(@Param("email") String email, @Param("provider") String provider);
 
 	@Query("select m from Member m where m.profile.nickname = :nickname and m.id != :memberId")
-	Optional<Member> findMemberByNicknameAndNotMemberId(@Param("nickname") String nickname,
+	Optional<Member> findMemberByNicknameAndNotMemberId(@Param("nickname") Nickname nickname,
 		@Param("memberId") Long memberId);
 
 	@Query("select m from Member m where m.profile.nickname = :nickname")
-	Optional<Member> findMemberByNickname(@Param("nickname") String nickname);
+	Optional<Member> findMemberByNickname(@Param("nickname") Nickname nickname);
 
 	@Modifying
 	@Query("update Member m set m.profile.password = :password where m.id = :id")

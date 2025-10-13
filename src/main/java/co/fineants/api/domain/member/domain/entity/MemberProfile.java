@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -24,8 +25,8 @@ public class MemberProfile {
 	@Column(name = "email", nullable = false)
 	private String email;
 	@Getter
-	@Column(name = "nickname", unique = true, nullable = false)
-	private String nickname;
+	@Embedded
+	private Nickname nickname;
 	@Getter
 	@Column(name = "provider", nullable = false)
 	private String provider;
@@ -34,15 +35,17 @@ public class MemberProfile {
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	public static MemberProfile oauthMemberProfile(String email, String nickname, String provider, String profileUrl) {
+	public static MemberProfile oauthMemberProfile(String email, Nickname nickname, String provider,
+		String profileUrl) {
 		return new MemberProfile(email, nickname, provider, null, profileUrl);
 	}
 
-	public static MemberProfile localMemberProfile(String email, String nickname, String password, String profileUrl) {
+	public static MemberProfile localMemberProfile(String email, Nickname nickname, String password,
+		String profileUrl) {
 		return new MemberProfile(email, nickname, "local", password, profileUrl);
 	}
 
-	public void changeNickname(String nickname) {
+	public void changeNickname(Nickname nickname) {
 		this.nickname = nickname;
 	}
 
@@ -53,7 +56,7 @@ public class MemberProfile {
 	public Map<String, Object> toMap() {
 		return Map.ofEntries(
 			Map.entry("email", email),
-			Map.entry("nickname", nickname),
+			Map.entry("nickname", nickname.getValue()),
 			Map.entry("provider", provider),
 			Map.entry("profileUrl", profileUrl)
 		);

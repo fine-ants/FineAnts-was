@@ -6,9 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.MemberProperties;
@@ -19,12 +21,14 @@ public class MemberSetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final NicknameFactory nicknameFactory;
 
 	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
-		PasswordEncoder passwordEncoder) {
+		PasswordEncoder passwordEncoder, NicknameFactory nicknameFactory) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.nicknameFactory = nicknameFactory;
 	}
 
 	@Transactional
@@ -51,9 +55,9 @@ public class MemberSetupDataLoader {
 	}
 
 	private Member createMember(MemberProperties.MemberAuthProperty properties) {
-		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
-			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
-			null);
+		Nickname nickname = nicknameFactory.create(properties.getNickname());
+		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(), nickname,
+			passwordEncoder.encode(properties.getPassword()), null);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
 	}

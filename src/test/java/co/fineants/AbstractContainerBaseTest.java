@@ -29,15 +29,16 @@ import org.testcontainers.utility.DockerImageName;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -110,13 +111,13 @@ public abstract class AbstractContainerBaseTest {
 	private CookieDomainProvider cookieDomainProvider;
 
 	@Autowired
-	private ExDividendDateCalculator exDividendDateCalculator;
-
-	@Autowired
 	private ApplicationContextInitListener applicationContextInitListener;
 
 	@Autowired
 	private ApplicationContext applicationContext;
+
+	@Autowired
+	private NicknameFactory nicknameFactory;
 
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
@@ -167,12 +168,13 @@ public abstract class AbstractContainerBaseTest {
 		return createMember(nickname, "dragonbead95@naver.com");
 	}
 
-	protected Member createMember(String nickname, String email) {
+	protected Member createMember(String nicknameValue, String email) {
 		String roleName = "ROLE_USER";
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
+		Nickname nickname = nicknameFactory.create(nicknameValue);
 		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		Member member = Member.createMember(profile, notificationPreference);
@@ -185,7 +187,8 @@ public abstract class AbstractContainerBaseTest {
 		String roleName = "ROLE_USER";
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
-		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
+		Nickname nickname = nicknameFactory.create("fineants1234");
+		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", nickname, "google",
 			"profileUrl1");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		// 회원 생성

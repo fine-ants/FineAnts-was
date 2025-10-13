@@ -12,7 +12,8 @@ public class TestDataProvider {
 			Arguments.of("AlphaBeta"),
 			Arguments.of("CoolGuy99"),
 			Arguments.of("JaneDoe"),
-			Arguments.of("개미1234")
+			Arguments.of("개미1234"),
+			Arguments.of("a".repeat(100))
 		);
 	}
 
@@ -20,7 +21,7 @@ public class TestDataProvider {
 		return Stream.of(
 			Arguments.of((Object)null),
 			Arguments.of(""),
-			Arguments.of("ThisNicknameIsWayTooLongToBeValid"),
+			Arguments.of("a".repeat(101)),
 			Arguments.of("Invalid@Name!"),
 			Arguments.of("Name With Spaces"),
 			Arguments.of("Special#Char$")

@@ -28,6 +28,7 @@ import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.service.SignupService;
 import co.fineants.api.domain.member.service.SignupValidatorService;
 import co.fineants.api.domain.member.service.SignupVerificationService;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
@@ -36,7 +37,8 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
+		NicknameFactory nicknameFactory = mock(NicknameFactory.class);
+		MemberProfileFactory memberProfileFactory = new MemberProfileFactory(nicknameFactory);
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory, signupVerificationService,

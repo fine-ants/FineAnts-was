@@ -89,7 +89,7 @@ public class Member extends BaseEntity {
 		profile.changeProfileUrl(profileUrl);
 	}
 
-	public void changeNickname(String nickname) {
+	public void changeNickname(Nickname nickname) {
 		this.profile.changeNickname(nickname);
 	}
 
@@ -106,7 +106,7 @@ public class Member extends BaseEntity {
 	}
 
 	public String getNickname() {
-		return profile.getNickname();
+		return profile.getNickname().getValue();
 	}
 
 	public String getEmail() {

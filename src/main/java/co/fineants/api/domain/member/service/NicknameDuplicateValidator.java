@@ -23,6 +23,6 @@ public class NicknameDuplicateValidator {
 	 */
 	@Transactional(readOnly = true)
 	public boolean isDuplicate(Nickname nickname) {
-		return memberRepository.findMemberByNickname(nickname.getValue()).isPresent();
+		return memberRepository.findMemberByNickname(nickname).isPresent();
 	}
 }
