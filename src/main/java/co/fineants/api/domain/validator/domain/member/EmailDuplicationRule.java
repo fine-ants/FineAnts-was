@@ -1,23 +1,23 @@
 package co.fineants.api.domain.validator.domain.member;
 
 import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.EmailDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 
 public class EmailDuplicationRule implements MemberValidationRule {
 
-	private final MemberRepository memberRepository;
+	private final EmailDuplicateValidator emailDuplicateValidator;
 	private final String localProvider;
 
-	public EmailDuplicationRule(MemberRepository memberRepository, String localProvider) {
-		this.memberRepository = memberRepository;
+	public EmailDuplicationRule(EmailDuplicateValidator emailDuplicateValidator, String localProvider) {
+		this.emailDuplicateValidator = emailDuplicateValidator;
 		this.localProvider = localProvider;
 	}
 
 	@Override
 	public void validate(String email) {
-		if (memberRepository.findMemberByEmailAndProvider(email, localProvider).isPresent()) {
+		if (emailDuplicateValidator.hasMemberWith(email, localProvider)) {
 			throw new EmailDuplicateException(email);
 		}
 	}

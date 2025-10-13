@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import co.fineants.api.domain.member.properties.EmailProperties;
 import co.fineants.api.domain.member.properties.NicknameProperties;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.EmailDuplicateValidator;
 import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
 import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
@@ -27,8 +27,8 @@ public class MemberRuleConfig {
 	}
 
 	@Bean
-	public EmailDuplicationRule emailDuplicationRule(MemberRepository memberRepository) {
-		return new EmailDuplicationRule(memberRepository, "local");
+	public EmailDuplicationRule emailDuplicationRule(EmailDuplicateValidator validator) {
+		return new EmailDuplicationRule(validator, "local");
 	}
 
 	@Bean
