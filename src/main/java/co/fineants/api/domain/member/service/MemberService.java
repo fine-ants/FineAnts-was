@@ -22,8 +22,10 @@ import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequ
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -71,6 +73,7 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
+	private final NicknameFactory nicknameFactory;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -102,9 +105,9 @@ public class MemberService {
 	}
 
 	// memberId을 제외한 다른 nickname이 존재하는지 검증
-	private void verifyNickname(String nickname, Long memberId) throws NicknameDuplicateException {
+	private void verifyNickname(Nickname nickname, Long memberId) throws NicknameDuplicateException {
 		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
-			throw new NicknameDuplicateException(nickname);
+			throw new NicknameDuplicateException(nickname.getValue());
 		}
 	}
 
@@ -137,7 +140,7 @@ public class MemberService {
 		member.changeProfileUrl(profileUrl);
 
 		if (request.hasNickname()) {
-			String nickname = request.nickname();
+			Nickname nickname = nicknameFactory.create(request.nickname());
 			verifyNickname(nickname, member.getId());
 			member.changeNickname(nickname);
 		}

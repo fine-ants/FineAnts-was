@@ -30,6 +30,7 @@ import co.fineants.api.domain.member.domain.dto.response.OauthMemberResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
@@ -137,7 +138,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 			ObjectMapperUtil.serialize(profileInformationMap)
 				.getBytes(StandardCharsets.UTF_8));
 
-		member.changeNickname("일개미12345");
+		member.changeNickname(new Nickname("일개미12345"));
 		OauthMemberResponse oauthMemberResponse = new OauthMemberResponse(
 			1L,
 			member.getNickname(),

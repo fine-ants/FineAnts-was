@@ -31,9 +31,11 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
@@ -60,6 +62,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Autowired
 	private MemberProfileFactory profileFactory;
 
+	@Autowired
+	private NicknameFactory nicknameFactory;
+
 	private static Stream<Arguments> invalidEmailSource() {
 		return Stream.of(
 			Arguments.of(""), // 빈 문자열
@@ -75,7 +80,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		return Stream.of(
 			Arguments.of(""), // 빈 문자열
 			Arguments.of("a"), // 너무 짧은 닉네임
-			Arguments.of("a".repeat(21)), // 너무 긴 닉네임
+			Arguments.of("a".repeat(101)), // 너무 긴 닉네임
 			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
 			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
 			Arguments.of((Object)null) // null 값
@@ -105,7 +110,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Test
 	void should_saveMember_whenSignup() {
 		// given
-		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", "ants1", "ants1234@", null);
+		Nickname nickname = nicknameFactory.create("ants1");
+		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
@@ -121,7 +127,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@MethodSource(value = "invalidEmailSource")
 	void givenInvalidEmail_whenValidateEmail_thenFailSignup(String email) {
 		// given
-		MemberProfile profile = MemberProfile.localMemberProfile(email, "ants1", "ants1234@", null);
+		Nickname nickname = nicknameFactory.create("ants1");
+		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 		// when
@@ -136,7 +143,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@MethodSource(value = "invalidNicknameSource")
 	void givenInvalidNickname_whenValidateNickname_thenFailSignup(String nickname) {
 		// given
-		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
+		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", new Nickname(nickname),
+			"ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 		// when
@@ -150,7 +158,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Test
 	void givenDuplicatedNickname_whenValidateNickname_thenFailSignup() {
 		// given
-		String nickname = "ants1";
+		Nickname nickname = nicknameFactory.create("ants1234");
 		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);

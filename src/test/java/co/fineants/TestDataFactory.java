@@ -25,6 +25,7 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
@@ -66,7 +67,8 @@ public final class TestDataFactory {
 	public static Member createMember(String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String password = passwordEncoder.encode("nemo1234@");
-		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
+
+		MemberProfile profile = MemberProfile.localMemberProfile(email, new Nickname(nickname), password, "profileUrl");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
 	}
