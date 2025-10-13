@@ -2,6 +2,7 @@ package co.fineants.api.domain.member.service;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,6 +23,7 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 		repository.deleteAll();
 	}
 
+	@DisplayName("로컬 회원의 이메일이 중복되어 true를 반환한다")
 	@Test
 	void hasMemberWith_whenExistMember_thenReturnTrue() {
 		repository.save(TestDataFactory.createMember());
