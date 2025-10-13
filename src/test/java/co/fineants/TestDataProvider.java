@@ -61,7 +61,8 @@ public class TestDataProvider {
 			Arguments.of("user@.com"), // 도메인 이름 없음
 			Arguments.of("user@domain"), // 최상위 도메인(TLD)이 없음
 			Arguments.of("user@domain.toolongtld"), // TLD가 6자를 초과함
-			Arguments.of("user name@example.com") // 공백 포함
+			Arguments.of("user name@example.com"), // 공백 포함
+			Arguments.of("username@example..com") // 연속된 마침표
 		);
 	}
 }
