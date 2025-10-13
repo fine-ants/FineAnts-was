@@ -31,4 +31,19 @@ public class TestDataProvider {
 			Arguments.of("Special#Char$")
 		);
 	}
+
+	public static Stream<Arguments> validEmailValues() {
+		return Stream.of(
+			Arguments.of("user@example.com"),
+			Arguments.of("john.doe123@domain.co"),
+			Arguments.of("alice_smith@company.org"),
+			Arguments.of("test.email+label@gmail.com"),
+			Arguments.of("my-account_01@sub.domain.net"),
+			Arguments.of("hello.world@my-site.io"),
+			Arguments.of("admin@service.info"),
+			Arguments.of("simple123@abc.xyz"),
+			Arguments.of("contact@domain.co.kr"),
+			Arguments.of("support_team@company123.biz")
+		);
+	}
 }
