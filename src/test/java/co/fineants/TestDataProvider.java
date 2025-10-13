@@ -13,7 +13,9 @@ public class TestDataProvider {
 			Arguments.of("CoolGuy99"),
 			Arguments.of("JaneDoe"),
 			Arguments.of("개미1234"),
-			Arguments.of("a".repeat(100))
+			Arguments.of("aa"),
+			Arguments.of("a".repeat(100)),
+			Arguments.of("00")
 		);
 	}
 
@@ -22,6 +24,7 @@ public class TestDataProvider {
 			Arguments.of((Object)null),
 			Arguments.of(""),
 			Arguments.of(" "),
+			Arguments.of("a"),
 			Arguments.of("a".repeat(101)),
 			Arguments.of("Invalid@Name!"),
 			Arguments.of("Name With Spaces"),
