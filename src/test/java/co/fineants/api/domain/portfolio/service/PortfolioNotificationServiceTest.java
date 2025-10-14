@@ -19,8 +19,6 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioNotificationUpdateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -30,6 +28,8 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 

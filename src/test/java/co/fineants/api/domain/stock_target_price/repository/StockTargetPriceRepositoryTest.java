@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class StockTargetPriceRepositoryTest extends AbstractContainerBaseTest {
 

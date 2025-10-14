@@ -4,16 +4,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.api.domain.role.domain.Role;
+import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
+import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.role.domain.Role;
-import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
-import co.fineants.api.global.init.properties.MemberProperties;
+import co.fineants.member.infrastructure.MemberRepository;
 
 @Service
 public class MemberSetupDataLoader {

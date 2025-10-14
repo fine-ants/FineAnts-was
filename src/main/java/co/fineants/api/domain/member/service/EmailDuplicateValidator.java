@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.member.infrastructure.MemberRepository;
 
 @Service
 public class EmailDuplicateValidator {

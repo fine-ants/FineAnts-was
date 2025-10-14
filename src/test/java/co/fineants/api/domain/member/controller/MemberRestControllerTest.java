@@ -28,10 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class MemberRestControllerTest extends AbstractContainerBaseTest {
 

@@ -10,9 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.role.domain.Role;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.api.domain.role.domain.Role;
+import co.fineants.member.infrastructure.MemberRepository;
 
 @Transactional
 class MemberRepositoryTest extends AbstractContainerBaseTest {

@@ -35,8 +35,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -49,6 +47,8 @@ import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepo
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.KisApiRequestException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

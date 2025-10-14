@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.validator.domain.member.SignUpValidator;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 import co.fineants.api.global.errors.exception.business.InvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

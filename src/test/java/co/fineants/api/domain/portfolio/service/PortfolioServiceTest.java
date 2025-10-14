@@ -31,8 +31,6 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
@@ -48,6 +46,8 @@ import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputExc
 import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateException;
 import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

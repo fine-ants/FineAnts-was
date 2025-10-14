@@ -16,11 +16,11 @@ import co.fineants.AbstractDataJpaBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 

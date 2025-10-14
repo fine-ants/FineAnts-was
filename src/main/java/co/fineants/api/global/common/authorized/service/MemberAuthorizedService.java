@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.member.infrastructure.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

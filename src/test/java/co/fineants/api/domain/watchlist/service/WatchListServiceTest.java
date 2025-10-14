@@ -22,9 +22,6 @@ import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.member.domain.MemberEmail;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
@@ -42,6 +39,9 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
 

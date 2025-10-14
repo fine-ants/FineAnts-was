@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class NicknameValidatorTest extends AbstractContainerBaseTest {
 

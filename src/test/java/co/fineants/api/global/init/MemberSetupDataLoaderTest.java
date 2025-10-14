@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.init.properties.MemberProperties;
+import co.fineants.member.infrastructure.MemberRepository;
 
 class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 

@@ -8,8 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
@@ -32,6 +30,8 @@ import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFoundException;
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.infrastructure.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

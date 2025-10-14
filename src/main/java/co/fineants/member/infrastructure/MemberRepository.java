@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.repository;
+package co.fineants.member.infrastructure;
 
 import java.util.Optional;
 
