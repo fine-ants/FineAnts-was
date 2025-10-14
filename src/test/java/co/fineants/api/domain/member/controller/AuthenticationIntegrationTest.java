@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -31,6 +30,7 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;

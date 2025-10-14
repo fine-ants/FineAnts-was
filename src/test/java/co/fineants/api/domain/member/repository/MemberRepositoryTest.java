@@ -14,7 +14,7 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
-import co.fineants.role.infrastructure.RoleRepository;
+import co.fineants.role.domain.RoleRepository;
 
 @Transactional
 class MemberRepositoryTest extends AbstractContainerBaseTest {

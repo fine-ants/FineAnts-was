@@ -10,12 +10,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.global.security.ajax.provider.MemberContext;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

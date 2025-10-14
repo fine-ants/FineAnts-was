@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import co.fineants.role.domain.Role;
 
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleSpringDataJpaRepository extends JpaRepository<Role, Long> {
 
 	@Query("select r from Role r where r.roleName = :roleName")
 	Optional<Role> findRoleByRoleName(@Param("roleName") String roleName);

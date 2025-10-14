@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
@@ -29,6 +28,7 @@ import co.fineants.api.global.security.oauth.service.CustomOAuth2UserService;
 import co.fineants.api.global.security.oauth.service.CustomOidcUserService;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.domain.RoleRepository;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -47,7 +47,8 @@ public class OauthSecurityConfig {
 
 	public OauthSecurityConfig(MemberRepository memberRepository,
 		TokenService tokenService,
-		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, OAuth2UserMapper oAuth2UserMapper,
+		NicknameGenerator nicknameGenerator, RoleRepository roleRepository,
+		OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
 		TokenManagementService tokenManagementService,
 		@Value("${oauth2.login-success-uri}") String loginSuccessUri,

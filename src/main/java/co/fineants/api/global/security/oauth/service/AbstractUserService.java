@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
