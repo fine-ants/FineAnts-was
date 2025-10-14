@@ -10,7 +10,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.factory.NicknameFactory;
 
 class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 
@@ -19,9 +18,6 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	@Autowired
-	private NicknameFactory factory;
 
 	@AfterEach
 	void tearDown() {
@@ -32,7 +28,7 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@Test
 	void isDuplicate_whenDuplicatedNickname_thenReturnTrue() {
 		memberRepository.save(TestDataFactory.createMember());
-		Nickname nickname = factory.create("nemo1234");
+		Nickname nickname = new Nickname("nemo1234");
 
 		boolean actual = validator.isDuplicate(nickname);
 
@@ -42,7 +38,7 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@DisplayName("중복되지 않은 닉네임은 false를 반환한다.")
 	@Test
 	void isDuplicate_whenNotDuplicatedNickname_thenReturnFalse() {
-		Nickname nickname = factory.create("nemo2345");
+		Nickname nickname = new Nickname("nemo2345");
 
 		boolean actual = validator.isDuplicate(nickname);
 
@@ -53,7 +49,7 @@ class NicknameDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@Test
 	void isDuplicate_whenUppercaseNickname_thenReturnFalse() {
 		memberRepository.save(TestDataFactory.createMember());
-		Nickname nickname = factory.create("Nemo1234");
+		Nickname nickname = new Nickname("Nemo1234");
 
 		boolean actual = validator.isDuplicate(nickname);
 

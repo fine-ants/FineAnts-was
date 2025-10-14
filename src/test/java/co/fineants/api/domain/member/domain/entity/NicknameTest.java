@@ -1,22 +1,15 @@
-package co.fineants.api.domain.member.service.factory;
+package co.fineants.api.domain.member.domain.entity;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Nickname;
-
-class NicknameFactoryTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private NicknameFactory factory;
+class NicknameTest {
 
 	@ParameterizedTest
 	@MethodSource(value = "co.fineants.TestDataProvider#validNicknameValues")
 	void create_whenNicknameValueIsValid_thenNicknameIsNotNull(String value) {
-		Nickname nickname = factory.create(value);
+		Nickname nickname = new Nickname(value);
 
 		Assertions.assertThat(nickname).isNotNull();
 	}
@@ -24,9 +17,10 @@ class NicknameFactoryTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	@MethodSource(value = "co.fineants.TestDataProvider#invalidNicknameValues")
 	void create_whenNicknameValueIsInvalid_thenThrowException(String value) {
-		Throwable throwable = Assertions.catchThrowable(() -> factory.create(value));
+		Throwable throwable = Assertions.catchThrowable(() -> new Nickname(value));
 
 		Assertions.assertThat(throwable)
 			.isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

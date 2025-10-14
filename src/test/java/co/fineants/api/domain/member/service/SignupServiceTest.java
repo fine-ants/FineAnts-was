@@ -36,7 +36,6 @@ import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
@@ -60,31 +59,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberProfileFactory profileFactory;
-
-	@Autowired
-	private NicknameFactory nicknameFactory;
-
-	private static Stream<Arguments> invalidEmailSource() {
-		return Stream.of(
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("invalidEmail"), // 잘못된 형식의 이메일
-			Arguments.of("invalid@Email"), // 도메인 부분이 없는 이메일
-			Arguments.of("invalidEmail@.com"), // 도메인 부분이 없는 이메일
-			Arguments.of("invalidEmail@domain..com"), // 도메인 부분에 '.'이 연속된 이메일
-			Arguments.of((Object)null) // null 값
-		);
-	}
-
-	private static Stream<Arguments> invalidNicknameSource() {
-		return Stream.of(
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("a"), // 너무 짧은 닉네임
-			Arguments.of("a".repeat(101)), // 너무 긴 닉네임
-			Arguments.of("invalid nickname"), // 공백이 포함된 닉네임
-			Arguments.of("invalid@nickname"), // 특수문자가 포함된 닉네임
-			Arguments.of((Object)null) // null 값
-		);
-	}
 
 	private static Stream<Arguments> invalidProfileFileSource() {
 		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
@@ -110,7 +84,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void should_saveMember_whenSignup() {
 		// given
 		MemberEmail memberEmail = new MemberEmail("ants1@gmail.com");
-		Nickname nickname = nicknameFactory.create("ants1");
+		Nickname nickname = new Nickname("ants1");
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
@@ -127,7 +101,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void givenDuplicatedNickname_whenValidateNickname_thenFailSignup() {
 		// given
 		MemberEmail memberEmail = new MemberEmail("ants1234@gmail.com");
-		Nickname nickname = nicknameFactory.create("ants1234");
+		Nickname nickname = new Nickname("ants1234");
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);

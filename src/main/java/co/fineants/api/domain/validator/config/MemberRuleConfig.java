@@ -38,7 +38,7 @@ public class MemberRuleConfig {
 	@Bean
 	public NicknameDuplicationRule nicknameDuplicationRule(NicknameDuplicateValidator validator,
 		NicknameFactory factory) {
-		return new NicknameDuplicationRule(validator, factory);
+		return new NicknameDuplicationRule(validator);
 	}
 
 	@Bean
