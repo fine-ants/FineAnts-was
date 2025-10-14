@@ -4,16 +4,19 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.util.Strings;
 
-import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Embeddable
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "value")
+@ToString
 public class MemberEmail {
+	private static final String PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+
 	@Column(name = "email", nullable = false)
 	private String value;
 
@@ -21,21 +24,15 @@ public class MemberEmail {
 	}
 
 	public MemberEmail(String value) {
+		if (Strings.isBlank(value)) {
+			throw new IllegalArgumentException("Email must not be blank");
+		}
+		if (value.contains("..")) {
+			throw new IllegalArgumentException("Email must not contain consecutive dots");
+		}
+		if (!Pattern.matches(PATTERN, value)) {
+			throw new IllegalArgumentException("Email format is invalid");
+		}
 		this.value = value;
-		if (Strings.isBlank(this.value)) {
-			throw new EmailInvalidInputException(this.value);
-		}
-		if (this.value.contains("..")) { // 연속된 마침표는 허용하지 않음
-			throw new EmailInvalidInputException(this.value);
-		}
-		Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
-		if (!pattern.matcher(this.value).matches()) {
-			throw new EmailInvalidInputException(value);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "Email=" + value;
 	}
 }
