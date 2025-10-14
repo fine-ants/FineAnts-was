@@ -2,6 +2,8 @@ package co.fineants.api.domain.member.domain.entity;
 
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.util.Strings;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
@@ -20,7 +22,7 @@ public class Nickname {
 	}
 
 	public Nickname(String value) {
-		if (value == null || value.isBlank()) {
+		if (Strings.isBlank(value)) {
 			throw new IllegalArgumentException("Nickname cannot be empty!");
 		}
 		if (!PATTERN.matcher(value).matches()) {

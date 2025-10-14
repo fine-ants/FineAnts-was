@@ -13,7 +13,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class VerifyEmailRequest {
 	@NotBlank(message = "이메일은 필수 정보입니다")
-	@Pattern(regexp = MemberEmail.PATTERN, message = "잘못된 입력 형식입니다")
+	@Pattern(regexp = MemberEmail.EMAIL_REGEXP, message = "잘못된 입력 형식입니다")
 	@JsonProperty
 	private final String email;
 

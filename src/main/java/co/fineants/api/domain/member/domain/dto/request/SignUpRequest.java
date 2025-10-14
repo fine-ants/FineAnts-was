@@ -18,7 +18,7 @@ public class SignUpRequest {
 	@JsonProperty
 	private final String nickname;
 
-	@Pattern(regexp = MemberEmail.PATTERN, message = "잘못된 입력 형식입니다")
+	@Pattern(regexp = MemberEmail.EMAIL_REGEXP, message = "잘못된 입력 형식입니다")
 	@NotBlank(message = "이메일은 필수 정보입니다")
 	@JsonProperty
 	private final String email;
