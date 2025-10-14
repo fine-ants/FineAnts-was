@@ -23,20 +23,20 @@ import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.domain.MemberProfile;
-import co.fineants.member.domain.Nickname;
-import co.fineants.member.domain.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
+import co.fineants.role.domain.Role;
 
 public final class TestDataFactory {
 

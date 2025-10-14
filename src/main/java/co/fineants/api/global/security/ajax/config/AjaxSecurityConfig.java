@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.ajax.filter.AjaxLoginProcessingFilter;

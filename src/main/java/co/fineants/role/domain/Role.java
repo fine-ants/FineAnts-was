@@ -1,4 +1,4 @@
-package co.fineants.api.domain.role.domain;
+package co.fineants.role.domain;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

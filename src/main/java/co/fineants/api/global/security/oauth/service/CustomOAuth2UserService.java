@@ -17,12 +17,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.domain.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

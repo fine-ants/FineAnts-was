@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import co.fineants.api.domain.member.repository.RoleRepository;
+import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;

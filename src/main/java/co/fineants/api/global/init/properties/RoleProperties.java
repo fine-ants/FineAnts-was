@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
-import co.fineants.api.domain.role.domain.Role;
+import co.fineants.role.domain.Role;
 import lombok.Getter;
 
 @Getter

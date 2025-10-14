@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.repository;
+package co.fineants.role.infrastructure;
 
 import java.util.Optional;
 import java.util.Set;
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import co.fineants.api.domain.role.domain.Role;
+import co.fineants.role.domain.Role;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
 

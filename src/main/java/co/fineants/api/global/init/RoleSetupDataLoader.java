@@ -3,9 +3,9 @@ package co.fineants.api.global.init;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.role.domain.Role;
+import co.fineants.role.infrastructure.RoleRepository;
 import co.fineants.api.global.init.properties.RoleProperties;
+import co.fineants.role.domain.Role;
 
 @Service
 public class RoleSetupDataLoader {
