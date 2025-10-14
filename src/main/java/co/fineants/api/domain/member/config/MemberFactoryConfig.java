@@ -4,10 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import co.fineants.api.domain.member.domain.factory.ExchangeRateErrorMimeMessageFactory;
-import co.fineants.api.domain.member.domain.factory.VerifyCodeMimeMessageFactory;
 import co.fineants.api.domain.member.service.ExchangeRateErrorMailHtmlRender;
 import co.fineants.api.domain.member.service.VerifyCodeMailHtmlRender;
+import co.fineants.api.infra.mail.ExchangeRateErrorMimeMessageFactory;
+import co.fineants.api.infra.mail.VerifyCodeMimeMessageFactory;
 
 @Configuration
 public class MemberFactoryConfig {

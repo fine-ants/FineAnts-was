@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.factory;
+package co.fineants.api.infra.mail;
 
 import java.nio.charset.StandardCharsets;
 

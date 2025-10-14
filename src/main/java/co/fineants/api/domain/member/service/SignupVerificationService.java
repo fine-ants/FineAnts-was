@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
+import co.fineants.api.infra.mail.MimeMessageFactory;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
