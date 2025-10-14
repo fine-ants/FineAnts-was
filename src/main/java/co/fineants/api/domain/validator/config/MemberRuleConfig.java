@@ -3,7 +3,6 @@ package co.fineants.api.domain.validator.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.member.service.EmailDuplicateValidator;
 import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
@@ -30,8 +29,8 @@ public class MemberRuleConfig {
 	}
 
 	@Bean
-	public NicknameFormatRule nicknameFormatRule(NicknameProperties nicknameProperties) {
-		return new NicknameFormatRule(nicknameProperties.getNicknamePattern());
+	public NicknameFormatRule nicknameFormatRule() {
+		return new NicknameFormatRule();
 	}
 
 	@Bean

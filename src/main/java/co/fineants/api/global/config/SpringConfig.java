@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
-import co.fineants.api.domain.member.properties.EmailProperties;
 import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.global.common.csv.CsvProperties;
@@ -24,7 +23,6 @@ import co.fineants.api.global.security.ajax.config.ActuatorProperties;
 	KisTrIdProperties.class,
 	ActuatorProperties.class,
 	NicknameProperties.class,
-	EmailProperties.class,
 	CsvProperties.class,
 	MemberProperties.class
 })
