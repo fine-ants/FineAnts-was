@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.properties;
+package co.fineants.member.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;

@@ -7,12 +7,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
-import co.fineants.api.domain.member.properties.NicknameProperties;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.global.common.csv.CsvProperties;
 import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.api.global.init.properties.RoleProperties;
 import co.fineants.api.global.security.ajax.config.ActuatorProperties;
+import co.fineants.member.config.NicknameProperties;
 
 @EnableAspectJAutoProxy
 @EnableAsync
