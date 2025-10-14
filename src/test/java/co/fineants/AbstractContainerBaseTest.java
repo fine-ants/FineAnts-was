@@ -34,6 +34,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
@@ -174,8 +175,9 @@ public abstract class AbstractContainerBaseTest {
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
 		String password = passwordEncoder.encode("nemo1234@");
+		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname nickname = nicknameFactory.create(nicknameValue);
-		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, password, "profileUrl");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정
@@ -187,8 +189,9 @@ public abstract class AbstractContainerBaseTest {
 		String roleName = "ROLE_USER";
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
+		MemberEmail memberEmail = new MemberEmail("fineants1234@gmail.com");
 		Nickname nickname = nicknameFactory.create("fineants1234");
-		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", nickname, "google",
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, "google",
 			"profileUrl1");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		// 회원 생성

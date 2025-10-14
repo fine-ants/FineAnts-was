@@ -30,6 +30,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
@@ -37,10 +38,8 @@ import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
 class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
@@ -110,8 +109,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Test
 	void should_saveMember_whenSignup() {
 		// given
+		MemberEmail memberEmail = new MemberEmail("ants1@gmail.com");
 		Nickname nickname = nicknameFactory.create("ants1");
-		MemberProfile profile = MemberProfile.localMemberProfile("ants1@gmail.com", nickname, "ants1234@", null);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
@@ -122,49 +122,19 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		assertThat(memberSize).isEqualTo(1);
 	}
 
-	@DisplayName("사용자는 유효하지 않은 형식의 이메일이 주어졌을때 회원가입에 실패한다")
-	@ParameterizedTest
-	@MethodSource(value = "invalidEmailSource")
-	void givenInvalidEmail_whenValidateEmail_thenFailSignup(String email) {
-		// given
-		Nickname nickname = nicknameFactory.create("ants1");
-		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, "ants1234@", null);
-		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
-		// when
-		Throwable throwable = catchThrowable(() -> service.signup(member));
-		// then
-		assertThat(throwable)
-			.isInstanceOf(EmailInvalidInputException.class);
-	}
-
-	@DisplayName("사용자는 유효하지 않은 형식의 닉네임이 주어졌을때 회원가입에 실패한다")
-	@ParameterizedTest
-	@MethodSource(value = "invalidNicknameSource")
-	void givenInvalidNickname_whenValidateNickname_thenFailSignup(String nickname) {
-		// given
-		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", new Nickname(nickname),
-			"ants1234@", null);
-		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
-		// when
-		Throwable throwable = catchThrowable(() -> service.signup(member));
-		// then
-		assertThat(throwable)
-			.isInstanceOf(NicknameInvalidInputException.class);
-	}
-
 	@DisplayName("사용자는 이미 존재하는 닉네임을 가지고 회원가입 할 수 없다.")
 	@Test
 	void givenDuplicatedNickname_whenValidateNickname_thenFailSignup() {
 		// given
+		MemberEmail memberEmail = new MemberEmail("ants1234@gmail.com");
 		Nickname nickname = nicknameFactory.create("ants1234");
-		MemberProfile profile = MemberProfile.localMemberProfile("ants1234@gmail.com", nickname, "ants1234@", null);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 		memberRepository.save(member);
 
-		MemberProfile otherProfile = MemberProfile.localMemberProfile("ants4567@gmail.com", nickname, "ants4567@",
+		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
+		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, "ants4567@",
 			null);
 
 		Member otherMember = Member.createMember(otherProfile, notificationPreference);

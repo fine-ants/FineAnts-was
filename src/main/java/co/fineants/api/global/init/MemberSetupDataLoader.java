@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
@@ -55,8 +56,9 @@ public class MemberSetupDataLoader {
 	}
 
 	private Member createMember(MemberProperties.MemberAuthProperty properties) {
+		MemberEmail memberEmail = new MemberEmail(properties.getEmail());
 		Nickname nickname = nicknameFactory.create(properties.getNickname());
-		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(), nickname,
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname,
 			passwordEncoder.encode(properties.getPassword()), null);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);

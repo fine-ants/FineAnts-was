@@ -110,7 +110,7 @@ public class Member extends BaseEntity {
 	}
 
 	public String getEmail() {
-		return profile.getEmail();
+		return profile.getEmail().getValue();
 	}
 
 	@Override

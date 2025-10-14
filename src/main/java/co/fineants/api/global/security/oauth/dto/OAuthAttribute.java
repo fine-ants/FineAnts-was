@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
@@ -87,8 +88,9 @@ public class OAuthAttribute {
 	}
 
 	public Member toEntity(NicknameGenerator generator) {
+		MemberEmail memberEmail = new MemberEmail(this.email);
 		Nickname nickname = generator.generate();
-		MemberProfile profile = MemberProfile.oauthMemberProfile(email, nickname, provider, profileUrl);
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, provider, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		return Member.createMember(profile, notificationPreference);
 	}
