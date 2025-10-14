@@ -21,7 +21,7 @@ import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.response.MemberNotification;
 import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 
@@ -31,7 +31,7 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 	private MemberNotificationService notificationService;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private NotificationRepository notificationRepository;

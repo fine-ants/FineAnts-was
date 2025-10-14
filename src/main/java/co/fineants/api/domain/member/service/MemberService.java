@@ -39,9 +39,9 @@ import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
 import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
@@ -56,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberService {
 
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
 	private final WatchStockRepository watchStockRepository;

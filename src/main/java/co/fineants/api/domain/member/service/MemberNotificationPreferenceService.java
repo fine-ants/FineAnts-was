@@ -11,8 +11,8 @@ import co.fineants.api.global.common.authorized.service.MemberAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
 import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class MemberNotificationPreferenceService {
 
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final FcmService fcmService;
 
 	@Transactional

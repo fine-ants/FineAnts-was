@@ -3,15 +3,15 @@ package co.fineants.api.domain.member.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 @Service
 public class NicknameDuplicateValidator {
 
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 
-	public NicknameDuplicateValidator(MemberSpringDataJpaRepository memberRepository) {
+	public NicknameDuplicateValidator(MemberRepository memberRepository) {
 		this.memberRepository = memberRepository;
 	}
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class NicknameValidatorTest extends AbstractContainerBaseTest {
 
@@ -18,7 +18,7 @@ class NicknameValidatorTest extends AbstractContainerBaseTest {
 	private NicknameValidator validator;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@DisplayName("사용자는 닉네임이 중복되었는지 체크한다")
 	@Test

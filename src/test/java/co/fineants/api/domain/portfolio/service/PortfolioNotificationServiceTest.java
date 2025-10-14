@@ -29,7 +29,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -43,7 +43,7 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private StockRepository stockRepository;

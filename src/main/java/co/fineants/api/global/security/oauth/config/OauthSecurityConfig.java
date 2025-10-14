@@ -28,13 +28,13 @@ import co.fineants.api.global.security.oauth.handler.OAuth2UserMapper;
 import co.fineants.api.global.security.oauth.service.CustomOAuth2UserService;
 import co.fineants.api.global.security.oauth.service.CustomOidcUserService;
 import co.fineants.api.global.security.oauth.service.TokenService;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class OauthSecurityConfig {
 
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final TokenService tokenService;
 	private final NicknameGenerator nicknameGenerator;
 	private final RoleRepository roleRepository;
@@ -45,7 +45,7 @@ public class OauthSecurityConfig {
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
 
-	public OauthSecurityConfig(MemberSpringDataJpaRepository memberRepository,
+	public OauthSecurityConfig(MemberRepository memberRepository,
 		TokenService tokenService,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,

@@ -46,7 +46,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.support.cache.PortfolioCacheSupportService;
 
 class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
@@ -64,7 +64,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private StockRepository stockRepository;

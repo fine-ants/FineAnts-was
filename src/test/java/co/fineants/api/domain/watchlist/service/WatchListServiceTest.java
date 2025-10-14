@@ -41,7 +41,7 @@ import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class WatchListServiceTest extends AbstractContainerBaseTest {
 
@@ -49,7 +49,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	private WatchListService watchListService;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private WatchListRepository watchListRepository;

@@ -29,7 +29,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DashboardService {
 	private final PortfolioRepository portfolioRepository;
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 	private final LocalDateTimeService localDateTimeService;

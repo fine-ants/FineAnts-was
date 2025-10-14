@@ -31,7 +31,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class MemberRestControllerTest extends AbstractContainerBaseTest {
 
@@ -50,7 +50,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 	private ObjectMapper objectMapper;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@BeforeEach
 	void setUp() {

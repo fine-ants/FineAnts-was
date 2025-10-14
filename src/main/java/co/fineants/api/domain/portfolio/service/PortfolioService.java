@@ -42,7 +42,7 @@ import co.fineants.api.global.errors.exception.business.PortfolioNotFoundExcepti
 import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.errors.exception.domain.DomainException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PortfolioService {
 
 	private final PortfolioRepository portfolioRepository;
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final PortfolioHoldingRepository portfolioHoldingRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;

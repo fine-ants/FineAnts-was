@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.AbstractDataJpaBaseTest;
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
@@ -20,15 +20,15 @@ import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
-class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
+class PortfolioGainHistoryRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
@@ -124,6 +124,7 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 		Assertions.assertThat(actual).hasSize(1);
 	}
 
+	@Transactional
 	@DisplayName("여러개의 포트폴리오의 포트폴리오 손익 내역 데이터를 삭제한다")
 	@Test
 	void deleteAllByPortfolioIds() {
@@ -151,6 +152,5 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 		// then
 		List<PortfolioGainHistory> actual = portfolioGainHistoryRepository.findAll();
 		Assertions.assertThat(actual).isEmpty();
-		;
 	}
 }

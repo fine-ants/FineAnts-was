@@ -11,18 +11,18 @@ import co.fineants.api.global.init.properties.MemberProperties;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 @Service
 public class MemberSetupDataLoader {
 
 	private final RoleRepository roleRepository;
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public MemberSetupDataLoader(RoleRepository roleRepository, MemberSpringDataJpaRepository memberRepository,
+	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
 		PasswordEncoder passwordEncoder) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;

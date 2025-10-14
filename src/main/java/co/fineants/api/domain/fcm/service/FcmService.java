@@ -24,7 +24,7 @@ import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FcmService {
 
 	private final FcmRepository fcmRepository;
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final FirebaseMessaging firebaseMessaging;
 
 	@Transactional

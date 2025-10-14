@@ -33,7 +33,7 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 
@@ -41,7 +41,7 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 	private PurchaseHistoryEventListener purchaseHistoryEventListener;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

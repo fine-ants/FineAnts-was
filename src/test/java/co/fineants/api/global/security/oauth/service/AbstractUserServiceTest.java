@@ -15,12 +15,12 @@ import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class AbstractUserServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private NicknameGenerator nicknameGenerator;

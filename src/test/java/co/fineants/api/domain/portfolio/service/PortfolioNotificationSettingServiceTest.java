@@ -13,14 +13,14 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificatio
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class PortfolioNotificationSettingServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioNotificationSettingService service;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

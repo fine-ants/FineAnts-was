@@ -8,9 +8,9 @@ import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -75,7 +75,7 @@ public class OAuthAttribute {
 		return new OAuthAttribute(attributes, nameAttributeKey, email, profileUrl, "naver", sub);
 	}
 
-	public Optional<Member> findMember(MemberSpringDataJpaRepository repository) {
+	public Optional<Member> findMember(MemberRepository repository) {
 		MemberEmail memberEmail = new MemberEmail(email);
 		return repository.findMemberByEmailAndProvider(memberEmail, provider)
 			.stream()

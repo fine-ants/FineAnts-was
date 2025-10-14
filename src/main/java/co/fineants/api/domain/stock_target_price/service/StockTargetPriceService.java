@@ -31,7 +31,7 @@ import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFound
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +44,7 @@ public class StockTargetPriceService {
 
 	private final StockTargetPriceRepository repository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final StockRepository stockRepository;
 	private final ClosingPriceRepository manager;
 

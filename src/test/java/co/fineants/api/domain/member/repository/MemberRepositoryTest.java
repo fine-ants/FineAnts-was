@@ -13,13 +13,13 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 @Transactional
 class MemberRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MemberSpringDataJpaRepository repository;
+	private MemberRepository repository;
 
 	@Autowired
 	private RoleRepository roleRepository;

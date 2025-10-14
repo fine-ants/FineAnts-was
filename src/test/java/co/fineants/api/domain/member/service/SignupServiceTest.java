@@ -35,9 +35,9 @@ import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
 
 class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
@@ -46,7 +46,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	private SignupService service;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private AmazonS3 amazonS3;

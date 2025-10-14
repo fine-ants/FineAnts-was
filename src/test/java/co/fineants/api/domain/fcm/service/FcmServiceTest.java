@@ -31,7 +31,7 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,7 +41,7 @@ class FcmServiceTest extends AbstractContainerBaseTest {
 	private FcmService fcmService;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private FcmRepository fcmRepository;

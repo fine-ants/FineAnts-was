@@ -11,7 +11,7 @@ import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public abstract class AbstractUserService {
 	private static final String DEFAULT_ROLE = "ROLE_USER";
-	private final MemberSpringDataJpaRepository memberRepository;
+	private final MemberRepository memberRepository;
 	private final NicknameGenerator nicknameGenerator;
 	private final RoleRepository roleRepository;
 

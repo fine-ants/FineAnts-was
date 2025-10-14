@@ -31,7 +31,7 @@ import co.fineants.api.global.errors.exception.business.StockTargetPriceNotFound
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationDuplicateException;
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationLimitExceededException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 
 class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 
@@ -39,7 +39,7 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 	private StockTargetPriceService service;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private StockRepository stockRepository;

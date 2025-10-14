@@ -43,7 +43,7 @@ import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalid
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PurchaseHistoryNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
+import co.fineants.member.domain.MemberRepository;
 import reactor.core.publisher.Mono;
 
 class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
@@ -55,7 +55,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private MemberSpringDataJpaRepository memberRepository;
+	private MemberRepository memberRepository;
 
 	@Autowired
 	private StockRepository stockRepository;
