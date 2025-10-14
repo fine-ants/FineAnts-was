@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Nickname;
 
 @Component
 public class NicknameGenerator {

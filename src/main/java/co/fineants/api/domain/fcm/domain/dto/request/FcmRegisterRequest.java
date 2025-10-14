@@ -1,7 +1,7 @@
 package co.fineants.api.domain.fcm.domain.dto.request;
 
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

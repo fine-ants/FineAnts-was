@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.member.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

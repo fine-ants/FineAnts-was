@@ -2,7 +2,7 @@ package co.fineants.api.domain.notification.domain.dto.response;
 
 import java.util.List;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import lombok.Getter;
 import lombok.ToString;

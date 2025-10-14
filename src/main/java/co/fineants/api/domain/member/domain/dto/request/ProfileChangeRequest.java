@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.domain.dto.request;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Nickname;
 import jakarta.validation.constraints.Pattern;
 
 public class ProfileChangeRequest {

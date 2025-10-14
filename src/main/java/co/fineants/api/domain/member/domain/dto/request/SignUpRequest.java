@@ -3,9 +3,9 @@ package co.fineants.api.domain.member.domain.dto.request;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.domain.member.domain.entity.MemberEmail;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.EqualsAndHashCode;

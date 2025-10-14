@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberEmail;
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.Nickname;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 	@Query("select distinct m from Member m "

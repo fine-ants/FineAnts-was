@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.member.domain.entity.MemberEmail;
+import co.fineants.member.domain.MemberEmail;
 import co.fineants.api.domain.member.repository.MemberRepository;
 
 class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {

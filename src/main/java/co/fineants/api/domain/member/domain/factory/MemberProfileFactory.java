@@ -2,9 +2,9 @@ package co.fineants.api.domain.member.domain.factory;
 
 import org.springframework.stereotype.Component;
 
-import co.fineants.api.domain.member.domain.entity.MemberEmail;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
 
 @Component
 public class MemberProfileFactory {

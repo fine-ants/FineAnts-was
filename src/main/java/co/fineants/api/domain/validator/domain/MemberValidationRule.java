@@ -1,6 +1,6 @@
 package co.fineants.api.domain.validator.domain;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 
 public interface MemberValidationRule {
 	void validate(String text);

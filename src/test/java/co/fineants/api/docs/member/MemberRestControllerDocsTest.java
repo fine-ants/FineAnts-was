@@ -29,8 +29,8 @@ import co.fineants.api.domain.member.domain.dto.request.ProfileChangeServiceRequ
 import co.fineants.api.domain.member.domain.dto.response.OauthMemberResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileChangeResponse;
 import co.fineants.api.domain.member.domain.dto.response.ProfileResponse;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.Nickname;
 import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 

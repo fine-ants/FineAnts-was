@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.member.domain;
 
 import java.util.Collection;
 import java.util.HashSet;

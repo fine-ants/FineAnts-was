@@ -3,7 +3,7 @@ package co.fineants.api.domain.member.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Nickname;
 import co.fineants.api.domain.member.repository.MemberRepository;
 
 @Service

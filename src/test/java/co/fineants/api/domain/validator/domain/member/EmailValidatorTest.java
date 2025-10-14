@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.rule;
+package co.fineants.api.domain.validator.domain.member;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,10 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.validator.domain.member.EmailValidator;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.member.domain.Member;
 
 class EmailValidatorTest extends AbstractContainerBaseTest {
 

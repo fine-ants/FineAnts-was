@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberEmail;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
 import co.fineants.api.domain.role.domain.Role;
 
 @Transactional

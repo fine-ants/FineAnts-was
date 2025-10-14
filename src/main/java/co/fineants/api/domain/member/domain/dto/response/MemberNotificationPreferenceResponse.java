@@ -1,6 +1,6 @@
 package co.fineants.api.domain.member.domain.dto.response;
 
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Nickname;
+import co.fineants.member.domain.Nickname;
 
 class NicknameGeneratorTest extends AbstractContainerBaseTest {
 

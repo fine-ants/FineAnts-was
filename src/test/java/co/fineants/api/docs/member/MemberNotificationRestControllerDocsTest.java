@@ -23,7 +23,7 @@ import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberNotificationRestController;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
 import co.fineants.api.domain.member.domain.dto.response.MemberNotificationResponse;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.notification.domain.entity.PortfolioNotification;

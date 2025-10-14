@@ -1,6 +1,6 @@
 package co.fineants.api.domain.member.domain.dto.response;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +53,7 @@ public class ProfileResponse {
 		private Boolean targetPriceNotify;
 
 		public static NotificationPreference from(
-			co.fineants.api.domain.member.domain.entity.NotificationPreference preference) {
+			co.fineants.member.domain.NotificationPreference preference) {
 			return NotificationPreference.builder()
 				.browserNotify(preference.isBrowserNotify())
 				.targetGainNotify(preference.isTargetGainNotify())

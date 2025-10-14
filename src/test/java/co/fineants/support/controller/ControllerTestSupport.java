@@ -34,7 +34,7 @@ import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.member.controller.MemberNotificationRestController;
 import co.fineants.api.domain.member.controller.MemberRestController;
 import co.fineants.api.domain.member.controller.SignUpRestControllerTest;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;

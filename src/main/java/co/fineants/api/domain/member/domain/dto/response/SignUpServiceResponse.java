@@ -1,6 +1,6 @@
 package co.fineants.api.domain.member.domain.dto.response;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

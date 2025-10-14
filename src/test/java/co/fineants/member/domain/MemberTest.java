@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.entity;
+package co.fineants.member.domain;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

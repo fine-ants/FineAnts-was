@@ -3,7 +3,7 @@ package co.fineants.api.domain.common.notification;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessage;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.member.domain.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import lombok.AccessLevel;
 import lombok.Builder;

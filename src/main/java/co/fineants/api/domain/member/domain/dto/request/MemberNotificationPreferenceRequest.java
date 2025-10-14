@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.member.domain.NotificationPreference;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
