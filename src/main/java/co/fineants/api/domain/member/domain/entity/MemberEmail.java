@@ -15,7 +15,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "value")
 @ToString
 public class MemberEmail {
-	private static final String PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+	public static final String PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
 
 	@Column(name = "email", nullable = false)
 	private String value;
