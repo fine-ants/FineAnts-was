@@ -13,7 +13,8 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode
 public class Nickname {
-	private static final Pattern PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{2,100}$");
+	public static final String NICKNAME_REGEXP = "^[가-힣a-zA-Z0-9]{2,100}$";
+	private static final Pattern PATTERN = Pattern.compile(NICKNAME_REGEXP);
 
 	@Column(name = "nickname", nullable = false, unique = true, length = 100)
 	private String value;

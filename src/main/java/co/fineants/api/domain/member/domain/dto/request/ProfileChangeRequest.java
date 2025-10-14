@@ -3,11 +3,11 @@ package co.fineants.api.domain.member.domain.dto.request;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import jakarta.validation.constraints.Pattern;
 
 public class ProfileChangeRequest {
-	@Pattern(regexp = MemberProfile.NICKNAME_REGEXP, message = "잘못된 입력형식입니다.")
+	@Pattern(regexp = Nickname.NICKNAME_REGEXP, message = "잘못된 입력형식입니다.")
 	@JsonProperty
 	private final String nickname;
 

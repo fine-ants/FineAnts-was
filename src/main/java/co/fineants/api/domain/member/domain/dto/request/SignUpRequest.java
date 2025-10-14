@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.MemberProfile;
+import co.fineants.api.domain.member.domain.entity.Nickname;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 @Getter
 public class SignUpRequest {
-	@Pattern(regexp = MemberProfile.NICKNAME_REGEXP, message = "{nickname.notnull}")
+	@Pattern(regexp = Nickname.NICKNAME_REGEXP, message = "{nickname.notnull}")
 	@NotBlank(message = "닉네임은 필수 정보입니다")
 	@JsonProperty
 	private final String nickname;
