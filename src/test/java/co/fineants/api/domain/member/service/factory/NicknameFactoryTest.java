@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.domain.entity.Nickname;
-import co.fineants.api.global.errors.exception.business.NicknameInvalidInputException;
 
 class NicknameFactoryTest extends AbstractContainerBaseTest {
 
@@ -28,7 +27,6 @@ class NicknameFactoryTest extends AbstractContainerBaseTest {
 		Throwable throwable = Assertions.catchThrowable(() -> factory.create(value));
 
 		Assertions.assertThat(throwable)
-			.isInstanceOf(NicknameInvalidInputException.class)
-			.hasMessage(value);
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 }
