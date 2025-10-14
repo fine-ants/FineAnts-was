@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 
@@ -17,7 +17,7 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 	private EmailDuplicateValidator validator;
 
 	@Autowired
-	private MemberRepository repository;
+	private MemberSpringDataJpaRepository repository;
 
 	@AfterEach
 	void tearDown() {

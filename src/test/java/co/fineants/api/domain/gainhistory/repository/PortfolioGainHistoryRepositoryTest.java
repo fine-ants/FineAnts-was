@@ -20,7 +20,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.LineChartItem;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 
@@ -28,7 +28,7 @@ class PortfolioGainHistoryRepositoryTest extends AbstractDataJpaBaseTest {
 	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

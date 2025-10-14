@@ -33,7 +33,7 @@ import co.fineants.api.global.errors.exception.business.WatchListForbiddenExcept
 import co.fineants.api.global.errors.exception.business.WatchListNotFoundException;
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class WatchListService {
 
 	private final WatchListRepository watchListRepository;
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 	private final StockRepository stockRepository;
 	private final WatchStockRepository watchStockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;

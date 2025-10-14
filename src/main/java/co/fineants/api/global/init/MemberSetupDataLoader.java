@@ -13,16 +13,16 @@ import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 @Service
 public class MemberSetupDataLoader {
 
 	private final RoleRepository roleRepository;
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
+	public MemberSetupDataLoader(RoleRepository roleRepository, MemberSpringDataJpaRepository memberRepository,
 		PasswordEncoder passwordEncoder) {
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;

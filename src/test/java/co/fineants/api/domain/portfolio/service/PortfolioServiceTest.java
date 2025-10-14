@@ -47,7 +47,7 @@ import co.fineants.api.global.errors.exception.business.PortfolioNameDuplicateEx
 import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -57,7 +57,7 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 	private PortfolioService service;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

@@ -34,11 +34,11 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class DashboardServiceTest extends AbstractContainerBaseTest {
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 	@Autowired
 	private PortfolioRepository portfolioRepository;
 	@Autowired

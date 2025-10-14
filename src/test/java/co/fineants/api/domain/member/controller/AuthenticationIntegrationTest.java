@@ -30,7 +30,7 @@ import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -38,7 +38,7 @@ import io.restassured.response.Response;
 public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private TokenService tokenService;

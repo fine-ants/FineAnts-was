@@ -4,14 +4,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 @Service
 public class EmailDuplicateValidator {
 
-	private final MemberRepository repository;
+	private final MemberSpringDataJpaRepository repository;
 
-	public EmailDuplicateValidator(MemberRepository repository) {
+	public EmailDuplicateValidator(MemberSpringDataJpaRepository repository) {
 		this.repository = repository;
 	}
 

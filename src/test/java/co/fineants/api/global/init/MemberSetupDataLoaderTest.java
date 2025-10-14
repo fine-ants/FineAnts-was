@@ -11,7 +11,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.init.properties.MemberProperties;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -19,7 +19,7 @@ class MemberSetupDataLoaderTest extends AbstractContainerBaseTest {
 	private MemberSetupDataLoader loader;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private RoleRepository roleRepository;

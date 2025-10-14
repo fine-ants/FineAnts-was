@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberAuthorizedService implements AuthorizedService<Member> {
 
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 
 	@Override
 	public List<Member> findResourceAllBy(List<Long> ids) {

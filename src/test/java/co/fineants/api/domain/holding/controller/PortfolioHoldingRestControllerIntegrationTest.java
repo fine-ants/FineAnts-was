@@ -36,7 +36,7 @@ import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
@@ -56,7 +56,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	private TokenFactory tokenFactory;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

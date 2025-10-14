@@ -13,7 +13,7 @@ import co.fineants.api.global.errors.exception.business.MemberProfileUploadExcep
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class SignupService {
 
 	private final SignUpValidator signUpValidator;
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
 

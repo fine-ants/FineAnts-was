@@ -11,7 +11,7 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.Nickname;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberSpringDataJpaRepository extends JpaRepository<Member, Long> {
 	@Query("select distinct m from Member m "
 		+ "where m.profile.email = :email and m.profile.provider = :provider")
 	Optional<Member> findMemberByEmailAndProvider(@Param("email") MemberEmail email,

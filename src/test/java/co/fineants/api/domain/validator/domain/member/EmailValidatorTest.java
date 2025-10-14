@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class EmailValidatorTest extends AbstractContainerBaseTest {
 
@@ -18,7 +18,7 @@ class EmailValidatorTest extends AbstractContainerBaseTest {
 	private EmailValidator validator;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@DisplayName("이메일이 검증을 통과하면 예외가 발생하지 않는다")
 	@Test

@@ -15,7 +15,7 @@ import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class NotificationService {
 	private final NotificationRepository notificationRepository;
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 	private final NotifyMessageFactory notifyMessageFactory;
 	private final NotificationSender notificationSender;
 	private final TargetGainNotificationStrategy targetGainNotificationStrategy;

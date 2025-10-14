@@ -14,7 +14,7 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
 import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
 
@@ -24,7 +24,7 @@ class MemberNotificationPreferenceServiceTest extends AbstractContainerBaseTest 
 	private MemberNotificationPreferenceService service;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private FcmRepository fcmRepository;

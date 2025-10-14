@@ -23,7 +23,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 
 class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 
@@ -31,7 +31,7 @@ class PortfolioHoldingFacadeTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

@@ -15,7 +15,7 @@ import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.ajax.provider.MemberContext;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MemberUserDetailService implements UserDetailsService {
 
-	private final MemberRepository memberRepository;
+	private final MemberSpringDataJpaRepository memberRepository;
 	private final RoleRepository roleRepository;
 
 	@Override

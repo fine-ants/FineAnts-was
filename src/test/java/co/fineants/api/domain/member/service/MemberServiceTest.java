@@ -35,7 +35,7 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
 import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
 import co.fineants.member.presentation.dto.response.ProfileResponse;
@@ -46,7 +46,7 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 	private MemberService memberService;
 
 	@Autowired
-	private MemberRepository memberRepository;
+	private MemberSpringDataJpaRepository memberRepository;
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;

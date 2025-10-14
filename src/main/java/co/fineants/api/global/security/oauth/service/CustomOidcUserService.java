@@ -25,7 +25,7 @@ import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
-import co.fineants.member.infrastructure.MemberRepository;
+import co.fineants.member.infrastructure.MemberSpringDataJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,7 +33,7 @@ public class CustomOidcUserService extends AbstractUserService implements OAuth2
 
 	private final RoleRepository roleRepository;
 
-	public CustomOidcUserService(MemberRepository memberRepository,
+	public CustomOidcUserService(MemberSpringDataJpaRepository memberRepository,
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
 		super(memberRepository, nicknameGenerator, roleRepository);
 		this.roleRepository = roleRepository;

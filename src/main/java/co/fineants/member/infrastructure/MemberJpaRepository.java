@@ -12,9 +12,9 @@ import co.fineants.member.domain.Nickname;
 @Repository
 public class MemberJpaRepository implements MemberRepository {
 
-	private final co.fineants.member.infrastructure.MemberRepository repository;
+	private final MemberSpringDataJpaRepository repository;
 
-	public MemberJpaRepository(co.fineants.member.infrastructure.MemberRepository repository) {
+	public MemberJpaRepository(MemberSpringDataJpaRepository repository) {
 		this.repository = repository;
 	}
 
