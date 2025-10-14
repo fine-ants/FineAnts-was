@@ -29,16 +29,16 @@ import com.amazonaws.services.s3.AmazonS3;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.dto.request.SignUpRequest;
+import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
-import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 
 class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 

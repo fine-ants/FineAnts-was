@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.factory;
+package co.fineants.member.application;
 
 import org.springframework.stereotype.Component;
 
