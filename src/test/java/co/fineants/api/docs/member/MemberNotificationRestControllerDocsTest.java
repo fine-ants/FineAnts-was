@@ -21,9 +21,6 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberNotificationRestController;
-import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
-import co.fineants.api.domain.member.domain.dto.response.MemberNotificationResponse;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.notification.domain.entity.PortfolioNotification;
@@ -32,6 +29,9 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
+import co.fineants.member.presentation.dto.response.MemberNotification;
+import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 
 class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 

@@ -18,12 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
-import co.fineants.api.domain.member.domain.dto.response.MemberNotificationResponse;
 import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
 import co.fineants.api.domain.member.service.MemberNotificationService;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.presentation.dto.response.MemberNotification;
+import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 import co.fineants.support.controller.ControllerTestSupport;
 
 class MemberNotificationRestControllerTest extends ControllerTestSupport {

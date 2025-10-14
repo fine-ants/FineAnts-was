@@ -6,14 +6,14 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.dto.response.MemberNotification;
-import co.fineants.api.domain.member.domain.dto.response.MemberNotificationResponse;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
+import co.fineants.member.presentation.dto.response.MemberNotification;
+import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

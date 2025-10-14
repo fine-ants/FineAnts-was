@@ -12,8 +12,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.api.domain.member.domain.dto.response.LoginResponse;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.api.ApiResponse;
@@ -23,6 +21,8 @@ import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.global.util.CookieUtils;
+import co.fineants.member.domain.Member;
+import co.fineants.member.presentation.dto.response.LoginResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

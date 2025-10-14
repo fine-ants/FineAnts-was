@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.dto.response;
+package co.fineants.member.presentation.dto.response;
 
 import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;

@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.domain.dto.request;
+package co.fineants.member.presentation.dto.request;
 
 import javax.annotation.Nullable;
 
