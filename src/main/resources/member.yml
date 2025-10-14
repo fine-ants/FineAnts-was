@@ -2,9 +2,6 @@ member:
   nickname:
     prefix: 일개미
     len: 7
-    regex: '^[가-힣a-zA-Z0-9]{2,100}$'
   verifyCode:
     len: 6
     limit: 1000000
-  email:
-    regex: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$'

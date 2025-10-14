@@ -8,12 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 	@Query("select distinct m from Member m "
 		+ "where m.profile.email = :email and m.profile.provider = :provider")
-	Optional<Member> findMemberByEmailAndProvider(@Param("email") String email, @Param("provider") String provider);
+	Optional<Member> findMemberByEmailAndProvider(@Param("email") MemberEmail email,
+		@Param("provider") String provider);
 
 	@Query("select m from Member m where m.profile.nickname = :nickname and m.id != :memberId")
 	Optional<Member> findMemberByNicknameAndNotMemberId(@Param("nickname") Nickname nickname,

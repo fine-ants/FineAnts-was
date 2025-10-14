@@ -31,4 +31,38 @@ public class TestDataProvider {
 			Arguments.of("Special#Char$")
 		);
 	}
+
+	public static Stream<Arguments> validEmailValues() {
+		return Stream.of(
+			Arguments.of("user@example.com"),
+			Arguments.of("john.doe123@domain.co"),
+			Arguments.of("alice_smith@company.org"),
+			Arguments.of("test.email+label@gmail.com"),
+			Arguments.of("my-account_01@sub.domain.net"),
+			Arguments.of("hello.world@my-site.io"),
+			Arguments.of("admin@service.info"),
+			Arguments.of("simple123@abc.xyz"),
+			Arguments.of("contact@domain.co.kr"),
+			Arguments.of("support_team@company123.biz")
+		);
+	}
+
+	public static Stream<Arguments> invalidEmailValues() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of(" "),
+			Arguments.of("a"),
+			Arguments.of("a".repeat(101)),
+			Arguments.of("Invalid@Name!"),
+			Arguments.of("Name With Spaces"),
+			Arguments.of("Special#Char$"),
+			Arguments.of("@example.com"), // 로컬 파트 없음
+			Arguments.of("user@.com"), // 도메인 이름 없음
+			Arguments.of("user@domain"), // 최상위 도메인(TLD)이 없음
+			Arguments.of("user@domain.toolongtld"), // TLD가 6자를 초과함
+			Arguments.of("user name@example.com"), // 공백 포함
+			Arguments.of("username@example..com") // 연속된 마침표
+		);
+	}
 }

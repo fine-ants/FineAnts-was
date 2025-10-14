@@ -3,11 +3,8 @@ package co.fineants.api.domain.validator.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.member.properties.EmailProperties;
-import co.fineants.api.domain.member.properties.NicknameProperties;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.api.domain.member.service.EmailDuplicateValidator;
 import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
-import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.domain.validator.domain.member.EmailDuplicationRule;
 import co.fineants.api.domain.validator.domain.member.EmailFormatRule;
@@ -22,24 +19,23 @@ import co.fineants.api.domain.validator.domain.member.SignUpValidator;
 public class MemberRuleConfig {
 
 	@Bean
-	public EmailFormatRule emailFormatRule(EmailProperties emailProperties) {
-		return new EmailFormatRule(emailProperties.getEmailPattern());
+	public EmailFormatRule emailFormatRule() {
+		return new EmailFormatRule();
 	}
 
 	@Bean
-	public EmailDuplicationRule emailDuplicationRule(MemberRepository memberRepository) {
-		return new EmailDuplicationRule(memberRepository, "local");
+	public EmailDuplicationRule emailDuplicationRule(EmailDuplicateValidator validator) {
+		return new EmailDuplicationRule(validator, "local");
 	}
 
 	@Bean
-	public NicknameFormatRule nicknameFormatRule(NicknameProperties nicknameProperties) {
-		return new NicknameFormatRule(nicknameProperties.getNicknamePattern());
+	public NicknameFormatRule nicknameFormatRule() {
+		return new NicknameFormatRule();
 	}
 
 	@Bean
-	public NicknameDuplicationRule nicknameDuplicationRule(NicknameDuplicateValidator validator,
-		NicknameFactory factory) {
-		return new NicknameDuplicationRule(validator, factory);
+	public NicknameDuplicationRule nicknameDuplicationRule(NicknameDuplicateValidator validator) {
+		return new NicknameDuplicationRule(validator);
 	}
 
 	@Bean

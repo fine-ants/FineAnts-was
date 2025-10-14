@@ -33,6 +33,7 @@ import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
@@ -508,7 +509,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 			}),
 			DynamicTest.dynamicTest("전송 이력이 있어서 알림을 받지 않는다", () -> {
 				// given
-				Member member = memberRepository.findMemberByEmailAndProvider("dragonbead95@naver.com", "local")
+				MemberEmail memberEmail = new MemberEmail("dragonbead95@naver.com");
+				Member member = memberRepository.findMemberByEmailAndProvider(memberEmail, "local")
 					.orElseThrow();
 				Stock stock = createSamsungStock();
 				List<String> tickerSymbols = Stream.of(stock)

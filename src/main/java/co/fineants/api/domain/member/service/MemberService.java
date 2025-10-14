@@ -25,7 +25,6 @@ import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.member.domain.entity.Nickname;
 import co.fineants.api.domain.member.domain.entity.NotificationPreference;
 import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.factory.NicknameFactory;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -73,7 +72,6 @@ public class MemberService {
 	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
-	private final NicknameFactory nicknameFactory;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// clear Authentication
@@ -140,7 +138,7 @@ public class MemberService {
 		member.changeProfileUrl(profileUrl);
 
 		if (request.hasNickname()) {
-			Nickname nickname = nicknameFactory.create(request.nickname());
+			Nickname nickname = new Nickname(request.nickname());
 			verifyNickname(nickname, member.getId());
 			member.changeNickname(nickname);
 		}
