@@ -117,8 +117,8 @@ public class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 		memberRepository.save(createMember());
 
 		Map<String, String> body = Map.of(
-			"email", "aaa",
-			"password", "aaa"
+			"email", "user1@gmail.com",
+			"password", "user1@"
 		);
 		String json = ObjectMapperUtil.serialize(body);
 		// when & then

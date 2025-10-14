@@ -39,7 +39,7 @@ public class MemberSetupDataLoader {
 	}
 
 	private void saveMember(MemberProperties.MemberAuthProperty properties, Role role) {
-		String email = properties.getEmail();
+		MemberEmail email = new MemberEmail(properties.getEmail());
 		String provider = properties.getProvider();
 		if (isEmptyMemberBy(email, provider)) {
 			Member member = createMember(properties);
@@ -48,7 +48,7 @@ public class MemberSetupDataLoader {
 		}
 	}
 
-	private boolean isEmptyMemberBy(String email, String provider) {
+	private boolean isEmptyMemberBy(MemberEmail email, String provider) {
 		return memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty();
 	}
 

@@ -23,6 +23,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
@@ -231,7 +232,8 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 			}),
 			DynamicTest.dynamicTest("사용자는 관심 종목이 이미 존재하여 추가할 수 없다", () -> {
 				// given
-				Member member = memberRepository.findMemberByEmailAndProvider("dragonbead95@naver.com", "local")
+				MemberEmail memberEmail = new MemberEmail("dragonbead95@naver.com");
+				Member member = memberRepository.findMemberByEmailAndProvider(memberEmail, "local")
 					.orElseThrow();
 
 				Long watchListId = watchListRepository.findByMember(member).stream()

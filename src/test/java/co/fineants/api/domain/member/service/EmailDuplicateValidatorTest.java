@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.repository.MemberRepository;
 
 class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
@@ -28,7 +29,7 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 	void hasMemberWith_whenExistMember_thenReturnTrue() {
 		repository.save(TestDataFactory.createMember());
 		String provider = "local";
-		String email = "dragonbead95@naver.com";
+		MemberEmail email = new MemberEmail("dragonbead95@naver.com");
 
 		boolean actual = validator.hasMemberWith(email, provider);
 
@@ -39,7 +40,7 @@ class EmailDuplicateValidatorTest extends AbstractContainerBaseTest {
 	@Test
 	void hasMemberWith_whenNotExistMember_thenReturnFalse() {
 		String provider = "local";
-		String email = "dragonbead95@naver.com";
+		MemberEmail email = new MemberEmail("dragonbead95@naver.com");
 
 		boolean actual = validator.hasMemberWith(email, provider);
 

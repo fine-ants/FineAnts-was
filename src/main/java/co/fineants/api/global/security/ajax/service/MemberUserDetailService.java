@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.role.domain.Role;
@@ -29,7 +30,8 @@ public class MemberUserDetailService implements UserDetailsService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Member member = memberRepository.findMemberByEmailAndProvider(email, "local")
+		MemberEmail memberEmail = new MemberEmail(email);
+		Member member = memberRepository.findMemberByEmailAndProvider(memberEmail, "local")
 			.orElseThrow(() -> new BadCredentialsException("invalid email"));
 		log.debug("findMember : {}", member);
 

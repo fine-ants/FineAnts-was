@@ -76,7 +76,8 @@ public class OAuthAttribute {
 	}
 
 	public Optional<Member> findMember(MemberRepository repository) {
-		return repository.findMemberByEmailAndProvider(email, provider)
+		MemberEmail memberEmail = new MemberEmail(email);
+		return repository.findMemberByEmailAndProvider(memberEmail, provider)
 			.stream()
 			.findAny();
 	}

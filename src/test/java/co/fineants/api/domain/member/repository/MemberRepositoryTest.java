@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.api.domain.member.domain.entity.MemberEmail;
 import co.fineants.api.domain.role.domain.Role;
 
 @Transactional
@@ -27,7 +28,7 @@ class MemberRepositoryTest extends AbstractContainerBaseTest {
 	void findMemberByEmailAndProvider() {
 		// given
 		repository.save(TestDataFactory.createMember());
-		String email = "dragonbead95@naver.com";
+		MemberEmail email = new MemberEmail("dragonbead95@naver.com");
 		String provider = "local";
 		// when
 		Optional<Member> findMember = repository.findMemberByEmailAndProvider(email, provider);
@@ -39,7 +40,7 @@ class MemberRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void findMemberByEmailAndProviderWithMember() {
 		// given
-		String email = "dragonbead95@naver.com";
+		MemberEmail email = new MemberEmail("dragonbead95@naver.com");
 		String provider = "local";
 		// when
 		Optional<Member> actual = repository.findMemberByEmailAndProvider(email, provider);
