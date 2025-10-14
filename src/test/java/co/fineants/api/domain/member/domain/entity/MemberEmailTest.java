@@ -1,16 +1,14 @@
 package co.fineants.api.domain.member.domain.entity;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import co.fineants.api.global.errors.exception.business.EmailInvalidInputException;
-
 class MemberEmailTest {
-	@Test
-	void canCreated() {
-		MemberEmail memberEmail = new MemberEmail("ant1234@gmail.com");
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#validEmailValues")
+	void canCreated(String value) {
+		MemberEmail memberEmail = new MemberEmail(value);
 
 		Assertions.assertThat(memberEmail).isNotNull();
 	}
@@ -21,6 +19,6 @@ class MemberEmailTest {
 		Throwable throwable = Assertions.catchThrowable(() -> new MemberEmail(value));
 
 		Assertions.assertThat(throwable)
-			.isInstanceOf(EmailInvalidInputException.class);
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 }
