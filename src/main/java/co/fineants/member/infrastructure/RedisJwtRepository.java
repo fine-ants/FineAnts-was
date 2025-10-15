@@ -34,6 +34,7 @@ public class RedisJwtRepository implements JwtRepository {
 	@Override
 	public boolean isAlreadyLogout(String token) {
 		if (token == null) {
+			log.warn("Token is null, cannot check logout status.");
 			return true;
 		}
 		String logout = redisTemplate.opsForValue().get(token);
