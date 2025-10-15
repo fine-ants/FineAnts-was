@@ -70,7 +70,7 @@ public class MemberRestController {
 
 	@PutMapping("/account/password")
 	public ApiResponse<Void> changePassword(
-		@RequestBody PasswordUpdateRequest request,
+		@Valid @RequestBody PasswordUpdateRequest request,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
 		changeMemberPassword.changePassword(request, authentication.getId());

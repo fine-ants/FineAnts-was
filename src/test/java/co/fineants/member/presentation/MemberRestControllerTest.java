@@ -206,7 +206,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 		String newPasswordConfirm = "nemo2345@";
 		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
 		// when & then
-		mockMvc.perform(put("/api//account/password")
+		mockMvc.perform(put("/api/account/password")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(request))
 				.cookie(createTokenCookies())
@@ -238,5 +238,27 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PASSWORD_CONFIRM_BAD_REQUEST.getMessage())))
 			.andExpect(jsonPath("data").value(
 				equalTo("newPassword=" + newPassword + ", newPasswordConfirm=" + newPasswordConfirm)));
+	}
+
+	@DisplayName("사용자의 새로운 비밀번호 입력 형식이 유효하지 않아서 비밀번호를 변경하지 못한다")
+	@Test
+	void changePassword_whenNewPasswordInvalidInput_thenNotChangePassword() throws Exception {
+		// given
+		String currentPassword = "nemo1234@";
+		String newPassword = "";
+		String newPasswordConfirm = "";
+		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
+		// when & then
+		mockMvc.perform(put("/api/account/password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request))
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[*].field", hasItems("newPassword", "newPasswordConfirm")))
+			.andExpect(jsonPath("data[*].defaultMessage", hasItem("잘못된 입력 형식입니다")));
 	}
 }
