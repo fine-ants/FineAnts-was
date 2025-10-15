@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.repository;
+package co.fineants.member.domain;
 
 import java.util.Optional;
 
@@ -10,9 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.member.domain.Member;
-import co.fineants.member.domain.MemberEmail;
-import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 
