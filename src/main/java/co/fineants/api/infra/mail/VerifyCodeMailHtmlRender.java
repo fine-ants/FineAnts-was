@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.api.infra.mail;
 
 import java.util.Locale;
 import java.util.Map;
@@ -6,12 +6,12 @@ import java.util.Map;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-public class ExchangeRateErrorMailHtmlRender implements MailHtmlRender {
+public class VerifyCodeMailHtmlRender implements MailHtmlRender {
 
 	private final String templateName;
 	private final SpringTemplateEngine engine;
 
-	public ExchangeRateErrorMailHtmlRender(String templateName, SpringTemplateEngine engine) {
+	public VerifyCodeMailHtmlRender(String templateName, SpringTemplateEngine engine) {
 		this.templateName = templateName;
 		this.engine = engine;
 	}

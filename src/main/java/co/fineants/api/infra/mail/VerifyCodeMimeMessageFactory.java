@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.mail.javamail.JavaMailSender;
 
-import co.fineants.api.domain.member.service.MailHtmlRender;
 import jakarta.mail.internet.MimeMessage;
 
 public class VerifyCodeMimeMessageFactory implements MimeMessageFactory {

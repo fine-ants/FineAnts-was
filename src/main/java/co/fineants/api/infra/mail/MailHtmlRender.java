@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.api.infra.mail;
 
 import java.util.Map;
 

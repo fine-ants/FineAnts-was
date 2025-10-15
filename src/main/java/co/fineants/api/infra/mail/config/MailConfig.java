@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import co.fineants.api.domain.member.service.ExchangeRateErrorMailHtmlRender;
-import co.fineants.api.domain.member.service.VerifyCodeMailHtmlRender;
+import co.fineants.api.infra.mail.ExchangeRateErrorMailHtmlRender;
 import co.fineants.api.infra.mail.ExchangeRateErrorMimeMessageFactory;
+import co.fineants.api.infra.mail.VerifyCodeMailHtmlRender;
 import co.fineants.api.infra.mail.VerifyCodeMimeMessageFactory;
 
 @Configuration
