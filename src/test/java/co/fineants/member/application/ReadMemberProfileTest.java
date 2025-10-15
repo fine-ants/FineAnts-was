@@ -34,7 +34,7 @@ class ReadMemberProfileTest extends AbstractContainerBaseTest {
 			.extracting("id", "nickname", "email", "profileUrl")
 			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", "profileUrl");
 		assertThat(response)
-			.extracting("user.notificationPreferences")
+			.extracting("user.notificationPreferencesDto")
 			.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
 			.containsExactlyInAnyOrder(true, true, true, true);
 	}

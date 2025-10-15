@@ -53,24 +53,21 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void readProfile() throws Exception {
 		// given
+		ProfileResponse.MemberProfile memberProfile = ProfileResponse.MemberProfile.builder()
+			.id(1L)
+			.nickname("일개미1234")
+			.email("dragonbead95@naver.com")
+			.profileUrl("profileUrl")
+			.provider("local")
+			.notificationPreferences(ProfileResponse.NotificationPreferenceDto.builder()
+				.browserNotify(false)
+				.targetGainNotify(true)
+				.maxLossNotify(true)
+				.targetPriceNotify(true)
+				.build())
+			.build();
 		given(memberService.readProfile(anyLong()))
-			.willReturn(
-				ProfileResponse.builder()
-					.user(ProfileResponse.MemberProfile.builder()
-						.id(1L)
-						.nickname("일개미1234")
-						.email("dragonbead95@naver.com")
-						.profileUrl("profileUrl")
-						.provider("local")
-						.notificationPreferences(ProfileResponse.NotificationPreference.builder()
-							.browserNotify(false)
-							.targetGainNotify(true)
-							.maxLossNotify(true)
-							.targetPriceNotify(true)
-							.build())
-						.build())
-					.build()
-			);
+			.willReturn(new ProfileResponse(memberProfile));
 
 		// when & then
 		mockMvc.perform(get("/api/profile")
@@ -118,11 +115,13 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 							.description("알림 설정"),
 						fieldWithPath("data.user.notificationPreferences.browserNotify").type(JsonFieldType.BOOLEAN)
 							.description("브라우저 알림 설정"),
-						fieldWithPath("data.user.notificationPreferences.targetGainNotify").type(JsonFieldType.BOOLEAN)
+						fieldWithPath("data.user.notificationPreferences.targetGainNotify").type(
+								JsonFieldType.BOOLEAN)
 							.description("목표 수익률 알림 설정"),
 						fieldWithPath("data.user.notificationPreferences.maxLossNotify").type(JsonFieldType.BOOLEAN)
 							.description("최대 손실율 알림 설정"),
-						fieldWithPath("data.user.notificationPreferences.targetPriceNotify").type(JsonFieldType.BOOLEAN)
+						fieldWithPath("data.user.notificationPreferences.targetPriceNotify").type(
+								JsonFieldType.BOOLEAN)
 							.description("지정가 알림 설정")
 					)
 				)

@@ -71,52 +71,6 @@ public class TargetPriceNotification extends BaseEntity {
 		return targetPrice.compareTo(currentPrice) == 0;
 	}
 
-	// @Override
-	// public Long fetchMemberId() {
-	// 	return stockTargetPrice.getMember().getId();
-	// }
-	//
-	// @Override
-	// public NotifyMessage createTargetGainMessageWith(String token) {
-	// 	throw new UnsupportedOperationException("This method is not supported for TargetPriceNotification");
-	// }
-	//
-	// @Override
-	// public NotificationPreference getNotificationPreference() {
-	// 	return stockTargetPrice.getMember().getNotificationPreference();
-	// }
-	//
-	// @Override
-	// public NotifyMessage createMaxLossMessageWith(String token) {
-	// 	throw new UnsupportedOperationException("This method is not supported for TargetPriceNotification");
-	// }
-	//
-	// @Override
-	// public NotifyMessage createTargetPriceMessage(String token) {
-	// 	NotificationType type = NotificationType.STOCK_TARGET_PRICE;
-	// 	String title = type.getName();
-	// 	String content = String.format("%s이(가) %s%s에 도달했습니다",
-	// 		stockTargetPrice.getStock().getCompanyName(),
-	// 		targetPrice.currencySymbol(),
-	// 		targetPrice.toDecimalFormat());
-	// 	String referenceId = stockTargetPrice.getStock().getTickerSymbol();
-	// 	Long memberId = stockTargetPrice.getMember().getId();
-	// 	String link = "/stock/" + referenceId;
-	// 	String stockName = stockTargetPrice.getStock().getCompanyName();
-	// 	return NotifyMessage.stock(
-	// 		title,
-	// 		content,
-	// 		type,
-	// 		referenceId,
-	// 		memberId,
-	// 		token,
-	// 		link,
-	// 		stockName,
-	// 		targetPrice,
-	// 		id
-	// 	);
-	// }
-
 	public boolean hasAuthorization(Long memberId) {
 		return stockTargetPrice.hasAuthorization(memberId);
 	}

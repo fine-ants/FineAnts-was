@@ -1,6 +1,9 @@
 package co.fineants.member.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,15 +12,15 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@AllArgsConstructor
 public class ProfileResponse {
 
-	private MemberProfile user;
+	@JsonProperty("user")
+	private MemberProfile memberProfile;
 
 	public static ProfileResponse from(Member member) {
-		NotificationPreference preference = NotificationPreference.from(member.getNotificationPreference());
-		MemberProfile user = MemberProfile.builder()
+		NotificationPreferenceDto preference = NotificationPreferenceDto.from(member.getNotificationPreference());
+		MemberProfile memberProfile = MemberProfile.builder()
 			.id(member.getId())
 			.nickname(member.getNickname())
 			.email(member.getEmail())
@@ -25,9 +28,7 @@ public class ProfileResponse {
 			.provider(member.getProvider())
 			.notificationPreferences(preference)
 			.build();
-		return ProfileResponse.builder()
-			.user(user)
-			.build();
+		return new ProfileResponse(memberProfile);
 	}
 
 	@Getter
@@ -40,22 +41,21 @@ public class ProfileResponse {
 		private String email;
 		private String profileUrl;
 		private String provider;
-		private NotificationPreference notificationPreferences;
+		private NotificationPreferenceDto notificationPreferences;
 	}
 
 	@Getter
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Builder
-	public static class NotificationPreference {
+	public static class NotificationPreferenceDto {
 		private Boolean browserNotify;
 		private Boolean targetGainNotify;
 		private Boolean maxLossNotify;
 		private Boolean targetPriceNotify;
 
-		public static NotificationPreference from(
-			co.fineants.member.domain.NotificationPreference preference) {
-			return NotificationPreference.builder()
+		public static NotificationPreferenceDto from(NotificationPreference preference) {
+			return NotificationPreferenceDto.builder()
 				.browserNotify(preference.isBrowserNotify())
 				.targetGainNotify(preference.isTargetGainNotify())
 				.maxLossNotify(preference.isMaxLossNotify())
