@@ -3,7 +3,6 @@ package co.fineants.member.presentation;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.IOException;
@@ -12,31 +11,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
-import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupVerificationService;
@@ -45,13 +36,8 @@ import co.fineants.member.domain.Member;
 
 public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
-	@Autowired
-	protected MemberAuthenticationArgumentResolver mockedMemberAuthenticationArgumentResolver;
-	@Autowired
-	protected ObjectMapper objectMapper;
 	private MockMvc mockMvc;
-	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
+
 	@Autowired
 	private SignUpRestController controller;
 
@@ -64,21 +50,9 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
 
-	public static Stream<Arguments> invalidSignupData() {
-		return Stream.of(
-			Arguments.of("", "", "", ""),
-			Arguments.of("a", "a", "a", "a")
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
-		mockMvc = MockMvcBuilders.standaloneSetup(controller)
-			.setControllerAdvice(globalExceptionHandler)
-			.setCustomArgumentResolvers(mockedMemberAuthenticationArgumentResolver)
-			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-			.alwaysDo(print())
-			.build();
+		mockMvc = createMockMvc(controller);
 	}
 
 	@DisplayName("사용자는 일반 회원가입을 한다")

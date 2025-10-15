@@ -77,4 +77,11 @@ public class TestDataProvider {
 			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
 		);
 	}
+
+	public static Stream<Arguments> invalidSignupData() {
+		return Stream.of(
+			Arguments.of("", "", "", ""),
+			Arguments.of("a", "a", "a", "a")
+		);
+	}
 }
