@@ -34,8 +34,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.MemberRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import okhttp3.mockwebserver.MockWebServer;

@@ -31,10 +31,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.controller.PortfolioHoldingRestController;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.member.controller.MemberNotificationRestController;
-import co.fineants.api.domain.member.controller.MemberRestController;
-import co.fineants.api.domain.member.controller.SignUpRestControllerTest;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;
@@ -57,6 +53,10 @@ import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.config.ControllerTestConfig;
+import co.fineants.member.domain.Member;
+import co.fineants.member.presentation.MemberNotificationRestController;
+import co.fineants.member.presentation.MemberRestController;
+import co.fineants.member.presentation.SignUpRestControllerTest;
 
 @ActiveProfiles("test")
 @Import(value = {SpringConfig.class, JacksonConfig.class, ControllerTestConfig.class})

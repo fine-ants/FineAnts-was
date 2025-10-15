@@ -10,12 +10,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
-import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.api.global.util.CookieUtils;
+import co.fineants.member.domain.JwtRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 	private final TokenService tokenService;
-	private final TokenManagementService tokenManagementService;
+	private final JwtRepository jwtRepository;
 	private final TokenFactory tokenFactory;
 
 	@Override
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		Token token = null;
 		log.debug("requestURL : {}", ((HttpServletRequest)request).getRequestURL());
 		log.debug("accessToken : {}", accessToken);
-		if (accessToken != null && !tokenManagementService.isAlreadyLogout(accessToken)) {
+		if (accessToken != null && !jwtRepository.isAlreadyLogout(accessToken)) {
 			if (tokenService.isExpiredToken(accessToken)) {
 				log.debug("accessToken is Expired");
 				token = tokenService.refreshToken(refreshToken, LocalDateTime.now());

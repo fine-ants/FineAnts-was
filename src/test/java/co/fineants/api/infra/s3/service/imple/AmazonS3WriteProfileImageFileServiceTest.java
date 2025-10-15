@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
-import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
+import co.fineants.member.domain.ProfileImageFile;
 import co.fineants.api.global.errors.exception.business.ImageEmptyInvalidInputException;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;

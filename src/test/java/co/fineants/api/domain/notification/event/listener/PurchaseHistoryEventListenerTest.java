@@ -22,8 +22,6 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -34,6 +32,8 @@ import co.fineants.api.domain.purchasehistory.event.listener.PurchaseHistoryEven
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
 class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 

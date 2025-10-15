@@ -10,7 +10,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 
-import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
+import co.fineants.member.domain.ProfileImageFile;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import lombok.extern.slf4j.Slf4j;
 

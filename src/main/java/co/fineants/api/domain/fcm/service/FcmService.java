@@ -17,14 +17,14 @@ import co.fineants.api.domain.fcm.domain.dto.response.FcmDeleteResponse;
 import co.fineants.api.domain.fcm.domain.dto.response.FcmRegisterResponse;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -22,8 +22,6 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
@@ -35,6 +33,8 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
 class DashboardServiceTest extends AbstractContainerBaseTest {
 	@Autowired

@@ -29,7 +29,7 @@ import org.springframework.restdocs.snippet.Attributes;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.controller.StockTargetPriceRestController;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;

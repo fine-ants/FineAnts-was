@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 

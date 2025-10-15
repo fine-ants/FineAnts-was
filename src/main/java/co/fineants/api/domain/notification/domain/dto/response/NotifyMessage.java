@@ -12,7 +12,7 @@ import com.google.firebase.messaging.WebpushFcmOptions;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.service.FcmService;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;

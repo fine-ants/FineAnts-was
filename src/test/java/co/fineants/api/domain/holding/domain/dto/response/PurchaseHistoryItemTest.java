@@ -11,7 +11,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Stock;

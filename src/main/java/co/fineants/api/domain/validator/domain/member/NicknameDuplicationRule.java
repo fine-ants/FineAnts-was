@@ -1,8 +1,8 @@
 package co.fineants.api.domain.validator.domain.member;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.Nickname;
-import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.application.NicknameDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 

@@ -26,7 +26,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;

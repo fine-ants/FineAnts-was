@@ -15,10 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.member.service.TokenManagementService;
+import co.fineants.member.application.NicknameGenerator;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.CustomAccessDeniedHandler;
@@ -29,6 +26,9 @@ import co.fineants.api.global.security.oauth.handler.OAuth2UserMapper;
 import co.fineants.api.global.security.oauth.service.CustomOAuth2UserService;
 import co.fineants.api.global.security.oauth.service.CustomOidcUserService;
 import co.fineants.api.global.security.oauth.service.TokenService;
+import co.fineants.member.domain.JwtRepository;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.domain.RoleRepository;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -40,16 +40,17 @@ public class OauthSecurityConfig {
 	private final RoleRepository roleRepository;
 	private final OAuth2UserMapper oAuth2UserMapper;
 	private final CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint;
-	private final TokenManagementService tokenManagementService;
+	private final JwtRepository jwtRepository;
 	private final String loginSuccessUri;
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
 
 	public OauthSecurityConfig(MemberRepository memberRepository,
 		TokenService tokenService,
-		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, OAuth2UserMapper oAuth2UserMapper,
+		NicknameGenerator nicknameGenerator, RoleRepository roleRepository,
+		OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
-		TokenManagementService tokenManagementService,
+		JwtRepository jwtRepository,
 		@Value("${oauth2.login-success-uri}") String loginSuccessUri,
 		TokenFactory tokenFactory, CorsConfiguration corsConfiguration) {
 		this.memberRepository = memberRepository;
@@ -58,7 +59,7 @@ public class OauthSecurityConfig {
 		this.roleRepository = roleRepository;
 		this.oAuth2UserMapper = oAuth2UserMapper;
 		this.commonLoginAuthenticationEntryPoint = commonLoginAuthenticationEntryPoint;
-		this.tokenManagementService = tokenManagementService;
+		this.jwtRepository = jwtRepository;
 		this.loginSuccessUri = loginSuccessUri;
 		this.tokenFactory = tokenFactory;
 		this.corsConfiguration = corsConfiguration;
@@ -91,7 +92,7 @@ public class OauthSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.addFilterBefore(new OAuth2AuthorizationRequestRedirectWithRedirectUrlParamFilter(),
 			OAuth2AuthorizationRequestRedirectFilter.class);
-		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, tokenManagementService, tokenFactory),
+		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, jwtRepository, tokenFactory),
 			AuthorizationFilter.class);
 
 		http

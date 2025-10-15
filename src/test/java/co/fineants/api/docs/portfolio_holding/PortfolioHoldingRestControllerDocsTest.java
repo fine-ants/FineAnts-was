@@ -51,7 +51,7 @@ import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;

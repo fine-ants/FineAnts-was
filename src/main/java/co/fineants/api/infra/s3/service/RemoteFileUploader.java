@@ -1,6 +1,6 @@
 package co.fineants.api.infra.s3.service;
 
-import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
+import co.fineants.member.domain.ProfileImageFile;
 
 public interface RemoteFileUploader {
 	void upload(String fileContent, String filePath);

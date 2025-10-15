@@ -1,0 +1,32 @@
+package co.fineants.member.application;
+
+import static org.apache.logging.log4j.util.Strings.*;
+
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import co.fineants.member.domain.Nickname;
+
+@Component
+public class NicknameGenerator {
+
+	private static final String HYPHEN = "-";
+
+	private final String prefix;
+	private final int len;
+
+	public NicknameGenerator(
+		@Value("${member.nickname.prefix}") String prefix,
+		@Value("${member.nickname.len}") int len) {
+		this.prefix = prefix;
+		this.len = len;
+	}
+
+	public Nickname generate() {
+		String value = String.join(EMPTY, prefix,
+			UUID.randomUUID().toString().replace(HYPHEN, EMPTY).substring(0, len));
+		return new Nickname(value);
+	}
+}
