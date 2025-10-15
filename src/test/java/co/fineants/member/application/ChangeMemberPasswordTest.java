@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
@@ -41,5 +42,26 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
 		boolean matches = passwordEncoder.matches(newPassword, findMember.getPassword().orElseThrow());
 		Assertions.assertThat(matches).isTrue();
+	}
+
+	@DisplayName("현재 비밀번호가 일치하지 않아서 비밀번호 변경에 실패한다")
+	@Test
+	void changePassword_whenCurrentPasswordNotMatch_thenThrowException() {
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		String currentPassword = "xxx";
+		String newPassword = "nemo2345@";
+		String newPasswordConfirm = "nemo2345@";
+		PasswordModifyRequest request = new PasswordModifyRequest(
+			currentPassword,
+			newPassword,
+			newPasswordConfirm
+		);
+
+		Throwable throwable = Assertions.catchThrowable(
+			() -> changeMemberPassword.changePassword(request, member.getId()));
+
+		Assertions.assertThat(throwable)
+			.isInstanceOf(PasswordInvalidInputException.class)
+			.hasMessage(currentPassword);
 	}
 }
