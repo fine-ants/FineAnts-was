@@ -216,7 +216,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 		// given
 		Map<String, Object> body = Map.of(
 			"currentPassword", "currentPassword",
-			"newPassword", "newPassword",
+			"getNewPassword", "getNewPassword",
 			"newPasswordConfirm", "newPasswordConfirm"
 		);
 
@@ -237,7 +237,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 					preprocessResponse(prettyPrint()),
 					requestFields(
 						fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호"),
-						fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
+						fieldWithPath("getNewPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
 						fieldWithPath("newPasswordConfirm").type(JsonFieldType.STRING).description("새 비밀번호 확인")
 					),
 					responseFields(

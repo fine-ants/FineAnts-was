@@ -23,15 +23,21 @@ public class ChangeMemberPassword {
 	@Transactional
 	public void changePassword(PasswordModifyRequest request, Long memberId) {
 		Member member = findMember(memberId);
-		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new PasswordInvalidInputException(request.currentPassword());
+		// 현재 비밀번호 일치 여부 확인
+		String currentPassword = request.getCurrentPassword();
+		String encodedMemberPassword = member.getPassword().orElse(null);
+		if (!passwordEncoder.matches(currentPassword, encodedMemberPassword)) {
+			throw new PasswordInvalidInputException(currentPassword);
 		}
-		if (!request.matchPassword()) {
-			throw new PasswordInvalidInputException(request.newPassword());
+
+		// 새 비밀번호와 새 비밀번호 확인 일치 여부 확인
+		String newPassword = request.getNewPassword();
+		String newPasswordConfirm = request.getNewPasswordConfirm();
+		if (!newPassword.equals(newPasswordConfirm)) {
+			throw new PasswordInvalidInputException(newPassword);
 		}
-		String newPassword = passwordEncoder.encode(request.newPassword());
-		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
-		log.info("member password change result : {}", count);
+		String encodedNewPassword = passwordEncoder.encode(newPassword);
+		member.changePassword(encodedNewPassword);
 	}
 
 	private Member findMember(Long id) {

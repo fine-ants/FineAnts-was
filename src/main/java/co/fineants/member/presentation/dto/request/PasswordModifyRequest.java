@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
+@Getter
 public class PasswordModifyRequest {
 	@JsonProperty
 	@NotNull(message = "필수 정보입니다")
@@ -19,22 +21,10 @@ public class PasswordModifyRequest {
 	@JsonCreator
 	public PasswordModifyRequest(
 		@JsonProperty("currentPassword") @NotNull String currentPassword,
-		@JsonProperty("newPassword") @NotNull String newPassword,
+		@JsonProperty("getNewPassword") @NotNull String newPassword,
 		@JsonProperty("newPasswordConfirm") @NotNull String newPasswordConfirm) {
 		this.currentPassword = currentPassword;
 		this.newPassword = newPassword;
 		this.newPasswordConfirm = newPasswordConfirm;
-	}
-
-	public String currentPassword() {
-		return currentPassword;
-	}
-
-	public String newPassword() {
-		return newPassword;
-	}
-
-	public boolean matchPassword() {
-		return newPassword.equals(newPasswordConfirm);
 	}
 }

@@ -51,6 +51,10 @@ public class MemberProfile {
 		this.profileUrl = profileUrl;
 	}
 
+	public void changePassword(String encodedPassword) {
+		this.password = encodedPassword;
+	}
+
 	public Map<String, Object> toMap() {
 		return Map.ofEntries(
 			Map.entry("email", email),
