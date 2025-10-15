@@ -22,22 +22,18 @@ public class LogoutMember {
 	private final TokenFactory tokenFactory;
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		// clear authentication
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null) {
-			new SecurityContextLogoutHandler().logout(request, response, authentication);
-		}
+		SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
+		securityContextLogoutHandler.logout(request, response, authentication);
 
 		// ban accessToken
 		String accessToken = CookieUtils.getAccessToken(request);
-		if (accessToken != null) {
-			jwtRepository.banAccessToken(accessToken);
-		}
+		jwtRepository.banAccessToken(accessToken);
 
 		// ban refreshToken
 		String refreshToken = CookieUtils.getRefreshToken(request);
-		if (refreshToken != null) {
-			jwtRepository.banRefreshToken(refreshToken);
-		}
+		jwtRepository.banRefreshToken(refreshToken);
 
 		setExpiredCookies(response);
 	}
