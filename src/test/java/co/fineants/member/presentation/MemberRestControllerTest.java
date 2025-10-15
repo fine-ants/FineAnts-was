@@ -1,5 +1,6 @@
 package co.fineants.member.presentation;
 
+import static co.fineants.api.global.success.MemberSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -146,5 +147,29 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
 			.andExpect(jsonPath("data[0].field").value(equalTo("nickname")))
 			.andExpect(jsonPath("data[0].defaultMessage").value(equalTo("잘못된 입력형식입니다.")));
+	}
+
+	@DisplayName("사용자는 회원의 프로필을 조회한다")
+	@Test
+	void readProfile() throws Exception {
+		// given
+
+		// when & then
+		mockMvc.perform(get("/api/profile")
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(jsonPath("message").value(equalTo(OK_READ_PROFILE.getMessage())))
+			.andExpect(jsonPath("data.user.id").value(equalTo(1)))
+			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
+			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
+			.andExpect(jsonPath("data.user.profileUrl").value(equalTo("profileUrl")))
+			.andExpect(jsonPath("data.user.provider").value(equalTo("local")))
+			.andExpect(jsonPath("data.user.notificationPreferences.browserNotify").value(equalTo(true)))
+			.andExpect(jsonPath("data.user.notificationPreferences.targetGainNotify").value(equalTo(true)))
+			.andExpect(jsonPath("data.user.notificationPreferences.maxLossNotify").value(equalTo(true)))
+			.andExpect(jsonPath("data.user.notificationPreferences.targetPriceNotify").value(equalTo(true)));
 	}
 }
