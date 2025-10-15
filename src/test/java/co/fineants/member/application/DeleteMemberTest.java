@@ -1,9 +1,8 @@
 package co.fineants.member.application;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.time.LocalDateTime;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +26,10 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
-class MemberServiceTest extends AbstractContainerBaseTest {
+class DeleteMemberTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MemberService memberService;
+	private DeleteMember deleteMember;
 
 	@Autowired
 	private MemberRepository memberRepository;
@@ -79,9 +78,9 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 		WatchList watchList = watchListRepository.save(createWatchList(member));
 		watchStockRepository.save(createWatchStock(watchList, stock));
 		// when
-		memberService.deleteMember(member.getId());
+		deleteMember.delete(member.getId());
 
 		// then
-		assertThat(memberRepository.findById(member.getId())).isEmpty();
+		Assertions.assertThat(memberRepository.findById(member.getId())).isEmpty();
 	}
 }
