@@ -3,7 +3,6 @@ package co.fineants.member.presentation;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.nio.charset.StandardCharsets;
@@ -14,17 +13,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
-import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.MemberRepository;
 
@@ -36,25 +29,11 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 	private MemberRestController controller;
 
 	@Autowired
-	private GlobalExceptionHandler globalExceptionHandler;
-
-	@Autowired
-	private MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
-
-	@Autowired
-	private ObjectMapper objectMapper;
-
-	@Autowired
 	private MemberRepository memberRepository;
 
 	@BeforeEach
 	void setUp() {
-		mockMvc = MockMvcBuilders.standaloneSetup(controller)
-			.setControllerAdvice(globalExceptionHandler)
-			.setCustomArgumentResolvers(memberAuthenticationArgumentResolver)
-			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-			.alwaysDo(print())
-			.build();
+		mockMvc = createMockMvc(controller);
 		memberRepository.save(createMember());
 	}
 

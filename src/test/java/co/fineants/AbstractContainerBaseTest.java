@@ -1,5 +1,7 @@
 package co.fineants;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,10 +25,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
@@ -46,10 +53,12 @@ import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotifi
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
+import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.factory.CookieDomainProvider;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
+import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.config.AmazonS3TestConfig;
 import co.fineants.config.TestConfig;
 import co.fineants.member.domain.Member;
@@ -116,6 +125,15 @@ public abstract class AbstractContainerBaseTest {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
+
+	@Autowired
+	private MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
 		// redis property config
@@ -151,6 +169,15 @@ public abstract class AbstractContainerBaseTest {
 		redisRepository.clearAll();
 		System.out.println("applicationContext.hashCode() : " + applicationContext.hashCode());
 		System.out.println("context init count : " + applicationContextInitListener.getContextInitCount());
+	}
+
+	protected MockMvc createMockMvc(Object controller) {
+		return MockMvcBuilders.standaloneSetup(controller)
+			.setControllerAdvice(globalExceptionHandler)
+			.setCustomArgumentResolvers(memberAuthenticationArgumentResolver)
+			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+			.alwaysDo(print())
+			.build();
 	}
 
 	public KisAccessToken createKisAccessToken() {
