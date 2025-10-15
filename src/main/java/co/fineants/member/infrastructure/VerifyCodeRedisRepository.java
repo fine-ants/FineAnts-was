@@ -1,14 +1,15 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.infrastructure;
 
 import java.time.Duration;
 import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
+import co.fineants.member.domain.VerifyCodeRepository;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Repository
 @RequiredArgsConstructor
 public class VerifyCodeRedisRepository implements VerifyCodeRepository {
 	private static final Duration TIMEOUT = Duration.ofMinutes(5);

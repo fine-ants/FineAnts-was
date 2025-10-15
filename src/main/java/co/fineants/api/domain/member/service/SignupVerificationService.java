@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.mail.MimeMessageFactory;
+import co.fineants.member.domain.VerifyCodeRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
