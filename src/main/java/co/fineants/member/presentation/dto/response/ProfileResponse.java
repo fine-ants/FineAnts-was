@@ -16,11 +16,11 @@ import lombok.NoArgsConstructor;
 public class ProfileResponse {
 
 	@JsonProperty("user")
-	private MemberProfile memberProfile;
+	private MemberProfileDto memberProfile;
 
 	public static ProfileResponse from(Member member) {
 		NotificationPreferenceDto preference = NotificationPreferenceDto.from(member.getNotificationPreference());
-		MemberProfile memberProfile = MemberProfile.builder()
+		MemberProfileDto memberProfile = MemberProfileDto.builder()
 			.id(member.getId())
 			.nickname(member.getNickname())
 			.email(member.getEmail())
@@ -35,7 +35,7 @@ public class ProfileResponse {
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Builder
-	public static class MemberProfile {
+	public static class MemberProfileDto {
 		private Long id;
 		private String nickname;
 		private String email;

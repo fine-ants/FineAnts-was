@@ -11,9 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AmazonS3FetchStockService implements FetchStockService {
-
-	private static final String CSV_SEPARATOR_REGEX = "\\$";
-
 	private final RemoteFileFetcher fetcher;
 	private final String filePath;
 	private final StockCsvParser stockCsvParser;

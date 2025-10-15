@@ -20,6 +20,7 @@ import co.fineants.member.application.ChangeMemberPassword;
 import co.fineants.member.application.ChangeMemberProfile;
 import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.MemberService;
+import co.fineants.member.application.ReadMemberProfile;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
@@ -41,6 +42,7 @@ public class MemberRestController {
 	private final LogoutMember logoutMember;
 	private final ChangeMemberProfile changeMemberProfile;
 	private final ChangeMemberPassword changeMemberPassword;
+	private final ReadMemberProfile readMemberProfile;
 
 	@PostMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
 	public ApiResponse<ProfileChangeResponse> changeProfile(
@@ -63,8 +65,7 @@ public class MemberRestController {
 	public ApiResponse<ProfileResponse> readProfile(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		Long memberId = authentication.getId();
-		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE,
-			memberService.readProfile(memberId));
+		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE, readMemberProfile.read(memberId));
 	}
 
 	@PutMapping("/account/password")
