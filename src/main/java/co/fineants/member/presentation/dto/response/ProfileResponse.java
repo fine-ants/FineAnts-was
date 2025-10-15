@@ -7,12 +7,16 @@ import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class ProfileResponse {
 
 	@JsonProperty("user")
@@ -35,6 +39,8 @@ public class ProfileResponse {
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Builder
+	@EqualsAndHashCode
+	@ToString
 	public static class MemberProfileDto {
 		private Long id;
 		private String nickname;
@@ -48,6 +54,8 @@ public class ProfileResponse {
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Builder
+	@EqualsAndHashCode
+	@ToString
 	public static class NotificationPreferenceDto {
 		private Boolean browserNotify;
 		private Boolean targetGainNotify;

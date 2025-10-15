@@ -29,15 +29,22 @@ class ReadMemberProfileTest extends AbstractContainerBaseTest {
 		ProfileResponse response = readMemberProfile.read(member.getId());
 
 		// then
-		assertThat(response)
-			.extracting(ProfileResponse::getMemberProfile)
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", "profileUrl");
-		assertThat(response)
-			.extracting(ProfileResponse::getMemberProfile)
-			.extracting(ProfileResponse.MemberProfileDto::getNotificationPreferences)
-			.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
-			.containsExactlyInAnyOrder(true, true, true, true);
+		ProfileResponse.NotificationPreferenceDto notificationPreferenceDto = ProfileResponse.NotificationPreferenceDto.builder()
+			.browserNotify(true)
+			.targetGainNotify(true)
+			.maxLossNotify(true)
+			.targetPriceNotify(true)
+			.build();
+		ProfileResponse.MemberProfileDto memberProfile = ProfileResponse.MemberProfileDto.builder()
+			.id(member.getId())
+			.nickname("nemo1234")
+			.email("dragonbead95@naver.com")
+			.profileUrl("profileUrl")
+			.provider("local")
+			.notificationPreferences(notificationPreferenceDto)
+			.build();
+		ProfileResponse profileResponse = new ProfileResponse(memberProfile);
+		assertThat(response).isEqualTo(profileResponse);
 	}
 
 }
