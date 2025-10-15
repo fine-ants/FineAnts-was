@@ -140,6 +140,10 @@ public final class TestDataFactory {
 		}
 	}
 
+	public static MultipartFile createEmptyMockMultipartFile() {
+		return new MockMultipartFile("profileImageFile", new byte[] {});
+	}
+
 	public static MultipartFile createOverSizeMockProfileFile() {
 		byte[] profile = new byte[3145728];
 		return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg", profile);

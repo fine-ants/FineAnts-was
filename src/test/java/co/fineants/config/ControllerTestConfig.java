@@ -27,6 +27,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.member.application.ChangeMemberPassword;
 import co.fineants.member.application.ChangeMemberProfile;
+import co.fineants.member.application.DeleteMember;
 import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.application.MemberNotificationService;
@@ -102,4 +103,7 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private ReadMemberProfile readMemberProfile;
+
+	@MockBean
+	private DeleteMember deleteMember;
 }

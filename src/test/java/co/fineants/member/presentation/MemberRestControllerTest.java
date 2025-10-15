@@ -6,28 +6,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -77,7 +72,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/profile")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(profileInformation)
 				.cookie(createTokenCookies())
 			)
@@ -91,18 +86,6 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.profileUrl").value(notNullValue()));
 	}
 
-	public MultipartFile createMockMultipartFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@DisplayName("사용자는 회원의 프로필에서 새 프로필만 수정한다")
 	@Test
 	void changeProfile_whenNewProfile_thenOK() throws Exception {
@@ -110,7 +93,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/profile")
-				.file((MockMultipartFile)createMockMultipartFile()))
+				.file((MockMultipartFile)TestDataFactory.createProfileFile()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
@@ -128,7 +111,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/profile")
-				.file((MockMultipartFile)createEmptyMockMultipartFile()))
+				.file((MockMultipartFile)TestDataFactory.createEmptyMockMultipartFile()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
@@ -137,10 +120,6 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.nickname").value(equalTo("nemo1234")))
 			.andExpect(jsonPath("data.user.email").value(equalTo("dragonbead95@naver.com")))
 			.andExpect(jsonPath("data.user.profileUrl").value(nullValue()));
-	}
-
-	public MultipartFile createEmptyMockMultipartFile() {
-		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
 
 	@DisplayName("사용자는 회원의 프로필에서 프로필을 유지하고 닉네임만 변경한다")
@@ -180,7 +159,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 				.getBytes(StandardCharsets.UTF_8));
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/profile")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(profileInformation))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("code").value(equalTo(400)))
