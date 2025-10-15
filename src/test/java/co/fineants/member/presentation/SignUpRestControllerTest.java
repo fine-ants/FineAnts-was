@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupVerificationService;
@@ -45,6 +46,11 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
+
+	private void saveMember(String nickname, String email) {
+		Member member = TestDataFactory.createMember(nickname, email);
+		signupService.signup(member);
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -73,7 +79,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file(signupData))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
-			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.name())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo(OK_SIGNUP.getMessage())));
 	}
 
@@ -97,7 +103,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file(signupData))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
-			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.name())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo(OK_SIGNUP.getMessage())));
 	}
 
@@ -168,10 +174,11 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void signup_whenDuplicatedNickname_thenResponse400Error() throws Exception {
 		// given
-		saveMember("일개미1234", "ants1234@gmail.com");
+		String nickname = "일개미1234";
+		saveMember(nickname, "ants1234@gmail.com");
 
 		Map<String, Object> profileInformationMap = Map.of(
-			"nickname", "일개미1234",
+			"nickname", nickname,
 			"email", "dragonbead95@naver.com",
 			"password", "nemo1234@",
 			"passwordConfirm", "nemo1234@");
@@ -187,15 +194,10 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isConflict())
-			.andExpect(jsonPath("code").value(equalTo(409)))
-			.andExpect(jsonPath("status").value(equalTo("Conflict")))
-			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
-			.andExpect(jsonPath("data").value(equalTo("일개미1234")));
-	}
-
-	private void saveMember(String nickname, String email) {
-		Member member = TestDataFactory.createMember(nickname, email);
-		signupService.signup(member);
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CONFLICT.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CONFLICT.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.NICKNAME_DUPLICATE.getMessage())))
+			.andExpect(jsonPath("data").value(equalTo(nickname)));
 	}
 
 	@DisplayName("사용자는 중복된 이메일로는 회원가입 할 수 없다")
@@ -222,9 +224,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isConflict())
-			.andExpect(jsonPath("code").value(equalTo(409)))
-			.andExpect(jsonPath("status").value(equalTo("Conflict")))
-			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CONFLICT.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CONFLICT.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.EMAIL_DUPLICATE.getMessage())))
 			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
@@ -249,9 +251,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isUnauthorized())
-			.andExpect(jsonPath("code").value(equalTo(401)))
-			.andExpect(jsonPath("status").value(equalTo("Unauthorized")))
-			.andExpect(jsonPath("message").value(equalTo("Unauthenticated Password")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.UNAUTHORIZED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.UNAUTHORIZED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PASSWORD_UNAUTHENTICATED.getMessage())))
 			.andExpect(jsonPath("data").value(equalTo(Strings.EMPTY)));
 	}
 
@@ -264,8 +266,8 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file((MockMultipartFile)TestDataFactory.createProfileFile()))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("Required part 'signupData' is not present.")));
 	}
 
@@ -277,9 +279,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("닉네임이 사용가능합니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_NICKNAME_CHECK.getMessage())));
 	}
 
 	@DisplayName("사용자는 회원가입 과정중 닉네임이 중복되어 409 응답을 받는다")
@@ -293,9 +295,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/nickname/{nickname}", nickname))
 			.andExpect(status().isConflict())
-			.andExpect(jsonPath("code").value(equalTo(409)))
-			.andExpect(jsonPath("status").value(equalTo("Conflict")))
-			.andExpect(jsonPath("message").value(equalTo("Duplicate Nickname")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CONFLICT.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CONFLICT.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.NICKNAME_DUPLICATE.getMessage())))
 			.andExpect(jsonPath("data").value(equalTo(nickname)));
 	}
 
@@ -308,9 +310,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("이메일이 사용가능합니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_EMAIL_CHECK.getMessage())));
 	}
 
 	@DisplayName("사용자는 로컬 이메일이 중복되어 400 에러를 응답받는다")
@@ -324,9 +326,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		// when & then
 		mockMvc.perform(get("/api/auth/signup/duplicationcheck/email/{email}", email))
 			.andExpect(status().isConflict())
-			.andExpect(jsonPath("code").value(equalTo(409)))
-			.andExpect(jsonPath("status").value(equalTo("Conflict")))
-			.andExpect(jsonPath("message").value(equalTo("Duplicate Email")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CONFLICT.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CONFLICT.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.EMAIL_DUPLICATE.getMessage())))
 			.andExpect(jsonPath("data").value(equalTo(email)));
 	}
 
@@ -341,9 +343,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("이메일로 검증 코드를 전송하였습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SEND_VERIFY_CODE.getMessage())));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 형식의 이메일을 가지고 검증 코드를 받을 수 없다")
@@ -357,9 +359,12 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[*].field", containsInAnyOrder("email", "email")))
+			.andExpect(jsonPath("$.data[*].defaultMessage", containsInAnyOrder("이메일은 필수 정보입니다", "잘못된 입력 형식입니다")));
 	}
 
 	@DisplayName("사용자는 검증코드를 제출하고 검증 완료 응답을 받는다")
@@ -378,9 +383,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("일치하는 인증번호 입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_VERIF_CODE.getMessage())));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 이메일과 검증코드를 제출하고 에러 응답을 받는다")
@@ -394,8 +399,12 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[*].field", containsInAnyOrder("code", "email", "email")))
+			.andExpect(jsonPath("$.data[*].defaultMessage",
+				containsInAnyOrder("검증코드는 필수 정보입니다", "잘못된 입력 형식입니다", "이메일은 필수 정보입니다")));
 	}
 }
