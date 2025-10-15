@@ -33,6 +33,10 @@ public class RedisJwtRepository implements JwtRepository {
 
 	@Override
 	public boolean isAlreadyLogout(String token) {
+		if (token == null) {
+			log.warn("Token is null, cannot check logout status.");
+			return true;
+		}
 		String logout = redisTemplate.opsForValue().get(token);
 		return LOGOUT.equals(logout);
 	}
@@ -51,6 +55,10 @@ public class RedisJwtRepository implements JwtRepository {
 	}
 
 	private void banToken(String token, Duration timeout) {
+		if (token == null) {
+			log.warn("Token is null, cannot ban token.");
+			return;
+		}
 		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 }

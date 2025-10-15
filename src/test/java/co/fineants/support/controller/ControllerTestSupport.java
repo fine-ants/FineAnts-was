@@ -23,14 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.fcm.controller.FcmRestController;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.controller.PortfolioHoldingRestController;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationRestController;
 import co.fineants.api.domain.portfolio.controller.PortfolioNotificationSettingRestController;
@@ -87,7 +83,6 @@ public abstract class ControllerTestSupport {
 	private GlobalExceptionHandler globalExceptionHandler;
 	@Autowired
 	private PortfolioProperties properties;
-	private ExDividendDateCalculator exDividendDateCalculator;
 
 	@BeforeEach
 	void setup() throws Exception {
@@ -102,8 +97,6 @@ public abstract class ControllerTestSupport {
 			.willReturn(true);
 		given(mockedMemberAuthenticationArgumentResolver.resolveArgument(any(), any(), any(), any()))
 			.willReturn(createMemberAuthentication());
-		this.exDividendDateCalculator = new FileExDividendDateCalculator(
-			new FileHolidayRepository(new HolidayFileReader()));
 	}
 
 	private MemberAuthentication createMemberAuthentication() {

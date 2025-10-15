@@ -16,7 +16,11 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.MemberService;
+import co.fineants.member.application.ChangeMemberPassword;
+import co.fineants.member.application.ChangeMemberProfile;
+import co.fineants.member.application.DeleteMember;
+import co.fineants.member.application.LogoutMember;
+import co.fineants.member.application.ReadMemberProfile;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
@@ -34,7 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class MemberRestController {
 
-	private final MemberService memberService;
+	private final LogoutMember logoutMember;
+	private final ChangeMemberProfile changeMemberProfile;
+	private final ChangeMemberPassword changeMemberPassword;
+	private final ReadMemberProfile readMemberProfile;
+	private final DeleteMember deleteMember;
 
 	@PostMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
 	public ApiResponse<ProfileChangeResponse> changeProfile(
@@ -50,15 +58,14 @@ public class MemberRestController {
 			authentication.getId()
 		);
 		return ApiResponse.success(MemberSuccessCode.OK_MODIFIED_PROFILE,
-			memberService.changeProfile(serviceRequest));
+			changeMemberProfile.changeProfile(serviceRequest));
 	}
 
 	@GetMapping(value = "/profile")
 	public ApiResponse<ProfileResponse> readProfile(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		Long memberId = authentication.getId();
-		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE,
-			memberService.readProfile(memberId));
+		return ApiResponse.success(MemberSuccessCode.OK_READ_PROFILE, readMemberProfile.read(memberId));
 	}
 
 	@PutMapping("/account/password")
@@ -66,7 +73,7 @@ public class MemberRestController {
 		@RequestBody PasswordModifyRequest request,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
-		memberService.modifyPassword(request, authentication.getId());
+		changeMemberPassword.changePassword(request, authentication.getId());
 		return ApiResponse.success(MemberSuccessCode.OK_PASSWORD_CHANGED);
 	}
 
@@ -76,8 +83,8 @@ public class MemberRestController {
 		HttpServletRequest servletRequest,
 		HttpServletResponse servletResponse
 	) {
-		memberService.deleteMember(authentication.getId());
-		memberService.logout(servletRequest, servletResponse);
+		deleteMember.delete(authentication.getId());
+		logoutMember.logout(servletRequest, servletResponse);
 		return ApiResponse.success(MemberSuccessCode.OK_DELETED_ACCOUNT);
 	}
 }

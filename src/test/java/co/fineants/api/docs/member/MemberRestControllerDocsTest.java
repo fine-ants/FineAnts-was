@@ -25,7 +25,11 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberService;
+import co.fineants.member.application.ChangeMemberPassword;
+import co.fineants.member.application.ChangeMemberProfile;
+import co.fineants.member.application.DeleteMember;
+import co.fineants.member.application.LogoutMember;
+import co.fineants.member.application.ReadMemberProfile;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.presentation.MemberRestController;
@@ -36,35 +40,37 @@ import co.fineants.member.presentation.dto.response.ProfileResponse;
 
 class MemberRestControllerDocsTest extends RestDocsSupport {
 
-	private final MemberService memberService = Mockito.mock(MemberService.class);
+	private final LogoutMember logoutMember = Mockito.mock(LogoutMember.class);
+	private final ChangeMemberProfile changeMemberProfile = Mockito.mock(ChangeMemberProfile.class);
+	private final ChangeMemberPassword changeMemberPassword = Mockito.mock(ChangeMemberPassword.class);
+	private final ReadMemberProfile readMemberProfile = Mockito.mock(ReadMemberProfile.class);
+	private final DeleteMember deleteMember = Mockito.mock(DeleteMember.class);
 
 	@Override
 	protected Object initController() {
-		return new MemberRestController(memberService);
+		return new MemberRestController(logoutMember, changeMemberProfile, changeMemberPassword, readMemberProfile,
+			deleteMember);
 	}
 
 	@DisplayName("회원 프로필 조회 API")
 	@Test
 	void readProfile() throws Exception {
 		// given
-		given(memberService.readProfile(anyLong()))
-			.willReturn(
-				ProfileResponse.builder()
-					.user(ProfileResponse.MemberProfile.builder()
-						.id(1L)
-						.nickname("일개미1234")
-						.email("dragonbead95@naver.com")
-						.profileUrl("profileUrl")
-						.provider("local")
-						.notificationPreferences(ProfileResponse.NotificationPreference.builder()
-							.browserNotify(false)
-							.targetGainNotify(true)
-							.maxLossNotify(true)
-							.targetPriceNotify(true)
-							.build())
-						.build())
-					.build()
-			);
+		ProfileResponse.MemberProfileDto memberProfile = ProfileResponse.MemberProfileDto.builder()
+			.id(1L)
+			.nickname("일개미1234")
+			.email("dragonbead95@naver.com")
+			.profileUrl("profileUrl")
+			.provider("local")
+			.notificationPreferences(ProfileResponse.NotificationPreferenceDto.builder()
+				.browserNotify(false)
+				.targetGainNotify(true)
+				.maxLossNotify(true)
+				.targetPriceNotify(true)
+				.build())
+			.build();
+		given(readMemberProfile.read(anyLong()))
+			.willReturn(new ProfileResponse(memberProfile));
 
 		// when & then
 		mockMvc.perform(get("/api/profile")
@@ -112,11 +118,13 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 							.description("알림 설정"),
 						fieldWithPath("data.user.notificationPreferences.browserNotify").type(JsonFieldType.BOOLEAN)
 							.description("브라우저 알림 설정"),
-						fieldWithPath("data.user.notificationPreferences.targetGainNotify").type(JsonFieldType.BOOLEAN)
+						fieldWithPath("data.user.notificationPreferences.targetGainNotify").type(
+								JsonFieldType.BOOLEAN)
 							.description("목표 수익률 알림 설정"),
 						fieldWithPath("data.user.notificationPreferences.maxLossNotify").type(JsonFieldType.BOOLEAN)
 							.description("최대 손실율 알림 설정"),
-						fieldWithPath("data.user.notificationPreferences.targetPriceNotify").type(JsonFieldType.BOOLEAN)
+						fieldWithPath("data.user.notificationPreferences.targetPriceNotify").type(
+								JsonFieldType.BOOLEAN)
 							.description("지정가 알림 설정")
 					)
 				)
@@ -148,7 +156,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 			null
 		);
 		ProfileChangeResponse response = new ProfileChangeResponse(oauthMemberResponse);
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(changeMemberProfile.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(response);
 
 		// when & then
@@ -210,7 +218,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 		// given
 		Map<String, Object> body = Map.of(
 			"currentPassword", "currentPassword",
-			"newPassword", "newPassword",
+			"getNewPassword", "getNewPassword",
 			"newPasswordConfirm", "newPasswordConfirm"
 		);
 
@@ -231,7 +239,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 					preprocessResponse(prettyPrint()),
 					requestFields(
 						fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호"),
-						fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
+						fieldWithPath("getNewPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
 						fieldWithPath("newPasswordConfirm").type(JsonFieldType.STRING).description("새 비밀번호 확인")
 					),
 					responseFields(
