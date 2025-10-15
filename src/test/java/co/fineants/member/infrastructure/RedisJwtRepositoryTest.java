@@ -31,4 +31,14 @@ class RedisJwtRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThatNoException()
 			.isThrownBy(() -> jwtRepository.banAccessToken(token));
 	}
+
+	@DisplayName("토큰의 값이 null이면 true를 반환한다")
+	@Test
+	void isAlreadyLogout_whenTokenIsNull_thenReturnFalse() {
+		String token = null;
+
+		boolean isLogout = jwtRepository.isAlreadyLogout(token);
+
+		Assertions.assertThat(isLogout).isTrue();
+	}
 }
