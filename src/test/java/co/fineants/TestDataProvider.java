@@ -1,5 +1,7 @@
 package co.fineants;
 
+import static co.fineants.TestDataFactory.*;
+
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.provider.Arguments;
@@ -63,6 +65,16 @@ public class TestDataProvider {
 			Arguments.of("user@domain.toolongtld"), // TLD가 6자를 초과함
 			Arguments.of("user name@example.com"), // 공백 포함
 			Arguments.of("username@example..com") // 연속된 마침표
+		);
+	}
+
+	public static Stream<Arguments> validChangeProfileSource() {
+		return Stream.of(
+			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
+			Arguments.of(createProfileFile(), null, "nemo1234", "새 프로필 사진만 변경"),
+			Arguments.of(createEmptyMockMultipartFile(), null, "nemo1234", "기본 프로필 사진으로만 변경"),
+			Arguments.of(null, "nemo12345", "nemo12345", "닉네임만 변경"),
+			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
 		);
 	}
 }

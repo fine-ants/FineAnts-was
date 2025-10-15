@@ -1,17 +1,12 @@
 package co.fineants.member.application;
 
-import static co.fineants.TestDataFactory.*;
 import static org.assertj.core.api.Assertions.*;
-
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -30,23 +25,9 @@ class ChangeMemberProfileTest extends AbstractContainerBaseTest {
 	@Autowired
 	private ChangeMemberProfile changeMemberProfile;
 
-	public static Stream<Arguments> validChangeProfileSource() {
-		return Stream.of(
-			Arguments.of(createProfileFile(), "nemo12345", "nemo12345", "새 프로필 사진과 새 닉네임 변경"),
-			Arguments.of(createProfileFile(), null, "nemo1234", "새 프로필 사진만 변경"),
-			Arguments.of(createEmptyProfileImageFile(), null, "nemo1234", "기본 프로필 사진으로만 변경"),
-			Arguments.of(null, "nemo12345", "nemo12345", "닉네임만 변경"),
-			Arguments.of(createProfileFile(), "nemo1234", "nemo1234", "프로필 사진과 닉네임을 그대로 유지")
-		);
-	}
-
-	private static MultipartFile createEmptyProfileImageFile() {
-		return new MockMultipartFile("profileImageFile", new byte[] {});
-	}
-
 	@DisplayName("프로필 이미지와 닉네임이 주어진 상태에서 사용자의 프로필 정보를 변경한다")
 	@ParameterizedTest
-	@MethodSource(value = "validChangeProfileSource")
+	@MethodSource(value = "co.fineants.TestDataProvider#validChangeProfileSource")
 	void givenProfileImageFileAndNickname_whenChangeProfile_thenChangedProfileInfo(
 		MultipartFile profileImageFile,
 		String nickname,
