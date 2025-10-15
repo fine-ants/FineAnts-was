@@ -1,6 +1,6 @@
 package co.fineants.api.domain.member.service;
 
-public interface TokenManagementService {
+public interface JwtRepository {
 	void banRefreshToken(String token);
 
 	void banAccessToken(String token);

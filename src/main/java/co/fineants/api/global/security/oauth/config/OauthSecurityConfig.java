@@ -15,8 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import co.fineants.api.domain.member.service.JwtRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.member.service.TokenManagementService;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.CustomAccessDeniedHandler;
@@ -40,7 +40,7 @@ public class OauthSecurityConfig {
 	private final RoleRepository roleRepository;
 	private final OAuth2UserMapper oAuth2UserMapper;
 	private final CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint;
-	private final TokenManagementService tokenManagementService;
+	private final JwtRepository jwtRepository;
 	private final String loginSuccessUri;
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
@@ -50,7 +50,7 @@ public class OauthSecurityConfig {
 		NicknameGenerator nicknameGenerator, RoleRepository roleRepository,
 		OAuth2UserMapper oAuth2UserMapper,
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
-		TokenManagementService tokenManagementService,
+		JwtRepository jwtRepository,
 		@Value("${oauth2.login-success-uri}") String loginSuccessUri,
 		TokenFactory tokenFactory, CorsConfiguration corsConfiguration) {
 		this.memberRepository = memberRepository;
@@ -59,7 +59,7 @@ public class OauthSecurityConfig {
 		this.roleRepository = roleRepository;
 		this.oAuth2UserMapper = oAuth2UserMapper;
 		this.commonLoginAuthenticationEntryPoint = commonLoginAuthenticationEntryPoint;
-		this.tokenManagementService = tokenManagementService;
+		this.jwtRepository = jwtRepository;
 		this.loginSuccessUri = loginSuccessUri;
 		this.tokenFactory = tokenFactory;
 		this.corsConfiguration = corsConfiguration;
@@ -92,7 +92,7 @@ public class OauthSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.addFilterBefore(new OAuth2AuthorizationRequestRedirectWithRedirectUrlParamFilter(),
 			OAuth2AuthorizationRequestRedirectFilter.class);
-		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, tokenManagementService, tokenFactory),
+		http.addFilterBefore(new JwtAuthenticationFilter(tokenService, jwtRepository, tokenFactory),
 			AuthorizationFilter.class);
 
 		http

@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class RedisTokenManagementService implements TokenManagementService {
+public class RedisJwtRepository implements JwtRepository {
 
 	private static final String LOGOUT = "logout";
 	private static final Duration REFRESH_TOKEN_TIMEOUT = Duration.ofDays(7);

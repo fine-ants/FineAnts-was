@@ -68,7 +68,7 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final TokenManagementService tokenManagementService;
+	private final JwtRepository jwtRepository;
 	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
@@ -83,13 +83,13 @@ public class MemberService {
 		// ban accessToken
 		String accessToken = CookieUtils.getAccessToken(request);
 		if (accessToken != null) {
-			tokenManagementService.banAccessToken(accessToken);
+			jwtRepository.banAccessToken(accessToken);
 		}
 
 		// ban refreshToken
 		String refreshToken = CookieUtils.getRefreshToken(request);
 		if (refreshToken != null) {
-			tokenManagementService.banRefreshToken(refreshToken);
+			jwtRepository.banRefreshToken(refreshToken);
 		}
 
 		expiredCookies(response);
