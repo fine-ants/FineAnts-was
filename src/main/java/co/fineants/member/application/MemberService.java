@@ -24,7 +24,6 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.response.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,11 +76,5 @@ public class MemberService {
 	private Member findMember(Long id) {
 		return memberRepository.findById(id)
 			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
-	}
-
-	@Transactional(readOnly = true)
-	public ProfileResponse readProfile(Long memberId) {
-		Member member = findMember(memberId);
-		return ProfileResponse.from(member);
 	}
 }
