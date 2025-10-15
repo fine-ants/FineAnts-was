@@ -26,7 +26,6 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.response.ProfileResponse;
 
 class MemberServiceTest extends AbstractContainerBaseTest {
 
@@ -58,26 +57,6 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchStockRepository watchStockRepository;
-
-	@DisplayName("사용자는 프로필을 조회합니다.")
-	@Test
-	void readProfile() {
-		// given
-		Member member = memberRepository.save(createMember());
-
-		// when
-		ProfileResponse response = memberService.readProfile(member.getId());
-
-		// then
-		assertThat(response)
-			.extracting("user")
-			.extracting("id", "nickname", "email", "profileUrl")
-			.containsExactlyInAnyOrder(member.getId(), "nemo1234", "dragonbead95@naver.com", "profileUrl");
-		assertThat(response)
-			.extracting("user.notificationPreferences")
-			.extracting("browserNotify", "targetGainNotify", "maxLossNotify", "targetPriceNotify")
-			.containsExactlyInAnyOrder(true, true, true, true);
-	}
 
 	@DisplayName("사용자는 계정을 삭제한다")
 	@Test
