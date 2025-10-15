@@ -261,4 +261,20 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data[*].field", hasItems("newPassword", "newPasswordConfirm")))
 			.andExpect(jsonPath("data[*].defaultMessage", hasItem("잘못된 입력 형식입니다")));
 	}
+
+	@DisplayName("사용자는 계정을 삭제한다")
+	@Test
+	void deleteAccount() throws Exception {
+		// given
+
+		// when & then
+		mockMvc.perform(delete("/api/account")
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETED_ACCOUNT.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
+	}
 }
