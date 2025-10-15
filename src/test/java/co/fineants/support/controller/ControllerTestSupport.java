@@ -52,7 +52,6 @@ import co.fineants.config.ControllerTestConfig;
 import co.fineants.member.domain.Member;
 import co.fineants.member.presentation.MemberNotificationRestController;
 import co.fineants.member.presentation.MemberRestController;
-import co.fineants.member.presentation.SignUpRestControllerTest;
 
 @ActiveProfiles("test")
 @Import(value = {SpringConfig.class, JacksonConfig.class, ControllerTestConfig.class})
@@ -66,7 +65,6 @@ import co.fineants.member.presentation.SignUpRestControllerTest;
 	PortfolioNotificationRestController.class,
 	PortfolioNotificationSettingRestController.class,
 	PurchaseHistoryRestController.class,
-	SignUpRestControllerTest.class,
 	StockRestController.class,
 	StockTargetPriceRestController.class,
 	TargetPriceNotificationRestController.class,

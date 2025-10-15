@@ -78,10 +78,26 @@ public class TestDataProvider {
 		);
 	}
 
-	public static Stream<Arguments> invalidSignupData() {
+	public static Stream<Arguments> invalidEmptySignupData() {
+		String[] expectedFields = {"nickname", "email", "password", "passwordConfirm"};
+		String[] expectedDefaultMessages = {
+			"닉네임은 필수 정보입니다",
+			"이메일은 필수 정보입니다",
+			"비밀번호는 필수 정보입니다",
+			"비밀번호 확인은 필수 정보입니다"
+		};
 		return Stream.of(
-			Arguments.of("", "", "", ""),
-			Arguments.of("a", "a", "a", "a")
+			Arguments.of("", "", "", "", expectedFields, expectedDefaultMessages),
+			Arguments.of(" ", " ", " ", " ", expectedFields, expectedDefaultMessages),
+			Arguments.of("  ", "  ", "  ", "  ", expectedFields, expectedDefaultMessages)
+		);
+	}
+
+	public static Stream<Arguments> invalidSignupData() {
+		String[] expectedFields = {"nickname", "email", "password", "passwordConfirm"};
+		String[] expectedDefaultMessages = {"잘못된 입력 형식입니다"};
+		return Stream.of(
+			Arguments.of("a", "a", "a", "a", expectedFields, expectedDefaultMessages)
 		);
 	}
 }

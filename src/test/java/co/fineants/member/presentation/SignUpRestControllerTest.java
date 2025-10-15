@@ -1,5 +1,6 @@
 package co.fineants.member.presentation;
 
+import static co.fineants.api.global.success.MemberSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -16,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -70,9 +72,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("회원가입이 완료되었습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.name())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SIGNUP.getMessage())));
 	}
 
 	@DisplayName("사용자는 기본 프로필 사진으로 회원가입 할 수 있다")
@@ -94,16 +96,16 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
 				.file(signupData))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("회원가입이 완료되었습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.name())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SIGNUP.getMessage())));
 	}
 
-	@DisplayName("사용자는 유효하지 않은 회원가입 데이터로 요청시 400 에러를 응답받는다")
-	@MethodSource(value = "co.fineants.TestDataProvider#invalidSignupData")
+	@DisplayName("사용자는 공백 문자열인 회원가입 데이터로 요청시 400 에러를 응답받는다")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidEmptySignupData")
 	@ParameterizedTest
-	void signup_whenInvalidSignupData_thenResponse400Error(String nickname, String email, String password,
-		String passwordConfirm) throws Exception {
+	void signup_whenEmptySignupData_thenResponse400Error(String nickname, String email, String password,
+		String passwordConfirm, String[] expectedFields, String[] expectedDefaultMessages) throws Exception {
 		// given
 		Map<String, Object> profileInformationMap = Map.of(
 			"nickname", nickname,
@@ -122,9 +124,41 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[*].field").value(hasItems(expectedFields)))
+			.andExpect(jsonPath("data[*].defaultMessage").value(hasItems(expectedDefaultMessages)));
+	}
+
+	@DisplayName("사용자는 유효하지 않은 회원가입 데이터로 요청시 400 에러를 응답받는다")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidSignupData")
+	@ParameterizedTest
+	void signup_whenInvalidSignupData_thenResponse400Error(String nickname, String email, String password,
+		String passwordConfirm, String[] expectedFields, String[] expectedDefaultMessages) throws Exception {
+		// given
+		Map<String, Object> profileInformationMap = Map.of(
+			"nickname", nickname,
+			"email", email,
+			"password", password,
+			"passwordConfirm", passwordConfirm);
+		String json = ObjectMapperUtil.serialize(profileInformationMap);
+		MockMultipartFile signupData = new MockMultipartFile(
+			"signupData",
+			"signupData",
+			MediaType.APPLICATION_JSON_VALUE,
+			json.getBytes(StandardCharsets.UTF_8));
+
+		// when & then
+		mockMvc.perform(multipart(POST, "/api/auth/signup")
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
+				.file(signupData))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[*].field").value(hasItems(expectedFields)))
+			.andExpect(jsonPath("data[*].defaultMessage").value(hasItems(expectedDefaultMessages)));
 	}
 
 	@DisplayName("사용자는 중복된 닉네임으로는 회원가입 할 수 없다")
