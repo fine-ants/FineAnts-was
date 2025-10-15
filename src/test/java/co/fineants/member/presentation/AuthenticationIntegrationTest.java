@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;

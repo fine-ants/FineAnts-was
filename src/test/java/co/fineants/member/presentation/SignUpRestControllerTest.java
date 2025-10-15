@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.*;
@@ -35,13 +35,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.member.domain.Member;
-import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupVerificationService;
-import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.VerifyCodeGenerator;
+import co.fineants.member.domain.Member;
 
 public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 

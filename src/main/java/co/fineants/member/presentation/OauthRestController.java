@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

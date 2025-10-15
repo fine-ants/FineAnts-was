@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import java.util.List;
 
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import co.fineants.member.application.MemberNotificationPreferenceService;
-import co.fineants.member.application.MemberNotificationService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
+import co.fineants.member.application.MemberNotificationPreferenceService;
+import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;

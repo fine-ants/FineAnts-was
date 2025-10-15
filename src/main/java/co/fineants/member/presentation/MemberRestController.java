@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.MediaType;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.member.application.MemberService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.MemberSuccessCode;
+import co.fineants.member.application.MemberService;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;

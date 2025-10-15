@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.controller;
+package co.fineants.member.presentation;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupValidatorService;
-import co.fineants.member.application.SignupVerificationService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.MemberProfileFactory;
+import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupValidatorService;
+import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.NotificationPreference;
