@@ -13,12 +13,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
@@ -193,5 +195,26 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo(OK_PASSWORD_CHANGED.getMessage())))
 			.andExpect(jsonPath("data").value(nullValue()));
+	}
+
+	@DisplayName("사용자의 현재 비밀번호가 일치하지 않아서 비밀번호를 변경하지 못한다")
+	@Test
+	void changePassword_whenCurrentPasswordIsNotMatch_thenNotChangePassword() throws Exception {
+		// given
+		String currentPassword = "nemo2345@";
+		String newPassword = "nemo2345@";
+		String newPasswordConfirm = "nemo2345@";
+		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
+		// when & then
+		mockMvc.perform(put("/api//account/password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request))
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PASSWORD_BAD_REQUEST.getMessage())))
+			.andExpect(jsonPath("data").value(equalTo(currentPassword)));
 	}
 }
