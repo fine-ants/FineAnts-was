@@ -1,7 +1,6 @@
 package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
 
@@ -105,15 +104,5 @@ class MemberServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(memberRepository.findById(member.getId())).isEmpty();
-	}
-
-	@DisplayName("두 비밀번호가 일치하여 예외가 발생하지 않는다")
-	@Test
-	void givenPassword_whenVerifyPasswordMatch_thenNotThrowException() {
-		// given
-		String password = "nemo1234@";
-		String passwordConfirm = "nemo1234@";
-		// when & then
-		assertDoesNotThrow(() -> memberService.verifyPasswordMatch(password, passwordConfirm));
 	}
 }

@@ -23,7 +23,6 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;
@@ -88,11 +87,5 @@ public class MemberService {
 		Member member = findMember(memberId);
 		NotificationPreference preference = member.getNotificationPreference();
 		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
-	}
-
-	public void verifyPasswordMatch(String password, String passwordConfirm) throws PasswordAuthenticationException {
-		if (!password.equals(passwordConfirm)) {
-			throw new PasswordAuthenticationException();
-		}
 	}
 }
