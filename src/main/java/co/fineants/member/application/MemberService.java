@@ -3,7 +3,6 @@ package co.fineants.member.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,6 @@ import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.response.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,10 +80,8 @@ public class MemberService {
 	}
 
 	@Transactional(readOnly = true)
-	@Secured("ROLE_USER")
 	public ProfileResponse readProfile(Long memberId) {
 		Member member = findMember(memberId);
-		NotificationPreference preference = member.getNotificationPreference();
-		return ProfileResponse.from(member, ProfileResponse.NotificationPreference.from(preference));
+		return ProfileResponse.from(member);
 	}
 }

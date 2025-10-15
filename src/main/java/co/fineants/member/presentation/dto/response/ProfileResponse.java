@@ -15,7 +15,8 @@ public class ProfileResponse {
 
 	private MemberProfile user;
 
-	public static ProfileResponse from(Member member, NotificationPreference preference) {
+	public static ProfileResponse from(Member member) {
+		NotificationPreference preference = NotificationPreference.from(member.getNotificationPreference());
 		MemberProfile user = MemberProfile.builder()
 			.id(member.getId())
 			.nickname(member.getNickname())
