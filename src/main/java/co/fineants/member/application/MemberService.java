@@ -7,7 +7,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
@@ -25,19 +24,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
-import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
-import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
-import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
-import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
-import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
-import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
 import co.fineants.member.presentation.dto.response.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,55 +51,6 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final WriteProfileImageFileService writeProfileImageFileService;
-	private final DeleteProfileImageFileService deleteProfileImageFileService;
-
-	@Transactional
-	@Secured("ROLE_USER")
-	public ProfileChangeResponse changeProfile(ProfileChangeServiceRequest request) {
-		Member member = findMemberById(request.memberId());
-		MultipartFile profileImageFile = request.getProfileImageFile();
-		String profileUrl = null;
-
-		// 변경할 정보가 없는 경우
-		if (profileImageFile == null && !request.hasNickname()) {
-			throw new MemberProfileNotChangeException(request.toString());
-		}
-
-		// 기존 프로필 파일 유지
-		if (profileImageFile == null) {
-			profileUrl = member.getProfileUrl().orElse(null);
-		} else if (profileImageFile.isEmpty()) { // 기본 프로필 파일로 변경인 경우
-			// 회원의 기존 프로필 사진 제거
-			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(deleteProfileImageFileService::delete);
-		} else if (!profileImageFile.isEmpty()) { // 새로운 프로필 파일로 변경인 경우
-			// 기존 프로필 파일 삭제
-			member.getProfileUrl().ifPresent(deleteProfileImageFileService::delete);
-
-			// 새로운 프로필 파일 저장
-			profileUrl = writeProfileImageFileService.upload(profileImageFile);
-		}
-		member.changeProfileUrl(profileUrl);
-
-		if (request.hasNickname()) {
-			Nickname nickname = new Nickname(request.nickname());
-			verifyNickname(nickname, member.getId());
-			member.changeNickname(nickname);
-		}
-		return ProfileChangeResponse.from(member);
-	}
-
-	private Member findMemberById(Long memberId) {
-		return memberRepository.findById(memberId)
-			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
-	}
-
-	private void verifyNickname(Nickname nickname, Long memberId) throws NicknameDuplicateException {
-		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
-			throw new NicknameDuplicateException(nickname.getValue());
-		}
-	}
 
 	@Transactional
 	@Secured("ROLE_USER")

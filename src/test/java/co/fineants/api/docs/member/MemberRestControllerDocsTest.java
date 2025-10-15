@@ -25,6 +25,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.application.ChangeMemberProfile;
 import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.MemberService;
 import co.fineants.member.domain.Member;
@@ -39,10 +40,11 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 
 	private final MemberService memberService = Mockito.mock(MemberService.class);
 	private final LogoutMember logoutMember = Mockito.mock(LogoutMember.class);
+	private final ChangeMemberProfile changeMemberProfile = Mockito.mock(ChangeMemberProfile.class);
 
 	@Override
 	protected Object initController() {
-		return new MemberRestController(memberService, logoutMember);
+		return new MemberRestController(memberService, logoutMember, changeMemberProfile);
 	}
 
 	@DisplayName("회원 프로필 조회 API")
@@ -150,7 +152,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 			null
 		);
 		ProfileChangeResponse response = new ProfileChangeResponse(oauthMemberResponse);
-		given(memberService.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
+		given(changeMemberProfile.changeProfile(ArgumentMatchers.any(ProfileChangeServiceRequest.class)))
 			.willReturn(response);
 
 		// when & then
