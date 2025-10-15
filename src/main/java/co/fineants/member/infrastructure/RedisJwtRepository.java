@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.infrastructure;
 
 import java.time.Duration;
 import java.util.Set;
