@@ -51,6 +51,10 @@ public class RedisJwtRepository implements JwtRepository {
 	}
 
 	private void banToken(String token, Duration timeout) {
+		if (token == null) {
+			log.warn("Token is null, cannot ban token.");
+			return;
+		}
 		redisTemplate.opsForValue().set(token, LOGOUT, timeout);
 	}
 }
