@@ -3,12 +3,8 @@ package co.fineants.member.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,12 +29,8 @@ import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeEx
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
-import co.fineants.api.global.security.factory.TokenFactory;
-import co.fineants.api.global.security.oauth.dto.Token;
-import co.fineants.api.global.util.CookieUtils;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
-import co.fineants.member.domain.JwtRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
@@ -47,8 +39,6 @@ import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
 import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
 import co.fineants.member.presentation.dto.response.ProfileResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,46 +59,8 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final JwtRepository jwtRepository;
-	private final TokenFactory tokenFactory;
 	private final WriteProfileImageFileService writeProfileImageFileService;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
-
-	public void logout(HttpServletRequest request, HttpServletResponse response) {
-		// clear Authentication
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null) {
-			new SecurityContextLogoutHandler().logout(request, response, authentication);
-		}
-
-		// ban accessToken
-		String accessToken = CookieUtils.getAccessToken(request);
-		if (accessToken != null) {
-			jwtRepository.banAccessToken(accessToken);
-		}
-
-		// ban refreshToken
-		String refreshToken = CookieUtils.getRefreshToken(request);
-		if (refreshToken != null) {
-			jwtRepository.banRefreshToken(refreshToken);
-		}
-
-		expiredCookies(response);
-	}
-
-	private void expiredCookies(HttpServletResponse response) {
-		ResponseCookie expiredAccessTokenCookie = tokenFactory.createExpiredAccessTokenCookie(Token.empty());
-		CookieUtils.setCookie(response, expiredAccessTokenCookie);
-		ResponseCookie expiredRefreshTokenCookie = tokenFactory.createExpiredRefreshTokenCookie(Token.empty());
-		CookieUtils.setCookie(response, expiredRefreshTokenCookie);
-	}
-
-	// memberId을 제외한 다른 nickname이 존재하는지 검증
-	private void verifyNickname(Nickname nickname, Long memberId) throws NicknameDuplicateException {
-		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
-			throw new NicknameDuplicateException(nickname.getValue());
-		}
-	}
 
 	@Transactional
 	@Secured("ROLE_USER")
@@ -149,6 +101,12 @@ public class MemberService {
 	private Member findMemberById(Long memberId) {
 		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberNotFoundException(memberId.toString()));
+	}
+
+	private void verifyNickname(Nickname nickname, Long memberId) throws NicknameDuplicateException {
+		if (memberRepository.findMemberByNicknameAndNotMemberId(nickname, memberId).isPresent()) {
+			throw new NicknameDuplicateException(nickname.getValue());
+		}
 	}
 
 	@Transactional
