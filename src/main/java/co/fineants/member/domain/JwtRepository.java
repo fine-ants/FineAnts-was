@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.domain;
 
 public interface JwtRepository {
 	void banRefreshToken(String token);

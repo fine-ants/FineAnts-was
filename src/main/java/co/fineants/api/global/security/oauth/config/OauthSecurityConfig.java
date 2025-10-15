@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import co.fineants.api.domain.member.service.JwtRepository;
 import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
@@ -27,6 +26,7 @@ import co.fineants.api.global.security.oauth.handler.OAuth2UserMapper;
 import co.fineants.api.global.security.oauth.service.CustomOAuth2UserService;
 import co.fineants.api.global.security.oauth.service.CustomOidcUserService;
 import co.fineants.api.global.security.oauth.service.TokenService;
+import co.fineants.member.domain.JwtRepository;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.RoleRepository;
 
