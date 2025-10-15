@@ -25,6 +25,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.MemberService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.Nickname;
@@ -37,10 +38,11 @@ import co.fineants.member.presentation.dto.response.ProfileResponse;
 class MemberRestControllerDocsTest extends RestDocsSupport {
 
 	private final MemberService memberService = Mockito.mock(MemberService.class);
+	private final LogoutMember logoutMember = Mockito.mock(LogoutMember.class);
 
 	@Override
 	protected Object initController() {
-		return new MemberRestController(memberService);
+		return new MemberRestController(memberService, logoutMember);
 	}
 
 	@DisplayName("회원 프로필 조회 API")
