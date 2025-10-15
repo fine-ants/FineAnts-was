@@ -127,8 +127,9 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
 			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data[*].field").value(hasItems(expectedFields)))
-			.andExpect(jsonPath("data[*].defaultMessage").value(hasItems(expectedDefaultMessages)));
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[*].field", containsInAnyOrder(expectedFields)))
+			.andExpect(jsonPath("$.data[*].defaultMessage", containsInAnyOrder(expectedDefaultMessages)));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 회원가입 데이터로 요청시 400 에러를 응답받는다")
@@ -157,8 +158,10 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
 			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data[*].field").value(hasItems(expectedFields)))
-			.andExpect(jsonPath("data[*].defaultMessage").value(hasItems(expectedDefaultMessages)));
+			.andExpect(jsonPath("data", hasSize(expectedFields.length)))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[*].field", containsInAnyOrder(expectedFields)))
+			.andExpect(jsonPath("$.data[*].defaultMessage", containsInAnyOrder(expectedDefaultMessages)));
 	}
 
 	@DisplayName("사용자는 중복된 닉네임으로는 회원가입 할 수 없다")
