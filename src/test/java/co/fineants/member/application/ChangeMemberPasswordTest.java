@@ -11,7 +11,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 
 class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 
@@ -31,7 +31,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm
@@ -51,7 +51,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "xxx";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm
@@ -72,7 +72,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm

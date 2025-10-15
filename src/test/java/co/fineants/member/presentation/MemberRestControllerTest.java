@@ -21,7 +21,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 
 class MemberRestControllerTest extends AbstractContainerBaseTest {
 
@@ -181,7 +181,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@";
-		PasswordModifyRequest request = new PasswordModifyRequest(currentPassword, newPassword, newPasswordConfirm);
+		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
 		// when & then
 		mockMvc.perform(put("/api//account/password")
 				.contentType(MediaType.APPLICATION_JSON)

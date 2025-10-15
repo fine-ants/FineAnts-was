@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class PasswordModifyRequest {
+public class PasswordUpdateRequest {
 	@JsonProperty
 	@NotNull(message = "필수 정보입니다")
 	private final String currentPassword;
@@ -19,7 +19,7 @@ public class PasswordModifyRequest {
 	private final String newPasswordConfirm;
 
 	@JsonCreator
-	public PasswordModifyRequest(
+	public PasswordUpdateRequest(
 		@JsonProperty("currentPassword") @NotNull String currentPassword,
 		@JsonProperty("getNewPassword") @NotNull String newPassword,
 		@JsonProperty("newPasswordConfirm") @NotNull String newPasswordConfirm) {

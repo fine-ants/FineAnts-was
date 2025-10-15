@@ -21,7 +21,7 @@ import co.fineants.member.application.ChangeMemberProfile;
 import co.fineants.member.application.DeleteMember;
 import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.ReadMemberProfile;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
 import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
@@ -70,7 +70,7 @@ public class MemberRestController {
 
 	@PutMapping("/account/password")
 	public ApiResponse<Void> changePassword(
-		@RequestBody PasswordModifyRequest request,
+		@RequestBody PasswordUpdateRequest request,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
 		changeMemberPassword.changePassword(request, authentication.getId());
