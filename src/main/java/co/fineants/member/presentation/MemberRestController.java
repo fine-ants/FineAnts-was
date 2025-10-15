@@ -18,8 +18,8 @@ import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrinci
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.ChangeMemberPassword;
 import co.fineants.member.application.ChangeMemberProfile;
+import co.fineants.member.application.DeleteMember;
 import co.fineants.member.application.LogoutMember;
-import co.fineants.member.application.MemberService;
 import co.fineants.member.application.ReadMemberProfile;
 import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeRequest;
@@ -38,11 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class MemberRestController {
 
-	private final MemberService memberService;
 	private final LogoutMember logoutMember;
 	private final ChangeMemberProfile changeMemberProfile;
 	private final ChangeMemberPassword changeMemberPassword;
 	private final ReadMemberProfile readMemberProfile;
+	private final DeleteMember deleteMember;
 
 	@PostMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
 	public ApiResponse<ProfileChangeResponse> changeProfile(
@@ -83,7 +83,7 @@ public class MemberRestController {
 		HttpServletRequest servletRequest,
 		HttpServletResponse servletResponse
 	) {
-		memberService.deleteMember(authentication.getId());
+		deleteMember.delete(authentication.getId());
 		logoutMember.logout(servletRequest, servletResponse);
 		return ApiResponse.success(MemberSuccessCode.OK_DELETED_ACCOUNT);
 	}

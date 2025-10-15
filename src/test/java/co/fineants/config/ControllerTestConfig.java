@@ -30,7 +30,6 @@ import co.fineants.member.application.ChangeMemberProfile;
 import co.fineants.member.application.LogoutMember;
 import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.application.MemberNotificationService;
-import co.fineants.member.application.MemberService;
 import co.fineants.member.application.ReadMemberProfile;
 
 @TestConfiguration
@@ -43,8 +42,6 @@ public class ControllerTestConfig {
 	private MemberNotificationService notificationService;
 	@MockBean
 	private MemberNotificationPreferenceService preferenceService;
-	@MockBean
-	private MemberService memberService;
 	@MockBean
 	private PortfolioService portFolioService;
 	@MockBean
