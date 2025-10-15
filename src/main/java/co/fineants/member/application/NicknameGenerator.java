@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import static org.apache.logging.log4j.util.Strings.*;
 

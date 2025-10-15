@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,6 +12,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
+import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;

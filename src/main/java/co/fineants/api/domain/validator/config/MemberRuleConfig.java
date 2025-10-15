@@ -3,8 +3,8 @@ package co.fineants.api.domain.validator.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.fineants.api.domain.member.service.EmailDuplicateValidator;
-import co.fineants.api.domain.member.service.NicknameDuplicateValidator;
+import co.fineants.member.application.EmailDuplicateValidator;
+import co.fineants.member.application.NicknameDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.domain.validator.domain.member.EmailDuplicationRule;
 import co.fineants.api.domain.validator.domain.member.EmailFormatRule;

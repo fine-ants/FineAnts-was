@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
-import co.fineants.api.domain.member.service.MemberNotificationService;
+import co.fineants.member.application.MemberNotificationPreferenceService;
+import co.fineants.member.application.MemberNotificationService;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.presentation.dto.response.MemberNotification;

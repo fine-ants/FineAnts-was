@@ -25,7 +25,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.MemberRestController;
-import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.member.application.MemberService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.Nickname;

@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.member.application.NicknameGenerator;
 import co.fineants.member.domain.Nickname;
 
 class NicknameGeneratorTest extends AbstractContainerBaseTest {

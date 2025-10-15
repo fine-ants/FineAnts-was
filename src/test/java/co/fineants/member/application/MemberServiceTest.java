@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import static co.fineants.TestDataFactory.*;
 import static org.assertj.core.api.Assertions.*;
@@ -34,6 +34,7 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberProfileNotChangeException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.member.application.MemberService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;

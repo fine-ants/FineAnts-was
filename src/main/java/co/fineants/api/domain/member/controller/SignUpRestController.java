@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.fineants.api.domain.member.service.SignupService;
-import co.fineants.api.domain.member.service.SignupValidatorService;
-import co.fineants.api.domain.member.service.SignupVerificationService;
+import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupValidatorService;
+import co.fineants.member.application.SignupVerificationService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;

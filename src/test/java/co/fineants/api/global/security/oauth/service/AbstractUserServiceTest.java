@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.service.NicknameGenerator;
+import co.fineants.member.application.NicknameGenerator;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;

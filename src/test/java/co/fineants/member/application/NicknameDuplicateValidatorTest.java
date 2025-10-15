@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.member.application.NicknameDuplicateValidator;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 

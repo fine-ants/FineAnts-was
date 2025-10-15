@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;

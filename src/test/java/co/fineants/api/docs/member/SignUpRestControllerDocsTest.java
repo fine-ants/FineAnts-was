@@ -24,9 +24,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.member.controller.SignUpRestController;
-import co.fineants.api.domain.member.service.SignupService;
-import co.fineants.api.domain.member.service.SignupValidatorService;
-import co.fineants.api.domain.member.service.SignupVerificationService;
+import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupValidatorService;
+import co.fineants.member.application.SignupVerificationService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.MemberProfileFactory;
 

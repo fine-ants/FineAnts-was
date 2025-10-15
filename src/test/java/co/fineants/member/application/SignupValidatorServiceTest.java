@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
+import co.fineants.member.application.SignupValidatorService;
 
 class SignupValidatorServiceTest extends AbstractContainerBaseTest {
 	@Autowired

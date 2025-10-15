@@ -2,7 +2,7 @@ package co.fineants.api.domain.validator.domain.member;
 
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
-import co.fineants.api.domain.member.service.EmailDuplicateValidator;
+import co.fineants.member.application.EmailDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 

@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.service.NicknameGenerator;
+import co.fineants.member.application.NicknameGenerator;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;

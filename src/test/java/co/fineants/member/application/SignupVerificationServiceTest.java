@@ -1,4 +1,4 @@
-package co.fineants.api.domain.member.service;
+package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
+import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.domain.VerifyCodeRepository;
 import jakarta.mail.internet.MimeMessage;
 

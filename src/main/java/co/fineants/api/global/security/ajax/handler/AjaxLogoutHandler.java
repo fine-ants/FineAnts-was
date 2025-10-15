@@ -3,7 +3,7 @@ package co.fineants.api.global.security.ajax.handler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import co.fineants.api.domain.member.service.MemberService;
+import co.fineants.member.application.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
