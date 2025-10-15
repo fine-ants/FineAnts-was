@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +24,9 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordAuthenticationException;
-import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 import co.fineants.member.presentation.dto.response.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final WatchListRepository watchListRepository;
 	private final WatchStockRepository watchStockRepository;
 	private final PortfolioHoldingRepository portfolioHoldingRepository;
@@ -51,26 +47,6 @@ public class MemberService {
 	private final FcmRepository fcmRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-
-	@Transactional
-	@Secured("ROLE_USER")
-	public void modifyPassword(PasswordModifyRequest request, Long memberId) {
-		Member member = findMember(memberId);
-		if (!passwordEncoder.matches(request.currentPassword(), member.getPassword().orElse(null))) {
-			throw new PasswordInvalidInputException(request.currentPassword());
-		}
-		if (!request.matchPassword()) {
-			throw new PasswordInvalidInputException(request.currentPassword());
-		}
-		String newPassword = passwordEncoder.encode(request.newPassword());
-		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());
-		log.info("회원 비밀번호 변경 결과 : {}", count);
-	}
-
-	private Member findMember(Long id) {
-		return memberRepository.findById(id)
-			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
-	}
 
 	@Transactional
 	public void deleteMember(Long memberId) {
@@ -99,6 +75,11 @@ public class MemberService {
 		stockTargetPriceRepository.deleteAllByMemberId(member.getId());
 		notificationRepository.deleteAllByMemberId(member.getId());
 		memberRepository.delete(member);
+	}
+
+	private Member findMember(Long id) {
+		return memberRepository.findById(id)
+			.orElseThrow(() -> new MemberNotFoundException(id.toString()));
 	}
 
 	@Transactional(readOnly = true)
