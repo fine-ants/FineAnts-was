@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -34,7 +35,7 @@ public class ChangeMemberPassword {
 		String newPassword = request.getNewPassword();
 		String newPasswordConfirm = request.getNewPasswordConfirm();
 		if (!newPassword.equals(newPasswordConfirm)) {
-			throw new PasswordInvalidInputException(newPassword);
+			throw new PasswordConfirmInvalidInputException(newPassword, newPasswordConfirm);
 		}
 		String encodedNewPassword = passwordEncoder.encode(newPassword);
 		member.changePassword(encodedNewPassword);

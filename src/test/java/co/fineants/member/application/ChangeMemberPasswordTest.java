@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -82,7 +83,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 			() -> changeMemberPassword.changePassword(request, member.getId()));
 
 		Assertions.assertThat(throwable)
-			.isInstanceOf(PasswordInvalidInputException.class)
-			.hasMessage(newPassword);
+			.isInstanceOf(PasswordConfirmInvalidInputException.class)
+			.hasMessage("newPassword=nemo2345@, newPasswordConfirm=nemo2345@@");
 	}
 }

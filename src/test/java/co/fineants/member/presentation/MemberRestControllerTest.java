@@ -217,4 +217,26 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PASSWORD_BAD_REQUEST.getMessage())))
 			.andExpect(jsonPath("data").value(equalTo(currentPassword)));
 	}
+
+	@DisplayName("사용자의 새로운 비밀번호가 일치하지 않아서 비밀번호를 변경하지 못한다")
+	@Test
+	void changePassword_whenNewPasswordIsNotMatch_thenNotChangePassword() throws Exception {
+		// given
+		String currentPassword = "nemo1234@";
+		String newPassword = "nemo2345@";
+		String newPasswordConfirm = "xxx";
+		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
+		// when & then
+		mockMvc.perform(put("/api//account/password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request))
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PASSWORD_CONFIRM_BAD_REQUEST.getMessage())))
+			.andExpect(jsonPath("data").value(
+				equalTo("newPassword=" + newPassword + ", newPasswordConfirm=" + newPasswordConfirm)));
+	}
 }
