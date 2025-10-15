@@ -27,7 +27,7 @@ public class ChangeMemberPassword {
 			throw new PasswordInvalidInputException(request.currentPassword());
 		}
 		if (!request.matchPassword()) {
-			throw new PasswordInvalidInputException(request.currentPassword());
+			throw new PasswordInvalidInputException(request.newPassword());
 		}
 		String newPassword = passwordEncoder.encode(request.newPassword());
 		int count = memberRepository.modifyMemberPassword(newPassword, member.getId());

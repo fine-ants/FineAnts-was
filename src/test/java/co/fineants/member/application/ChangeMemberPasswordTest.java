@@ -64,4 +64,25 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 			.isInstanceOf(PasswordInvalidInputException.class)
 			.hasMessage(currentPassword);
 	}
+
+	@DisplayName("새로운 비밀번호와 새로운 비밀번호 확인이 일치하지 않으면 비밀번호 변경에 실패한다")
+	@Test
+	void changePassword_whenNewPasswordNotMatch_thenThrowException() {
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		String currentPassword = "nemo1234@";
+		String newPassword = "nemo2345@";
+		String newPasswordConfirm = "nemo2345@@";
+		PasswordModifyRequest request = new PasswordModifyRequest(
+			currentPassword,
+			newPassword,
+			newPasswordConfirm
+		);
+
+		Throwable throwable = Assertions.catchThrowable(
+			() -> changeMemberPassword.changePassword(request, member.getId()));
+
+		Assertions.assertThat(throwable)
+			.isInstanceOf(PasswordInvalidInputException.class)
+			.hasMessage(newPassword);
+	}
 }
