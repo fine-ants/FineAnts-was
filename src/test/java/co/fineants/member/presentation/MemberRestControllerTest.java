@@ -21,6 +21,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
 
 class MemberRestControllerTest extends AbstractContainerBaseTest {
 
@@ -171,5 +172,26 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.user.notificationPreferences.targetGainNotify").value(equalTo(true)))
 			.andExpect(jsonPath("data.user.notificationPreferences.maxLossNotify").value(equalTo(true)))
 			.andExpect(jsonPath("data.user.notificationPreferences.targetPriceNotify").value(equalTo(true)));
+	}
+
+	@DisplayName("사용자는 비밀번호를 변경한다")
+	@Test
+	void changePassword() throws Exception {
+		// given
+		String currentPassword = "nemo1234@";
+		String newPassword = "nemo2345@";
+		String newPasswordConfirm = "nemo2345@";
+		PasswordModifyRequest request = new PasswordModifyRequest(currentPassword, newPassword, newPasswordConfirm);
+		// when & then
+		mockMvc.perform(put("/api//account/password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request))
+				.cookie(createTokenCookies())
+			)
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(200)))
+			.andExpect(jsonPath("status").value(equalTo("OK")))
+			.andExpect(jsonPath("message").value(equalTo(OK_PASSWORD_CHANGED.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
