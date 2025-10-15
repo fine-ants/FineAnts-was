@@ -5,11 +5,7 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.logging.log4j.util.Strings;
@@ -20,11 +16,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -34,7 +28,7 @@ import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.member.domain.Member;
 
-public class SignUpRestControllerTest extends AbstractContainerBaseTest {
+class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	private MockMvc mockMvc;
 
@@ -73,24 +67,12 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("code").value(equalTo(201)))
 			.andExpect(jsonPath("status").value(equalTo("Created")))
 			.andExpect(jsonPath("message").value(equalTo("회원가입이 완료되었습니다")));
-	}
-
-	public MultipartFile createMockMultipartFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@DisplayName("사용자는 기본 프로필 사진으로 회원가입 할 수 있다")
@@ -118,7 +100,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 유효하지 않은 회원가입 데이터로 요청시 400 에러를 응답받는다")
-	@MethodSource(value = "invalidSignupData")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidSignupData")
 	@ParameterizedTest
 	void signup_whenInvalidSignupData_thenResponse400Error(String nickname, String email, String password,
 		String passwordConfirm) throws Exception {
@@ -137,7 +119,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("code").value(equalTo(400)))
@@ -165,7 +147,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isConflict())
 			.andExpect(jsonPath("code").value(equalTo(409)))
@@ -200,7 +182,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isConflict())
 			.andExpect(jsonPath("code").value(equalTo(409)))
@@ -227,7 +209,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile())
+				.file((MockMultipartFile)TestDataFactory.createProfileFile())
 				.file(signupData))
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("code").value(equalTo(401)))
@@ -243,7 +225,7 @@ public class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 		// when & then
 		mockMvc.perform(multipart(POST, "/api/auth/signup")
-				.file((MockMultipartFile)createMockMultipartFile()))
+				.file((MockMultipartFile)TestDataFactory.createProfileFile()))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("code").value(equalTo(400)))
 			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
