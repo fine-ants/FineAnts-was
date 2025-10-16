@@ -288,24 +288,32 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 포트폴리오 종목을 삭제한다")
 	@Test
-	void deletePortfolioStock() throws Exception {
+	void deletePortfolioHolding() throws Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
-		Stock stock = createSamsungStock();
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock, 60_000L);
+		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
 
-		Long portfolioHoldingId = portfolioHolding.getId();
-		Long portfolioId = portfolio.getId();
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
 
 		// when & then
 		mockMvc.perform(
-				delete("/api/portfolio/{portfolioId}/holdings/{portfolioHoldingId}", portfolioId, portfolioHoldingId))
+				delete("/api/portfolio/{portfolioId}/holdings/{portfolioHoldingId}", portfolio.getId(),
+					portfolioHolding.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 삭제되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_PORTFOLIO_HOLDING.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오 종목을 다수 삭제한다")
