@@ -376,43 +376,44 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("삭제할 포트폴리오 종목들이 없습니다")));
 	}
 
-	@DisplayName("사용자는 포트폴레오에 대한 차트 정보를 조회한다")
+	@DisplayName("사용자는 포트폴리오 차트 정보를 조회한다")
 	@Test
 	void readMyPortfolioCharts() throws Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
-		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 60_000L);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
-		portfolio.addHolding(portfolioHolding);
-		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-		Count numShares = Count.from(3);
-		Money purchasePerShare = Money.won(50000);
-		String memo = "첫구매";
-		portfolioHolding.addPurchaseHistory(
-			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock, 60_000L);
+		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
 
 		// when & then
 		mockMvc.perform(get("/api/portfolio/{portfolioId}/charts", portfolio.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오에 대한 차트 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data.portfolioDetails.id").value(equalTo(1)))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_READ_PORTFOLIO_CHARTS.getMessage())))
+			.andExpect(jsonPath("data.portfolioDetails.id").value(equalTo(portfolio.getId().intValue())))
 			.andExpect(jsonPath("data.portfolioDetails.securitiesFirm").value(equalTo("토스증권")))
 			.andExpect(jsonPath("data.portfolioDetails.name").value(equalTo("내꿈은 워렌버핏")))
 			.andExpect(jsonPath("data.pieChart[0].name").value(equalTo("현금")))
-			.andExpect(jsonPath("data.pieChart[0].valuation").value(equalTo(850000)))
-			.andExpect(jsonPath("data.pieChart[0].weight").value(equalTo(82.52)))
+			.andExpect(jsonPath("data.pieChart[0].valuation").value(equalTo(950000)))
+			.andExpect(jsonPath("data.pieChart[0].weight").value(equalTo(76.0)))
 			.andExpect(jsonPath("data.pieChart[0].totalGain").value(equalTo(0)))
 			.andExpect(jsonPath("data.pieChart[0].totalGainRate").value(equalTo(0.00)))
 			.andExpect(jsonPath("data.pieChart[1].name").value(equalTo("삼성전자보통주")))
-			.andExpect(jsonPath("data.pieChart[1].valuation").value(equalTo(180000)))
-			.andExpect(jsonPath("data.pieChart[1].weight").value(equalTo(17.48)))
-			.andExpect(jsonPath("data.pieChart[1].totalGain").value(equalTo(30000)))
-			.andExpect(jsonPath("data.pieChart[1].totalGainRate").value(equalTo(20.0)))
+			.andExpect(jsonPath("data.pieChart[1].valuation").value(equalTo(300000)))
+			.andExpect(jsonPath("data.pieChart[1].weight").value(equalTo(24.0)))
+			.andExpect(jsonPath("data.pieChart[1].totalGain").value(equalTo(250000)))
+			.andExpect(jsonPath("data.pieChart[1].totalGainRate").value(equalTo(500.0)))
 			.andExpect(jsonPath("data.dividendChart[0].month").value(equalTo(1)))
 			.andExpect(jsonPath("data.dividendChart[0].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[1].month").value(equalTo(2)))
@@ -420,22 +421,26 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.dividendChart[2].month").value(equalTo(3)))
 			.andExpect(jsonPath("data.dividendChart[2].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[3].month").value(equalTo(4)))
-			.andExpect(jsonPath("data.dividendChart[3].amount").value(equalTo(1083)))
+			.andExpect(jsonPath("data.dividendChart[3].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[4].month").value(equalTo(5)))
-			.andExpect(jsonPath("data.dividendChart[4].amount").value(equalTo(1083)))
+			.andExpect(jsonPath("data.dividendChart[4].amount").value(equalTo(1805)))
 			.andExpect(jsonPath("data.dividendChart[5].month").value(equalTo(6)))
 			.andExpect(jsonPath("data.dividendChart[5].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[6].month").value(equalTo(7)))
 			.andExpect(jsonPath("data.dividendChart[6].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[7].month").value(equalTo(8)))
-			.andExpect(jsonPath("data.dividendChart[7].amount").value(equalTo(1083)))
+			.andExpect(jsonPath("data.dividendChart[7].amount").value(equalTo(1805)))
 			.andExpect(jsonPath("data.dividendChart[8].month").value(equalTo(9)))
 			.andExpect(jsonPath("data.dividendChart[8].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[9].month").value(equalTo(10)))
 			.andExpect(jsonPath("data.dividendChart[9].amount").value(equalTo(0)))
 			.andExpect(jsonPath("data.dividendChart[10].month").value(equalTo(11)))
-			.andExpect(jsonPath("data.dividendChart[10].amount").value(equalTo(1083)))
+			.andExpect(jsonPath("data.dividendChart[10].amount").value(equalTo(1805)))
 			.andExpect(jsonPath("data.dividendChart[11].month").value(equalTo(12)))
-			.andExpect(jsonPath("data.dividendChart[11].amount").value(equalTo(0)));
+			.andExpect(jsonPath("data.dividendChart[11].amount").value(equalTo(0)))
+			.andExpect(jsonPath("data.sectorChart[0].sector").value(equalTo("현금")))
+			.andExpect(jsonPath("data.sectorChart[0].sectorWeight").value(equalTo(76.0)))
+			.andExpect(jsonPath("data.sectorChart[1].sector").value(equalTo("전기,전자")))
+			.andExpect(jsonPath("data.sectorChart[1].sectorWeight").value(equalTo(24.0)));
 	}
 }
