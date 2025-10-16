@@ -2,8 +2,6 @@ package co.fineants.api.domain.holding.controller;
 
 import static co.fineants.api.global.success.PortfolioHoldingSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,7 +28,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
+import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRequest;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
@@ -318,28 +316,41 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 포트폴리오 종목을 다수 삭제한다")
 	@Test
-	void deletePortfolioStocks() throws Exception {
+	void deletePortfolioHoldings() throws Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
+		Stock saveSamsungStock = stockRepository.save(stock);
+		Stock kakaoStock = TestDataFactory.createKakaoStock();
+		TestDataFactory.createStockDividend(kakaoStock.getTickerSymbol()).forEach(kakaoStock::addStockDividend);
+		Stock saveKakaoStock = stockRepository.save(kakaoStock);
+		currentPriceRepository.savePrice(saveSamsungStock, 60_000L);
+		closingPriceRepository.addPrice(saveSamsungStock.getTickerSymbol(), 59_000L);
 
-		List<Long> delPortfolioHoldingIds = List.of(1L, 2L);
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("portfolioHoldingIds", delPortfolioHoldingIds);
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		PortfolioHolding portfolioHolding1 = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveSamsungStock));
+		PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveKakaoStock));
 
-		PortfolioStockDeletesResponse mockResponse = new PortfolioStockDeletesResponse(delPortfolioHoldingIds);
-		given(mockedPortfolioHoldingService.deletePortfolioHoldings(anyLong(), anyLong(), anyList())).willReturn(
-			mockResponse);
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding1));
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding2));
+
+		PortfolioStocksDeleteRequest request = new PortfolioStocksDeleteRequest(
+			List.of(portfolioHolding1.getId(), portfolioHolding2.getId()));
 		// when & then
 		mockMvc.perform(delete("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목들이 삭제되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_PORTFOLIO_HOLDINGS.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오 종목을 다수 삭제할때 유효하지 않은 입력으로 삭제할 수 없다")
