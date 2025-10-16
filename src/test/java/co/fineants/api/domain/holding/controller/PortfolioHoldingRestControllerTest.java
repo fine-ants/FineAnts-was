@@ -260,27 +260,30 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.portfolioHoldingId").value(greaterThan(0)));
 	}
 
-	@DisplayName("사용자는 포트폴리오에 종목을 추가할때 stockId를 필수로 같이 전송해야 한다")
+	@DisplayName("사용자는 포트폴리오에 종목을 추가할때 tickerSymbol을 필수로 같이 전송해야 한다")
 	@Test
-	void addPortfolioStockWithStockIdIsNull() throws Exception {
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
+	void createPortfolioHolding_whenTickerSymbolIsNull_thenResponseError() throws Exception {
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		stockRepository.save(TestDataFactory.createSamsungStock());
 
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", null);
-
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
-		Long portfolioId = portfolio.getId();
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = null;
+		PortfolioHoldingCreateRequest request = new PortfolioHoldingCreateRequest(
+			null,
+			purchaseHistoryCreateRequest
+		);
 
 		// when & then
-		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
+		mockMvc.perform(post("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("티커심볼은 필수 정보입니다")));
 	}
 
 	@DisplayName("사용자는 포트폴리오 종목을 삭제한다")
