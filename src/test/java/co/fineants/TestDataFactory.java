@@ -23,6 +23,8 @@ import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
+import co.fineants.api.domain.notification.domain.entity.Notification;
+import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -344,6 +346,26 @@ public final class TestDataFactory {
 				null,
 				tickerSymbol
 			)
+		);
+	}
+
+	public static Notification createPortfolioNotification(Member member, Portfolio portfolio, NotificationType type) {
+		String title = "포트폴리오";
+		String referenceId = portfolio.getReferenceId();
+		String link = portfolio.getLink();
+		List<String> messageIds = List.of("messageId1", "messageId2");
+		String portfolioName = portfolio.name();
+		Long portfolioId = portfolio.getId();
+
+		return Notification.portfolioNotification(
+			title,
+			type,
+			referenceId,
+			link,
+			member,
+			messageIds,
+			portfolioName,
+			portfolioId
 		);
 	}
 }

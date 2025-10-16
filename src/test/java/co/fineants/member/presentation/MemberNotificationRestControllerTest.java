@@ -25,7 +25,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
-import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -97,25 +96,13 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 		Member member = memberRepository.save(TestDataFactory.createMember());
 		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
+		Notification notification = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_MAX_LOSS));
 		String title = "포트폴리오";
-		NotificationType notificationType = PORTFOLIO_MAX_LOSS;
-		String referenceId = portfolio.getReferenceId();
-		String link = portfolio.getLink();
-		List<String> messageIds = List.of("messageId1", "messageId2");
 		String portfolioName = portfolio.name();
-		Long portfolioId = portfolio.getId();
-
-		Notification notification = Notification.portfolioNotification(
-			title,
-			notificationType,
-			referenceId,
-			link,
-			member,
-			messageIds,
-			portfolioName,
-			portfolioId
-		);
-		notificationRepository.save(notification);
+		String notificationType = PORTFOLIO_MAX_LOSS.getName();
+		String type = PORTFOLIO_MAX_LOSS.getCategory();
+		String referenceId = portfolio.getReferenceId();
 
 		// when & then
 		mockMvc.perform(get("/api/members/{memberId}/notifications", member.getId()))
@@ -128,10 +115,10 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.notifications[0].notificationId").value(equalTo(notification.getId().intValue())))
 			.andExpect(jsonPath("data.notifications[0].title").value(equalTo(title)))
 			.andExpect(jsonPath("data.notifications[0].body.name").value(equalTo(portfolioName)))
-			.andExpect(jsonPath("data.notifications[0].body.target").value(equalTo(notificationType.getName())))
+			.andExpect(jsonPath("data.notifications[0].body.target").value(equalTo(notificationType)))
 			.andExpect(jsonPath("data.notifications[0].timestamp").value(notNullValue()))
 			.andExpect(jsonPath("data.notifications[0].isRead").value(equalTo(false)))
-			.andExpect(jsonPath("data.notifications[0].type").value(equalTo(notificationType.getCategory())))
+			.andExpect(jsonPath("data.notifications[0].type").value(equalTo(type)))
 			.andExpect(jsonPath("data.notifications[0].referenceId").value(equalTo(referenceId)));
 	}
 
