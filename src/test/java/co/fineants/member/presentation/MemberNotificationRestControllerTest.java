@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +31,7 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.response.MemberNotification;
 
@@ -188,24 +188,25 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deleteAllNotifications() throws Exception {
 		// given
-		Long memberId = 1L;
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
-		List<MemberNotification> mockNotifications = createNotifications();
-		List<Long> notificationIds = mockNotifications.stream()
-			.map(MemberNotification::getNotificationId)
-			.toList();
-		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
-			.willReturn(notificationIds);
+		Notification notification1 = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_MAX_LOSS));
+		Notification notification2 = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_TARGET_GAIN));
 
+		List<Long> notificationIds = List.of(notification1.getId(), notification2.getId());
+		MemberNotificationAllDeleteRequest request = new MemberNotificationAllDeleteRequest(notificationIds);
 		// when & then
-		mockMvc.perform(delete("/api/members/{memberId}/notifications",
-				memberId)
+		mockMvc.perform(delete("/api/members/{memberId}/notifications", member.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("알림 전체 삭제를 성공하였습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(MemberSuccessCode.OK_DELETED_ALL_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 특정 알람을 삭제합니다")
