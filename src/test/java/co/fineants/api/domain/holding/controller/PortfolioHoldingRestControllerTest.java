@@ -26,7 +26,6 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateR
 import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRequest;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -36,20 +35,12 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private PortfolioHoldingService mockedPortfolioHoldingService;
-
-	@Autowired
-	private LocalDateTimeService mockedlocalDateTimeService;
-
 	@Autowired
 	private PriceRepository currentPriceRepository;
 
