@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -40,7 +39,6 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.LoginRequest;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
-import io.restassured.RestAssured;
 import jakarta.servlet.http.Cookie;
 
 class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
@@ -56,9 +54,6 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
-
-	@LocalServerPort
-	private int port;
 
 	@Autowired
 	private WebApplicationContext context;
@@ -92,7 +87,6 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		RestAssured.port = port;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context)
 			.apply(springSecurity())
 			.alwaysDo(print())
