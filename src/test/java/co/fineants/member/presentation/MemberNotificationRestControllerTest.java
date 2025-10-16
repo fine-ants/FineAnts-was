@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -152,53 +151,37 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void readAllNotifications_whenEmptyList_thenResponse400Error() throws Exception {
 		// given
-		Long memberId = 1L;
-
-		List<MemberNotification> mockNotifications = createNotifications();
-		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
-			.willReturn(
-				List.of(
-					mockNotifications.get(0).getNotificationId(),
-					mockNotifications.get(1).getNotificationId()
-				)
-			);
-
+		Member member = memberRepository.save(TestDataFactory.createMember());
 		List<Long> notificationIds = Collections.emptyList();
+		MemberNotificationAllReadRequest request = new MemberNotificationAllReadRequest(notificationIds);
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[0].field").value(equalTo("notificationIds")))
+			.andExpect(jsonPath("data[0].defaultMessage").value(equalTo("읽을 알림의 개수는 1개 이상이어야 합니다")));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력으로 알림을 읽을 수 없습니다")
 	@Test
 	void readAllNotifications_whenInvalidInput_thenResponse400Error() throws Exception {
 		// given
-		Long memberId = 1L;
-
-		List<MemberNotification> mockNotifications = createNotifications();
-		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
-			.willReturn(
-				List.of(
-					mockNotifications.get(0).getNotificationId(),
-					mockNotifications.get(1).getNotificationId()
-				)
-			);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("notificationIds", null);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		MemberNotificationAllReadRequest request = new MemberNotificationAllReadRequest(null);
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[0].field").value(equalTo("notificationIds")))
+			.andExpect(jsonPath("data[0].defaultMessage").value(equalTo("필수 정보입니다")));
 	}
 
 	@DisplayName("사용자는 알람을 모두 삭제합니다")
