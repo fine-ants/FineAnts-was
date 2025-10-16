@@ -131,4 +131,18 @@ public class TestDataProvider {
 			Arguments.of(now1, now1)
 		);
 	}
+
+	public static Stream<Arguments> invalidCreatePortfolioSource() {
+		return Stream.of(
+			Arguments.of("", "", 0L, -1L, -1L)
+		);
+	}
+
+	public static Stream<Arguments> createPortfolioSource() {
+		return Stream.of(
+			Arguments.of(1000000L, 1500000L, 900000L),
+			Arguments.of(0L, 0L, 0L),
+			Arguments.of(0L, 1500000L, 900000L)
+		);
+	}
 }
