@@ -20,6 +20,7 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
+import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
@@ -367,5 +368,9 @@ public final class TestDataFactory {
 			portfolioName,
 			portfolioId
 		);
+	}
+
+	public static PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
+		return PortfolioGainHistory.empty(portfolio);
 	}
 }

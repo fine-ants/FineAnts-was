@@ -5,11 +5,13 @@ import java.util.List;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class PortfolioStocksDeleteRequest {
 	@NotNull(message = "삭제할 포트폴리오 종목들이 없습니다")
 	@Size(min = 1, message = "삭제할 포트폴리오 종목들이 없습니다")
