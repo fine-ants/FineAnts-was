@@ -57,4 +57,18 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.totalAnnualDividend").value(equalTo(0)))
 			.andExpect(jsonPath("data.totalAnnualDividendYield").value(equalTo(0.0)));
 	}
+
+	@DisplayName("사용자는 파이차트를 조회한다")
+	@Test
+	void readPieChart() throws Exception {
+		// given
+
+		// when & then
+		mockMvc.perform(get("/api/dashboard/pieChart"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(DashboardSuccessCode.OK_PORTFOLIO_PIE_CHART.getMessage())))
+			.andExpect(jsonPath("data").value(notNullValue()));
+	}
 }
