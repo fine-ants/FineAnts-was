@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.success.DashboardSuccessCode;
 import co.fineants.member.domain.Member;
@@ -30,12 +31,13 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	private MockMvc mockMvc;
+	private Portfolio portfolio;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
 		Member member = memberRepository.save(TestDataFactory.createMember());
-		portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 	}
 
 	@DisplayName("사용자는 대시보드 개요를 조회한다")
@@ -69,6 +71,12 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
 			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo(DashboardSuccessCode.OK_PORTFOLIO_PIE_CHART.getMessage())))
-			.andExpect(jsonPath("data").value(notNullValue()));
+			.andExpect(jsonPath("data[0].id").value(portfolio.getId()))
+			.andExpect(jsonPath("data[0].name").value("내꿈은 워렌버핏"))
+			.andExpect(jsonPath("data[0].valuation").value(1000000))
+			.andExpect(jsonPath("data[0].weight").value(100.0))
+			.andExpect(jsonPath("data[0].totalGain").value(0))
+			.andExpect(jsonPath("data[0].totalGainRate").value(0.0));
+
 	}
 }
