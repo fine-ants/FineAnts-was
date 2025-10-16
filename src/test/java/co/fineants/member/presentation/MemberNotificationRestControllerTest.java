@@ -2,7 +2,6 @@ package co.fineants.member.presentation;
 
 import static co.fineants.api.domain.notification.domain.entity.type.NotificationType.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -213,26 +212,18 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deleteNotification() throws Exception {
 		// given
-		Long memberId = 1L;
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
-		MemberNotification mockNotification = MemberNotification.builder()
-			.notificationId(3L)
-			.title("포트폴리오")
-			.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
-			.timestamp(LocalDateTime.of(2024, 1, 24, 10, 10, 10))
-			.isRead(false)
-			.type(PORTFOLIO_MAX_LOSS.getCategory())
-			.referenceId("2")
-			.build();
-		given(memberNotificationService.deleteMemberNotifications(anyLong(), anyList()))
-			.willReturn(List.of(mockNotification.getNotificationId()));
-
+		Notification notification = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_MAX_LOSS));
 		// when & then
-		mockMvc.perform(delete("/api/members/{memberId}/notifications/{notificationId}", memberId,
-				mockNotification.getNotificationId()))
+		mockMvc.perform(delete("/api/members/{memberId}/notifications/{notificationId}",
+				member.getId(), notification.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("알림 삭제를 성공하였습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(MemberSuccessCode.OK_DELETED_NOTIFICATION.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
