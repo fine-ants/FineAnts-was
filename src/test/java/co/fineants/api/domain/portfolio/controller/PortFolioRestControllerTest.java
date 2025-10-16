@@ -5,9 +5,7 @@ import static org.mockito.BDDMockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,17 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
@@ -55,11 +50,16 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioRepository portfolioRepository;
 
+	@Autowired
+	private WebApplicationContext context;
+
 	private MockMvc mockMvc;
+	private Member member;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
+		member = memberRepository.save(TestDataFactory.createMember());
 	}
 
 	@DisplayName("사용자는 포트폴리오를 생성한다")
@@ -68,8 +68,6 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	void createPortfolio_whenAddPortfolio_thenSavePortfolio(Long budget, Long targetGain, Long maximumLoss) throws
 		Exception {
 		// given
-		memberRepository.save(TestDataFactory.createMember());
-
 		PortfolioCreateRequest request = PortfolioCreateRequest.create(
 			"내꿈은 워렌버핏",
 			"토스증권",
@@ -95,8 +93,6 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	void addPortfolioWithInvalidInput(String name, String securitiesFirm, Long budget, Long targetGain,
 		Long maximumLoss) throws Exception {
 		// given
-		memberRepository.save(TestDataFactory.createMember());
-
 		PortfolioCreateRequest request = PortfolioCreateRequest.create(
 			name,
 			securitiesFirm,
@@ -128,46 +124,30 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void searchMyAllPortfolios() throws Exception {
 		// given
-		PortFolioItem portFolioItem = PortFolioItem.builder()
-			.id(1L)
-			.securitiesFirm("토스증권")
-			.name("내꿈은 워렌버핏")
-			.budget(Money.won(1000000L))
-			.totalGain(Money.won(100000L))
-			.totalGainRate(Percentage.from(0.1))
-			.dailyGain(Money.won(100000L))
-			.dailyGainRate(Percentage.from(0.1))
-			.currentValuation(Money.won(100000L))
-			.expectedMonthlyDividend(Money.won(20000L))
-			.numShares(Count.from(0))
-			.dateCreated(LocalDateTime.now())
-			.build();
-		BDDMockito.given(mockedPortfolioService.readMyAllPortfolio(ArgumentMatchers.anyLong()))
-			.willReturn(PortfoliosResponse.builder()
-				.portfolios(List.of(portFolioItem))
-				.build());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
 		// when & then
 		mockMvc.perform(get("/api/portfolios"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 목록 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data.portfolios[0].id").value(equalTo(1)))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(PortfolioSuccessCode.OK_SEARCH_PORTFOLIOS.getMessage())))
+			.andExpect(jsonPath("data.portfolios").isArray())
+			.andExpect(jsonPath("data.portfolios[0].id").value(equalTo(portfolio.getId().intValue())))
 			.andExpect(jsonPath("data.portfolios[0].securitiesFirm").value(equalTo("토스증권")))
 			.andExpect(jsonPath("data.portfolios[0].name").value(equalTo("내꿈은 워렌버핏")))
 			.andExpect(jsonPath("data.portfolios[0].budget").value(equalTo(1000000)))
-			.andExpect(jsonPath("data.portfolios[0].totalGain").value(equalTo(100000)))
-			.andExpect(jsonPath("data.portfolios[0].totalGainRate").value(equalTo(10.0)))
-			.andExpect(jsonPath("data.portfolios[0].dailyGain").value(equalTo(100000)))
-			.andExpect(jsonPath("data.portfolios[0].dailyGainRate").value(equalTo(10.0)))
+			.andExpect(jsonPath("data.portfolios[0].totalGain").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].totalGainRate").value(equalTo(0.0)))
+			.andExpect(jsonPath("data.portfolios[0].dailyGain").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].dailyGainRate").value(equalTo(0.0)))
 			.andExpect(jsonPath("data.portfolios[0].currentValuation")
-				.value(equalTo(100000)))
+				.value(equalTo(0)))
 			.andExpect(jsonPath("data.portfolios[0].expectedMonthlyDividend")
-				.value(equalTo(20000)))
+				.value(equalTo(0)))
 			.andExpect(jsonPath("data.portfolios[0].numShares")
 				.value(equalTo(0)))
-			.andExpect(jsonPath("data.portfolios[0].dateCreated").isNotEmpty());
+			.andExpect(jsonPath("data.portfolios[0].dateCreated").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정을 요청한다")
