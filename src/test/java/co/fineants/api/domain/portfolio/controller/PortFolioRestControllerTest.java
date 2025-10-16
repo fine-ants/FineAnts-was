@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -22,16 +21,12 @@ import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateReques
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class PortFolioRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private PortfolioService mockedPortfolioService;
 
 	@Autowired
 	private PortFolioRestController controller;
@@ -41,9 +36,6 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
-
-	@Autowired
-	private WebApplicationContext context;
 
 	private MockMvc mockMvc;
 	private Member member;
