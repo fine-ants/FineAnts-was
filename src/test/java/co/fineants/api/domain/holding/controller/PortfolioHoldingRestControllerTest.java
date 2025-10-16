@@ -6,17 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -80,13 +75,6 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 	private ClosingPriceRepository closingPriceRepository;
 
 	private MockMvc mockMvc;
-
-	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
-		return Stream.of(
-			Arguments.of(Collections.emptyList()),
-			Arguments.of((Object)null)
-		);
-	}
 
 	@BeforeEach
 	void setUp() {
@@ -354,27 +342,38 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 포트폴리오 종목을 다수 삭제할때 유효하지 않은 입력으로 삭제할 수 없다")
-	@MethodSource(value = "provideInvalidPortfolioHoldingIds")
 	@ParameterizedTest
-	void deletePortfolioStocks_withInvalidItems(List<Long> portfolioHoldingIds) throws Exception {
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidPortfolioHoldingIds")
+	void deletePortfolioHoldings_whenInvalidPortfolioHoldingIds_thenNotDeletePortfolioHoldings(
+		List<Long> portfolioHoldingIds) throws Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock, 60_000L);
+		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
 
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("portfolioHoldingIds", portfolioHoldingIds);
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
+
+		PortfolioStocksDeleteRequest request = new PortfolioStocksDeleteRequest(portfolioHoldingIds);
 
 		// when & then
 		mockMvc.perform(delete("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data[0].field").value(equalTo("portfolioHoldingIds")))
-			.andExpect(jsonPath("data[0].defaultMessage").value(equalTo("삭제할 포트폴리오 종목들이 없습니다")));
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("portfolioHoldingIds")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("삭제할 포트폴리오 종목들이 없습니다")));
 	}
 
 	@DisplayName("사용자는 포트폴레오에 대한 차트 정보를 조회한다")

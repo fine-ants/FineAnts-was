@@ -2,6 +2,7 @@ package co.fineants;
 
 import static co.fineants.TestDataFactory.*;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -143,6 +144,13 @@ public class TestDataProvider {
 			Arguments.of(1000000L, 1500000L, 900000L),
 			Arguments.of(0L, 0L, 0L),
 			Arguments.of(0L, 1500000L, 900000L)
+		);
+	}
+
+	public static Stream<Arguments> invalidPortfolioHoldingIds() {
+		return Stream.of(
+			Arguments.of(Collections.emptyList()),
+			Arguments.of((Object)null)
 		);
 	}
 }
