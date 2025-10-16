@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -74,8 +75,9 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.build();
 	}
 
+	@DisplayName("사용자는 이메일과 비밀번호로 로그인 한다")
 	@Test
-	void testLogin() throws Exception {
+	void login_whenAjaxLogin_thenAuthenticatedContext() throws Exception {
 		memberRepository.save(createMember());
 		LoginRequest request = new LoginRequest("dragonbead95@naver.com", "nemo1234@");
 
@@ -96,6 +98,22 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.andExpect(cookie().secure("refreshToken", true))
 			.andExpect(cookie().path("accessToken", "/"))
 			.andExpect(cookie().path("refreshToken", "/"));
+	}
+
+	@DisplayName("사용자는 이메일과 비밀번호가 일치하지 않아서 로그인하지 못한다")
+	@Test
+	void login_whenInvalidEmailAndPassword_thenUnauthenticatedContext() throws Exception {
+		memberRepository.save(createMember());
+		LoginRequest request = new LoginRequest("dragonbead95@naver.com", "nemo2345@");
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.LOGIN_FAIL.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 이메일 또는 비밀번호를 틀려서 로그인 할 수 없다")
