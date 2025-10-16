@@ -132,9 +132,9 @@ public class TestDataProvider {
 		);
 	}
 
-	public static Stream<Arguments> invalidPortfolioInput() {
+	public static Stream<Arguments> invalidCreatePortfolioSource() {
 		return Stream.of(
-			Arguments.of("", "", 0L, null, -1L)
+			Arguments.of("", "", 0L, -1L, -1L)
 		);
 	}
 

@@ -90,28 +90,38 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 포트폴리오 추가시 유효하지 않은 입력 정보로 추가할 수 없다")
-	@MethodSource(value = "co.fineants.TestDataProvider#invalidPortfolioInput")
 	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidCreatePortfolioSource")
 	void addPortfolioWithInvalidInput(String name, String securitiesFirm, Long budget, Long targetGain,
 		Long maximumLoss) throws Exception {
 		// given
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("name", name);
-		requestBodyMap.put("securitiesFirm", securitiesFirm);
-		requestBodyMap.put("budget", budget);
-		requestBodyMap.put("targetGain", targetGain);
-		requestBodyMap.put("maximumLoss", maximumLoss);
+		memberRepository.save(TestDataFactory.createMember());
 
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		PortfolioCreateRequest request = PortfolioCreateRequest.create(
+			name,
+			securitiesFirm,
+			Money.won(budget),
+			Money.won(targetGain),
+			Money.won(maximumLoss)
+		);
 		// when & then
 		mockMvc.perform(post("/api/portfolios")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder(
+				"securitiesFirm", "maximumLoss", "name", "targetGain", "name")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder(
+				"증권사는 필수 정보입니다",
+				"금액은 0포함 양수여야 합니다",
+				"포트폴리오 이름은 필수 정보입니다",
+				"금액은 0포함 양수여야 합니다",
+				"유효하지 않은 포트폴리오 이름입니다."
+			)));
 	}
 
 	@DisplayName("사용자는 자신의 포트폴리오 목록을 조회한다")
@@ -200,7 +210,7 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정시 유효하지 않은 입력 정보로 추가할 수 없다")
-	@MethodSource("co.fineants.TestDataProvider#invalidPortfolioInput")
+	@MethodSource("co.fineants.TestDataProvider#invalidCreatePortfolioSource")
 	@ParameterizedTest
 	void updatePortfolioWithInvalidInput() throws Exception {
 		// given
