@@ -239,27 +239,25 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 포트폴리오에 종목만 추가한다")
 	@Test
-	void addPortfolioStockOnly() throws Exception {
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
-		Stock stock = createSamsungStock();
+	void createPortfolioHolding_whenPurchaseHistoryCreateRequestIsNull_thenSavePortfolioHolding() throws Exception {
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
 
-		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "005930");
-
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
-		Long portfolioId = portfolio.getId();
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = null;
+		PortfolioHoldingCreateRequest request = new PortfolioHoldingCreateRequest(
+			stock.getTickerSymbol(),
+			purchaseHistoryCreateRequest
+		);
 		// when & then
-		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
+		mockMvc.perform(post("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 추가되었습니다")))
-			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CREATED_ADD_PORTFOLIO_HOLDING.getMessage())))
+			.andExpect(jsonPath("data.portfolioHoldingId").value(greaterThan(0)));
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목을 추가할때 stockId를 필수로 같이 전송해야 한다")
