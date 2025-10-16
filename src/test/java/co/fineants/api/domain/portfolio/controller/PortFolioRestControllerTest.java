@@ -62,7 +62,7 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 		mockMvc = createMockMvc(controller);
 	}
 
-	@DisplayName("사용자는 포트폴리오 추가를 요청한다")
+	@DisplayName("사용자는 포트폴리오를 생성한다")
 	@ParameterizedTest
 	@CsvSource(value = {"1000000,1500000,900000", "0,0,0", "0,1500000,900000"})
 	void createPortfolio_whenAddPortfolio_thenSavePortfolio(Long budget, Long targetGain, Long maximumLoss) throws
