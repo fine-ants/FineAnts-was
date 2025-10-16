@@ -1,13 +1,12 @@
 package co.fineants.api.domain.holding.controller;
 
+import static co.fineants.api.global.success.PortfolioHoldingSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,45 +21,33 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
-import co.fineants.api.domain.holding.domain.chart.DividendChart;
-import co.fineants.api.domain.holding.domain.chart.PieChart;
-import co.fineants.api.domain.holding.domain.chart.SectorChart;
-import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.holding.domain.factory.PortfolioSseEmitterFactory;
-import co.fineants.api.domain.holding.domain.factory.PortfolioStreamMessageConsumerFactory;
-import co.fineants.api.domain.holding.domain.factory.PortfolioStreamerFactory;
-import co.fineants.api.domain.holding.domain.factory.SseEventBuilderFactory;
-import co.fineants.api.domain.holding.event.publisher.PortfolioHoldingEventPublisher;
-import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
-import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
-class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
+class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioHoldingService mockedPortfolioHoldingService;
@@ -68,9 +55,31 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 	@Autowired
 	private LocalDateTimeService mockedlocalDateTimeService;
 
+	@Autowired
 	private PriceRepository currentPriceRepository;
-	private PortfolioCalculator calculator;
-	private PortfolioHoldingFacade portfolioHoldingFacade;
+
+	@Autowired
+	private PortfolioHoldingRestController controller;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private PortfolioRepository portfolioRepository;
+
+	@Autowired
+	private PortfolioHoldingRepository portfolioHoldingRepository;
+
+	@Autowired
+	private PurchaseHistoryRepository purchaseHistoryRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	private MockMvc mockMvc;
 
 	public static Stream<Arguments> provideInvalidPortfolioHoldingIds() {
 		return Stream.of(
@@ -79,71 +88,37 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		);
 	}
 
-	@Override
-	protected Object initController() {
-		PortfolioStreamerFactory portfolioStreamerFactory = mock(PortfolioStreamerFactory.class);
-		PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory = mock(
-			PortfolioStreamMessageConsumerFactory.class);
-		PortfolioSseEmitterFactory portfolioSseEmitterFactory = mock(PortfolioSseEmitterFactory.class);
-		SseEventBuilderFactory portfolioSseEventBuilderFactory = mock(SseEventBuilderFactory.class);
-		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
-		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
-		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
-		return new PortfolioHoldingRestController(
-			mockedPortfolioHoldingService,
-			portfolioStreamerFactory,
-			portfolioStreamMessageConsumerFactory,
-			portfolioSseEmitterFactory,
-			portfolioSseEventBuilderFactory,
-			portfolioCacheService,
-			portfolioHoldingEventPublisher,
-			portfolioHoldingFacade
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
-		currentPriceRepository = new CurrentPriceMemoryRepository();
-		calculator = new PortfolioCalculator(currentPriceRepository, mockedlocalDateTimeService);
+		mockMvc = createMockMvc(controller);
 	}
 
 	@DisplayName("사용자의 포트폴리오 상세 정보를 가져온다")
 	@Test
-	void readMyPortfolioStocks() throws Exception {
+	void readMyPortfolioHoldings() throws Exception {
 		// given
-		given(mockedlocalDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2024, 1, 1));
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
-		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 60_000L);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock, 60_000L);
+		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
-		Count numShares = Count.from(3);
-		Money purchasePerShare = Money.won(50000);
-		String memo = "첫구매";
-		portfolioHolding.addPurchaseHistory(
-			createPurchaseHistory(1L, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-		portfolio.addHolding(portfolioHolding);
-		PortfolioGainHistory history = createEmptyPortfolioGainHistory(portfolio);
-		Map<String, Money> lastDayClosingPriceMap = Map.of("005930", Money.won(50000L));
-		PortfolioHoldingsResponse mockResponse = PortfolioHoldingsResponse.of(portfolio, history,
-			List.of(portfolioHolding),
-			lastDayClosingPriceMap,
-			mockedlocalDateTimeService,
-			calculator);
+		PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
 
-		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong())).willReturn(mockResponse);
 		// when & then
-		ResultActions resultActions = mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId()))
-			.andExpect(status().isOk());
-
-		resultActions
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 상세 정보 및 포트폴리오 종목 목록 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data.portfolioDetails.id").value(equalTo(1)))
+		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_READ_PORTFOLIO_HOLDING.getMessage())))
+			.andExpect(jsonPath("data.portfolioDetails.id").value(equalTo(portfolio.getId().intValue())))
 			.andExpect(jsonPath("data.portfolioDetails.securitiesFirm").value(equalTo("토스증권")))
 			.andExpect(jsonPath("data.portfolioDetails.name").value(equalTo("내꿈은 워렌버핏")))
 			.andExpect(jsonPath("data.portfolioDetails.budget").value(equalTo(1000000)))
@@ -151,41 +126,43 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("data.portfolioDetails.targetReturnRate").value(closeTo(50.0, 0.1)))
 			.andExpect(jsonPath("data.portfolioDetails.maximumLoss").value(equalTo(900000)))
 			.andExpect(jsonPath("data.portfolioDetails.maximumLossRate").value(closeTo(10.00, 0.1)))
-			.andExpect(jsonPath("data.portfolioDetails.currentValuation").value(equalTo(180000)))
-			.andExpect(jsonPath("data.portfolioDetails.investedAmount").value(equalTo(150000)))
-			.andExpect(jsonPath("data.portfolioDetails.totalGain").value(equalTo(30000)))
-			.andExpect(jsonPath("data.portfolioDetails.totalGainRate").value(closeTo(20.0, 0.1)))
-			.andExpect(jsonPath("data.portfolioDetails.balance").value(equalTo(850000)))
-			.andExpect(jsonPath("data.portfolioDetails.annualDividend").value(equalTo(4332)))
-			.andExpect(jsonPath("data.portfolioDetails.annualDividendYield").value(closeTo(2.41, 0.1)))
-			.andExpect(jsonPath("data.portfolioDetails.annualInvestmentDividendYield").value(closeTo(2.89, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.currentValuation").value(equalTo(300000)))
+			.andExpect(jsonPath("data.portfolioDetails.investedAmount").value(equalTo(50000)))
+			.andExpect(jsonPath("data.portfolioDetails.totalGain").value(equalTo(250000)))
+			.andExpect(jsonPath("data.portfolioDetails.totalGainRate").value(closeTo(500.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.dailyGain").value(equalTo(250000)))
+			.andExpect(jsonPath("data.portfolioDetails.dailyGainRate").value(closeTo(500.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.balance").value(equalTo(950000)))
+			.andExpect(jsonPath("data.portfolioDetails.annualDividend").value(equalTo(5415)))
+			.andExpect(jsonPath("data.portfolioDetails.annualDividendYield").value(closeTo(1.81, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.annualInvestmentDividendYield").value(closeTo(10.83, 0.1)))
 			.andExpect(jsonPath("data.portfolioDetails.provisionalLossBalance").value(equalTo(0)))
 			.andExpect(jsonPath("data.portfolioDetails.targetGainNotify").value(equalTo(true)))
-			.andExpect(jsonPath("data.portfolioDetails.maxLossNotify").value(equalTo(true)));
-
-		resultActions
+			.andExpect(jsonPath("data.portfolioDetails.maxLossNotify").value(equalTo(true)))
 			.andExpect(jsonPath("data.portfolioHoldings[0].companyName").value(equalTo("삼성전자보통주")))
 			.andExpect(jsonPath("data.portfolioHoldings[0].tickerSymbol").value(equalTo("005930")))
-			.andExpect(jsonPath("data.portfolioHoldings[0].id").value(equalTo(1)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].currentValuation").value(equalTo(180000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].id").value(equalTo(portfolioHolding.getId().intValue())))
+			.andExpect(jsonPath("data.portfolioHoldings[0].currentValuation").value(equalTo(300000)))
 			.andExpect(jsonPath("data.portfolioHoldings[0].currentPrice").value(equalTo(60000)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].averageCostPerShare").value(equalTo(50000)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].numShares").value(equalTo(3)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChange").value(equalTo(10000)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChangeRate").value(closeTo(20.0, 0.1)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].totalGain").value(equalTo(30000)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].totalReturnRate").value(closeTo(20.0, 0.1)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividend").value(equalTo(4332)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividendYield").value(closeTo(2.41, 0.1)));
-
-		resultActions
-			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseHistoryId").value(equalTo(1)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseDate").value(
-				equalTo("2023-11-01T09:30:00")))
-			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].numShares").value(equalTo(3)))
-			.andExpect(
-				jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchasePricePerShare").value(equalTo(50000)))
-			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo").value(equalTo("첫구매")));
+			.andExpect(jsonPath("data.portfolioHoldings[0].averageCostPerShare").value(equalTo(10000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].numShares").value(equalTo(5)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChange").value(equalTo(1000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChangeRate").value(closeTo(1.69, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].totalGain").value(equalTo(250000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].totalReturnRate").value(closeTo(500, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividend").value(equalTo(5415)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividendYield").value(closeTo(1.81, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dateAdded").value(notNullValue()))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseHistoryId")
+				.value(equalTo(purchaseHistory.getId().intValue())))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseDate")
+				.value(notNullValue()))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].numShares")
+				.value(equalTo(5)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchasePricePerShare")
+				.value(equalTo(10000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo")
+				.value(equalTo("첫구매")));
 	}
 
 	@DisplayName("존재하지 않는 포트폴리오 번호를 가지고 포트폴리오 상세 정보를 가져올 수 없다")
@@ -210,8 +187,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
-			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
 		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
@@ -244,8 +219,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
-			.willReturn(holding);
 
 		Map<String, Object> purchaseHistoryMap = new HashMap<>();
 		purchaseHistoryMap.put("purchaseDate", null); // 매입 날짜가 입력되지 않음
@@ -278,8 +251,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		Stock stock = createSamsungStock();
 
 		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-		given(portfolioHoldingFacade.createPortfolioHolding(any(PortfolioHoldingCreateRequest.class), anyLong()))
-			.willReturn(holding);
 
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("tickerSymbol", "005930");
@@ -409,19 +380,6 @@ class PortfolioHoldingRestControllerTest extends ControllerTestSupport {
 		String memo = "첫구매";
 		portfolioHolding.addPurchaseHistory(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-		PieChart pieChart = new PieChart(calculator);
-		DividendChart dividendChart = new DividendChart(calculator);
-		SectorChart sectorChart = new SectorChart(calculator);
-
-		PortfolioDetails portfolioDetails = PortfolioDetails.from(portfolio);
-		List<PortfolioPieChartItem> pieChartItems = pieChart.createItemsBy(portfolio);
-		List<PortfolioDividendChartItem> dividendChartItems = dividendChart.createItemsBy(portfolio,
-			LocalDate.of(2024, 1, 16));
-		List<PortfolioSectorChartItem> sectorChartItems = sectorChart.createBy(portfolio);
-		PortfolioChartResponse response = PortfolioChartResponse.create(portfolioDetails, pieChartItems,
-			dividendChartItems, sectorChartItems);
-		given(mockedPortfolioHoldingService.readPortfolioCharts(anyLong(), any(LocalDate.class)))
-			.willReturn(response);
 
 		// when & then
 		mockMvc.perform(get("/api/portfolio/{portfolioId}/charts", portfolio.getId()))
