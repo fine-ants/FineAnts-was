@@ -139,4 +139,23 @@ class PortfolioNotificationRestControllerTest extends AbstractContainerBaseTest 
 				equalTo(OK_MODIFY_PORTFOLIO_MAXIMUM_LOSS_INACTIVE_NOTIFICATION.getMessage())))
 			.andExpect(jsonPath("data").value(nullValue()));
 	}
+
+	@DisplayName("사용자는 유효하지 않은 입력으로 포트폴리오의 최대손실금액 알람을 변경할 수 없다")
+	@Test
+	void modifyNotificationMaximumLoss_whenIsActiveIsNull_thenNotChangedIsActive() throws Exception {
+		// given
+		PortfolioNotificationUpdateRequest request = new PortfolioNotificationUpdateRequest(null);
+
+		// when & then
+		mockMvc.perform(put("/api/portfolio/{portfolioId}/notification/maxLoss", portfolio.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.content(ObjectMapperUtil.serialize(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data[0].field").value("isActive"))
+			.andExpect(jsonPath("data[0].defaultMessage").value("활성화/비활성 정보는 필수정보입니다."));
+	}
 }
