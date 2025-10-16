@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,25 +18,18 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.Notification;
-import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
-import co.fineants.member.presentation.dto.response.MemberNotification;
 
 class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private MemberNotificationService memberNotificationService;
 
 	@Autowired
 	private MemberNotificationRestController controller;
@@ -52,36 +44,6 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	private MockMvc mockMvc;
-
-	private List<MemberNotification> createNotifications() {
-		return List.of(MemberNotification.builder()
-				.notificationId(3L)
-				.title("포트폴리오")
-				.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
-				.timestamp(LocalDateTime.of(2024, 1, 24, 10, 10, 10))
-				.isRead(false)
-				.type(PORTFOLIO_MAX_LOSS.getCategory())
-				.referenceId("2")
-				.build(),
-			MemberNotification.builder()
-				.notificationId(2L)
-				.title("포트폴리오")
-				.body(NotificationBody.portfolio("포트폴리오1", PORTFOLIO_TARGET_GAIN))
-				.timestamp(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
-				.isRead(false)
-				.type(PORTFOLIO_TARGET_GAIN.getCategory())
-				.referenceId("1")
-				.build(),
-			MemberNotification.builder()
-				.notificationId(1L)
-				.title("지정가")
-				.body(NotificationBody.stock("삼성전자", Money.won(60000L)))
-				.timestamp(LocalDateTime.of(2024, 1, 22, 10, 10, 10))
-				.isRead(true)
-				.type(STOCK_TARGET_PRICE.getCategory())
-				.referenceId("005930")
-				.build());
-	}
 
 	@BeforeEach
 	void setUp() {
