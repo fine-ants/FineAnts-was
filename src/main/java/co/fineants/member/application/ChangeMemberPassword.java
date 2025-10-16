@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +22,7 @@ public class ChangeMemberPassword {
 	private final MemberRepository memberRepository;
 
 	@Transactional
-	public void changePassword(PasswordModifyRequest request, Long memberId) {
+	public void changePassword(PasswordUpdateRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		// 현재 비밀번호 일치 여부 확인
 		String currentPassword = request.getCurrentPassword();
@@ -34,7 +35,7 @@ public class ChangeMemberPassword {
 		String newPassword = request.getNewPassword();
 		String newPasswordConfirm = request.getNewPasswordConfirm();
 		if (!newPassword.equals(newPasswordConfirm)) {
-			throw new PasswordInvalidInputException(newPassword);
+			throw new PasswordConfirmInvalidInputException(newPassword, newPasswordConfirm);
 		}
 		String encodedNewPassword = passwordEncoder.encode(newPassword);
 		member.changePassword(encodedNewPassword);

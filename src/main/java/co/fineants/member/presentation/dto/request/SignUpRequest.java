@@ -14,7 +14,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 @Getter
 public class SignUpRequest {
-	@Pattern(regexp = Nickname.NICKNAME_REGEXP, message = "{nickname.notnull}")
+	@Pattern(regexp = Nickname.NICKNAME_REGEXP, message = "잘못된 입력 형식입니다")
 	@NotBlank(message = "닉네임은 필수 정보입니다")
 	@JsonProperty
 	private final String nickname;

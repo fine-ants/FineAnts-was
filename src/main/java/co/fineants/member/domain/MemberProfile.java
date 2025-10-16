@@ -7,16 +7,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(of = {"email", "provider"}, callSuper = false)
 public class MemberProfile {
+	// todo: 암호화전에 정규식 검사
 	public static final String PASSWORD_REGEXP = "^(?=.*[a-zA-Z])(?=.*[\\d])(?=.*[!@#$%^&*]).{8,16}$";
 
 	@Getter
@@ -32,6 +31,14 @@ public class MemberProfile {
 	private String password;
 	@Column(name = "profile_url")
 	private String profileUrl;
+
+	public MemberProfile(MemberEmail email, Nickname nickname, String provider, String password, String profileUrl) {
+		this.email = email;
+		this.nickname = nickname;
+		this.provider = provider;
+		this.password = password;
+		this.profileUrl = profileUrl;
+	}
 
 	public static MemberProfile oauthMemberProfile(MemberEmail email, Nickname nickname, String provider,
 		String profileUrl) {

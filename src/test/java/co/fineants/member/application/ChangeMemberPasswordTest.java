@@ -8,10 +8,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.request.PasswordModifyRequest;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 
 class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 
@@ -31,7 +32,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm
@@ -51,7 +52,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "xxx";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm
@@ -72,7 +73,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
 		String newPasswordConfirm = "nemo2345@@";
-		PasswordModifyRequest request = new PasswordModifyRequest(
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
 			currentPassword,
 			newPassword,
 			newPasswordConfirm
@@ -82,7 +83,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 			() -> changeMemberPassword.changePassword(request, member.getId()));
 
 		Assertions.assertThat(throwable)
-			.isInstanceOf(PasswordInvalidInputException.class)
-			.hasMessage(newPassword);
+			.isInstanceOf(PasswordConfirmInvalidInputException.class)
+			.hasMessage("newPassword=nemo2345@, newPasswordConfirm=nemo2345@@");
 	}
 }
