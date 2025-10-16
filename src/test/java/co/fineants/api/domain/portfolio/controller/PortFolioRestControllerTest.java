@@ -64,7 +64,7 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 포트폴리오를 생성한다")
 	@ParameterizedTest
-	@CsvSource(value = {"1000000,1500000,900000", "0,0,0", "0,1500000,900000"})
+	@MethodSource(value = "co.fineants.TestDataProvider#createPortfolioSource")
 	void createPortfolio_whenAddPortfolio_thenSavePortfolio(Long budget, Long targetGain, Long maximumLoss) throws
 		Exception {
 		// given
