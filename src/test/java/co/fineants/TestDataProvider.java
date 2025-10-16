@@ -131,4 +131,10 @@ public class TestDataProvider {
 			Arguments.of(now1, now1)
 		);
 	}
+
+	public static Stream<Arguments> invalidPortfolioInput() {
+		return Stream.of(
+			Arguments.of("", "", 0L, null, -1L)
+		);
+	}
 }

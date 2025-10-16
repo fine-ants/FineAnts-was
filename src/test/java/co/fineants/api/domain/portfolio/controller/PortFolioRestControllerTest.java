@@ -9,92 +9,88 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfoliosResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
+import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
-class PortFolioRestControllerTest extends ControllerTestSupport {
+class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioService mockedPortfolioService;
 
-	public static Stream<Arguments> invalidPortfolioInput() {
-		return Stream.of(
-			Arguments.of("", "", 0L, null, -1L)
-		);
-	}
+	@Autowired
+	private PortFolioRestController controller;
 
-	@Override
-	protected Object initController() {
-		return new PortFolioRestController(mockedPortfolioService);
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private PortfolioRepository portfolioRepository;
+
+	private MockMvc mockMvc;
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
 	}
 
 	@DisplayName("사용자는 포트폴리오 추가를 요청한다")
-	@CsvSource(value = {"1000000,1500000,900000", "0,0,0", "0,1500000,900000"})
 	@ParameterizedTest
+	@CsvSource(value = {"1000000,1500000,900000", "0,0,0", "0,1500000,900000"})
 	void createPortfolio_whenAddPortfolio_thenSavePortfolio(Long budget, Long targetGain, Long maximumLoss) throws
 		Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		PortFolioCreateResponse response = PortFolioCreateResponse.from(
-			createPortfolio(
-				member,
-				"내꿈은 워렙버핏",
-				Money.won(budget),
-				Money.won(targetGain),
-				Money.won(maximumLoss)
-			)
+		memberRepository.save(TestDataFactory.createMember());
+
+		PortfolioCreateRequest request = PortfolioCreateRequest.create(
+			"내꿈은 워렌버핏",
+			"토스증권",
+			Money.won(budget),
+			Money.won(targetGain),
+			Money.won(maximumLoss)
 		);
-		BDDMockito.given(mockedPortfolioService.createPortfolio(any(PortfolioCreateRequest.class),
-				ArgumentMatchers.anyLong()))
-			.willReturn(response);
 
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("name", "내꿈은 워렌버핏");
-		requestBodyMap.put("securitiesFirm", "토스");
-		requestBodyMap.put("budget", budget);
-		requestBodyMap.put("targetGain", targetGain);
-		requestBodyMap.put("maximumLoss", maximumLoss);
-
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
 		// when & then
 		mockMvc.perform(post("/api/portfolios")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오가 추가되었습니다")))
-			.andExpect(jsonPath("data.portfolioId").value(equalTo(1)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(PortfolioSuccessCode.CREATED_ADD_PORTFOLIO.getMessage())))
+			.andExpect(jsonPath("data.portfolioId").value(greaterThan(0)));
 	}
 
 	@DisplayName("사용자는 포트폴리오 추가시 유효하지 않은 입력 정보로 추가할 수 없다")
-	@MethodSource(value = "invalidPortfolioInput")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidPortfolioInput")
 	@ParameterizedTest
 	void addPortfolioWithInvalidInput(String name, String securitiesFirm, Long budget, Long targetGain,
 		Long maximumLoss) throws Exception {
@@ -204,7 +200,7 @@ class PortFolioRestControllerTest extends ControllerTestSupport {
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정시 유효하지 않은 입력 정보로 추가할 수 없다")
-	@MethodSource("invalidPortfolioInput")
+	@MethodSource("co.fineants.TestDataProvider#invalidPortfolioInput")
 	@ParameterizedTest
 	void updatePortfolioWithInvalidInput() throws Exception {
 		// given
