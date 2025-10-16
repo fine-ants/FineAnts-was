@@ -1,7 +1,6 @@
 package co.fineants.api.domain.portfolio.controller;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,10 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +23,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
@@ -151,42 +146,28 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정을 요청한다")
-	@CsvSource(value = {"1000000,1500000,900000", "0,0,0", "0,1500000,900000"})
 	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#createPortfolioSource")
 	void updatePortfolio(Long budget, Long targetGain, Long maximumLoss) throws Exception {
 		// given
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(
-			member,
-			"내꿈은 워렌버핏",
-			Money.won(1000000L),
-			Money.won(1500000L),
-			Money.won(900000L)
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		PortfolioModifyRequest request = new PortfolioModifyRequest(
+			"내꿈은 찰리몽거",
+			"토스증권",
+			Money.won(budget),
+			Money.won(targetGain),
+			Money.won(maximumLoss)
 		);
-		PortfolioModifyResponse response = PortfolioModifyResponse.from(portfolio);
 
-		BDDMockito.given(
-				mockedPortfolioService.updatePortfolio(any(PortfolioModifyRequest.class), ArgumentMatchers.anyLong(),
-					ArgumentMatchers.anyLong()))
-			.willReturn(response);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("name", "내꿈은 찰리몽거");
-		requestBodyMap.put("securitiesFirm", "토스");
-		requestBodyMap.put("budget", budget);
-		requestBodyMap.put("targetGain", targetGain);
-		requestBodyMap.put("maximumLoss", maximumLoss);
-
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
 		// when & then
-		mockMvc.perform(put("/api/portfolios/1")
+		mockMvc.perform(put("/api/portfolios/{portfolioId}", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오가 수정되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(PortfolioSuccessCode.OK_MODIFY_PORTFOLIO.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정시 유효하지 않은 입력 정보로 추가할 수 없다")
