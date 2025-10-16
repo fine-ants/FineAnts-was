@@ -33,6 +33,7 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.response.MemberNotification;
 
 class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
@@ -126,28 +127,25 @@ class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void readAllNotifications() throws Exception {
 		// given
-		Long memberId = 1L;
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 
-		List<MemberNotification> mockNotifications = createNotifications();
-		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
-			.willReturn(
-				List.of(
-					mockNotifications.get(0).getNotificationId(),
-					mockNotifications.get(1).getNotificationId()
-				)
-			);
+		Notification notification1 = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_MAX_LOSS));
+		Notification notification2 = notificationRepository.save(
+			TestDataFactory.createPortfolioNotification(member, portfolio, PORTFOLIO_TARGET_GAIN));
 
-		List<Long> notificationIds = mockNotifications.stream()
-			.map(MemberNotification::getNotificationId)
-			.toList();
+		List<Long> notificationIds = List.of(notification1.getId(), notification2.getId());
+		MemberNotificationAllReadRequest request = new MemberNotificationAllReadRequest(notificationIds);
 		// when & then
-		mockMvc.perform(patch("/api/members/{memberId}/notifications", memberId)
+		mockMvc.perform(patch("/api/members/{memberId}/notifications", member.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(Map.of("notificationIds", notificationIds))))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("알림을 모두 읽음 처리했습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(MemberSuccessCode.OK_FETCH_ALL_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 빈 리스트를 전달하여 알림을 읽을 수 없습니다")
