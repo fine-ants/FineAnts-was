@@ -42,7 +42,7 @@ import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryReposito
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -167,16 +167,16 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("존재하지 않는 포트폴리오 번호를 가지고 포트폴리오 상세 정보를 가져올 수 없다")
 	@Test
-	void readMyPortfolioStocksWithNotExistPortfolioId() throws Exception {
+	void readPortfolioHoldings_whenNotExistPortfolioId_thenResponseNotFound() throws Exception {
 		// given
 		Long portfolioId = 9999L;
-		given(mockedPortfolioHoldingService.readPortfolioHoldings(anyLong()))
-			.willThrow(new PortfolioNotFoundException(portfolioId.toString()));
-
 		// when & then
 		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolioId))
 			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("message").value(equalTo("Portfolio Not Found")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.NOT_FOUND.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.NOT_FOUND.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.PORTFOLIO_NOT_FOUND.getMessage())))
+			.andExpect(jsonPath("data").value(portfolioId.toString()));
 	}
 
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
