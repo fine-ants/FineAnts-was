@@ -12,55 +12,48 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
+import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
+import co.fineants.api.domain.notification.repository.NotificationRepository;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.application.MemberNotificationService;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
-import co.fineants.support.controller.ControllerTestSupport;
 
-class MemberNotificationRestControllerTest extends ControllerTestSupport {
+class MemberNotificationRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private MemberNotificationService mockedMemberNotificationService;
+	private MemberNotificationService memberNotificationService;
 
 	@Autowired
-	private MemberNotificationPreferenceService mockedMemberNotificationPreferenceService;
+	private MemberNotificationRestController controller;
 
-	@Override
-	protected Object initController() {
-		return new MemberNotificationRestController(mockedMemberNotificationService,
-			mockedMemberNotificationPreferenceService);
-	}
+	@Autowired
+	private NotificationRepository notificationRepository;
 
-	@DisplayName("사용자는 알림 목록 조회합니다")
-	@Test
-	void fetchNotifications() throws Exception {
-		// given
-		Long memberId = 1L;
+	@Autowired
+	private MemberRepository memberRepository;
 
-		List<MemberNotification> mockNotifications = createNotifications();
-		given(mockedMemberNotificationService.searchMemberNotifications(anyLong()))
-			.willReturn(MemberNotificationResponse.create(mockNotifications));
+	@Autowired
+	private PortfolioRepository portfolioRepository;
 
-		// when & then
-		mockMvc.perform(get("/api/members/{memberId}/notifications", memberId))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("현재 알림 목록 조회를 성공했습니다")))
-			.andExpect(jsonPath("data.notifications").isArray())
-			.andExpect(jsonPath("data.notifications[0].notificationId").value(equalTo(3)))
-			.andExpect(jsonPath("data.notifications[1].notificationId").value(equalTo(2)))
-			.andExpect(jsonPath("data.notifications[2].notificationId").value(equalTo(1)));
-	}
+	private MockMvc mockMvc;
 
 	private List<MemberNotification> createNotifications() {
 		return List.of(MemberNotification.builder()
@@ -92,6 +85,56 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 				.build());
 	}
 
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
+	}
+
+	@DisplayName("사용자는 알림 목록 조회합니다")
+	@Test
+	void fetchNotifications() throws Exception {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+
+		String title = "포트폴리오";
+		NotificationType notificationType = PORTFOLIO_MAX_LOSS;
+		String referenceId = portfolio.getReferenceId();
+		String link = portfolio.getLink();
+		List<String> messageIds = List.of("messageId1", "messageId2");
+		String portfolioName = portfolio.name();
+		Long portfolioId = portfolio.getId();
+
+		Notification notification = Notification.portfolioNotification(
+			title,
+			notificationType,
+			referenceId,
+			link,
+			member,
+			messageIds,
+			portfolioName,
+			portfolioId
+		);
+		notificationRepository.save(notification);
+
+		// when & then
+		mockMvc.perform(get("/api/members/{memberId}/notifications", member.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(MemberSuccessCode.OK_READ_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data.notifications").isArray())
+			.andExpect(jsonPath("data.notifications", hasSize(1)))
+			.andExpect(jsonPath("data.notifications[0].notificationId").value(equalTo(notification.getId().intValue())))
+			.andExpect(jsonPath("data.notifications[0].title").value(equalTo(title)))
+			.andExpect(jsonPath("data.notifications[0].body.name").value(equalTo(portfolioName)))
+			.andExpect(jsonPath("data.notifications[0].body.target").value(equalTo(notificationType.getName())))
+			.andExpect(jsonPath("data.notifications[0].timestamp").value(notNullValue()))
+			.andExpect(jsonPath("data.notifications[0].isRead").value(equalTo(false)))
+			.andExpect(jsonPath("data.notifications[0].type").value(equalTo(notificationType.getCategory())))
+			.andExpect(jsonPath("data.notifications[0].referenceId").value(equalTo(referenceId)));
+	}
+
 	@DisplayName("사용자는 알림 모두 읽습니다")
 	@Test
 	void readAllNotifications() throws Exception {
@@ -99,7 +142,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -127,7 +170,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -153,7 +196,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		Long memberId = 1L;
 
 		List<MemberNotification> mockNotifications = createNotifications();
-		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(
 				List.of(
 					mockNotifications.get(0).getNotificationId(),
@@ -183,7 +226,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 		List<Long> notificationIds = mockNotifications.stream()
 			.map(MemberNotification::getNotificationId)
 			.toList();
-		given(mockedMemberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
+		given(memberNotificationService.fetchMemberNotifications(anyLong(), anyList()))
 			.willReturn(notificationIds);
 
 		// when & then
@@ -212,7 +255,7 @@ class MemberNotificationRestControllerTest extends ControllerTestSupport {
 			.type(PORTFOLIO_MAX_LOSS.getCategory())
 			.referenceId("2")
 			.build();
-		given(mockedMemberNotificationService.deleteMemberNotifications(anyLong(), anyList()))
+		given(memberNotificationService.deleteMemberNotifications(anyLong(), anyList()))
 			.willReturn(List.of(mockNotification.getNotificationId()));
 
 		// when & then
