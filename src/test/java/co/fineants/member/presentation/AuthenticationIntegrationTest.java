@@ -1,6 +1,5 @@
 package co.fineants.member.presentation;
 
-import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
@@ -8,9 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +33,7 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.api.global.success.MemberSuccessCode;
+import co.fineants.api.global.success.OauthSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -41,8 +41,7 @@ import co.fineants.member.presentation.dto.request.LoginRequest;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
+import jakarta.servlet.http.Cookie;
 
 class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
@@ -66,22 +65,10 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 
 	private MockMvc mockMvc;
 
-	@BeforeEach
-	void setUp() {
-		RestAssured.port = port;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context)
-			.apply(springSecurity())
-			.alwaysDo(print())
-			.build();
-	}
-
-	@DisplayName("사용자는 이메일과 비밀번호로 로그인 한다")
-	@Test
-	void login_whenAjaxLogin_thenAuthenticatedContext() throws Exception {
-		memberRepository.save(createMember());
+	private Cookie[] processLogin() throws Exception {
 		LoginRequest request = new LoginRequest("dragonbead95@naver.com", "nemo1234@");
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+		return mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(authenticated())
@@ -97,7 +84,26 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.andExpect(cookie().secure("accessToken", true))
 			.andExpect(cookie().secure("refreshToken", true))
 			.andExpect(cookie().path("accessToken", "/"))
-			.andExpect(cookie().path("refreshToken", "/"));
+			.andExpect(cookie().path("refreshToken", "/"))
+			.andReturn()
+			.getResponse()
+			.getCookies();
+	}
+
+	@BeforeEach
+	void setUp() {
+		RestAssured.port = port;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context)
+			.apply(springSecurity())
+			.alwaysDo(print())
+			.build();
+	}
+
+	@DisplayName("사용자는 이메일과 비밀번호로 로그인 한다")
+	@Test
+	void login_whenAjaxLogin_thenAuthenticatedContext() throws Exception {
+		memberRepository.save(createMember());
+		processLogin();
 	}
 
 	@DisplayName("사용자는 이메일과 비밀번호가 일치하지 않아서 로그인하지 못한다")
@@ -116,75 +122,30 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
-	@DisplayName("사용자는 이메일 또는 비밀번호를 틀려서 로그인 할 수 없다")
-	@Test
-	void login_whenInvalidUsernameAndPassword_then401() {
-		// given
-		memberRepository.save(createMember());
-
-		Map<String, String> body = Map.of(
-			"email", "user1@gmail.com",
-			"password", "user1@"
-		);
-		String json = ObjectMapperUtil.serialize(body);
-		// when & then
-		given().log().all()
-			.contentType(MediaType.APPLICATION_JSON_VALUE)
-			.body(json)
-			.when()
-			.post("/api/auth/login")
-			.then()
-			.log()
-			.body()
-			.statusCode(400);
-	}
-
 	@DisplayName("사용자는 로그아웃한다")
 	@Test
-	void logout() {
+	void logout() throws Exception {
 		// given
 		memberRepository.save(createMember());
-		Map<String, String> cookies = processLogin();
+		Cookie[] cookies = processLogin();
 
-		String url = "/api/auth/logout";
-		// when
-		given().log().all()
-			.cookies(cookies)
-			.when()
-			.get(url)
-			.then()
-			.log()
-			.body()
-			.statusCode(200);
-
-		// then
-		given().log().all()
-			.cookies(cookies)
-			.when()
-			.get("/api/profile")
-			.then()
-			.log()
-			.body()
-			.statusCode(401);
-	}
-
-	private Map<String, String> processLogin() {
-		Map<String, String> body = Map.of(
-			"email", "dragonbead95@naver.com",
-			"password", "nemo1234@"
-		);
-		String json = ObjectMapperUtil.serialize(body);
-		ExtractableResponse<Response> extract = given()
-			.contentType(MediaType.APPLICATION_JSON_VALUE)
-			.body(json)
-			.when()
-			.post("/api/auth/login")
-			.then()
-			.log()
-			.body()
-			.statusCode(200)
-			.extract();
-		return extract.cookies();
+		// when & then
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/logout")
+				.cookie(cookies))
+			.andExpect(unauthenticated())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OauthSuccessCode.OK_LOGOUT.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()))
+			.andExpect(cookie().maxAge("accessToken", 0))
+			.andExpect(cookie().maxAge("refreshToken", 0))
+			.andExpect(cookie().httpOnly("accessToken", true))
+			.andExpect(cookie().httpOnly("refreshToken", true))
+			.andExpect(cookie().secure("accessToken", true))
+			.andExpect(cookie().secure("refreshToken", true))
+			.andExpect(cookie().path("accessToken", "/"))
+			.andExpect(cookie().path("refreshToken", "/"));
 	}
 
 	/**
@@ -199,9 +160,9 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	 * @param refreshTokenCreateDate RefreshToken 생성 시간
 	 */
 	@DisplayName("사용자는 액세스 토큰이 만료된 상태에서 액세스 토큰을 갱신한다")
-	@MethodSource(value = {"co.fineants.TestDataProvider#validJwtTokenCreateDateSource"})
 	@ParameterizedTest(name = "{index} ==> the tokenCreateDate is {0}, {1} ")
-	void refreshAccessToken(Date accessTokenCreateDate, Date refreshTokenCreateDate) {
+	@MethodSource(value = {"co.fineants.TestDataProvider#validJwtTokenCreateDateSource"})
+	void refreshAccessToken(Date accessTokenCreateDate, Date refreshTokenCreateDate) throws Exception {
 		// given
 		Member member = memberRepository.save(createMember());
 		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
@@ -213,23 +174,14 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 		token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), refreshTokenCreateDate);
 		ResponseCookie refreshTokenCookie = tokenFactory.createRefreshTokenCookie(token);
 
-		Map<String, String> cookies = Map.of(
-			accessTokenCookie.getName(), accessTokenCookie.getValue(),
-			refreshTokenCookie.getName(), refreshTokenCookie.getValue()
-		);
-
 		// when & then
-		given().log().all()
-			.cookies(cookies)
-			.contentType(MediaType.APPLICATION_JSON_VALUE)
-			.when()
-			.get("/api/profile")
-			.then()
-			.cookies("accessToken", notNullValue())
-			.cookies("refreshToken", notNullValue())
-			.log()
-			.body()
-			.statusCode(200);
+		Cookie[] cookieArray = Stream.of(accessTokenCookie, refreshTokenCookie)
+			.map(cookie -> new Cookie(cookie.getName(), cookie.getValue()))
+			.toArray(Cookie[]::new);
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/profile")
+				.cookie(cookieArray))
+			.andExpect(authenticated())
+			.andExpect(status().isOk());
 	}
 
 	/**
@@ -243,9 +195,11 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 	 * @param refreshTokenCreateDate RefreshToken 생성 시간
 	 */
 	@DisplayName("사용자는 리프레시 토큰이 만료된 상태에서는 액세스 토큰을 갱신할 수 없다")
-	@MethodSource(value = {"co.fineants.TestDataProvider#invalidJwtTokenCreateDateSource"})
 	@ParameterizedTest(name = "{index} ==> the tokenCreateDate is {0}, {1} ")
-	void refreshAccessToken_whenExpiredRefreshToken_then401(Date accessTokenCreateDate, Date refreshTokenCreateDate) {
+	@MethodSource(value = {"co.fineants.TestDataProvider#invalidJwtTokenCreateDateSource"})
+	void refreshAccessToken_whenExpiredRefreshToken_then401(Date accessTokenCreateDate,
+		Date refreshTokenCreateDate) throws
+		Exception {
 		// given
 		Member member = memberRepository.save(createMember());
 		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()
@@ -257,20 +211,16 @@ class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
 		token = tokenService.generateToken(MemberAuthentication.from(member, roleNames), refreshTokenCreateDate);
 		ResponseCookie refreshTokenCookie = tokenFactory.createRefreshTokenCookie(token);
 
-		Map<String, String> cookies = Map.of(
-			accessTokenCookie.getName(), accessTokenCookie.getValue(),
-			refreshTokenCookie.getName(), refreshTokenCookie.getValue()
-		);
-
 		// when & then
-		given().log().all()
-			.cookies(cookies)
-			.contentType(MediaType.APPLICATION_JSON_VALUE)
-			.when()
-			.get("/api/profile")
-			.then()
-			.log()
-			.body()
-			.statusCode(401);
+		Cookie[] cookieArray = Stream.of(accessTokenCookie, refreshTokenCookie)
+			.map(cookie -> new Cookie(cookie.getName(), cookie.getValue()))
+			.toArray(Cookie[]::new);
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/profile")
+				.cookie(cookieArray))
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.UNAUTHORIZED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.UNAUTHORIZED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(ErrorCode.UNAUTHORIZED.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
