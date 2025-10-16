@@ -29,6 +29,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holding.domain.dto.request.PortfolioHoldingCreateRequest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
@@ -37,6 +38,7 @@ import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
@@ -181,34 +183,30 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 포트폴리오에 종목과 매입이력을 추가한다")
 	@Test
-	void addPortfolioStock() throws Exception {
-		Member member = TestDataFactory.createMember();
-		Portfolio portfolio = createPortfolio(member);
-		Stock stock = createSamsungStock();
+	void createPortfolioHolding() throws Exception {
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
 
-		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, stock);
-
-		Map<String, Object> purchaseHistoryMap = new HashMap<>();
-		purchaseHistoryMap.put("purchaseDate", LocalDateTime.now().toString());
-		purchaseHistoryMap.put("numShares", 10L);
-		purchaseHistoryMap.put("purchasePricePerShare", 100.0);
-		purchaseHistoryMap.put("memo", null);
-
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbol", "005930");
-		requestBodyMap.put("purchaseHistory", purchaseHistoryMap);
-
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
-		Long portfolioId = portfolio.getId();
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = new PurchaseHistoryCreateRequest(
+			LocalDateTime.now(),
+			Count.from(10L),
+			Money.won(100.0),
+			null
+		);
+		PortfolioHoldingCreateRequest request = new PortfolioHoldingCreateRequest(
+			stock.getTickerSymbol(),
+			purchaseHistoryCreateRequest
+		);
 		// when & then
-		mockMvc.perform(post("/api/portfolio/" + portfolioId + "/holdings")
+		mockMvc.perform(post("/api/portfolio/{portfolioId}/holdings", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 종목이 추가되었습니다")))
-			.andExpect(jsonPath("data.portfolioHoldingId").value(equalTo(1)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CREATED_ADD_PORTFOLIO_HOLDING.getMessage())))
+			.andExpect(jsonPath("data.portfolioHoldingId").value(greaterThan(0)));
 	}
 
 	@DisplayName("사용자는 포트폴리오 종목을 입력하고 매입 이력 정보를 일부만 입력하는 경우 포트폴리오 종목만 저장된다")
