@@ -89,21 +89,19 @@ class PortfolioNotificationRestControllerTest extends AbstractContainerBaseTest 
 	@Test
 	void modifyNotificationMaximumLoss() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
-		long portfolioId = portfolio.getId();
-		Map<String, String> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("isActive", "true");
+		PortfolioNotificationUpdateRequest request = new PortfolioNotificationUpdateRequest(true);
 
 		// when & then
-		mockMvc.perform(put(String.format("/api/portfolio/%d/notification/maxLoss", portfolioId))
+		mockMvc.perform(put("/api/portfolio/{portfolioId}/notification/maxLoss", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding(StandardCharsets.UTF_8)
-				.content(ObjectMapperUtil.serialize(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("최대 손실율 알림이 활성화되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(
+				equalTo(OK_MODIFY_PORTFOLIO_MAXIMUM_LOSS_ACTIVE_NOTIFICATION.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오의 최대손실금액 알람을 비활성화합니다.")
