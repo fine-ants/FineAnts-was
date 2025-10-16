@@ -1,72 +1,69 @@
 package co.fineants.api.domain.portfolio.controller;
 
+import static co.fineants.api.global.success.PortfolioSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificationUpdateResponse;
+import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioNotificationUpdateRequest;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
-class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
-
-	@Autowired
-	private PortfolioNotificationService mockedPortfolioNotificationService;
+class PortfolioNotificationRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private PortfolioRepository mockedPortfolioRepository;
+	private PortfolioNotificationRestController controller;
 
-	@Override
-	protected Object initController() {
-		return new PortfolioNotificationRestController(mockedPortfolioNotificationService);
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private PortfolioRepository portfolioRepository;
+
+	private MockMvc mockMvc;
+	private Portfolio portfolio;
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 	}
 
 	@DisplayName("사용자는 포트폴리오의 목표수익금액 알람을 활성화합니다.")
 	@Test
 	void modifyNotificationTargetGain() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
-		long portfolioId = portfolio.getId();
-		Map<String, String> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("isActive", "true");
-
-		Map<String, Object> responseBodyMap = new HashMap<>();
-		responseBodyMap.put("portfolioId", portfolioId);
-		responseBodyMap.put("isActive", true);
-
-		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
-			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(mockedPortfolioNotificationService.updateNotificationTargetGain(
-			anyBoolean(),
-			anyLong()
-		)).willReturn(response);
+		PortfolioNotificationUpdateRequest request = new PortfolioNotificationUpdateRequest(true);
 
 		// when & then
-		mockMvc.perform(put(String.format("/api/portfolio/%d/notification/targetGain", portfolioId))
+		mockMvc.perform(put("/api/portfolio/{portfolioId}/notification/targetGain", portfolio.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding(StandardCharsets.UTF_8)
-				.content(objectMapper.writeValueAsString(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("목표 수익률 알림이 활성화되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(
+				jsonPath("message").value(equalTo(OK_MODIFY_PORTFOLIO_TARGET_GAIN_ACTIVE_NOTIFICATION.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 포트폴리오의 목표수익금액 알람을 비활성화합니다.")
@@ -78,23 +75,11 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "false");
 
-		Map<String, Object> responseBodyMap = new HashMap<>();
-		responseBodyMap.put("portfolioId", portfolioId);
-		responseBodyMap.put("isActive", false);
-
-		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
-			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(mockedPortfolioNotificationService.updateNotificationTargetGain(
-			anyBoolean(),
-			anyLong()
-		)).willReturn(response);
-
 		// when & then
 		mockMvc.perform(put(String.format("/api/portfolio/%d/notification/targetGain", portfolioId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding(StandardCharsets.UTF_8)
-				.content(objectMapper.writeValueAsString(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(requestBodyMap)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
@@ -111,23 +96,11 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "true");
 
-		Map<String, Object> responseBodyMap = new HashMap<>();
-		responseBodyMap.put("portfolioId", portfolioId);
-		responseBodyMap.put("isActive", true);
-
-		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
-			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(mockedPortfolioNotificationService.updateNotificationMaximumLoss(
-			anyBoolean(),
-			anyLong()
-		)).willReturn(response);
-
 		// when & then
 		mockMvc.perform(put(String.format("/api/portfolio/%d/notification/maxLoss", portfolioId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding(StandardCharsets.UTF_8)
-				.content(objectMapper.writeValueAsString(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(requestBodyMap)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
@@ -144,23 +117,11 @@ class PortfolioNotificationRestControllerTest extends ControllerTestSupport {
 		Map<String, String> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("isActive", "false");
 
-		Map<String, Object> responseBodyMap = new HashMap<>();
-		responseBodyMap.put("portfolioId", portfolioId);
-		responseBodyMap.put("isActive", false);
-
-		PortfolioNotificationUpdateResponse response = objectMapper.readValue(
-			objectMapper.writeValueAsString(responseBodyMap), PortfolioNotificationUpdateResponse.class);
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-		given(mockedPortfolioNotificationService.updateNotificationMaximumLoss(
-			anyBoolean(),
-			anyLong()
-		)).willReturn(response);
-
 		// when & then
 		mockMvc.perform(put(String.format("/api/portfolio/%d/notification/maxLoss", portfolioId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding(StandardCharsets.UTF_8)
-				.content(objectMapper.writeValueAsString(requestBodyMap)))
+				.content(ObjectMapperUtil.serialize(requestBodyMap)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("code").value(equalTo(200)))
 			.andExpect(jsonPath("status").value(equalTo("OK")))
