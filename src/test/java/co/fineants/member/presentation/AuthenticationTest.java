@@ -41,7 +41,7 @@ import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 import jakarta.servlet.http.Cookie;
 
-class AuthenticationIntegrationTest extends AbstractContainerBaseTest {
+class AuthenticationTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
