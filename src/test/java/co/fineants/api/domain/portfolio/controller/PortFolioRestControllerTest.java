@@ -217,13 +217,13 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deletePortfolio() throws Exception {
 		// given
-
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 		// when & then
-		mockMvc.perform(delete("/api/portfolios/1"))
+		mockMvc.perform(delete("/api/portfolios/{portfolioId}", portfolio.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("포트폴리오 삭제가 완료되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(PortfolioSuccessCode.OK_DELETE_PORTFOLIO.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
