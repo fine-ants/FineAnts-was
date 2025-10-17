@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +30,12 @@ import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListReques
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchStocksRequest;
 import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListResponse;
-import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListsResponse;
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
+import co.fineants.api.domain.watchlist.domain.entity.WatchList;
+import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class WatchListRestControllerTest extends AbstractContainerBaseTest {
@@ -48,12 +49,16 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
+	@Autowired
+	private WatchListRepository watchListRepository;
+
 	private MockMvc mockMvc;
+	private Member member;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
-		memberRepository.save(TestDataFactory.createMember());
+		member = memberRepository.save(TestDataFactory.createMember());
 	}
 
 	@DisplayName("사용자가 watchlist를 추가한다.")
@@ -77,22 +82,19 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void readWatchLists() throws Exception {
 		// given
-		List<ReadWatchListsResponse> response = Arrays.asList(
-			ReadWatchListsResponse.create(1L, "My WatchList 1"),
-			ReadWatchListsResponse.create(2L, "My WatchList 2")
-		);
-		given(mockedWatchListService.readWatchLists(anyLong())).willReturn(response);
+		WatchList watchList1 = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		WatchList watchList2 = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 2", member));
 
 		// when & then
 		mockMvc.perform(get("/api/watchlists")
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심목록 목록 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data[0].id").value(1L))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(READ_WATCH_LISTS.getMessage())))
+			.andExpect(jsonPath("data[0].id").value(watchList1.getId().intValue()))
 			.andExpect(jsonPath("data[0].name").value("My WatchList 1"))
-			.andExpect(jsonPath("data[1].id").value(2L))
+			.andExpect(jsonPath("data[1].id").value(watchList2.getId().intValue()))
 			.andExpect(jsonPath("data[1].name").value("My WatchList 2"));
 	}
 
