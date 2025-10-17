@@ -156,22 +156,18 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void createWatchStocks() throws Exception {
 		// given
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("tickerSymbols", List.of("005930"));
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
-
-		doNothing().when(mockedWatchListService)
-			.createWatchStocks(anyLong(), any(Long.class), any(CreateWatchStockRequest.class));
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		CreateWatchStockRequest request = new CreateWatchStockRequest(List.of("005930"));
 
 		// when & then
-		mockMvc.perform(post("/api/watchlists/1/stock")
+		mockMvc.perform(post("/api/watchlists/{watchlistId}/stock", watchList.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심종목 목록에 종목이 추가되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CREATED_WATCH_STOCK.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자가 watchlist를 삭제한다.")
