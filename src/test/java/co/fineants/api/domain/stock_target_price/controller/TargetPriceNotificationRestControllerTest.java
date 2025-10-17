@@ -7,16 +7,13 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,19 +60,6 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 	private Stock stock;
 	private StockTargetPrice stockTargetPrice;
 
-	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
-		return Stream.of(
-			Arguments.of(null, Collections.emptyList(), new String[] {
-				"필수 정보입니다",
-				"등록번호가 최소 1개 이상이어야 합니다"
-			}),
-			Arguments.of(null, null, new String[] {
-				"필수 정보입니다",
-				"필수 정보입니다"
-			})
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
@@ -114,7 +98,7 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력 형식으로 종목 지정가를 삭제할 수 없다")
-	@MethodSource(value = "invalidTargetPriceNotificationIds")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidTargetPriceNotificationIds")
 	@ParameterizedTest
 	void deleteTargetPriceNotifications_whenInvalidInput_thenNotDeleteData(
 		String tickerSymbol,

@@ -162,4 +162,17 @@ public class TestDataProvider {
 			Arguments.of(null, null)
 		);
 	}
+
+	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
+		return Stream.of(
+			Arguments.of(null, Collections.emptyList(), new String[] {
+				"필수 정보입니다",
+				"등록번호가 최소 1개 이상이어야 합니다"
+			}),
+			Arguments.of(null, null, new String[] {
+				"필수 정보입니다",
+				"필수 정보입니다"
+			})
+		);
+	}
 }
