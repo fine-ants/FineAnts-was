@@ -7,10 +7,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +27,9 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
+import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryUpdateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
+import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -39,9 +37,6 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private PurchaseHistoryService mockedPurchaseHistoryService;
 
 	@Autowired
 	private PortfolioRepository mockedPortfolioRepository;
@@ -60,6 +55,9 @@ class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
+
+	@Autowired
+	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	private MockMvc mockMvc;
 
@@ -177,34 +175,39 @@ class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자가 매입 이력을 수정한다")
 	@Test
-	void modifyPurchaseHistory() throws Exception {
+	void updatePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
-		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
-			Money.won(50000), "첫구매", portfolioHolding);
-		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory/%d", portfolio.getId(),
-			portfolioHolding.getId(), purchaseHistory.getId());
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("purchaseDate", LocalDateTime.now().toString());
-		requestBody.put("numShares", 4);
-		requestBody.put("purchasePricePerShare", 50000);
-		requestBody.put("memo", "첫구매");
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
 
-		String body = ObjectMapperUtil.serialize(requestBody);
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			createPortfolioHolding(portfolio, saveStock));
+		PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
+			PurchaseHistory.now(Money.won(50000), Count.from(3), "첫구매", portfolioHolding));
 
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		PurchaseHistoryUpdateRequest request = new PurchaseHistoryUpdateRequest(
+			LocalDateTime.now(),
+			Count.from(4),
+			Money.won(50000),
+			"첫구매"
+		);
 
 		// when & then
-		mockMvc.perform(put(url)
-				.contentType(MediaType.APPLICATION_JSON)
-				.characterEncoding(StandardCharsets.UTF_8)
-				.content(body))
+		mockMvc.perform(
+				put("/api/portfolio/{portfolioId}/holdings/{portfolioHoldingId}/purchaseHistory/{purchaseHistoryId}",
+					portfolio.getId(),
+					portfolioHolding.getId(),
+					purchaseHistory.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("매입 이력이 수정되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_MODIFY_PURCHASE_HISTORY.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자가 매입 이력을 삭제한다")
