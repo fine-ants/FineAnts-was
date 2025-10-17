@@ -46,7 +46,7 @@ class FcmRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 FCM 토큰을 등록한다")
 	@Test
-	void createToken() throws Exception {
+	void registerFcmToken() throws Exception {
 		// given
 		memberRepository.save(TestDataFactory.createMember());
 		FcmRegisterRequest request = new FcmRegisterRequest("fcmToken");
