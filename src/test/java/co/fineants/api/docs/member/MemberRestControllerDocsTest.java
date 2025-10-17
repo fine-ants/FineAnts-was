@@ -1,5 +1,6 @@
 package co.fineants.api.docs.member;
 
+import static co.fineants.api.global.success.MemberSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.HttpMethod.*;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -33,6 +35,7 @@ import co.fineants.member.application.ReadMemberProfile;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.presentation.MemberRestController;
+import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 import co.fineants.member.presentation.dto.request.ProfileChangeServiceRequest;
 import co.fineants.member.presentation.dto.response.OauthMemberResponse;
 import co.fineants.member.presentation.dto.response.ProfileChangeResponse;
@@ -216,22 +219,22 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void changePassword() throws Exception {
 		// given
-		Map<String, Object> body = Map.of(
-			"currentPassword", "currentPassword",
-			"getNewPassword", "getNewPassword",
-			"newPasswordConfirm", "newPasswordConfirm"
+		PasswordUpdateRequest request = new PasswordUpdateRequest(
+			"nemo1234@",
+			"nemo2345@",
+			"nemo2345@"
 		);
 
 		// when & then
 		mockMvc.perform(RestDocumentationRequestBuilders.put("/api/account/password")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body))
+				.content(ObjectMapperUtil.serialize(request))
 				.cookie(createTokenCookies()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("비밀번호를 성공적으로 변경했습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_PASSWORD_CHANGED.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()))
 			.andDo(
 				document(
 					"member_password-update",
@@ -239,7 +242,7 @@ class MemberRestControllerDocsTest extends RestDocsSupport {
 					preprocessResponse(prettyPrint()),
 					requestFields(
 						fieldWithPath("currentPassword").type(JsonFieldType.STRING).description("현재 비밀번호"),
-						fieldWithPath("getNewPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
+						fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새 비밀번호"),
 						fieldWithPath("newPasswordConfirm").type(JsonFieldType.STRING).description("새 비밀번호 확인")
 					),
 					responseFields(

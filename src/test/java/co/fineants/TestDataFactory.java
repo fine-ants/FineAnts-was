@@ -34,6 +34,8 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.api.domain.watchlist.domain.entity.WatchList;
+import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
@@ -372,5 +374,13 @@ public final class TestDataFactory {
 
 	public static PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
 		return PortfolioGainHistory.empty(portfolio);
+	}
+
+	public static WatchList createWatchList(String title, Member member) {
+		return WatchList.newWatchList(title, member);
+	}
+
+	public static WatchStock createWatchStock(Stock stock, WatchList watchList) {
+		return WatchStock.newWatchStock(watchList, stock);
 	}
 }

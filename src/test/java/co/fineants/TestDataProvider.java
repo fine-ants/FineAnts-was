@@ -162,4 +162,46 @@ public class TestDataProvider {
 			Arguments.of(null, null)
 		);
 	}
+
+	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
+		return Stream.of(
+			Arguments.of(null, Collections.emptyList(), new String[] {
+				"필수 정보입니다",
+				"등록번호가 최소 1개 이상이어야 합니다"
+			}),
+			Arguments.of(null, null, new String[] {
+				"필수 정보입니다",
+				"필수 정보입니다"
+			})
+		);
+	}
+
+	public static Stream<Arguments> invalidDeleteWatchListIds() {
+		return Stream.of(
+			Arguments.of(null, new String[] {"필수 정보입니다"}),
+			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 관심종목 식별자가 필요합니다"})
+		);
+	}
+
+	public static Stream<Arguments> invalidWatchListNames() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of("  ")
+		);
+	}
+
+	public static Stream<Arguments> invalidCreateWatchStockRequests() {
+		return Stream.of(
+			Arguments.of(null, new String[] {"필수 정보입니다"}),
+			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 종목의 티커심볼이 필요합니다"})
+		);
+	}
+
+	public static Stream<Arguments> invalidDeleteWatchStockRequests() {
+		return Stream.of(
+			Arguments.of(null, new String[] {"필수 정보입니다"}),
+			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 종목의 티커심볼이 필요합니다"})
+		);
+	}
 }
