@@ -18,16 +18,12 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.fcm.domain.dto.request.FcmRegisterRequest;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class FcmRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private FcmService mockedFcmService;
-
+	
 	@Autowired
 	private FcmRestController controller;
 
