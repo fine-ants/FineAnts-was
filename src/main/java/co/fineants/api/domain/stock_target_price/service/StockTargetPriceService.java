@@ -50,7 +50,6 @@ public class StockTargetPriceService {
 
 	// 종목 지정가 및 지정가 알림 생성
 	@Transactional
-	@Secured("ROLE_USER")
 	public TargetPriceNotificationCreateResponse createStockTargetPrice(
 		TargetPriceNotificationCreateRequest request,
 		Long memberId

@@ -1,5 +1,6 @@
 package co.fineants.api.domain.stock_target_price.controller;
 
+import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyLong;
@@ -14,20 +15,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationCreateResponse;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchItem;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchResponse;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecificItem;
@@ -35,12 +41,23 @@ import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPrice
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationUpdateResponse;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.member.domain.MemberRepository;
 
-class StockTargetPriceRestControllerTest extends ControllerTestSupport {
+class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockTargetPriceService mockedStockTargetPriceService;
+
+	@Autowired
+	private StockTargetPriceRestController controller;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	private MockMvc mockMvc;
 
 	public static Stream<Arguments> invalidTargetPrice() {
 		return Stream.of(
@@ -49,39 +66,33 @@ class StockTargetPriceRestControllerTest extends ControllerTestSupport {
 		);
 	}
 
-	@Override
-	protected Object initController() {
-		return new StockTargetPriceRestController(mockedStockTargetPriceService);
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")
 	@Test
 	void createStockTargetPriceNotification() throws Exception {
 		// given
-		given(mockedStockTargetPriceService.createStockTargetPrice(
-			any(TargetPriceNotificationCreateRequest.class),
-			anyLong()))
-			.willReturn(TargetPriceNotificationCreateResponse.builder()
-				.targetPriceNotificationId(1L)
-				.tickerSymbol("005930")
-				.targetPrice(Money.won(60000L))
-				.build());
+		memberRepository.save(TestDataFactory.createMember());
+		stockRepository.save(TestDataFactory.createSamsungStock());
 
 		String tickerSymbol = "005930";
-		Map<String, Object> body = Map.of(
-			"tickerSymbol", tickerSymbol,
-			"targetPrice", 60000L);
+		Money targetPrice = Money.won(60000L);
+		TargetPriceNotificationCreateRequest request = new TargetPriceNotificationCreateRequest(tickerSymbol,
+			targetPrice);
 
 		// when & then
 		mockMvc.perform(post("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("해당 종목 지정가 알림을 추가했습니다")))
-			.andExpect(jsonPath("data.targetPriceNotificationId").value(equalTo(1)))
-			.andExpect(jsonPath("data.tickerSymbol").value(equalTo("005930")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_CREATE_TARGET_PRICE_NOTIFICATION.getMessage())))
+			.andExpect(jsonPath("data.targetPriceNotificationId").value(greaterThan(0)))
+			.andExpect(jsonPath("data.tickerSymbol").value(equalTo(tickerSymbol)));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림을 추가할 수 없습니다")
