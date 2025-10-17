@@ -2,9 +2,6 @@ package co.fineants.api.domain.stock_target_price.controller;
 
 import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.anyLong;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -29,7 +26,6 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationUpdateResponse;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
@@ -188,28 +184,23 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void updateStockTargetPriceNotification() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		Map<String, Object> body = Map.of(
-			"tickerSymbol", stock.getTickerSymbol(),
-			"isActive", false
-		);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		stockTargetPriceRepository.save(stockTargetPrice);
 
-		given(mockedStockTargetPriceService.updateStockTargetPrice(any(TargetPriceNotificationUpdateRequest.class),
-			anyLong()))
-			.willReturn(TargetPriceNotificationUpdateResponse.builder()
-				.stockTargetPriceId(1L)
-				.tickerSymbol(stock.getTickerSymbol())
-				.isActive(false)
-				.build());
+		TargetPriceNotificationUpdateRequest request = new TargetPriceNotificationUpdateRequest(stock.getTickerSymbol(),
+			false);
 
 		// when & then
 		mockMvc.perform(put("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("종목 지정가 알림을 비 활성화하였습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_UPDATE_TARGET_PRICE_NOTIFICATION_INACTIVE.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림의 정보를  수정할 수 없다")
