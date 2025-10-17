@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -66,8 +65,14 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 
 	public static Stream<Arguments> invalidTargetPriceNotificationIds() {
 		return Stream.of(
-			Arguments.of(null, Collections.emptyList()),
-			Arguments.of(null, null)
+			Arguments.of(null, Collections.emptyList(), new String[] {
+				"필수 정보입니다",
+				"등록번호가 최소 1개 이상이어야 합니다"
+			}),
+			Arguments.of(null, null, new String[] {
+				"필수 정보입니다",
+				"필수 정보입니다"
+			})
 		);
 	}
 
@@ -111,24 +116,29 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 	@DisplayName("사용자는 유효하지 않은 입력 형식으로 종목 지정가를 삭제할 수 없다")
 	@MethodSource(value = "invalidTargetPriceNotificationIds")
 	@ParameterizedTest
-	void deleteAllStockTargetPriceNotification_whenInvalidTargetPriceNotificationIds_thenResponse400Error(
+	void deleteTargetPriceNotifications_whenInvalidInput_thenNotDeleteData(
 		String tickerSymbol,
-		List<Long> targetPriceNotificationIds)
+		List<Long> targetPriceNotificationIds,
+		String[] expectedDefaultMessages)
 		throws Exception {
 		// given
-		Map<String, Object> body = new HashMap<>();
-		body.put("tickerSymbol", tickerSymbol);
-		body.put("targetPriceNotificationIds", targetPriceNotificationIds);
+		TargetPriceNotificationDeleteRequest request = new TargetPriceNotificationDeleteRequest(tickerSymbol,
+			targetPriceNotificationIds);
 
 		// when & then
 		mockMvc.perform(delete("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder(
+				"tickerSymbol",
+				"targetPriceNotificationIds"
+			)))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder(expectedDefaultMessages)));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 삭제합니다")
