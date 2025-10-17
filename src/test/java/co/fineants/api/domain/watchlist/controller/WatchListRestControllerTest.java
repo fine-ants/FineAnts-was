@@ -34,16 +34,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
-import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class WatchListRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private WatchListService mockedWatchListService;
 
 	@Autowired
 	private WatchListRestController controller;
