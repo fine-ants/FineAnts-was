@@ -224,7 +224,7 @@ class MemberRestControllerTest extends AbstractContainerBaseTest {
 		// given
 		String currentPassword = "nemo1234@";
 		String newPassword = "nemo2345@";
-		String newPasswordConfirm = "xxx";
+		String newPasswordConfirm = "nemo23456@";
 		PasswordUpdateRequest request = new PasswordUpdateRequest(currentPassword, newPassword, newPasswordConfirm);
 		// when & then
 		mockMvc.perform(put("/api//account/password")
