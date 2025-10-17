@@ -8,9 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -257,22 +255,18 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@DisplayName("사용자가 watchlist 이름을 변경한다.")
 	@Test
 	void changeWatchListName() throws Exception {
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("name", "My watchlist");
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
-
-		doNothing().when(mockedWatchListService)
-			.changeWatchListName(anyLong(), any(Long.class), any(ChangeWatchListNameRequest.class));
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("Old WatchList Name", member));
+		ChangeWatchListNameRequest request = new ChangeWatchListNameRequest("My change watchlist");
 
 		// when & then
-		mockMvc.perform(put("/api/watchlists/1")
+		mockMvc.perform(put("/api/watchlists/{watchlistId}", watchList.getId())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심종목 목록 이름이 변경되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CHANGE_WATCH_LIST_NAME.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자가 모든 watchlist에 대해 tickerSymbol 보유 여부롤 조회한다.")
