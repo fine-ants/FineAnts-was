@@ -175,4 +175,11 @@ public class TestDataProvider {
 			})
 		);
 	}
+
+	public static Stream<Arguments> invalidDeleteWatchListIds() {
+		return Stream.of(
+			Arguments.of(null, new String[] {"필수 정보입니다"}),
+			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 관심종목 식별자가 필요합니다"})
+		);
+	}
 }

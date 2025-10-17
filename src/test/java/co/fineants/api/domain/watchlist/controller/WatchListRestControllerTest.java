@@ -15,6 +15,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -191,6 +193,27 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo(DELETED_WATCH_LIST.getMessage())))
 			.andExpect(jsonPath("data").value(nullValue()));
+	}
+
+	@DisplayName("사용자가 관심종목을 삭제할때 유효하지 않은 입력으로 삭제하지 못한다")
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidDeleteWatchListIds")
+	void deleteWatchLists_whenInvalidInput_thenNotDeleteData(List<Long> watchListIds,
+		String[] expectedDefaultMessages) throws Exception {
+		// given
+		DeleteWatchListsRequests requests = new DeleteWatchListsRequests(watchListIds);
+
+		// when & then
+		mockMvc.perform(delete("/api/watchlists")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(requests)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("watchlistIds")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder(expectedDefaultMessages)));
 	}
 
 	@DisplayName("사용자가 watchlist에서 종목을 여러개 삭제한다.")

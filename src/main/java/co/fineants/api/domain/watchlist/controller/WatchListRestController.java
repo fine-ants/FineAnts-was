@@ -25,6 +25,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.WatchListSuccessCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/watchlists")
@@ -37,7 +38,7 @@ public class WatchListRestController {
 	@PostMapping
 	public ApiResponse<CreateWatchListResponse> createWatchList(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
-		@RequestBody CreateWatchListRequest request) {
+		@Valid @RequestBody CreateWatchListRequest request) {
 		return ApiResponse.success(WatchListSuccessCode.CREATED_WATCH_LIST,
 			watchListService.createWatchList(authentication.getId(), request));
 	}
@@ -66,15 +67,18 @@ public class WatchListRestController {
 	}
 
 	@PutMapping("/{watchlistId}")
-	public ApiResponse<Void> changeWatchListName(@MemberAuthenticationPrincipal MemberAuthentication authentication,
-		@PathVariable Long watchlistId, @RequestBody ChangeWatchListNameRequest request) {
+	public ApiResponse<Void> changeWatchListName(
+		@MemberAuthenticationPrincipal MemberAuthentication authentication,
+		@PathVariable Long watchlistId,
+		@Valid @RequestBody ChangeWatchListNameRequest request) {
 		watchListService.changeWatchListName(authentication.getId(), watchlistId, request);
 		return ApiResponse.success(WatchListSuccessCode.CHANGE_WATCH_LIST_NAME);
 	}
 
 	@DeleteMapping
-	public ApiResponse<Void> deleteWatchLists(@MemberAuthenticationPrincipal MemberAuthentication authentication,
-		@RequestBody DeleteWatchListsRequests deleteWatchListsRequests) {
+	public ApiResponse<Void> deleteWatchLists(
+		@MemberAuthenticationPrincipal MemberAuthentication authentication,
+		@Valid @RequestBody DeleteWatchListsRequests deleteWatchListsRequests) {
 		watchListService.deleteWatchLists(authentication.getId(), deleteWatchListsRequests.getWatchlistIds());
 		return ApiResponse.success(WatchListSuccessCode.DELETED_WATCH_LIST);
 	}
