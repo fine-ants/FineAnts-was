@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,17 +24,21 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchStocksRequest;
-import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListResponse;
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
+import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
+import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.api.domain.watchlist.service.WatchListService;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -52,13 +57,37 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private WatchListRepository watchListRepository;
 
+	@Autowired
+	private WatchStockRepository watchStockRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private PriceRepository priceRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
+
 	private MockMvc mockMvc;
 	private Member member;
+	private Stock stock;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
 		member = memberRepository.save(TestDataFactory.createMember());
+		Stock samsung = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
+		this.stock = stockRepository.save(samsung);
+		priceRepository.savePrice(this.stock, 60000L);
+		closingPriceRepository.addPrice(this.stock.getTickerSymbol(), 50000L);
+
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2023, 1, 1));
 	}
 
 	@DisplayName("사용자가 watchlist를 추가한다.")
@@ -102,38 +131,25 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void readWatchList() throws Exception {
 		// given
-		ReadWatchListResponse.WatchStockResponse watchStockResponse = ReadWatchListResponse.WatchStockResponse.builder()
-			.id(1L)
-			.companyName("삼성전자")
-			.tickerSymbol("005930")
-			.currentPrice(Money.won(68000))
-			.dailyChange(Money.won(1200))
-			.dailyChangeRate(Percentage.from(0.0185))
-			.annualDividendYield(Percentage.from(0.0212))
-			.sector("제조업")
-			.dateAdded(LocalDateTime.of(2023, 12, 2, 15, 0, 0))
-			.build();
-
-		ReadWatchListResponse response = new ReadWatchListResponse("My Watchlist", List.of(watchStockResponse));
-
-		given(mockedWatchListService.readWatchList(anyLong(), any(Long.class))).willReturn(response);
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		WatchStock watchStock = watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
 
 		// when & then
-		mockMvc.perform(get("/api/watchlists/1")
+		mockMvc.perform(get("/api/watchlists/{watchlistId}", watchList.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심종목 단일 목록 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data.watchStocks[0].id").value(equalTo(1)))
-			.andExpect(jsonPath("data.watchStocks[0].companyName").value(equalTo("삼성전자")))
-			.andExpect(jsonPath("data.watchStocks[0].tickerSymbol").value(equalTo("005930")))
-			.andExpect(jsonPath("data.watchStocks[0].currentPrice").value(equalTo(68000)))
-			.andExpect(jsonPath("data.watchStocks[0].dailyChange").value(equalTo(1200)))
-			.andExpect(jsonPath("data.watchStocks[0].dailyChangeRate").value(equalTo(1.85)))
-			.andExpect(jsonPath("data.watchStocks[0].annualDividendYield").value(equalTo(2.12)))
-			.andExpect(jsonPath("data.watchStocks[0].sector").value(equalTo("제조업")))
-			.andExpect(jsonPath("data.watchStocks[0].dateAdded").value(equalTo("2023-12-02T15:00:00")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(READ_WATCH_LIST.getMessage())))
+			.andExpect(jsonPath("data.watchStocks[0].id").value(equalTo(watchStock.getId().intValue())))
+			.andExpect(jsonPath("data.watchStocks[0].companyName").value(equalTo(stock.getCompanyName())))
+			.andExpect(jsonPath("data.watchStocks[0].tickerSymbol").value(equalTo(stock.getTickerSymbol())))
+			.andExpect(jsonPath("data.watchStocks[0].currentPrice").value(equalTo(60000)))
+			.andExpect(jsonPath("data.watchStocks[0].dailyChange").value(equalTo(10000)))
+			.andExpect(jsonPath("data.watchStocks[0].dailyChangeRate").value(equalTo(20.0)))
+			.andExpect(jsonPath("data.watchStocks[0].annualDividendYield").value(equalTo(2.41)))
+			.andExpect(jsonPath("data.watchStocks[0].sector").value(equalTo(stock.getSector())))
+			.andExpect(jsonPath("data.watchStocks[0].dateAdded").value(notNullValue()));
 	}
 
 	@DisplayName("사용자가 watchlist에 종목을 추가한다.")
