@@ -223,4 +223,22 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol", "isActive")))
 			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("필수 정보입니다", "필수 정보입니다")));
 	}
+
+	@DisplayName("사용자는 종목 지정가 알림을 삭제한다")
+	@Test
+	void deleteStockTargetPrice() throws Exception {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		// when & then
+		mockMvc.perform(delete("/api/stocks/target-price/{stockTargetPriceId}", saveStockTargetPrice.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_STOCK_TARGET_PRICE.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
+	}
 }
