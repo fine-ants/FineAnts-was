@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
+import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchListsRequests;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchStocksRequest;
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -174,22 +174,23 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deleteWatchLists() throws Exception {
 		// given
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		List<Long> watchListIds = new ArrayList<>();
-		requestBodyMap.put("watchlistIds", watchListIds);
-		String body = ObjectMapperUtil.serialize(requestBodyMap);
+		WatchList watchList1 = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		WatchList watchList2 = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 2", member));
 
-		doNothing().when(mockedWatchListService).deleteWatchLists(anyLong(), anyList());
+		DeleteWatchListsRequests requests = new DeleteWatchListsRequests(List.of(
+			watchList1.getId(),
+			watchList2.getId()
+		));
 
 		// when & then
 		mockMvc.perform(delete("/api/watchlists")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(requests)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심종목 목록이 삭제가 완료되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(DELETED_WATCH_LIST.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자가 watchlist에서 종목을 여러개 삭제한다.")
