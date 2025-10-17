@@ -100,6 +100,26 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.watchlistId").value(greaterThan(0)));
 	}
 
+	@DisplayName("사용자가 watchlist를 추가할때 유효하지 않은 이름으로 생성시 생성하지 못한다")
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidWatchListNames")
+	void createWatchList_whenInvalidName_thenNotSaveData(String name) throws Exception {
+		// given
+		CreateWatchListRequest request = new CreateWatchListRequest(name);
+
+		// when & then
+		mockMvc.perform(post("/api/watchlists")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("name")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("이름은 필수 입력 항목입니다")));
+	}
+
 	@DisplayName("사용자가 watchlist 목록을 조회한다.")
 	@Test
 	void readWatchLists() throws Exception {
