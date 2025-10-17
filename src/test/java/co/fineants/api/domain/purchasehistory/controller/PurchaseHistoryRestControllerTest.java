@@ -35,10 +35,7 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private PortfolioRepository mockedPortfolioRepository;
-
+	
 	@Autowired
 	private PurchaseHistoryRestController controller;
 
