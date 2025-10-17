@@ -1,9 +1,8 @@
 package co.fineants.api.domain.purchasehistory.controller;
 
+import static co.fineants.api.global.errors.errorcode.ErrorCode.*;
 import static co.fineants.api.global.success.PurchaseHistorySuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.anyLong;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,7 +34,6 @@ import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -146,38 +144,35 @@ class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자가 매입 이력 추가시 현금이 부족해 실패한다")
 	@Test
-	void addPurchaseHistoryThrowsExceptionWhenTotalInvestmentExceedsBudget() throws Exception {
+	void createPurchaseHistory_whenCashNotSufficient_thenNotSavePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
-		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory", portfolio.getId(),
-			portfolioHolding.getId());
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("purchaseDate", LocalDateTime.now().toString());
-		requestBody.put("numShares", 3);
-		requestBody.put("purchasePricePerShare", 50000);
-		requestBody.put("memo", "첫구매");
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
 
-		String body = ObjectMapperUtil.serialize(requestBody);
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			createPortfolioHolding(portfolio, saveStock));
 
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
-
-		given(mockedPurchaseHistoryService.createPurchaseHistory(
-			any(PurchaseHistoryCreateRequest.class),
-			anyLong(),
-			anyLong(),
-			anyLong())).willThrow(new CashNotSufficientInvalidInputException(Money.won(150_000).toString()));
+		PurchaseHistoryCreateRequest request = new PurchaseHistoryCreateRequest(
+			LocalDateTime.now(),
+			Count.from(999),
+			Money.won(50000),
+			"첫구매"
+		);
 
 		// when & then
-		mockMvc.perform(post(url)
-				.contentType(MediaType.APPLICATION_JSON)
-				.characterEncoding(StandardCharsets.UTF_8)
-				.content(body))
+		mockMvc.perform(
+				post("/api/portfolio/{portfolioId}/holdings/{portfolioHoldingId}/purchaseHistory", portfolio.getId(),
+					portfolioHolding.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
-			.andExpect(jsonPath("message").value(equalTo("Cash Not Sufficient For Purchase")))
-			.andExpect(jsonPath("data").value(equalTo(Money.won(150_000).toString())));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CASH_NOT_SUFFICIENT_FOR_PURCHASE.getMessage())))
+			.andExpect(jsonPath("data").value(equalTo(Money.won(49_950_000).toString())));
 	}
 
 	@DisplayName("사용자가 매입 이력을 수정한다")
