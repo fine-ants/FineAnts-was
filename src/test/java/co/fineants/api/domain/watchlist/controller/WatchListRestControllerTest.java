@@ -269,6 +269,26 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
+	@DisplayName("사용자가 유효하지 않은 이름으로 관심종목 리스트 이름을 변경하지 못한다.")
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidWatchListNames")
+	void changeWatchListName_whenInvalidName_thenNotChangeData(String name) throws Exception {
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("Old WatchList Name", member));
+		ChangeWatchListNameRequest request = new ChangeWatchListNameRequest(name);
+
+		// when & then
+		mockMvc.perform(put("/api/watchlists/{watchlistId}", watchList.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("name")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("이름은 필수 입력 항목입니다")));
+	}
+
 	@DisplayName("사용자가 모든 watchlist에 대해 tickerSymbol 보유 여부롤 조회한다.")
 	@Test
 	void watchListHasStock() throws Exception {

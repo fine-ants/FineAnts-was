@@ -182,4 +182,12 @@ public class TestDataProvider {
 			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 관심종목 식별자가 필요합니다"})
 		);
 	}
+
+	public static Stream<Arguments> invalidWatchListNames() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of("  ")
+		);
+	}
 }
