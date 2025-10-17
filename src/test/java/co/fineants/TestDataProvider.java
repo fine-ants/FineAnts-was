@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.params.provider.Arguments;
 
+import co.fineants.api.domain.common.money.Money;
+
 public class TestDataProvider {
 
 	public static Stream<Arguments> validNicknameValues() {
@@ -151,6 +153,13 @@ public class TestDataProvider {
 		return Stream.of(
 			Arguments.of(Collections.emptyList()),
 			Arguments.of((Object)null)
+		);
+	}
+
+	public static Stream<Arguments> invalidTargetPrice() {
+		return Stream.of(
+			Arguments.of(null, Money.won(-1L)),
+			Arguments.of(null, null)
 		);
 	}
 }
