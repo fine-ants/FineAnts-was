@@ -5,9 +5,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -203,22 +200,27 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
-	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림의 정보를  수정할 수 없다")
+	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림의 정보를 수정할 수 없다")
 	@Test
 	void updateStockTargetPriceNotification_whenInvalidInput_thenResponse400Error() throws Exception {
 		// given
-		Map<String, Object> body = new HashMap<>();
-		body.put("tickerSymbol", null);
-		body.put("isActive", null);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		stockTargetPriceRepository.save(stockTargetPrice);
+
+		TargetPriceNotificationUpdateRequest request = new TargetPriceNotificationUpdateRequest(null, null);
 
 		// when & then
 		mockMvc.perform(put("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol", "isActive")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("필수 정보입니다", "필수 정보입니다")));
 	}
 }
