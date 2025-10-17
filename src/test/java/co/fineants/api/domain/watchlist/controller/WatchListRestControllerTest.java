@@ -2,8 +2,6 @@ package co.fineants.api.domain.watchlist.controller;
 
 import static co.fineants.api.global.success.WatchListSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -32,7 +30,6 @@ import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListReques
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchListsRequests;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchStocksRequest;
-import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.domain.watchlist.repository.WatchListRepository;
@@ -293,25 +290,19 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void watchListHasStock() throws Exception {
 		// given
-		String tickerSymbol = "005930";
-		List<WatchListHasStockResponse> response = List.of(
-			WatchListHasStockResponse.create(1L, "My WatchList1", true),
-			WatchListHasStockResponse.create(2L, "My WatchList2", false)
-		);
-		given(mockedWatchListService.hasStock(anyLong(), any(String.class))).willReturn(response);
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
 
 		// when & then
-		mockMvc.perform(get("/api/watchlists/stockExists/" + tickerSymbol)
+		mockMvc.perform(get("/api/watchlists/stockExists/{tickerSymbol}", stock.getTickerSymbol())
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심목록의 주식 포함 여부 조회가 완료되었습니다")))
-			.andExpect(jsonPath("data[0].id").value(equalTo(1)))
-			.andExpect(jsonPath("data[0].name").value(equalTo("My WatchList1")))
-			.andExpect(jsonPath("data[0].hasStock").value(equalTo(true)))
-			.andExpect(jsonPath("data[1].id").value(equalTo(2)))
-			.andExpect(jsonPath("data[1].name").value(equalTo("My WatchList2")))
-			.andExpect(jsonPath("data[1].hasStock").value(equalTo(false)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(HAS_STOCK.getMessage())))
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[0].id").value(equalTo(watchList.getId().intValue())))
+			.andExpect(jsonPath("data[0].name").value(equalTo("My WatchList 1")))
+			.andExpect(jsonPath("data[0].hasStock").value(equalTo(true)));
 	}
 }
