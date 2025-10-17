@@ -1,5 +1,6 @@
 package co.fineants.api.domain.stock_target_price.controller;
 
+import static co.fineants.api.global.errors.errorcode.ErrorCode.*;
 import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -240,5 +241,21 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_STOCK_TARGET_PRICE.getMessage())))
 			.andExpect(jsonPath("data").value(nullValue()));
+	}
+
+	@DisplayName("사용자는 존재하지 않는 종목 지정가 알림을 삭제할 수 없다")
+	@Test
+	void deleteStockTargetPrice_whenNotExistStockTargetPrice_thenNotDeleteStockTargetPrice() throws Exception {
+		// given
+		memberRepository.save(TestDataFactory.createMember());
+		Long stockTargetPriceId = 999L;
+
+		// when & then
+		mockMvc.perform(delete("/api/stocks/target-price/{stockTargetPriceId}", stockTargetPriceId))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.NOT_FOUND.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.NOT_FOUND.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(STOCK_TARGET_PRICE_NOT_FOUND.getMessage())))
+			.andExpect(jsonPath("data").value(stockTargetPriceId.toString()));
 	}
 }
