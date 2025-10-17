@@ -2,13 +2,10 @@ package co.fineants.api.domain.stock_target_price.controller;
 
 import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +23,6 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationDeleteRequest;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationDeleteResponse;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
@@ -127,26 +123,21 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 
 	@DisplayName("사용자는 종목 지정가 알림을 삭제합니다")
 	@Test
-	void deleteStockTargetPriceNotification() throws Exception {
+	void deleteTargetPriceNotification() throws Exception {
 		// given
-		given(mockedTargetPriceNotificationService.deleteStockTargetPriceNotification(
-			anyLong()))
-			.willReturn(TargetPriceNotificationDeleteResponse.builder()
-				.deletedIds(List.of(1L))
-				.build());
+		TargetPriceNotification targetPriceNotification1 = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(
+				Money.won(60000L), stockTargetPrice));
 
-		Long targetPriceNotificationId = 1L;
-		Map<String, Object> body = Map.of("tickerSymbol", "005930");
+		Long targetPriceNotificationId = targetPriceNotification1.getId();
 		// when & then
 		mockMvc.perform(
 				delete("/api/stocks/target-price/notifications/{targetPriceNotificationId}",
-					targetPriceNotificationId)
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(ObjectMapperUtil.serialize(body)))
+					targetPriceNotificationId))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("해당 종목 지정가 알림을 제거했습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_TARGET_PRICE_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
