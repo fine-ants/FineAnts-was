@@ -4,14 +4,11 @@ import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyLong;
-import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +29,6 @@ import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecificItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecifiedSearchResponse;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationUpdateResponse;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
@@ -161,36 +156,32 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void searchTargetPriceNotifications() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		LocalDateTime now = LocalDateTime.now();
-		given(mockedStockTargetPriceService.searchStockTargetPrice(anyString(), anyLong()))
-			.willReturn(TargetPriceNotificationSpecifiedSearchResponse.builder()
-				.targetPrices(List.of(
-					TargetPriceNotificationSpecificItem.builder()
-						.notificationId(1L)
-						.targetPrice(Money.won(60000L))
-						.dateAdded(now)
-						.build(),
-					TargetPriceNotificationSpecificItem.builder()
-						.notificationId(2L)
-						.targetPrice(Money.won(70000L))
-						.dateAdded(now)
-						.build()
-				))
-				.build());
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		TargetPriceNotification targetPriceNotification1 = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(
+				Money.won(60000L), saveStockTargetPrice));
+		TargetPriceNotification targetPriceNotification2 = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(
+				Money.won(70000L), saveStockTargetPrice));
 
 		// when & then
 		mockMvc.perform(get("/api/stocks/{tickerSymbol}/target-price/notifications", stock.getTickerSymbol()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("종목 지정가 알림 특정 조회를 성공했습니다")))
-			.andExpect(jsonPath("data.targetPrices[0].notificationId").value(equalTo(1)))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SEARCH_SPECIFIC_TARGET_PRICE_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data.targetPrices[0].notificationId").value(
+				equalTo(targetPriceNotification1.getId().intValue())))
 			.andExpect(jsonPath("data.targetPrices[0].targetPrice").value(equalTo(60000)))
-			.andExpect(jsonPath("data.targetPrices[0].dateAdded").isNotEmpty())
-			.andExpect(jsonPath("data.targetPrices[1].notificationId").value(equalTo(2)))
+			.andExpect(jsonPath("data.targetPrices[0].dateAdded").value(notNullValue()))
+			.andExpect(jsonPath("data.targetPrices[1].notificationId").value(
+				equalTo(targetPriceNotification2.getId().intValue())))
 			.andExpect(jsonPath("data.targetPrices[1].targetPrice").value(equalTo(70000)))
-			.andExpect(jsonPath("data.targetPrices[1].dateAdded").isNotEmpty());
+			.andExpect(jsonPath("data.targetPrices[1].dateAdded").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림의 정보를 수정한다")
