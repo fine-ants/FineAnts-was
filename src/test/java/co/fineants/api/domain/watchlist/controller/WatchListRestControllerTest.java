@@ -239,17 +239,19 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deleteWatchStock() throws Exception {
 		// given
-		doNothing().when(mockedWatchListService)
-			.deleteWatchStocks(anyLong(), any(Long.class), any(DeleteWatchStocksRequest.class));
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
 
+		Long watchListId = watchList.getId();
+		String tickerSymbol = stock.getTickerSymbol();
 		// when & then
-		mockMvc.perform(delete("/api/watchlists/1/stock/\"005930\"")
+		mockMvc.perform(delete("/api/watchlists/{watchlistId}/stock/{tickerSymbol}", watchListId, tickerSymbol)
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심목록 종목이 삭제되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(DELETED_WATCH_STOCK.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
 	@DisplayName("사용자가 watchlist 이름을 변경한다.")

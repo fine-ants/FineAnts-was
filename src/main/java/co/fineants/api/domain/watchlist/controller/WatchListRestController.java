@@ -107,8 +107,10 @@ public class WatchListRestController {
 	}
 
 	@DeleteMapping("/{watchlistId}/stock/{tickerSymbol}")
-	public ApiResponse<Void> deleteWatchStock(@MemberAuthenticationPrincipal MemberAuthentication authentication,
-		@PathVariable("watchlistId") Long watchListId, @PathVariable("tickerSymbol") String tickerSymbol) {
+	public ApiResponse<Void> deleteWatchStock(
+		@MemberAuthenticationPrincipal MemberAuthentication authentication,
+		@PathVariable("watchlistId") Long watchListId,
+		@PathVariable("tickerSymbol") String tickerSymbol) {
 		watchListService.deleteWatchStock(authentication.getId(), watchListId, tickerSymbol);
 		return ApiResponse.success(WatchListSuccessCode.DELETED_WATCH_STOCK);
 	}
