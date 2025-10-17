@@ -13,13 +13,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,13 +57,6 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 
 	private MockMvc mockMvc;
 
-	public static Stream<Arguments> invalidTargetPrice() {
-		return Stream.of(
-			Arguments.of(null, -1L),
-			Arguments.of(null, null)
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
@@ -96,25 +87,29 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림을 추가할 수 없습니다")
-	@MethodSource(value = "invalidTargetPrice")
 	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidTargetPrice")
 	void createStockTargetPriceNotification_whenInvalidTargetPrice_thenResponse400Error(String tickerSymbol,
-		Long targetPrice) throws
+		Money targetPrice) throws
 		Exception {
 		// given
-		Map<String, Object> body = new HashMap<>();
-		body.put("tickerSymbol", tickerSymbol);
-		body.put("targetPrice", targetPrice);
+		memberRepository.save(TestDataFactory.createMember());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+
+		TargetPriceNotificationCreateRequest request = new TargetPriceNotificationCreateRequest(tickerSymbol,
+			targetPrice);
 
 		// when & then
 		mockMvc.perform(post("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol", "targetPrice")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("필수 정보입니다", "금액은 양수여야 합니다")));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림 목록을 조회합니다")
