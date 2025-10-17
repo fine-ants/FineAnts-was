@@ -1,5 +1,6 @@
 package co.fineants.api.domain.watchlist.controller;
 
+import static co.fineants.api.global.success.WatchListSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.*;
@@ -13,56 +14,63 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.DeleteWatchStocksRequest;
-import co.fineants.api.domain.watchlist.domain.dto.response.CreateWatchListResponse;
 import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListResponse;
 import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListsResponse;
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.service.WatchListService;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.MemberRepository;
 
-class WatchListRestControllerTest extends ControllerTestSupport {
+class WatchListRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private WatchListService mockedWatchListService;
 
-	@Override
-	protected Object initController() {
-		return new WatchListRestController(mockedWatchListService);
+	@Autowired
+	private WatchListRestController controller;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	private MockMvc mockMvc;
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
+		memberRepository.save(TestDataFactory.createMember());
 	}
 
 	@DisplayName("사용자가 watchlist를 추가한다.")
 	@Test
 	void createWatchList() throws Exception {
 		// given
-		Map<String, Object> requestBodyMap = new HashMap<>();
-		requestBodyMap.put("name", "My watchlist");
-		String body = objectMapper.writeValueAsString(requestBodyMap);
-
-		CreateWatchListResponse response = CreateWatchListResponse.create(1L);
-
-		given(mockedWatchListService.createWatchList(anyLong(), any(CreateWatchListRequest.class)))
-			.willReturn(response);
+		CreateWatchListRequest request = new CreateWatchListRequest("My watchlist");
 
 		// when & then
 		mockMvc.perform(post("/api/watchlists")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(body))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("관심종목 목록이 추가되었습니다")))
-			.andExpect(jsonPath("data.watchlistId").value(1));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CREATED_WATCH_LIST.getMessage())))
+			.andExpect(jsonPath("data.watchlistId").value(greaterThan(0)));
 	}
 
 	@DisplayName("사용자가 watchlist 목록을 조회한다.")
@@ -132,7 +140,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		// given
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("tickerSymbols", List.of("005930"));
-		String body = objectMapper.writeValueAsString(requestBodyMap);
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
 		doNothing().when(mockedWatchListService)
 			.createWatchStocks(anyLong(), any(Long.class), any(CreateWatchStockRequest.class));
@@ -155,7 +163,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		List<Long> watchListIds = new ArrayList<>();
 		requestBodyMap.put("watchlistIds", watchListIds);
-		String body = objectMapper.writeValueAsString(requestBodyMap);
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
 		doNothing().when(mockedWatchListService).deleteWatchLists(anyLong(), anyList());
 
@@ -176,7 +184,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 		// given
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("tickerSymbols", List.of("005930"));
-		String body = objectMapper.writeValueAsString(requestBodyMap);
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
 		doNothing().when(mockedWatchListService)
 			.deleteWatchStocks(anyLong(), any(Long.class), any(DeleteWatchStocksRequest.class));
@@ -214,7 +222,7 @@ class WatchListRestControllerTest extends ControllerTestSupport {
 	void changeWatchListName() throws Exception {
 		Map<String, Object> requestBodyMap = new HashMap<>();
 		requestBodyMap.put("name", "My watchlist");
-		String body = objectMapper.writeValueAsString(requestBodyMap);
+		String body = ObjectMapperUtil.serialize(requestBodyMap);
 
 		doNothing().when(mockedWatchListService)
 			.changeWatchListName(anyLong(), any(Long.class), any(ChangeWatchListNameRequest.class));
