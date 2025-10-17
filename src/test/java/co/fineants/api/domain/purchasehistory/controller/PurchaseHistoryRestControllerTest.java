@@ -3,12 +3,10 @@ package co.fineants.api.domain.purchasehistory.controller;
 import static co.fineants.api.global.errors.errorcode.ErrorCode.*;
 import static co.fineants.api.global.success.PurchaseHistorySuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -214,21 +212,27 @@ class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void deletePurchaseHistory() throws Exception {
 		// given
-		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
-		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, createSamsungStock());
-		PurchaseHistory purchaseHistory = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(3),
-			Money.won(50000), "첫구매", portfolioHolding);
-		String url = String.format("/api/portfolio/%d/holdings/%d/purchaseHistory/%d", portfolio.getId(),
-			portfolioHolding.getId(), purchaseHistory.getId());
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
 
-		given(mockedPortfolioRepository.findById(anyLong())).willReturn(Optional.of(portfolio));
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			createPortfolioHolding(portfolio, saveStock));
+		PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
+			PurchaseHistory.now(Money.won(50000), Count.from(3), "첫구매", portfolioHolding));
 
 		// when & then
-		mockMvc.perform(delete(url))
+		mockMvc.perform(
+				delete("/api/portfolio/{portfolioId}/holdings/{portfolioHoldingId}/purchaseHistory/{purchaseHistoryId}",
+					portfolio.getId(),
+					portfolioHolding.getId(),
+					purchaseHistory.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("매입 이력이 삭제되었습니다")))
-			.andExpect(jsonPath("data").value(equalTo(null)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_PURCHASE_HISTORY.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 }
