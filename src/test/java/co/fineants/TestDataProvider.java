@@ -197,4 +197,11 @@ public class TestDataProvider {
 			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 종목의 티커심볼이 필요합니다"})
 		);
 	}
+
+	public static Stream<Arguments> invalidDeleteWatchStockRequests() {
+		return Stream.of(
+			Arguments.of(null, new String[] {"필수 정보입니다"}),
+			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 종목의 티커심볼이 필요합니다"})
+		);
+	}
 }

@@ -268,6 +268,29 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
+	@DisplayName("사용자가 watchlist에서 유효하지 않은 입력으로 종목을 삭제하지 못한다")
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidDeleteWatchStockRequests")
+	void deleteWatchStocks_whenInvalidInput_thenNotDeleteData(List<String> tickerSymbols,
+		String[] expectedDefaultMessages) throws Exception {
+		// given
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
+		DeleteWatchStocksRequest request = new DeleteWatchStocksRequest(tickerSymbols);
+
+		// when & then
+		mockMvc.perform(delete("/api/watchlists/{watchlistId}/stock", watchList.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbols")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder(expectedDefaultMessages)));
+	}
+
 	@DisplayName("사용자가 watchlist에서 종목을 삭제한다.")
 	@Test
 	void deleteWatchStock() throws Exception {
