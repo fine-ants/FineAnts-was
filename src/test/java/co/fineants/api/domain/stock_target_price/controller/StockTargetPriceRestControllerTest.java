@@ -28,15 +28,11 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
-import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
-
-	@Autowired
-	private StockTargetPriceService mockedStockTargetPriceService;
 
 	@Autowired
 	private StockTargetPriceRestController controller;
