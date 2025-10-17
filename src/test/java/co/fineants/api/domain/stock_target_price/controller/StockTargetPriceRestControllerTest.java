@@ -27,18 +27,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchResponse;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecificItem;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecifiedSearchResponse;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationUpdateResponse;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
+import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
+import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
@@ -55,11 +58,21 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockRepository stockRepository;
 
+	@Autowired
+	private StockTargetPriceRepository stockTargetPriceRepository;
+
+	@Autowired
+	private TargetPriceNotificationRepository targetPriceNotificationRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
 	private MockMvc mockMvc;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
+		closingPriceRepository.addPrice("005930", 50000L);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")
@@ -116,48 +129,32 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	@Test
 	void searchStockTargetPriceNotification() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		LocalDateTime now = LocalDateTime.now();
-		given(mockedStockTargetPriceService.searchStockTargetPrices(anyLong()))
-			.willReturn(TargetPriceNotificationSearchResponse.builder()
-				.stocks(List.of(TargetPriceNotificationSearchItem.builder()
-					.companyName(stock.getCompanyName())
-					.tickerSymbol(stock.getTickerSymbol())
-					.lastPrice(Money.won(50000L))
-					.targetPrices(List.of(
-						TargetPriceItem.builder()
-							.notificationId(1L)
-							.targetPrice(Money.won(60000L))
-							.dateAdded(now)
-							.build(),
-						TargetPriceItem.builder()
-							.notificationId(2L)
-							.targetPrice(Money.won(70000L))
-							.dateAdded(now)
-							.build()
-					))
-					.isActive(true)
-					.lastUpdated(now)
-					.build()))
-				.build());
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		Money targetPrice = Money.won(60000L);
+		TargetPriceNotification targetPriceNotification = TargetPriceNotification.newTargetPriceNotification(
+			targetPrice, saveStockTargetPrice);
+		TargetPriceNotification saveTargetPriceNotification = targetPriceNotificationRepository.save(
+			targetPriceNotification);
 
 		// when & then
 		mockMvc.perform(get("/api/stocks/target-price/notifications"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("모든 알림 조회를 성공했습니다")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SEARCH_TARGET_PRICE_NOTIFICATIONS.getMessage())))
 			.andExpect(jsonPath("data.stocks[0].companyName").value(equalTo(stock.getCompanyName())))
 			.andExpect(jsonPath("data.stocks[0].tickerSymbol").value(equalTo(stock.getTickerSymbol())))
 			.andExpect(jsonPath("data.stocks[0].lastPrice").value(equalTo(50000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].notificationId").value(equalTo(1)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].targetPrice").value(equalTo(60000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].dateAdded").isNotEmpty())
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].notificationId").value(equalTo(2)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].targetPrice").value(equalTo(70000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].dateAdded").isNotEmpty())
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].notificationId").value(
+				equalTo(saveTargetPriceNotification.getId().intValue())))
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].targetPrice").value(equalTo(60_000)))
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].dateAdded").value(notNullValue()))
 			.andExpect(jsonPath("data.stocks[0].isActive").value(equalTo(true)))
-			.andExpect(jsonPath("data.stocks[0].lastUpdated").isNotEmpty());
+			.andExpect(jsonPath("data.stocks[0].lastUpdated").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 특정 종목의 지정 알림가들을 조회합니다")
