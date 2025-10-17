@@ -1,7 +1,7 @@
 package co.fineants.api.domain.fcm.controller;
 
+import static co.fineants.api.global.success.FcmSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,49 +9,57 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.fcm.domain.dto.request.FcmRegisterRequest;
 import co.fineants.api.domain.fcm.domain.dto.response.FcmDeleteResponse;
-import co.fineants.api.domain.fcm.domain.dto.response.FcmRegisterResponse;
 import co.fineants.api.domain.fcm.service.FcmService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.member.domain.MemberRepository;
 
-class FcmRestControllerTest extends ControllerTestSupport {
+class FcmRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private FcmService mockedFcmService;
 
-	@Override
-	protected Object initController() {
-		return new FcmRestController(mockedFcmService);
+	@Autowired
+	private FcmRestController controller;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	private MockMvc mockMvc;
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
 	}
 
 	@DisplayName("사용자는 FCM 토큰을 등록한다")
 	@Test
 	void createToken() throws Exception {
 		// given
-		given(mockedFcmService.createToken(any(FcmRegisterRequest.class), ArgumentMatchers.anyLong()))
-			.willReturn(FcmRegisterResponse.builder()
-				.fcmTokenId(1L)
-				.build());
-
-		Map<String, String> body = Map.of("fcmToken", "fcmToken");
+		memberRepository.save(TestDataFactory.createMember());
+		FcmRegisterRequest request = new FcmRegisterRequest("fcmToken");
 
 		// when & then
 		mockMvc.perform(post("/api/fcm/tokens")
-				.content(ObjectMapperUtil.serialize(body))
-				.contentType(MediaType.APPLICATION_JSON))
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("FCM 토큰을 성공적으로 등록하였습니다")))
-			.andExpect(jsonPath("data.fcmTokenId").value(equalTo(1)));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(CREATED_FCM.getMessage())))
+			.andExpect(jsonPath("data.fcmTokenId").value(greaterThan(0)));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 형식의 토큰을 전달하여 등록할 수 없다")
