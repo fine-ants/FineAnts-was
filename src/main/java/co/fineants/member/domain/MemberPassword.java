@@ -2,8 +2,6 @@ package co.fineants.member.domain;
 
 import java.util.regex.Pattern;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -44,7 +42,7 @@ public class MemberPassword {
 	@Column(name = "password")
 	private String value;
 
-	public MemberPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+	public MemberPassword(String rawPassword, MemberPasswordEncoder passwordEncoder) {
 		if (!PASSWORD_PATTERN.matcher(rawPassword).matches()) {
 			throw new IllegalArgumentException("Password format is invalid");
 		}

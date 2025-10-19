@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.AbstractContainerBaseTest;
 
 class MemberPasswordTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private MemberPasswordEncoder passwordEncoder;
 
 	@DisplayName("유효한 비밀번호로 MemberPassword 생성 가능")
 	@ParameterizedTest
