@@ -23,7 +23,9 @@ import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
 import co.fineants.member.presentation.dto.request.VerifyCodeRequest;
@@ -56,8 +58,9 @@ public class SignUpRestController {
 		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
-		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-			encodedPassword, profileUrl);
+		MemberEmail memberEmail = new MemberEmail(request.getEmail());
+		Nickname nickname = new Nickname(request.getNickname());
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
