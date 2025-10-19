@@ -9,7 +9,6 @@ import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @ToString
 public class MemberNotificationPreferenceResponse {
 	private Boolean browserNotify;
@@ -17,6 +16,7 @@ public class MemberNotificationPreferenceResponse {
 	private Boolean maxLossNotify;
 	private Boolean targetPriceNotify;
 
+	@Builder
 	public MemberNotificationPreferenceResponse(Boolean browserNotify, Boolean targetGainNotify, Boolean maxLossNotify,
 		Boolean targetPriceNotify) {
 		this.browserNotify = browserNotify;
