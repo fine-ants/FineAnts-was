@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationPreferenceChangeListener {
+public class NotificationPreferenceChangeEventListener {
 
 	private final MemberRepository memberRepository;
 	private final FcmService fcmService;
