@@ -29,9 +29,9 @@ import co.fineants.member.application.ChangeMemberPassword;
 import co.fineants.member.application.ChangeMemberProfile;
 import co.fineants.member.application.DeleteMember;
 import co.fineants.member.application.LogoutMember;
-import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.application.ReadMemberProfile;
+import co.fineants.member.application.UpdateMemberNotificationPreference;
 
 @TestConfiguration
 public class ControllerTestConfig {
@@ -42,7 +42,7 @@ public class ControllerTestConfig {
 	@MockBean
 	private MemberNotificationService notificationService;
 	@MockBean
-	private MemberNotificationPreferenceService preferenceService;
+	private UpdateMemberNotificationPreference preferenceService;
 	@MockBean
 	private PortfolioService portFolioService;
 	@MockBean

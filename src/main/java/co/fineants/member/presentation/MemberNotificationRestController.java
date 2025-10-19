@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.MemberNotificationPreferenceService;
 import co.fineants.member.application.MemberNotificationService;
+import co.fineants.member.application.UpdateMemberNotificationPreference;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberNotificationRestController {
 
 	private final MemberNotificationService notificationService;
-	private final MemberNotificationPreferenceService preferenceService;
+	private final UpdateMemberNotificationPreference preferenceService;
 
 	// 회원의 알림 목록 조회
 	@GetMapping("/notifications")

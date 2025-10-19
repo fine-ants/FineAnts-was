@@ -1,6 +1,5 @@
 package co.fineants.member.application;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,15 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class MemberNotificationPreferenceService {
+public class UpdateMemberNotificationPreference {
 
 	private final MemberRepository memberRepository;
 	private final FcmService fcmService;
-	
+
 	@Transactional
 	@Authorized(serviceClass = MemberAuthorizedService.class)
-	@Secured("ROLE_USER")
 	public MemberNotificationPreferenceResponse updateNotificationPreference(
 		@ResourceId Long memberId,
 		MemberNotificationPreferenceRequest request) {
@@ -38,6 +35,7 @@ public class MemberNotificationPreferenceService {
 		NotificationPreference preference = request.toEntity();
 		member.setNotificationPreference(preference);
 
+		// todo: 별도의 이벤트로 추출하기
 		// 회원 계정의 전체 알림 설정이 모두 비활성화인 경우 FCM 토큰 삭제
 		if (preference.isAllInActive() && request.hasFcmTokenId()) {
 			FcmDeleteResponse response = fcmService.deleteToken(request.fcmTokenId());
