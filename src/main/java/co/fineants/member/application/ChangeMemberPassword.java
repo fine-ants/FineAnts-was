@@ -1,6 +1,5 @@
 package co.fineants.member.application;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,6 +7,8 @@ import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
 import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChangeMemberPassword {
 
-	private final PasswordEncoder passwordEncoder;
 	private final MemberRepository memberRepository;
+	private final MemberPasswordEncoder passwordEncoder;
 
 	@Transactional
 	public void changePassword(PasswordUpdateRequest request, Long memberId) {
@@ -37,8 +38,8 @@ public class ChangeMemberPassword {
 		if (!newPassword.equals(newPasswordConfirm)) {
 			throw new PasswordConfirmInvalidInputException(newPassword, newPasswordConfirm);
 		}
-		String encodedNewPassword = passwordEncoder.encode(newPassword);
-		member.changePassword(encodedNewPassword);
+		MemberPassword memberPassword = new MemberPassword(newPassword, passwordEncoder);
+		member.changePassword(memberPassword);
 	}
 
 	private Member findMember(Long id) {

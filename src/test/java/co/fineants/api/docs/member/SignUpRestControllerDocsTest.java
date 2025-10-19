@@ -19,15 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.presentation.SignUpRestController;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
@@ -35,12 +33,11 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	@Override
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory, signupVerificationService,
-			signupValidatorService);
+		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
+		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
+			memberPasswordEncoder);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

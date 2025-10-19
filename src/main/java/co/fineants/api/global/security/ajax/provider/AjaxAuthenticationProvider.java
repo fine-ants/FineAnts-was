@@ -4,9 +4,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.global.security.ajax.token.AjaxAuthenticationToken;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
 	private final UserDetailsService userDetailsService;
-	private final PasswordEncoder passwordEncoder;
+	private final MemberPasswordEncoder passwordEncoder;
 
 	@Override
 	public Authentication authenticate(Authentication authentication) {

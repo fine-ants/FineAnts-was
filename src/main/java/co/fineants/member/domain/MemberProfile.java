@@ -15,9 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"email", "provider"}, callSuper = false)
 public class MemberProfile {
-	// todo: 암호화전에 정규식 검사
-	public static final String PASSWORD_REGEXP = "^(?=.*[a-zA-Z])(?=.*[\\d])(?=.*[!@#$%^&*]).{8,16}$";
-
 	@Getter
 	@Embedded
 	private MemberEmail email;
@@ -27,12 +24,14 @@ public class MemberProfile {
 	@Getter
 	@Column(name = "provider", nullable = false)
 	private String provider;
-	@Column(name = "password")
-	private String password;
+	@Embedded
+	private MemberPassword password;
+
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	public MemberProfile(MemberEmail email, Nickname nickname, String provider, String password, String profileUrl) {
+	public MemberProfile(MemberEmail email, Nickname nickname, String provider, MemberPassword password,
+		String profileUrl) {
 		this.email = email;
 		this.nickname = nickname;
 		this.provider = provider;
@@ -42,12 +41,13 @@ public class MemberProfile {
 
 	public static MemberProfile oauthMemberProfile(MemberEmail email, Nickname nickname, String provider,
 		String profileUrl) {
-		return new MemberProfile(email, nickname, provider, null, profileUrl);
+		MemberPassword password = null;
+		return new MemberProfile(email, nickname, provider, password, profileUrl);
 	}
 
-	public static MemberProfile localMemberProfile(MemberEmail email, Nickname nickname, String password,
+	public static MemberProfile localMemberProfile(MemberEmail email, Nickname nickname, MemberPassword memberPassword,
 		String profileUrl) {
-		return new MemberProfile(email, nickname, "local", password, profileUrl);
+		return new MemberProfile(email, nickname, "local", memberPassword, profileUrl);
 	}
 
 	public void changeNickname(Nickname nickname) {
@@ -58,8 +58,8 @@ public class MemberProfile {
 		this.profileUrl = profileUrl;
 	}
 
-	public void changePassword(String encodedPassword) {
-		this.password = encodedPassword;
+	public void changePassword(MemberPassword password) {
+		this.password = password;
 	}
 
 	public Map<String, Object> toMap() {
@@ -72,7 +72,7 @@ public class MemberProfile {
 	}
 
 	public Optional<String> getPassword() {
-		return Optional.ofNullable(password);
+		return Optional.ofNullable(password.getValue());
 	}
 
 	public Optional<String> getProfileUrl() {

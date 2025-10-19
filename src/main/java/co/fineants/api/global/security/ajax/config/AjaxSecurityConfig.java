@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -30,6 +29,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.JwtLogoutSuccessHandler;
 import co.fineants.api.global.security.oauth.service.TokenService;
 import co.fineants.member.application.LogoutMember;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.role.domain.RoleRepository;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class AjaxSecurityConfig {
 
 	private final UserDetailsService memberUserDetailsService;
 	private final CorsConfiguration corsConfiguration;
-	private final PasswordEncoder passwordEncoder;
+	private final MemberPasswordEncoder passwordEncoder;
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
 	private final TokenFactory tokenFactory;

@@ -38,9 +38,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
+import co.fineants.member.infrastructure.SpringMemberPasswordEncoder;
 import co.fineants.role.domain.Role;
 
 public final class TestDataFactory {
@@ -53,9 +56,9 @@ public final class TestDataFactory {
 	}
 
 	public static KisAccessToken createKisAccessToken() {
-		final int EXPIRED_SECONDS = 86400;
-		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(EXPIRED_SECONDS),
-			EXPIRED_SECONDS);
+		int expiredSeconds = 86400;
+		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(expiredSeconds),
+			expiredSeconds);
 	}
 
 	public static Role createRole(String roleName, String roleDesc) {
@@ -72,11 +75,15 @@ public final class TestDataFactory {
 
 	public static Member createMember(String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String password = passwordEncoder.encode("nemo1234@");
 
 		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname memberNickname = new Nickname(nickname);
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, password, "profileUrl");
+		MemberPasswordEncoder memberPasswordEncoder = new SpringMemberPasswordEncoder(passwordEncoder);
+		String rawPassword = "nemo1234@";
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
 	}
@@ -382,5 +389,14 @@ public final class TestDataFactory {
 
 	public static WatchStock createWatchStock(Stock stock, WatchList watchList) {
 		return WatchStock.newWatchStock(watchList, stock);
+	}
+
+	public static Member createOauthMember() {
+		MemberEmail memberEmail = new MemberEmail("nemo1234@gmail.com");
+		Nickname memberNickname = new Nickname("nemo1234");
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, memberNickname, "google", profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		return Member.createMember(profile, notificationPreference);
 	}
 }

@@ -3,7 +3,6 @@ package co.fineants.member.presentation;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +17,15 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
 import co.fineants.member.presentation.dto.request.VerifyCodeRequest;
@@ -40,10 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SignUpRestController {
 
 	private final SignupService signupService;
-	private final PasswordEncoder passwordEncoder;
-	private final MemberProfileFactory memberProfileFactory;
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
+	private final MemberPasswordEncoder memberPasswordEncoder;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -54,10 +55,12 @@ public class SignUpRestController {
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
 		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
-		String encodedPassword = passwordEncoder.encode(request.getPassword());
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
-		MemberProfile profile = memberProfileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-			encodedPassword, profileUrl);
+		MemberEmail memberEmail = new MemberEmail(request.getEmail());
+		Nickname nickname = new Nickname(request.getNickname());
+		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
