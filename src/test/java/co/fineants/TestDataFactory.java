@@ -390,4 +390,13 @@ public final class TestDataFactory {
 	public static WatchStock createWatchStock(Stock stock, WatchList watchList) {
 		return WatchStock.newWatchStock(watchList, stock);
 	}
+
+	public static Member createOauthMember() {
+		MemberEmail memberEmail = new MemberEmail("nemo1234@gmail.com");
+		Nickname memberNickname = new Nickname("nemo1234");
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, memberNickname, "google", profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		return Member.createMember(profile, notificationPreference);
+	}
 }
