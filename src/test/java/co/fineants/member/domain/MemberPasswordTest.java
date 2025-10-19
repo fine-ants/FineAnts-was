@@ -23,7 +23,7 @@ class MemberPasswordTest extends AbstractContainerBaseTest {
 
 	@ParameterizedTest
 	@MethodSource(value = "co.fineants.TestDataProvider#invalidPasswords")
-	void newInstance_whenInvalidPassword_thenThrowException(String rawPassword, String reason) {
+	void newInstance_whenInvalidPassword_thenThrowException(String rawPassword, String ignoredReason) {
 		Throwable throwable = Assertions.catchThrowable(() -> new MemberPassword(rawPassword, passwordEncoder));
 
 		Assertions.assertThat(throwable)
