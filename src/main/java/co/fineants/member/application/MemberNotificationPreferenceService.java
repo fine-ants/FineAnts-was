@@ -26,14 +26,7 @@ public class MemberNotificationPreferenceService {
 
 	private final MemberRepository memberRepository;
 	private final FcmService fcmService;
-
-	@Transactional
-	public MemberNotificationPreferenceResponse registerDefaultNotificationPreference(Member member) {
-		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		member.setNotificationPreference(notificationPreference);
-		return MemberNotificationPreferenceResponse.from(notificationPreference);
-	}
-
+	
 	@Transactional
 	@Authorized(serviceClass = MemberAuthorizedService.class)
 	@Secured("ROLE_USER")
