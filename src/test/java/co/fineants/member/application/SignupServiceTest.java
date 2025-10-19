@@ -35,6 +35,8 @@ import co.fineants.api.global.errors.exception.business.MemberProfileUploadExcep
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
@@ -57,17 +59,21 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private MemberPasswordEncoder memberPasswordEncoder;
 
 	@NotNull
 	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
 		return MemberProfile.localMemberProfile(memberEmail, nickname,
-			encodedPassword, profileUrl);
+			encodedPassword, memberPassword, profileUrl);
 	}
 
 	private static Stream<Arguments> invalidProfileFileSource() {
@@ -95,7 +101,12 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// given
 		MemberEmail memberEmail = new MemberEmail("ants1@gmail.com");
 		Nickname nickname = new Nickname("ants1");
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
+		String rawPassword = "ants1234@";
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+			null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
@@ -112,14 +123,21 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// given
 		MemberEmail memberEmail = new MemberEmail("ants1234@gmail.com");
 		Nickname nickname = new Nickname("ants1234");
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, "ants1234@", null);
+		String rawPassword = "ants1234@";
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+			null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 		memberRepository.save(member);
 
 		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
-		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, "ants4567@",
-			null);
+		rawPassword = "ants4567@";
+		encodedPassword = passwordEncoder.encode(rawPassword);
+		memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, encodedPassword,
+			memberPassword, null);
 
 		Member otherMember = Member.createMember(otherProfile, notificationPreference);
 		// when

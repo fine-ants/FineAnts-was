@@ -23,6 +23,8 @@ import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
@@ -44,6 +46,7 @@ public class SignUpRestController {
 	private final PasswordEncoder passwordEncoder;
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
+	private final MemberPasswordEncoder memberPasswordEncoder;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -58,7 +61,9 @@ public class SignUpRestController {
 		String profileUrl = signupService.upload(profileImageFile).orElse(null);
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, profileUrl);
+		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 

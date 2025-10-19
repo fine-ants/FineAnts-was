@@ -38,9 +38,12 @@ import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
+import co.fineants.member.infrastructure.SpringMemberPasswordEncoder;
 import co.fineants.role.domain.Role;
 
 public final class TestDataFactory {
@@ -72,11 +75,16 @@ public final class TestDataFactory {
 
 	public static Member createMember(String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String password = passwordEncoder.encode("nemo1234@");
+		String rawPassword = "nemo1234@";
+		String password = passwordEncoder.encode(rawPassword);
 
 		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname memberNickname = new Nickname(nickname);
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, password, "profileUrl");
+		MemberPasswordEncoder memberPasswordEncoder = new SpringMemberPasswordEncoder(passwordEncoder);
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, password, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
 	}

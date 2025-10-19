@@ -63,6 +63,8 @@ import co.fineants.config.AmazonS3TestConfig;
 import co.fineants.config.TestConfig;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
@@ -134,6 +136,9 @@ public abstract class AbstractContainerBaseTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Autowired
+	private MemberPasswordEncoder memberPasswordEncoder;
+
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
 		// redis property config
@@ -197,10 +202,14 @@ public abstract class AbstractContainerBaseTest {
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
-		String password = passwordEncoder.encode("nemo1234@");
+		String rawPassword = "nemo1234@";
+		String encodedPassword = passwordEncoder.encode(rawPassword);
 		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname nickname = new Nickname(nicknameValue);
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, password, "profileUrl");
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		Member member = Member.createMember(profile, notificationPreference);
 		// 역할 설정

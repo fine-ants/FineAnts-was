@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,25 +27,31 @@ public class MemberProfile {
 	private String provider;
 	@Column(name = "password")
 	private String password;
+
+	@Transient
+	private MemberPassword memberPassword;
+
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	public MemberProfile(MemberEmail email, Nickname nickname, String provider, String password, String profileUrl) {
+	public MemberProfile(MemberEmail email, Nickname nickname, String provider, String password,
+		MemberPassword memberPassword, String profileUrl) {
 		this.email = email;
 		this.nickname = nickname;
 		this.provider = provider;
 		this.password = password;
+		this.memberPassword = memberPassword;
 		this.profileUrl = profileUrl;
 	}
 
 	public static MemberProfile oauthMemberProfile(MemberEmail email, Nickname nickname, String provider,
 		String profileUrl) {
-		return new MemberProfile(email, nickname, provider, null, profileUrl);
+		return new MemberProfile(email, nickname, provider, null, null, profileUrl);
 	}
 
 	public static MemberProfile localMemberProfile(MemberEmail email, Nickname nickname, String password,
-		String profileUrl) {
-		return new MemberProfile(email, nickname, "local", password, profileUrl);
+		MemberPassword memberPassword, String profileUrl) {
+		return new MemberProfile(email, nickname, "local", password, memberPassword, profileUrl);
 	}
 
 	public void changeNickname(Nickname nickname) {
