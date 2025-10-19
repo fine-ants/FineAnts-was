@@ -20,7 +20,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -99,9 +98,6 @@ public abstract class AbstractContainerBaseTest {
 		REDIS_CONTAINER.start();
 		LOCAL_STACK_CONTAINER.start();
 	}
-
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private RoleRepository roleRepository;
@@ -203,12 +199,11 @@ public abstract class AbstractContainerBaseTest {
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
 		String rawPassword = "nemo1234@";
-		String encodedPassword = passwordEncoder.encode(rawPassword);
 		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname nickname = new Nickname(nicknameValue);
 		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
 		String profileUrl = "profileUrl";
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		Member member = Member.createMember(profile, notificationPreference);

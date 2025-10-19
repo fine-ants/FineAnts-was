@@ -93,8 +93,8 @@ public class Member extends BaseEntity {
 		this.profile.changeNickname(nickname);
 	}
 
-	public void changePassword(String encodedPassword) {
-		this.profile.changePassword(encodedPassword);
+	public void changePassword(MemberPassword password) {
+		this.profile.changePassword(password);
 	}
 
 	public Optional<String> getPassword() {

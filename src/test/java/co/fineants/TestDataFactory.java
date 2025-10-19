@@ -56,9 +56,9 @@ public final class TestDataFactory {
 	}
 
 	public static KisAccessToken createKisAccessToken() {
-		final int EXPIRED_SECONDS = 86400;
-		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(EXPIRED_SECONDS),
-			EXPIRED_SECONDS);
+		int expiredSeconds = 86400;
+		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(expiredSeconds),
+			expiredSeconds);
 	}
 
 	public static Role createRole(String roleName, String roleDesc) {
@@ -75,15 +75,14 @@ public final class TestDataFactory {
 
 	public static Member createMember(String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String rawPassword = "nemo1234@";
-		String password = passwordEncoder.encode(rawPassword);
 
 		MemberEmail memberEmail = new MemberEmail(email);
 		Nickname memberNickname = new Nickname(nickname);
 		MemberPasswordEncoder memberPasswordEncoder = new SpringMemberPasswordEncoder(passwordEncoder);
+		String rawPassword = "nemo1234@";
 		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
 		String profileUrl = "profileUrl";
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, password, memberPassword,
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);

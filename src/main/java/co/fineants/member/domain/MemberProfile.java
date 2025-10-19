@@ -6,7 +6,6 @@ import java.util.Optional;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,33 +24,30 @@ public class MemberProfile {
 	@Getter
 	@Column(name = "provider", nullable = false)
 	private String provider;
-	@Column(name = "password")
-	private String password;
-
-	@Transient
-	private MemberPassword memberPassword;
+	@Embedded
+	private MemberPassword password;
 
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	public MemberProfile(MemberEmail email, Nickname nickname, String provider, String password,
-		MemberPassword memberPassword, String profileUrl) {
+	public MemberProfile(MemberEmail email, Nickname nickname, String provider, MemberPassword password,
+		String profileUrl) {
 		this.email = email;
 		this.nickname = nickname;
 		this.provider = provider;
 		this.password = password;
-		this.memberPassword = memberPassword;
 		this.profileUrl = profileUrl;
 	}
 
 	public static MemberProfile oauthMemberProfile(MemberEmail email, Nickname nickname, String provider,
 		String profileUrl) {
-		return new MemberProfile(email, nickname, provider, null, null, profileUrl);
+		MemberPassword password = null;
+		return new MemberProfile(email, nickname, provider, password, profileUrl);
 	}
 
-	public static MemberProfile localMemberProfile(MemberEmail email, Nickname nickname, String password,
-		MemberPassword memberPassword, String profileUrl) {
-		return new MemberProfile(email, nickname, "local", password, memberPassword, profileUrl);
+	public static MemberProfile localMemberProfile(MemberEmail email, Nickname nickname, MemberPassword memberPassword,
+		String profileUrl) {
+		return new MemberProfile(email, nickname, "local", memberPassword, profileUrl);
 	}
 
 	public void changeNickname(Nickname nickname) {
@@ -62,8 +58,8 @@ public class MemberProfile {
 		this.profileUrl = profileUrl;
 	}
 
-	public void changePassword(String encodedPassword) {
-		this.password = encodedPassword;
+	public void changePassword(MemberPassword password) {
+		this.password = password;
 	}
 
 	public Map<String, Object> toMap() {
@@ -76,7 +72,7 @@ public class MemberProfile {
 	}
 
 	public Optional<String> getPassword() {
-		return Optional.ofNullable(password);
+		return Optional.ofNullable(password.getValue());
 	}
 
 	public Optional<String> getProfileUrl() {

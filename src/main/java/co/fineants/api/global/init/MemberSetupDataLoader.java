@@ -1,6 +1,5 @@
 package co.fineants.api.global.init;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ public class MemberSetupDataLoader {
 
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 
 	@Transactional
@@ -55,8 +53,7 @@ public class MemberSetupDataLoader {
 		Nickname nickname = new Nickname(properties.getNickname());
 		MemberPassword memberPassword = new MemberPassword(properties.getPassword(), memberPasswordEncoder);
 		String profileUrl = null;
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname,
-			passwordEncoder.encode(properties.getPassword()), memberPassword, profileUrl);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
 	}

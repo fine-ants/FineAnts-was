@@ -19,8 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -35,12 +33,11 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	@Override
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
-		return new SignUpRestController(signupService, passwordEncoder, signupVerificationService,
-			signupValidatorService, memberPasswordEncoder);
+		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
+			memberPasswordEncoder);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

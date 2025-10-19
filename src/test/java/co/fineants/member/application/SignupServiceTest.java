@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -61,19 +60,14 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	private String profilePath;
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
-
-	@Autowired
 	private MemberPasswordEncoder memberPasswordEncoder;
 
 	@NotNull
 	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
-		String encodedPassword = passwordEncoder.encode(request.getPassword());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
-		return MemberProfile.localMemberProfile(memberEmail, nickname,
-			encodedPassword, memberPassword, profileUrl);
+		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
 	}
 
 	private static Stream<Arguments> invalidProfileFileSource() {
@@ -102,11 +96,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberEmail memberEmail = new MemberEmail("ants1@gmail.com");
 		Nickname nickname = new Nickname("ants1");
 		String rawPassword = "ants1234@";
-		String encodedPassword = passwordEncoder.encode(rawPassword);
 		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
 
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
-			null);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
@@ -124,9 +116,8 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberEmail memberEmail = new MemberEmail("ants1234@gmail.com");
 		Nickname nickname = new Nickname("ants1234");
 		String rawPassword = "ants1234@";
-		String encodedPassword = passwordEncoder.encode(rawPassword);
 		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
-		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, encodedPassword, memberPassword,
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
@@ -134,10 +125,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
 		rawPassword = "ants4567@";
-		encodedPassword = passwordEncoder.encode(rawPassword);
 		memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
-		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, encodedPassword,
-			memberPassword, null);
+		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, memberPassword,
+			null);
 
 		Member otherMember = Member.createMember(otherProfile, notificationPreference);
 		// when
