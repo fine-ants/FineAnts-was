@@ -45,7 +45,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> updateNotificationPreference(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationPreferenceRequest request) {
-		MemberNotificationPreferenceResponse response = preferenceService.updateNotificationPreference(memberId,
+		MemberNotificationPreferenceResponse response = preferenceService.update(memberId,
 			request);
 		log.info("회원 알림 설정 수정 처리 결과 : memberId={}, response={}", memberId, response);
 		return ApiResponse.success(MemberSuccessCode.OK_UPDATE_NOTIFICATION_PREFERENCE);

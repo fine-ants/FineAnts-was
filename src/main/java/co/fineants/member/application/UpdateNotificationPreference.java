@@ -27,7 +27,7 @@ public class UpdateNotificationPreference {
 
 	@Transactional
 	@Authorized(serviceClass = MemberAuthorizedService.class)
-	public MemberNotificationPreferenceResponse updateNotificationPreference(
+	public MemberNotificationPreferenceResponse update(
 		@ResourceId Long memberId,
 		MemberNotificationPreferenceRequest request) {
 		Member member = memberRepository.findById(memberId)

@@ -41,7 +41,7 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(
+		MemberNotificationPreferenceResponse response = service.update(
 			member.getId(), request);
 
 		// then
@@ -71,7 +71,7 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
+		MemberNotificationPreferenceResponse response = service.update(member.getId(), request);
 
 		// then
 		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
@@ -101,7 +101,7 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
+		MemberNotificationPreferenceResponse response = service.update(member.getId(), request);
 
 		// then
 		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
@@ -131,7 +131,7 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		MemberNotificationPreferenceResponse response = service.updateNotificationPreference(member.getId(), request);
+		MemberNotificationPreferenceResponse response = service.update(member.getId(), request);
 
 		// then
 		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
@@ -161,7 +161,7 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(hacker);
 		// when
-		Throwable throwable = catchThrowable(() -> service.updateNotificationPreference(member.getId(), request));
+		Throwable throwable = catchThrowable(() -> service.update(member.getId(), request));
 
 		// then
 		assertThat(throwable)
