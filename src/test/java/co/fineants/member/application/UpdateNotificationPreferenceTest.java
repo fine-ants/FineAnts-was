@@ -16,10 +16,10 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
 import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
 
-class UpdateMemberNotificationPreferenceTest extends AbstractContainerBaseTest {
+class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private UpdateMemberNotificationPreference service;
+	private UpdateNotificationPreference service;
 
 	@Autowired
 	private MemberRepository memberRepository;

@@ -26,8 +26,8 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.UpdateMemberNotificationPreference;
 import co.fineants.member.application.MemberNotificationService;
+import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.domain.Member;
 import co.fineants.member.presentation.MemberNotificationRestController;
 import co.fineants.member.presentation.dto.response.MemberNotification;
@@ -36,8 +36,8 @@ import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 	private final MemberNotificationService service = Mockito.mock(MemberNotificationService.class);
-	private final UpdateMemberNotificationPreference preferenceService = Mockito.mock(
-		UpdateMemberNotificationPreference.class);
+	private final UpdateNotificationPreference preferenceService = Mockito.mock(
+		UpdateNotificationPreference.class);
 
 	@Override
 	protected Object initController() {
