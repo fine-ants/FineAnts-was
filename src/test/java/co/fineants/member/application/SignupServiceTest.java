@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -31,8 +33,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
-import co.fineants.member.application.MemberProfileFactory;
-import co.fineants.member.application.SignupService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberProfile;
@@ -57,9 +57,18 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Value("${aws.s3.profile-path}")
 	private String profilePath;
-
+	
 	@Autowired
-	private MemberProfileFactory profileFactory;
+	private PasswordEncoder passwordEncoder;
+
+	@NotNull
+	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
+		MemberEmail memberEmail = new MemberEmail(request.getEmail());
+		Nickname nickname = new Nickname(request.getNickname());
+		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		return MemberProfile.localMemberProfile(memberEmail, nickname,
+			encodedPassword, profileUrl);
+	}
 
 	private static Stream<Arguments> invalidProfileFileSource() {
 		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
@@ -189,8 +198,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		);
 		MultipartFile profileImageFile = createProfileFile();
 		String profileUrl = service.upload(profileImageFile).orElse(null);
-		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-			request.getPassword(), profileUrl);
+		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 
@@ -214,8 +222,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			"ants1234@"
 		);
 		String profileUrl = null;
-		MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-			request.getPassword(), profileUrl);
+		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
 		// when
@@ -241,8 +248,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					"ants1234@"
 				);
 
-				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-					request.getPassword(), null);
+				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 				Member member = Member.createMember(profile, notificationPreference);
 
@@ -261,8 +267,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					"ants2345@"
 				);
 
-				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-					request.getPassword(), null);
+				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 				Member member = Member.createMember(profile, notificationPreference);
 
@@ -289,8 +294,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					"ants1234@"
 				);
 
-				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-					request.getPassword(), null);
+				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 				Member member = Member.createMember(profile, notificationPreference);
 
@@ -309,8 +313,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					"ants1234@"
 				);
 
-				MemberProfile profile = profileFactory.localMemberProfile(request.getEmail(), request.getNickname(),
-					request.getPassword(), null);
+				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 				Member member = Member.createMember(profile, notificationPreference);
 

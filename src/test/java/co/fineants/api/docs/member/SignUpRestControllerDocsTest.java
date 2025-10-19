@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
@@ -36,10 +35,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory, signupVerificationService,
+		return new SignUpRestController(signupService, passwordEncoder, signupVerificationService,
 			signupValidatorService);
 	}
 

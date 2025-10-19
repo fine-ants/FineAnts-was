@@ -18,7 +18,6 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.MemberProfileFactory;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
@@ -43,7 +42,6 @@ public class SignUpRestController {
 
 	private final SignupService signupService;
 	private final PasswordEncoder passwordEncoder;
-	private final MemberProfileFactory memberProfileFactory;
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
 
