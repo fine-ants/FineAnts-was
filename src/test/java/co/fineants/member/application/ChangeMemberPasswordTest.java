@@ -4,13 +4,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.PasswordConfirmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.PasswordInvalidInputException;
 import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.request.PasswordUpdateRequest;
 
@@ -23,7 +23,7 @@ class ChangeMemberPasswordTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private MemberPasswordEncoder passwordEncoder;
 
 	@DisplayName("회원의 비밀번호를 변경한다")
 	@Test
