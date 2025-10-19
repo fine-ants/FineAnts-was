@@ -4,14 +4,14 @@ import java.time.Duration;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import co.fineants.member.domain.JwtRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
-@Service
+@Repository
 @Slf4j
 public class RedisJwtRepository implements JwtRepository {
 
