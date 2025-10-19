@@ -204,4 +204,39 @@ public class TestDataProvider {
 			Arguments.of(Collections.emptyList(), new String[] {"최소 1개의 종목의 티커심볼이 필요합니다"})
 		);
 	}
+
+	public static Stream<Arguments> validPasswords() {
+		return Stream.of(
+			Arguments.of("abcd1234!"),
+			Arguments.of("Abcd1234@"),
+			Arguments.of("A1!aaaaa"),
+			Arguments.of("Passw0rd#"),
+			Arguments.of("Qwer1234$"),
+			Arguments.of("AAaa11!!"),
+			Arguments.of("Hello123@"),
+			Arguments.of("GoodPwd1*"),
+			Arguments.of("Secure9#"),
+			Arguments.of("Strong16$")
+		);
+	}
+
+	public static Stream<Arguments> invalidPasswords() {
+		return Stream.of(
+			Arguments.of("abcdefg", "길이 < 8, 숫자 및 특수문자 없음"),
+			Arguments.of("abcdefgh", "숫자 및 특수문자 없음"),
+			Arguments.of("abcd1234", "특수문자 없음"),
+			Arguments.of("abcd!@#$", "숫자 없음"),
+			Arguments.of("12345678", "영문자 없음"),
+			Arguments.of("abcd12!", "길이 < 8 (7자)"),
+			Arguments.of("Ab1!", "길이 < 8, 너무 짧음"),
+			Arguments.of("abcdefghijklmnopq1!", "길이 > 16 (17자 이상)"),
+			Arguments.of("abcd 1234!", "공백 포함"),
+			Arguments.of("abcd1234?", "허용되지 않은 특수문자 '?' 사용"),
+			Arguments.of("abcd-1234!", "허용되지 않은 특수문자 '-' 사용"),
+			Arguments.of("!!!!!!@@@@", "영문자 및 숫자 없음"),
+			Arguments.of("Password!", "숫자 없음"),
+			Arguments.of("1234567!", "영문자 없음, 길이 < 8"),
+			Arguments.of("Passw0rd😊!", "허용되지 않은 이모지 포함")
+		);
+	}
 }
