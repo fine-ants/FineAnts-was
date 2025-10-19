@@ -77,7 +77,6 @@ public class FcmService {
 
 	@Transactional
 	@Authorized(serviceClass = FcmAuthorizedService.class)
-	@Secured("ROLE_USER")
 	public FcmDeleteResponse deleteToken(@ResourceId Long fcmTokenId) {
 		int deleteCount = fcmRepository.deleteByFcmTokenId(fcmTokenId);
 		log.info("FCM 토큰 삭제 개수 : deleteCount={}", deleteCount);

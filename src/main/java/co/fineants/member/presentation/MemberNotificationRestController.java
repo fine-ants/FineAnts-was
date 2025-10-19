@@ -18,7 +18,6 @@ import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
-import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
 import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +44,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> updateNotificationPreference(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationPreferenceRequest request) {
-		MemberNotificationPreferenceResponse response = preferenceService.update(memberId,
-			request);
-		log.info("회원 알림 설정 수정 처리 결과 : memberId={}, response={}", memberId, response);
+		preferenceService.update(memberId, request);
 		return ApiResponse.success(MemberSuccessCode.OK_UPDATE_NOTIFICATION_PREFERENCE);
 	}
 

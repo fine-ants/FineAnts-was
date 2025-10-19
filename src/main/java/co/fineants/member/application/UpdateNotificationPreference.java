@@ -13,7 +13,6 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.domain.event.NotificationPreferenceChangeEvent;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
-import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +26,7 @@ public class UpdateNotificationPreference {
 
 	@Transactional
 	@Authorized(serviceClass = MemberAuthorizedService.class)
-	public MemberNotificationPreferenceResponse update(
+	public void update(
 		@ResourceId Long memberId,
 		MemberNotificationPreferenceRequest request) {
 		Member member = memberRepository.findById(memberId)
@@ -36,6 +35,5 @@ public class UpdateNotificationPreference {
 		member.setNotificationPreference(preference);
 
 		eventPublisher.publishEvent(new NotificationPreferenceChangeEvent(memberId, request.fcmTokenId()));
-		return MemberNotificationPreferenceResponse.from(preference);
 	}
 }
