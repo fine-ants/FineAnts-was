@@ -17,7 +17,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "ROLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"roleName"})
 @ToString
 @Getter
@@ -37,7 +37,7 @@ public class Role {
 		this.roleName = roleName;
 		this.roleDescription = roleDescription;
 	}
-
+	
 	public static Role create(String roleName, String roleDesc) {
 		return new Role(roleName, roleDesc);
 	}

@@ -43,6 +43,11 @@ public class Member extends BaseEntity {
 	@Column(name = "role_id", nullable = false)
 	private final Set<Long> roleIds = new HashSet<>();
 
+	// TODO: 해당 메서드는 삭제할 예정  
+	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
+		return createMember(profile, notificationPreference, new HashSet<>());
+	}
+
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference,
 		Set<Long> roleIds) {
 		return new Member(profile, notificationPreference, roleIds);
