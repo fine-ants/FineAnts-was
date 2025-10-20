@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,17 +68,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		Nickname nickname = new Nickname(request.getNickname());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
 		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
-	}
-
-	private static Stream<Arguments> invalidProfileUrlSource() {
-		return Stream.of(
-			Arguments.of((String)null), // null URL
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("invalidUrl"), // 잘못된 형식의 URL
-			Arguments.of("https://example.com/invalid/path/profile.jpeg"), // S3 경로가 아닌 URL
-			Arguments.of("https://fineants.s3.ap-northeast-2.amazonaws.com/invalid/path/profile.jpeg")
-			// S3 경로가 맞지만 잘못된 키
-		);
 	}
 
 	@Transactional
@@ -141,7 +129,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
 	@ParameterizedTest
-	@MethodSource(value = "invalidProfileUrlSource")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidProfileUrlSource")
 	void givenInvalidProfileUrl_whenDelete_thenNotThrowException(String profileUrl) {
 		// when & then
 		assertThatCode(() -> {
