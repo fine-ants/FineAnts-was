@@ -2,10 +2,6 @@ package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -20,13 +16,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
@@ -144,18 +139,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
 
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
 	@ParameterizedTest
 	@MethodSource(value = "invalidProfileUrlSource")
@@ -177,7 +160,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			"ants1234@",
 			"ants1234@"
 		);
-		MultipartFile profileImageFile = createProfileFile();
+		MultipartFile profileImageFile = TestDataFactory.createProfileFile();
 		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
