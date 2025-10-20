@@ -11,15 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.fineants.api.domain.notification.service.DeleteNotifications;
+import co.fineants.api.domain.notification.service.ListNotifications;
+import co.fineants.api.domain.notification.service.MarkNotificationsAsRead;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.MemberNotificationPreferenceService;
-import co.fineants.member.application.MemberNotificationService;
+import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
-import co.fineants.member.presentation.dto.response.MemberNotificationPreferenceResponse;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
+import co.fineants.member.presentation.dto.response.ListNotificationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberNotificationRestController {
 
-	private final MemberNotificationService notificationService;
-	private final MemberNotificationPreferenceService preferenceService;
+	private final UpdateNotificationPreference preferenceService;
+	private final ListNotifications listNotifications;
+	private final MarkNotificationsAsRead markNotificationsAsRead;
+	private final DeleteNotifications deleteNotifications;
 
 	// 회원의 알림 목록 조회
 	@GetMapping("/notifications")
-	public ApiResponse<MemberNotificationResponse> fetchNotifications(@PathVariable Long memberId) {
+	public ApiResponse<ListNotificationResponse> fetchNotifications(@PathVariable Long memberId) {
 		return ApiResponse.success(MemberSuccessCode.OK_READ_NOTIFICATIONS,
-			notificationService.searchMemberNotifications(memberId));
+			listNotifications.byId(memberId));
 	}
 
 	// 회원 알림 설정 수정
@@ -45,9 +48,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> updateNotificationPreference(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationPreferenceRequest request) {
-		MemberNotificationPreferenceResponse response = preferenceService.updateNotificationPreference(memberId,
-			request);
-		log.info("회원 알림 설정 수정 처리 결과 : memberId={}, response={}", memberId, response);
+		preferenceService.update(memberId, request);
 		return ApiResponse.success(MemberSuccessCode.OK_UPDATE_NOTIFICATION_PREFERENCE);
 	}
 
@@ -56,8 +57,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> deleteAllNotifications(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationAllDeleteRequest request) {
-		List<Long> deletedNotificationIds = notificationService.deleteMemberNotifications(memberId,
-			request.notificationIds());
+		List<Long> deletedNotificationIds = deleteNotifications.deleteBy(memberId, request.notificationIds());
 		log.info("회원 알림 모두 삭제 처리 결과 : memberId={}, 삭제한 알림 등록 번호={}", memberId, deletedNotificationIds);
 		return ApiResponse.success(MemberSuccessCode.OK_DELETED_ALL_NOTIFICATIONS);
 	}
@@ -67,7 +67,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> deleteNotification(
 		@PathVariable Long memberId,
 		@PathVariable Long notificationId) {
-		List<Long> deletedNotificationIds = notificationService.deleteMemberNotifications(
+		List<Long> deletedNotificationIds = deleteNotifications.deleteBy(
 			memberId,
 			List.of(notificationId)
 		);
@@ -80,7 +80,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> readAllNotifications(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationAllReadRequest request) {
-		List<Long> notificationIds = notificationService.fetchMemberNotifications(memberId, request.notificationIds());
+		List<Long> notificationIds = markNotificationsAsRead.markBy(memberId, request.notificationIds());
 		log.info("회원 알림 모두 읽기 처리 결과 : memberId={}, 읽은 알림 등록 번호={}", memberId, notificationIds);
 		return ApiResponse.success(MemberSuccessCode.OK_FETCH_ALL_NOTIFICATIONS);
 	}

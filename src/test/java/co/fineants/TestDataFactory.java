@@ -1,5 +1,7 @@
 package co.fineants;
 
+import static co.fineants.api.domain.notification.domain.entity.type.NotificationType.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -398,5 +400,23 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, memberNickname, "google", profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		return Member.createMember(profile, notificationPreference);
+	}
+
+	public static List<Notification> createNotifications(Member member) {
+		return List.of(
+			Notification.stockTargetPriceNotification(
+				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
+				Money.won(60000L),
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
+				2L
+			)
+		);
 	}
 }

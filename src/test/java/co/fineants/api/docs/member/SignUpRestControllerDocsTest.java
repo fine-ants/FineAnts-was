@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -25,8 +26,11 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.presentation.SignUpRestController;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
@@ -36,8 +40,13 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
+		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
+		FindRole findRole = mock(FindRole.class);
+		Role role = new Role(1L, "ROLE_USER", "사용자");
+		BDDMockito.given(findRole.findBy("ROLE_USER"))
+			.willReturn(role);
 		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
-			memberPasswordEncoder);
+			memberPasswordEncoder, uploadMemberProfileImageFile, findRole);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

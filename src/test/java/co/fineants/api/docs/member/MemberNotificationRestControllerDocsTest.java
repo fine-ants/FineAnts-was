@@ -22,26 +22,31 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.notification.domain.entity.PortfolioNotification;
 import co.fineants.api.domain.notification.domain.entity.StockTargetPriceNotification;
+import co.fineants.api.domain.notification.service.DeleteNotifications;
+import co.fineants.api.domain.notification.service.ListNotifications;
+import co.fineants.api.domain.notification.service.MarkNotificationsAsRead;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.MemberNotificationPreferenceService;
-import co.fineants.member.application.MemberNotificationService;
+import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.domain.Member;
 import co.fineants.member.presentation.MemberNotificationRestController;
-import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
+import co.fineants.member.presentation.dto.response.ListNotificationResponse;
+import co.fineants.member.presentation.dto.response.NotificationDto;
 
 class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
-	private final MemberNotificationService service = Mockito.mock(MemberNotificationService.class);
-	private final MemberNotificationPreferenceService preferenceService = Mockito.mock(
-		MemberNotificationPreferenceService.class);
+	private final UpdateNotificationPreference preferenceService = Mockito.mock(
+		UpdateNotificationPreference.class);
+	private final ListNotifications listNotifications = Mockito.mock(ListNotifications.class);
+	private final MarkNotificationsAsRead markNotificationsAsRead = Mockito.mock(MarkNotificationsAsRead.class);
+	private final DeleteNotifications deleteNotifications = Mockito.mock(DeleteNotifications.class);
 
 	@Override
 	protected Object initController() {
-		return new MemberNotificationRestController(service, preferenceService);
+		return new MemberNotificationRestController(preferenceService, listNotifications,
+			markNotificationsAsRead, deleteNotifications);
 	}
 
 	@DisplayName("회원 알림 목록 조회 API")
@@ -55,18 +60,18 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
 		PortfolioNotification notification = createPortfolioTargetGainNotification(portfolio,
 			member);
-		MemberNotification memberNotification = MemberNotification.from(notification);
+		NotificationDto notificationDto = NotificationDto.from(notification);
 
 		TargetPriceNotification targetPriceNotification = createTargetPriceNotification(
 			createStockTargetPrice(member, stock));
-		StockTargetPriceNotification stockTargetPriceNotification = (StockTargetPriceNotification)createStockTargetPriceNotification(
-			targetPriceNotification, member);
-		MemberNotification memberNotification2 = MemberNotification.from(stockTargetPriceNotification);
+		StockTargetPriceNotification stockTargetPriceNotification = (StockTargetPriceNotification)
+			createStockTargetPriceNotification(targetPriceNotification, member);
+		NotificationDto notificationDto2 = NotificationDto.from(stockTargetPriceNotification);
 
-		given(service.searchMemberNotifications(memberId))
-			.willReturn(MemberNotificationResponse.create(List.of(
-				memberNotification,
-				memberNotification2
+		given(listNotifications.byId(memberId))
+			.willReturn(new ListNotificationResponse(List.of(
+				notificationDto,
+				notificationDto2
 			)));
 
 		// when & then
@@ -77,35 +82,35 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("status").value(equalTo("OK")))
 			.andExpect(jsonPath("message").value(equalTo("현재 알림 목록 조회를 성공했습니다")))
 			.andExpect(jsonPath("data.notifications[0].notificationId")
-				.value(equalTo(memberNotification.getNotificationId().intValue())))
+				.value(equalTo(notificationDto.getNotificationId().intValue())))
 			.andExpect(jsonPath("data.notifications[0].title")
-				.value(equalTo(memberNotification.getTitle())))
+				.value(equalTo(notificationDto.getTitle())))
 			.andExpect(jsonPath("data.notifications[0].body.name")
-				.value(equalTo(memberNotification.getBody().getName())))
+				.value(equalTo(notificationDto.getBody().getName())))
 			.andExpect(jsonPath("data.notifications[0].body.target")
-				.value(equalTo(memberNotification.getBody().getTarget())))
+				.value(equalTo(notificationDto.getBody().getTarget())))
 			.andExpect(jsonPath("data.notifications[0].timestamp").isNotEmpty())
 			.andExpect(jsonPath("data.notifications[0].isRead")
-				.value(equalTo(memberNotification.getIsRead())))
+				.value(equalTo(notificationDto.getIsRead())))
 			.andExpect(jsonPath("data.notifications[0].type")
-				.value(equalTo(memberNotification.getType())))
+				.value(equalTo(notificationDto.getType())))
 			.andExpect(jsonPath("data.notifications[0].referenceId")
-				.value(equalTo(memberNotification.getReferenceId())))
+				.value(equalTo(notificationDto.getReferenceId())))
 			.andExpect(jsonPath("data.notifications[1].notificationId")
-				.value(equalTo(memberNotification2.getNotificationId().intValue())))
+				.value(equalTo(notificationDto2.getNotificationId().intValue())))
 			.andExpect(jsonPath("data.notifications[1].title")
-				.value(equalTo(memberNotification2.getTitle())))
+				.value(equalTo(notificationDto2.getTitle())))
 			.andExpect(jsonPath("data.notifications[1].body.name")
-				.value(equalTo(memberNotification2.getBody().getName())))
+				.value(equalTo(notificationDto2.getBody().getName())))
 			.andExpect(jsonPath("data.notifications[1].body.target")
-				.value(equalTo(memberNotification2.getBody().getTarget())))
+				.value(equalTo(notificationDto2.getBody().getTarget())))
 			.andExpect(jsonPath("data.notifications[1].timestamp").isNotEmpty())
 			.andExpect(jsonPath("data.notifications[1].isRead")
-				.value(equalTo(memberNotification2.getIsRead())))
+				.value(equalTo(notificationDto2.getIsRead())))
 			.andExpect(jsonPath("data.notifications[1].type")
-				.value(equalTo(memberNotification2.getType())))
+				.value(equalTo(notificationDto2.getType())))
 			.andExpect(jsonPath("data.notifications[1].referenceId")
-				.value(equalTo(memberNotification2.getReferenceId())))
+				.value(equalTo(notificationDto2.getReferenceId())))
 			.andDo(
 				document(
 					"member_notification-search",

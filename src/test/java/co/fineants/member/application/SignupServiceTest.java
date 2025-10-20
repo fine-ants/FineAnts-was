@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -24,14 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -41,6 +41,8 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 
 class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
@@ -62,20 +64,18 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Autowired
 	private MemberPasswordEncoder memberPasswordEncoder;
 
+	@Autowired
+	private WriteProfileImageFileService writeProfileImageFileService;
+
+	@Autowired
+	private RoleRepository roleRepository;
+
 	@NotNull
 	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
 		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
-	}
-
-	private static Stream<Arguments> invalidProfileFileSource() {
-		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
-		return Stream.of(
-			Arguments.of((Object)null), // null 파일
-			Arguments.of(emptyFile)
-		);
 	}
 
 	private static Stream<Arguments> invalidProfileUrlSource() {
@@ -89,6 +89,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		);
 	}
 
+	@Transactional
 	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
 	@Test
 	void should_saveMember_whenSignup() {
@@ -100,13 +101,19 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 		// when
 		service.signup(member);
 		// then
-		int memberSize = memberRepository.findAll().size();
-		assertThat(memberSize).isEqualTo(1);
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		assertThat(findMember).isNotNull();
+		assertThat(findMember.getRoleIds())
+			.hasSize(1)
+			.containsExactlyInAnyOrder(userRole.getId());
 	}
 
 	@DisplayName("사용자는 이미 존재하는 닉네임을 가지고 회원가입 할 수 없다.")
@@ -120,7 +127,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 		memberRepository.save(member);
 
 		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
@@ -129,7 +138,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, memberPassword,
 			null);
 
-		Member otherMember = Member.createMember(otherProfile, notificationPreference);
+		Member otherMember = Member.createMember(otherProfile, notificationPreference, roleIds);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(otherMember));
 		// then
@@ -137,23 +146,12 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
 
-	@DisplayName("파일이 없는 경우에는 비어있는 Optional을 반환한다")
-	@ParameterizedTest
-	@MethodSource(value = "invalidProfileFileSource")
-	void givenEmptyFile_whenUpload_thenReturnEmptyOfOptional(MultipartFile file) {
-		// given
-		// when
-		Optional<String> profileUrl = service.upload(file);
-		// then
-		assertThat(profileUrl).isEmpty();
-	}
-
 	@DisplayName("업로드된 파일의 URL이 주어지고 프로필 사진을 제거하면 S3에 해당 파일이 삭제된다")
 	@Test
 	void should_deleteProfileImage_whenUploadAndDelete() {
 		// given
 		MultipartFile profileFile = createProfileFile();
-		String profileUrl = service.upload(profileFile).orElseThrow();
+		String profileUrl = writeProfileImageFileService.upload(profileFile);
 		String key = extractKeyFromUrl(profileUrl);
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
 		// when
@@ -205,10 +203,12 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			"ants1234@"
 		);
 		MultipartFile profileImageFile = createProfileFile();
-		String profileUrl = service.upload(profileImageFile).orElse(null);
+		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 		// when
 		service.signup(member);
@@ -232,7 +232,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		String profileUrl = null;
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 		// when
 		service.signup(member);
 
@@ -258,7 +260,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				service.signup(member);
@@ -277,7 +281,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				Throwable throwable = catchThrowable(() -> service.signup(member));
@@ -304,7 +310,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				service.signup(member);
@@ -323,7 +331,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				Throwable throwable = catchThrowable(() -> service.signup(member));
@@ -332,17 +342,5 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					.isInstanceOf(EmailDuplicateException.class);
 			})
 		);
-	}
-
-	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 이미지를 업로드할 수 없다")
-	@Test
-	void upload_whenOverProfileImageFile_thenResponse400Error() {
-		// given
-		MultipartFile profileFile = TestDataFactory.createOverSizeMockProfileFile(); // 3MB
-		// when
-		Throwable throwable = catchThrowable(() -> service.upload(profileFile));
-		// then
-		assertThat(throwable)
-			.isInstanceOf(MemberProfileUploadException.class);
 	}
 }

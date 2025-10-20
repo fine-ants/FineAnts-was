@@ -1,8 +1,7 @@
-package co.fineants.member.application;
+package co.fineants.api.domain.notification.service;
 
 import java.util.List;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,34 +11,20 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
-import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+// 입력 받은 알림들 중에서 안 읽은 알람들을 읽음 처리하고 읽은 알림의 등록번호 리스트를 반환
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class MemberNotificationService {
+@Slf4j
+public class MarkNotificationsAsRead {
 
 	private final NotificationRepository notificationRepository;
 
-	@Secured("ROLE_USER")
-	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	public MemberNotificationResponse searchMemberNotifications(@ResourceId Long memberId) {
-		List<Notification> notifications = notificationRepository.findAllByMemberId(memberId);
-		return MemberNotificationResponse.create(
-			notifications.stream()
-				.map(MemberNotification::from)
-				.toList());
-	}
-
-	// 입력 받은 알림들 중에서 안 읽은 알람들을 읽음 처리하고 읽은 알림의 등록번호 리스트를 반환
 	@Transactional
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	@Secured("ROLE_USER")
-	public List<Long> fetchMemberNotifications(@ResourceId Long memberId, List<Long> notificationIds) {
+	public List<Long> markBy(@ResourceId Long memberId, List<Long> notificationIds) {
 		verifyExistNotifications(memberId, notificationIds);
 
 		// 읽지 않은 알림 조회
@@ -50,7 +35,7 @@ public class MemberNotificationService {
 		log.info("읽지 않은 알림 목록 개수 : {}개", notifications.size());
 
 		// 알림 읽기 처리
-		notifications.forEach(Notification::read);
+		notifications.forEach(Notification::markAsRead);
 
 		// 읽은 알림들의 등록번호 반환
 		return notifications.stream()
@@ -64,18 +49,5 @@ public class MemberNotificationService {
 		if (notificationIds.size() != findNotifications.size()) {
 			throw new NotificationNotFoundException(notificationIds.toString());
 		}
-	}
-
-	@Transactional
-	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	@Secured("ROLE_USER")
-	public List<Long> deleteMemberNotifications(@ResourceId Long memberId, List<Long> notificationIds) {
-		verifyExistNotifications(memberId, notificationIds);
-
-		// 알림 삭제 처리
-		notificationRepository.deleteAllById(notificationIds);
-
-		// 삭제한 알림들의 등록번호를 반환
-		return notificationIds;
 	}
 }

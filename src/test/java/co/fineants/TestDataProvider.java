@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.provider.Arguments;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
 
@@ -237,6 +239,14 @@ public class TestDataProvider {
 			Arguments.of("Password!", "숫자 없음"),
 			Arguments.of("1234567!", "영문자 없음, 길이 < 8"),
 			Arguments.of("Passw0rd😊!", "허용되지 않은 이모지 포함")
+		);
+	}
+
+	public static Stream<Arguments> invalidProfileFileSource() {
+		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
+		return Stream.of(
+			Arguments.of((Object)null, "null 파일"),
+			Arguments.of(emptyFile, "빈 파일")
 		);
 	}
 }

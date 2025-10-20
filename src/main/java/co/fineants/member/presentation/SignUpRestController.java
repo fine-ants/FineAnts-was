@@ -2,6 +2,8 @@ package co.fineants.member.presentation;
 
 import static org.springframework.http.HttpStatus.*;
 
+import java.util.Set;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -30,6 +33,8 @@ import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
 import co.fineants.member.presentation.dto.request.VerifyCodeRequest;
 import co.fineants.member.presentation.dto.request.VerifyEmailRequest;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +50,8 @@ public class SignUpRestController {
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
+	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
+	private final FindRole findRole;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -55,14 +62,15 @@ public class SignUpRestController {
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
 		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
-		String profileUrl = signupService.upload(profileImageFile).orElse(null);
+		String profileUrl = uploadMemberProfileImageFile.upload(profileImageFile).orElse(null);
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = findRole.findBy("ROLE_USER");
+		Member member = Member.createMember(profile, notificationPreference, Set.of(userRole.getId()));
 
 		try {
 			signupService.signup(member);

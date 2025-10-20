@@ -43,13 +43,20 @@ public class Member extends BaseEntity {
 	@Column(name = "role_id", nullable = false)
 	private final Set<Long> roleIds = new HashSet<>();
 
+	// TODO: 해당 메서드는 삭제할 예정  
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference) {
-		return new Member(profile, notificationPreference);
+		return createMember(profile, notificationPreference, new HashSet<>());
 	}
 
-	private Member(MemberProfile profile, NotificationPreference notificationPreference) {
+	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference,
+		Set<Long> roleIds) {
+		return new Member(profile, notificationPreference, roleIds);
+	}
+
+	private Member(MemberProfile profile, NotificationPreference notificationPreference, Set<Long> roleIds) {
 		setMemberProfile(profile);
 		setNotificationPreference(notificationPreference);
+		setRoleIds(roleIds);
 	}
 
 	private void setMemberProfile(MemberProfile profile) {
@@ -61,6 +68,11 @@ public class Member extends BaseEntity {
 
 	public void setNotificationPreference(NotificationPreference notificationPreference) {
 		this.notificationPreference = notificationPreference;
+	}
+
+	private void setRoleIds(Set<Long> roleIds) {
+		this.roleIds.clear();
+		this.roleIds.addAll(roleIds);
 	}
 
 	//** 연관 관계 엔티티 메서드 시작 **//
