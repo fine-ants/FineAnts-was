@@ -3,7 +3,6 @@ package co.fineants.api.global.config;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
@@ -15,7 +14,6 @@ import co.fineants.api.global.security.ajax.config.ActuatorProperties;
 import co.fineants.member.config.NicknameProperties;
 
 @EnableAspectJAutoProxy
-@EnableAsync
 @EnableConfigurationProperties(value = {
 	PortfolioProperties.class,
 	KisProperties.class,

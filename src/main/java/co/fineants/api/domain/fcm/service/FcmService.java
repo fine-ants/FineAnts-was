@@ -3,7 +3,6 @@ package co.fineants.api.domain.fcm.service;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,6 @@ public class FcmService {
 	private final FirebaseMessaging firebaseMessaging;
 
 	@Transactional
-	@Secured("ROLE_USER")
 	public FcmRegisterResponse createToken(FcmRegisterRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		verifyFcmToken(request.getFcmToken());
