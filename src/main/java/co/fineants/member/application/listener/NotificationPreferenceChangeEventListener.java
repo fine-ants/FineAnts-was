@@ -23,7 +23,6 @@ public class NotificationPreferenceChangeEventListener {
 	private final FcmService fcmService;
 
 	// 회원 계정의 전체 알림 설정이 모두 비활성화인 경우 FCM 토큰 삭제
-	// TODO: 비동기로 실행시 인증정보 null 문제 해결  
 	@TransactionalEventListener
 	@Async
 	public void on(NotificationPreferenceChangeEvent event) {
