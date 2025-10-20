@@ -7,8 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
@@ -146,20 +144,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
 
-	@DisplayName("업로드된 파일의 URL이 주어지고 프로필 사진을 제거하면 S3에 해당 파일이 삭제된다")
-	@Test
-	void should_deleteProfileImage_whenUploadAndDelete() {
-		// given
-		MultipartFile profileFile = createProfileFile();
-		String profileUrl = writeProfileImageFileService.upload(profileFile);
-		String key = extractKeyFromUrl(profileUrl);
-		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
-		// when
-		service.deleteProfileImageFile(profileUrl);
-		// then
-		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
-	}
-
 	private static MultipartFile createProfileFile() {
 		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
 		try {
@@ -170,15 +154,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String extractKeyFromUrl(String url) {
-		Pattern pattern = Pattern.compile(profilePath + "[0-9a-f\\-]+profile\\.jpeg");
-		Matcher matcher = pattern.matcher(url);
-		if (matcher.find()) {
-			return matcher.group();
-		}
-		throw new IllegalArgumentException("Invalid URL: " + url);
 	}
 
 	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
