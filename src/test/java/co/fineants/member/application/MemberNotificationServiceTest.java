@@ -50,23 +50,6 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("사용자는 다른 사용자의 알림 메시지들을 조회할 수 없습니다.")
-	@Test
-	void searchMemberNotifications_whenOtherMemberFetch_thenThrowException() {
-		// given
-		Member member = memberRepository.save(createMember());
-		Member hacker = memberRepository.save(createMember("hacker"));
-		notificationRepository.saveAll(createNotifications(member));
-
-		setAuthentication(hacker);
-		// when
-		Throwable throwable = catchThrowable(() -> notificationService.searchMemberNotifications(member.getId()));
-
-		// then
-		assertThat(throwable)
-			.isInstanceOf(ForbiddenException.class);
-	}
-
 	@DisplayName("사용자는 알림 모두 읽습니다")
 	@Test
 	void fetchMemberNotifications() {

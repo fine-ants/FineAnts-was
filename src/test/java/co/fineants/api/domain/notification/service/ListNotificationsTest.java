@@ -17,6 +17,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
+import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.response.ListNotificationResponse;
@@ -82,6 +83,22 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 					.referenceId(notifications.get(0).getReferenceId())
 					.build()
 			);
+	}
+
+	@DisplayName("사용자는 다른 사용자의 알림 메시지들을 조회할 수 없습니다.")
+	@Test
+	void listNotifications_whenOtherMemberFetch_thenThrowException() {
+		// given
+		Member hacker = memberRepository.save(createMember("hacker"));
+		notificationRepository.saveAll(TestDataFactory.createNotifications(member));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> listNotifications.listNotifications(member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class);
 	}
 
 }
