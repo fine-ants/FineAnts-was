@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.NotificationBody;
@@ -33,24 +34,6 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 	private NotificationRepository notificationRepository;
 	private Member member;
 
-	private List<Notification> createNotifications(Member member) {
-		return List.of(
-			Notification.stockTargetPriceNotification(
-				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
-				Money.won(60000L),
-				1L
-			),
-			Notification.portfolioNotification(
-				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
-				1L
-			),
-			Notification.portfolioNotification(
-				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
-				2L
-			)
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
 		member = memberRepository.save(createMember());
@@ -61,13 +44,13 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 	@Test
 	void listNotifications() {
 		// given
-		List<Notification> notifications = notificationRepository.saveAll(createNotifications(member));
+		List<Notification> notifications = notificationRepository.saveAll(TestDataFactory.createNotifications(member));
 		// when
 		ListNotificationResponse response = listNotifications.listNotifications(member.getId());
 
 		// then
 		assertThat(response)
-			.extracting("notifications")
+			.extracting(ListNotificationResponse::getNotifications)
 			.asList()
 			.hasSize(3)
 			.containsExactly(
