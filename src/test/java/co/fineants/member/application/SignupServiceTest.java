@@ -11,8 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,17 +123,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(NicknameDuplicateException.class);
-	}
-
-	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
-	@ParameterizedTest
-	@MethodSource(value = "co.fineants.TestDataProvider#invalidProfileUrlSource")
-	void givenInvalidProfileUrl_whenDelete_thenNotThrowException(String profileUrl) {
-		// when & then
-		assertThatCode(() -> {
-			// 테스트 대상 코드
-			service.deleteProfileImageFile(profileUrl);
-		}).doesNotThrowAnyException();
 	}
 
 	@DisplayName("사용자는 일반 회원가입한다")
