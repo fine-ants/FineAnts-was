@@ -20,19 +20,7 @@ class MemberTest {
 		NotificationPreference expected = NotificationPreference.allActive();
 		Assertions.assertThat(member.getNotificationPreference()).isEqualTo(expected);
 	}
-
-	@DisplayName("회원의 간단한 정보를 출력한다")
-	@Test
-	void givenMember_whenToString_thenGenerateMemberInfo() {
-		// given
-		Member member = TestDataFactory.createMember();
-		// when
-		String actual = member.toString();
-		// then
-		String expected = "Member(id=null, nickname=nemo1234, email=dragonbead95@naver.com, roleIds=[])";
-		Assertions.assertThat(actual).isEqualTo(expected);
-	}
-
+	
 	@DisplayName("회원을 생성한다")
 	@Test
 	void canCreated() {

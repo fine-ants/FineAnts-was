@@ -89,7 +89,7 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		Set<Long> roleIds = Set.of(TestDataFactory.userRoleId); // ROLE_USER
+		Set<Long> roleIds = Set.of(TestDataFactory.userRoleId);
 		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
