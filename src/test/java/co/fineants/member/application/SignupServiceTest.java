@@ -70,14 +70,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
 	}
 
-	private static Stream<Arguments> invalidProfileFileSource() {
-		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
-		return Stream.of(
-			Arguments.of((Object)null), // null 파일
-			Arguments.of(emptyFile)
-		);
-	}
-
 	private static Stream<Arguments> invalidProfileUrlSource() {
 		return Stream.of(
 			Arguments.of((String)null), // null URL
@@ -139,7 +131,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@DisplayName("파일이 없는 경우에는 비어있는 Optional을 반환한다")
 	@ParameterizedTest
-	@MethodSource(value = "invalidProfileFileSource")
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidProfileFileSource")
 	void givenEmptyFile_whenUpload_thenReturnEmptyOfOptional(MultipartFile file) {
 		// given
 		// when
