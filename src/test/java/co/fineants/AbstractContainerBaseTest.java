@@ -206,10 +206,8 @@ public abstract class AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		Member member = Member.createMember(profile, notificationPreference);
-		// 역할 설정
-		member.addRoleId(userRole.getId());
-		return member;
+		Set<Long> roleIds = Set.of(userRole.getId());
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	protected Member createOauthMember() {
@@ -221,11 +219,9 @@ public abstract class AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, "google",
 			"profileUrl1");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Set<Long> roleIds = Set.of(userRole.getId());
 		// 회원 생성
-		Member member = Member.createMember(profile, notificationPreference);
-		// 역할 설정
-		member.addRoleId(userRole.getId());
-		return member;
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	protected NotificationPreference createNotificationPreference(boolean browserNotify, boolean targetGainNotify,

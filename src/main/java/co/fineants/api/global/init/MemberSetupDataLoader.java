@@ -1,5 +1,7 @@
 package co.fineants.api.global.init;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import co.fineants.member.domain.MemberProfile;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
+import co.fineants.role.application.FindRole;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class MemberSetupDataLoader {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
 	private final MemberPasswordEncoder memberPasswordEncoder;
+	private final FindRole findRole;
 
 	@Transactional
 	public void setupMembers(MemberProperties memberProperties) {
@@ -55,7 +59,9 @@ public class MemberSetupDataLoader {
 		String profileUrl = null;
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
+		Role role = findRole.findBy(properties.getRoleName());
+		Set<Long> roleIds = Set.of(role.getId());
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 }

@@ -3,6 +3,7 @@ package co.fineants.api.global.security.oauth.dto;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import co.fineants.member.application.NicknameGenerator;
 import co.fineants.member.domain.Member;
@@ -88,11 +89,12 @@ public class OAuthAttribute {
 		}
 	}
 
-	public Member toEntity(NicknameGenerator generator) {
+	public Member toEntity(NicknameGenerator generator, Long userRoleId) {
 		MemberEmail memberEmail = new MemberEmail(this.email);
 		Nickname nickname = generator.generate();
 		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, provider, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		return Member.createMember(profile, notificationPreference);
+		Set<Long> roleIds = Set.of(userRoleId);
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 }

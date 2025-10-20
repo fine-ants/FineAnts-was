@@ -28,6 +28,7 @@ import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.presentation.SignUpRestController;
+import co.fineants.role.application.FindRole;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
@@ -38,8 +39,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
 		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
+		FindRole findRole = mock(FindRole.class);
 		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
-			memberPasswordEncoder, uploadMemberProfileImageFile);
+			memberPasswordEncoder, uploadMemberProfileImageFile, findRole);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

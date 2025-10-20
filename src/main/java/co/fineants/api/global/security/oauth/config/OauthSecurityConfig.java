@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import co.fineants.member.application.NicknameGenerator;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.CustomAccessDeniedHandler;
@@ -26,8 +25,10 @@ import co.fineants.api.global.security.oauth.handler.OAuth2UserMapper;
 import co.fineants.api.global.security.oauth.service.CustomOAuth2UserService;
 import co.fineants.api.global.security.oauth.service.CustomOidcUserService;
 import co.fineants.api.global.security.oauth.service.TokenService;
+import co.fineants.member.application.NicknameGenerator;
 import co.fineants.member.domain.JwtRepository;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.application.FindRole;
 import co.fineants.role.domain.RoleRepository;
 
 @Configuration
@@ -44,6 +45,7 @@ public class OauthSecurityConfig {
 	private final String loginSuccessUri;
 	private final TokenFactory tokenFactory;
 	private final CorsConfiguration corsConfiguration;
+	private final FindRole findRole;
 
 	public OauthSecurityConfig(MemberRepository memberRepository,
 		TokenService tokenService,
@@ -52,7 +54,8 @@ public class OauthSecurityConfig {
 		CommonLoginAuthenticationEntryPoint commonLoginAuthenticationEntryPoint,
 		JwtRepository jwtRepository,
 		@Value("${oauth2.login-success-uri}") String loginSuccessUri,
-		TokenFactory tokenFactory, CorsConfiguration corsConfiguration) {
+		TokenFactory tokenFactory, CorsConfiguration corsConfiguration,
+		FindRole findRole) {
 		this.memberRepository = memberRepository;
 		this.tokenService = tokenService;
 		this.nicknameGenerator = nicknameGenerator;
@@ -63,6 +66,7 @@ public class OauthSecurityConfig {
 		this.loginSuccessUri = loginSuccessUri;
 		this.tokenFactory = tokenFactory;
 		this.corsConfiguration = corsConfiguration;
+		this.findRole = findRole;
 	}
 
 	@Bean
@@ -114,13 +118,13 @@ public class OauthSecurityConfig {
 	@Bean
 	public CustomOAuth2UserService customOAuth2UserService() {
 		return new CustomOAuth2UserService(memberRepository, nicknameGenerator,
-			roleRepository);
+			roleRepository, findRole);
 	}
 
 	@Bean
 	public CustomOidcUserService customOidcUserService() {
 		return new CustomOidcUserService(memberRepository, nicknameGenerator,
-			roleRepository);
+			roleRepository, findRole);
 	}
 
 	@Bean

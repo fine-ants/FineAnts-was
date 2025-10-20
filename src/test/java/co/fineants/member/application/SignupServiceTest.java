@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -100,9 +101,10 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+
 		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
-		member.addRoleId(userRole.getId());
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 		// when
 		service.signup(member);
@@ -125,7 +127,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
 			null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 		memberRepository.save(member);
 
 		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
@@ -134,7 +138,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, memberPassword,
 			null);
 
-		Member otherMember = Member.createMember(otherProfile, notificationPreference);
+		Member otherMember = Member.createMember(otherProfile, notificationPreference, roleIds);
 		// when
 		Throwable throwable = catchThrowable(() -> service.signup(otherMember));
 		// then
@@ -202,7 +206,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 		// when
 		service.signup(member);
@@ -226,7 +232,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		String profileUrl = null;
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
 		// when
 		service.signup(member);
 
@@ -252,7 +260,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				service.signup(member);
@@ -271,7 +281,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				Throwable throwable = catchThrowable(() -> service.signup(member));
@@ -298,7 +310,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				service.signup(member);
@@ -317,7 +331,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 				MemberProfile profile = createMemberProfile(request, null);
 				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-				Member member = Member.createMember(profile, notificationPreference);
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
 
 				// when
 				Throwable throwable = catchThrowable(() -> service.signup(member));
