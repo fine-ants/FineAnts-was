@@ -41,8 +41,8 @@ public class RoleJpaRepository implements RoleRepository {
 	}
 
 	@Override
-	public void save(Role role) {
-		repository.save(role);
+	public Role save(Role role) {
+		return repository.save(role);
 	}
 
 	@Override
