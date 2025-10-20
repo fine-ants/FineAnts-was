@@ -25,6 +25,7 @@ import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.presentation.SignUpRestController;
 
@@ -36,8 +37,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
 		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
+		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
 		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
-			memberPasswordEncoder);
+			memberPasswordEncoder, uploadMemberProfileImageFile);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
