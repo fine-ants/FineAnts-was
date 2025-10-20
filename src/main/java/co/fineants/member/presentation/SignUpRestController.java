@@ -19,6 +19,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
@@ -51,6 +52,7 @@ public class SignUpRestController {
 	private final SignupValidatorService signupValidatorService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
+	private final DeleteProfileImageFileService deleteProfileImageFileService;
 	private final FindRole findRole;
 
 	@ResponseStatus(CREATED)
@@ -76,7 +78,7 @@ public class SignUpRestController {
 			signupService.signup(member);
 		} catch (BusinessException exception) {
 			log.warn("BusinessException occurred during signup: {}", exception.getMessage(), exception);
-			signupService.deleteProfileImageFile(profileUrl);
+			deleteProfileImageFileService.delete(profileUrl);
 			throw new SignupException(exception);
 		}
 

@@ -23,6 +23,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
@@ -45,8 +46,9 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		Role role = new Role(1L, "ROLE_USER", "사용자");
 		BDDMockito.given(findRole.findBy("ROLE_USER"))
 			.willReturn(role);
+		DeleteProfileImageFileService deleteProfileImageFileService = mock(DeleteProfileImageFileService.class);
 		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
-			memberPasswordEncoder, uploadMemberProfileImageFile, findRole);
+			memberPasswordEncoder, uploadMemberProfileImageFile, deleteProfileImageFileService, findRole);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
