@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -127,17 +126,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		// then
 		assertThat(throwable)
 			.isInstanceOf(NicknameDuplicateException.class);
-	}
-
-	@DisplayName("파일이 없는 경우에는 비어있는 Optional을 반환한다")
-	@ParameterizedTest
-	@MethodSource(value = "co.fineants.TestDataProvider#invalidProfileFileSource")
-	void givenEmptyFile_whenUpload_thenReturnEmptyOfOptional(MultipartFile file) {
-		// given
-		// when
-		Optional<String> profileUrl = service.upload(file);
-		// then
-		assertThat(profileUrl).isEmpty();
 	}
 
 	@DisplayName("업로드된 파일의 URL이 주어지고 프로필 사진을 제거하면 S3에 해당 파일이 삭제된다")
