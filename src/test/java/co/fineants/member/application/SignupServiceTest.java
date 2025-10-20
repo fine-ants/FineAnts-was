@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -39,6 +40,8 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.presentation.dto.request.SignUpRequest;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 
 class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
@@ -63,6 +66,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	@Autowired
 	private WriteProfileImageFileService writeProfileImageFileService;
 
+	@Autowired
+	private RoleRepository roleRepository;
+
 	@NotNull
 	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
@@ -82,6 +88,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		);
 	}
 
+	@Transactional
 	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
 	@Test
 	void should_saveMember_whenSignup() {
@@ -94,12 +101,17 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, null);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		member.addRoleId(userRole.getId());
 
 		// when
 		service.signup(member);
 		// then
-		int memberSize = memberRepository.findAll().size();
-		assertThat(memberSize).isEqualTo(1);
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		assertThat(findMember).isNotNull();
+		assertThat(findMember.getRoleIds())
+			.hasSize(1)
+			.containsExactlyInAnyOrder(userRole.getId());
 	}
 
 	@DisplayName("사용자는 이미 존재하는 닉네임을 가지고 회원가입 할 수 없다.")
