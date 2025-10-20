@@ -14,6 +14,7 @@ import co.fineants.api.global.errors.exception.business.NotificationNotFoundExce
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// 입력 받은 알림들 중에서 안 읽은 알람들을 읽음 처리하고 읽은 알림의 등록번호 리스트를 반환
 @Service
 @RequiredArgsConstructor
 @Slf4j
