@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.fineants.api.domain.notification.service.ListNotifications;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.MemberNotificationService;
@@ -31,12 +32,13 @@ public class MemberNotificationRestController {
 
 	private final MemberNotificationService notificationService;
 	private final UpdateNotificationPreference preferenceService;
+	private final ListNotifications listNotifications;
 
 	// 회원의 알림 목록 조회
 	@GetMapping("/notifications")
 	public ApiResponse<ListNotificationResponse> fetchNotifications(@PathVariable Long memberId) {
 		return ApiResponse.success(MemberSuccessCode.OK_READ_NOTIFICATIONS,
-			notificationService.searchMemberNotifications(memberId));
+			listNotifications.byId(memberId));
 	}
 
 	// 회원 알림 설정 수정

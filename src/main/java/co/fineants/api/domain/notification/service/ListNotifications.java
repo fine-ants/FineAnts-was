@@ -21,7 +21,7 @@ public class ListNotifications {
 
 	@Transactional(readOnly = true)
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	public ListNotificationResponse listNotifications(@ResourceId Long memberId) {
+	public ListNotificationResponse byId(@ResourceId Long memberId) {
 		List<NotificationDto> notifications = repository.findAllByMemberId(memberId).stream()
 			.map(NotificationDto::from)
 			.toList();

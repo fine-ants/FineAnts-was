@@ -171,7 +171,7 @@ class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("data.stocks[0].lastUpdated").isNotEmpty())
 			.andDo(
 				document(
-					"stock_target_price-listNotifications-search",
+					"stock_target_price-list-search",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					responseFields(

@@ -22,6 +22,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.notification.domain.entity.PortfolioNotification;
 import co.fineants.api.domain.notification.domain.entity.StockTargetPriceNotification;
+import co.fineants.api.domain.notification.service.ListNotifications;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
@@ -39,9 +40,11 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 	private final UpdateNotificationPreference preferenceService = Mockito.mock(
 		UpdateNotificationPreference.class);
 
+	private final ListNotifications listNotifications = Mockito.mock(ListNotifications.class);
+
 	@Override
 	protected Object initController() {
-		return new MemberNotificationRestController(service, preferenceService);
+		return new MemberNotificationRestController(service, preferenceService, listNotifications);
 	}
 
 	@DisplayName("회원 알림 목록 조회 API")
@@ -63,7 +66,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 			targetPriceNotification, member);
 		NotificationDto notificationDto2 = NotificationDto.from(stockTargetPriceNotification);
 
-		given(service.searchMemberNotifications(memberId))
+		given(listNotifications.byId(memberId))
 			.willReturn(new ListNotificationResponse(List.of(
 				notificationDto,
 				notificationDto2

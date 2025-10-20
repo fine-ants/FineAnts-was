@@ -43,11 +43,11 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 회원 알림 목록을 조회합니다")
 	@Test
-	void listNotifications() {
+	void byId() {
 		// given
 		List<Notification> notifications = notificationRepository.saveAll(TestDataFactory.createNotifications(member));
 		// when
-		ListNotificationResponse response = listNotifications.listNotifications(member.getId());
+		ListNotificationResponse response = listNotifications.byId(member.getId());
 
 		// then
 		assertThat(response)
@@ -87,14 +87,14 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 다른 사용자의 알림 메시지들을 조회할 수 없습니다.")
 	@Test
-	void listNotifications_whenOtherMemberFetch_thenThrowException() {
+	void byId_whenOtherMemberFetch_thenThrowException() {
 		// given
 		Member hacker = memberRepository.save(createMember("hacker"));
 		notificationRepository.saveAll(TestDataFactory.createNotifications(member));
 
 		setAuthentication(hacker);
 		// when
-		Throwable throwable = catchThrowable(() -> listNotifications.listNotifications(member.getId()));
+		Throwable throwable = catchThrowable(() -> listNotifications.byId(member.getId()));
 
 		// then
 		assertThat(throwable)

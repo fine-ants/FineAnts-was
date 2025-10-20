@@ -142,7 +142,7 @@ public class KisService {
 	public Flux<KisDividend> fetchDividend(String tickerSymbol) {
 		return kisClient.fetchDividendThisYear(tickerSymbol)
 			.map(KisDividendWrapper::getKisDividends)
-			.doOnSuccess(response -> log.debug("fetchDividend listNotifications is {}", response.size()))
+			.doOnSuccess(response -> log.debug("fetchDividend response size is {}", response.size()))
 			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
 			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
 			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
