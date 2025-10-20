@@ -4,7 +4,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +28,17 @@ class AmazonS3DeleteProfileImageFileServiceTest extends AbstractContainerBaseTes
 	@Autowired
 	private RemoteFileFetcher fetcher;
 
+	private String extractPathFromUrl(String url) {
+		try {
+			URL u = new URL(url);
+			String path = u.getPath(); // -> "/fineants2024/local/profile/46e5f63c-074a-467c-bccb-06ef9968290eprofile.jpeg"
+			return path.substring(
+				"/fineants2024/".length()); // -> "local/profile/46e5f63c-074a-467c-bccb-06ef9968290eprofile.jpeg"
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Invalid URL: " + url, e);
+		}
+	}
+
 	@Test
 	void canCreated() {
 		Assertions.assertThat(service).isNotNull();
@@ -43,14 +57,11 @@ class AmazonS3DeleteProfileImageFileServiceTest extends AbstractContainerBaseTes
 		Assertions.assertThat(fetcher.read(path)).isEmpty();
 	}
 
-	private String extractPathFromUrl(String url) {
-		try {
-			URL u = new URL(url);
-			String path = u.getPath(); // -> "/fineants2024/local/profile/46e5f63c-074a-467c-bccb-06ef9968290eprofile.jpeg"
-			return path.substring(
-				"/fineants2024/".length()); // -> "local/profile/46e5f63c-074a-467c-bccb-06ef9968290eprofile.jpeg"
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Invalid URL: " + url, e);
-		}
+	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidProfileUrlSource")
+	void delete_whenInvalidUrl_thenNoThrowException(String url) {
+		Assertions.assertThatCode(() -> service.delete(url))
+			.doesNotThrowAnyException();
 	}
 }
