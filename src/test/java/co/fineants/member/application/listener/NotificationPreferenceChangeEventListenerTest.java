@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -50,12 +51,19 @@ class NotificationPreferenceChangeEventListenerTest extends AbstractContainerBas
 
 	@Test
 	void on_whenNotificationPreferenceIsAllInActive_thenDeleteFcmToken() {
+		// given
 		FcmToken fcmToken = fcmRepository.save(FcmToken.create(member, "fcmToken"));
 		NotificationPreferenceChangeEvent event = new NotificationPreferenceChangeEvent(
 			member.getId(), fcmToken.getId());
 
+		// when
 		listener.on(event);
 
-		Assertions.assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty();
+		// then
+		Awaitility.await()
+			.atMost(5L, java.util.concurrent.TimeUnit.SECONDS)
+			.untilAsserted(() ->
+				Assertions.assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty()
+			);
 	}
 }
