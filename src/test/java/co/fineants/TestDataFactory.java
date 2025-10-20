@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -52,6 +53,7 @@ public final class TestDataFactory {
 
 	private static final ExDividendDateCalculator exDividendDateCalculator = new FileExDividendDateCalculator(
 		new FileHolidayRepository(new HolidayFileReader()));
+	public static Long userRoleId = 1L;
 
 	private TestDataFactory() {
 
@@ -87,7 +89,8 @@ public final class TestDataFactory {
 		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, memberPassword,
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
+		Set<Long> roleIds = Set.of(TestDataFactory.userRoleId); // ROLE_USER
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	public static Portfolio createPortfolio(Member member) {
@@ -399,7 +402,8 @@ public final class TestDataFactory {
 		String profileUrl = "profileUrl";
 		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, memberNickname, "google", profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
+		Set<Long> roleIds = Set.of(1L); // ROLE_USER
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	public static List<Notification> createNotifications(Member member) {
