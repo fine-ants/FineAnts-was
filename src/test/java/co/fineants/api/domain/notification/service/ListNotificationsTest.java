@@ -20,7 +20,7 @@ import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.presentation.dto.response.ListNotificationResponse;
-import co.fineants.member.presentation.dto.response.MemberNotification;
+import co.fineants.member.presentation.dto.response.NotificationDto;
 
 class ListNotificationsTest extends AbstractContainerBaseTest {
 
@@ -54,7 +54,7 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 			.asList()
 			.hasSize(3)
 			.containsExactly(
-				MemberNotification.builder()
+				NotificationDto.builder()
 					.notificationId(notifications.get(2).getId())
 					.title("포트폴리오")
 					.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
@@ -63,7 +63,7 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 					.type(PORTFOLIO_MAX_LOSS.getCategory())
 					.referenceId(notifications.get(2).getReferenceId())
 					.build(),
-				MemberNotification.builder()
+				NotificationDto.builder()
 					.notificationId(notifications.get(1).getId())
 					.title("포트폴리오")
 					.body(NotificationBody.portfolio("포트폴리오1", PORTFOLIO_TARGET_GAIN))
@@ -72,7 +72,7 @@ class ListNotificationsTest extends AbstractContainerBaseTest {
 					.type(PORTFOLIO_TARGET_GAIN.getCategory())
 					.referenceId(notifications.get(1).getReferenceId())
 					.build(),
-				MemberNotification.builder()
+				NotificationDto.builder()
 					.notificationId(notifications.get(0).getId())
 					.title("지정가")
 					.body(NotificationBody.stock("삼성전자", Money.won(60000L)))

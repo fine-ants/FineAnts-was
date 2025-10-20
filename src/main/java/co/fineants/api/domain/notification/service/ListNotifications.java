@@ -10,7 +10,7 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.member.presentation.dto.response.ListNotificationResponse;
-import co.fineants.member.presentation.dto.response.MemberNotification;
+import co.fineants.member.presentation.dto.response.NotificationDto;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,8 +22,8 @@ public class ListNotifications {
 	@Transactional(readOnly = true)
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
 	public ListNotificationResponse listNotifications(@ResourceId Long memberId) {
-		List<MemberNotification> notifications = repository.findAllByMemberId(memberId).stream()
-			.map(MemberNotification::from)
+		List<NotificationDto> notifications = repository.findAllByMemberId(memberId).stream()
+			.map(NotificationDto::from)
 			.toList();
 		return new ListNotificationResponse(notifications);
 	}

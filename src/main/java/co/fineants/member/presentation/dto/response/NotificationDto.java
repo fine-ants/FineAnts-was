@@ -18,7 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "notificationId")
 @ToString
 @Builder
-public class MemberNotification {
+public class NotificationDto {
 	private Long notificationId;
 	private String title;
 	private NotificationBody body;
@@ -27,8 +27,8 @@ public class MemberNotification {
 	private String type;
 	private String referenceId;
 
-	public static MemberNotification from(Notification notification) {
-		return MemberNotification.builder()
+	public static NotificationDto from(Notification notification) {
+		return NotificationDto.builder()
 			.notificationId(notification.getId())
 			.title(notification.getTitle())
 			.body(notification.getBody())

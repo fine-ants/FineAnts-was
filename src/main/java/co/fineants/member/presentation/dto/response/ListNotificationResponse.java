@@ -13,5 +13,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ListNotificationResponse {
-	private List<MemberNotification> notifications;
+	private List<NotificationDto> notifications;
 }
