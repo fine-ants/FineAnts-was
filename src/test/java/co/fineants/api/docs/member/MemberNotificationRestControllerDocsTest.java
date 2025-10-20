@@ -30,8 +30,8 @@ import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.domain.Member;
 import co.fineants.member.presentation.MemberNotificationRestController;
+import co.fineants.member.presentation.dto.response.ListNotificationResponse;
 import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 
 class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 
@@ -64,7 +64,7 @@ class MemberNotificationRestControllerDocsTest extends RestDocsSupport {
 		MemberNotification memberNotification2 = MemberNotification.from(stockTargetPriceNotification);
 
 		given(service.searchMemberNotifications(memberId))
-			.willReturn(MemberNotificationResponse.create(List.of(
+			.willReturn(new ListNotificationResponse(List.of(
 				memberNotification,
 				memberNotification2
 			)));

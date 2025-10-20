@@ -54,7 +54,7 @@ public class AjaxAuthenticationToken extends AbstractAuthenticationToken {
 	@Override
 	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
 		Assert.isTrue(!isAuthenticated,
-			"Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+			"Cannot set this token to trusted - use constructor which takes a GrantedAuthority listNotifications instead");
 		super.setAuthenticated(false);
 	}
 

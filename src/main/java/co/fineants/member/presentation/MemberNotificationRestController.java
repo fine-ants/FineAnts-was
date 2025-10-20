@@ -18,7 +18,7 @@ import co.fineants.member.application.UpdateNotificationPreference;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllDeleteRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationAllReadRequest;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
+import co.fineants.member.presentation.dto.response.ListNotificationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class MemberNotificationRestController {
 
 	// 회원의 알림 목록 조회
 	@GetMapping("/notifications")
-	public ApiResponse<MemberNotificationResponse> fetchNotifications(@PathVariable Long memberId) {
+	public ApiResponse<ListNotificationResponse> fetchNotifications(@PathVariable Long memberId) {
 		return ApiResponse.success(MemberSuccessCode.OK_READ_NOTIFICATIONS,
 			notificationService.searchMemberNotifications(memberId));
 	}

@@ -12,8 +12,8 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
+import co.fineants.member.presentation.dto.response.ListNotificationResponse;
 import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,9 +27,9 @@ public class MemberNotificationService {
 
 	@Secured("ROLE_USER")
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	public MemberNotificationResponse searchMemberNotifications(@ResourceId Long memberId) {
+	public ListNotificationResponse searchMemberNotifications(@ResourceId Long memberId) {
 		List<Notification> notifications = notificationRepository.findAllByMemberId(memberId);
-		return MemberNotificationResponse.create(
+		return new ListNotificationResponse(
 			notifications.stream()
 				.map(MemberNotification::from)
 				.toList());

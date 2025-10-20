@@ -29,7 +29,6 @@ import org.springframework.restdocs.snippet.Attributes;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.controller.StockTargetPriceRestController;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
@@ -44,6 +43,7 @@ import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPrice
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
 
 class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 
@@ -171,7 +171,7 @@ class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("data.stocks[0].lastUpdated").isNotEmpty())
 			.andDo(
 				document(
-					"stock_target_price-list-search",
+					"stock_target_price-listNotifications-search",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					responseFields(

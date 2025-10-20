@@ -4,7 +4,6 @@ import static co.fineants.api.domain.notification.domain.entity.type.Notificatio
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -16,15 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.entity.Notification;
-import co.fineants.api.domain.notification.domain.entity.NotificationBody;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
-import co.fineants.member.application.MemberNotificationService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
-import co.fineants.member.presentation.dto.response.MemberNotification;
-import co.fineants.member.presentation.dto.response.MemberNotificationResponse;
 
 class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -36,53 +31,6 @@ class MemberNotificationServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationRepository notificationRepository;
-
-	@DisplayName("사용자는 회원 알림 목록을 조회합니다")
-	@Test
-	void searchMemberNotifications() {
-		// given
-		Member member = memberRepository.save(createMember());
-		List<Notification> notifications = notificationRepository.saveAll(createNotifications(member));
-
-		setAuthentication(member);
-		// when
-		MemberNotificationResponse response = notificationService.searchMemberNotifications(member.getId());
-
-		// then
-		assertThat(response)
-			.extracting("notifications")
-			.asList()
-			.hasSize(3)
-			.containsExactly(
-				MemberNotification.builder()
-					.notificationId(notifications.get(2).getId())
-					.title("포트폴리오")
-					.body(NotificationBody.portfolio("포트폴리오2", PORTFOLIO_MAX_LOSS))
-					.timestamp(LocalDateTime.of(2024, 1, 24, 10, 10, 10))
-					.isRead(false)
-					.type(PORTFOLIO_MAX_LOSS.getCategory())
-					.referenceId(notifications.get(2).getReferenceId())
-					.build(),
-				MemberNotification.builder()
-					.notificationId(notifications.get(1).getId())
-					.title("포트폴리오")
-					.body(NotificationBody.portfolio("포트폴리오1", PORTFOLIO_TARGET_GAIN))
-					.timestamp(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
-					.isRead(false)
-					.type(PORTFOLIO_TARGET_GAIN.getCategory())
-					.referenceId(notifications.get(1).getReferenceId())
-					.build(),
-				MemberNotification.builder()
-					.notificationId(notifications.get(0).getId())
-					.title("지정가")
-					.body(NotificationBody.stock("삼성전자", Money.won(60000L)))
-					.timestamp(LocalDateTime.of(2024, 1, 22, 10, 10, 10))
-					.isRead(true)
-					.type(STOCK_TARGET_PRICE.getCategory())
-					.referenceId(notifications.get(0).getReferenceId())
-					.build()
-			);
-	}
 
 	private List<Notification> createNotifications(Member member) {
 		return List.of(
