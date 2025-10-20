@@ -20,6 +20,7 @@ import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -45,6 +46,7 @@ public class SignUpRestController {
 	private final SignupVerificationService verificationService;
 	private final SignupValidatorService signupValidatorService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
+	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -55,7 +57,7 @@ public class SignUpRestController {
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
 		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
-		String profileUrl = signupService.upload(profileImageFile).orElse(null);
+		String profileUrl = uploadMemberProfileImageFile.upload(profileImageFile).orElse(null);
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
