@@ -21,7 +21,7 @@ public class DeleteNotifications {
 
 	@Transactional
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	public List<Long> deleteMemberNotifications(@ResourceId Long memberId, List<Long> notificationIds) {
+	public List<Long> deleteBy(@ResourceId Long memberId, List<Long> notificationIds) {
 		verifyExistNotifications(memberId, notificationIds);
 
 		// 알림 삭제 처리
