@@ -12,8 +12,6 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.NotificationAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.NotificationNotFoundException;
-import co.fineants.member.presentation.dto.response.ListNotificationResponse;
-import co.fineants.member.presentation.dto.response.NotificationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,16 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberNotificationService {
 
 	private final NotificationRepository notificationRepository;
-
-	@Secured("ROLE_USER")
-	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	public ListNotificationResponse searchMemberNotifications(@ResourceId Long memberId) {
-		List<Notification> notifications = notificationRepository.findAllByMemberId(memberId);
-		return new ListNotificationResponse(
-			notifications.stream()
-				.map(NotificationDto::from)
-				.toList());
-	}
 
 	// 입력 받은 알림들 중에서 안 읽은 알람들을 읽음 처리하고 읽은 알림의 등록번호 리스트를 반환
 	@Transactional
