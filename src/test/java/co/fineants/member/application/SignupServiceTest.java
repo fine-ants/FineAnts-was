@@ -27,10 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
-import co.fineants.api.global.errors.exception.business.MemberProfileUploadException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -60,6 +59,9 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberPasswordEncoder memberPasswordEncoder;
+
+	@Autowired
+	private WriteProfileImageFileService writeProfileImageFileService;
 
 	@NotNull
 	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
@@ -133,7 +135,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 	void should_deleteProfileImage_whenUploadAndDelete() {
 		// given
 		MultipartFile profileFile = createProfileFile();
-		String profileUrl = service.upload(profileFile).orElseThrow();
+		String profileUrl = writeProfileImageFileService.upload(profileFile);
 		String key = extractKeyFromUrl(profileUrl);
 		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
 		// when
@@ -185,7 +187,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			"ants1234@"
 		);
 		MultipartFile profileImageFile = createProfileFile();
-		String profileUrl = service.upload(profileImageFile).orElse(null);
+		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
 		Member member = Member.createMember(profile, notificationPreference);
@@ -312,17 +314,5 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 					.isInstanceOf(EmailDuplicateException.class);
 			})
 		);
-	}
-
-	@DisplayName("사용자는 프로필 이미지 사이즈를 초과하여 이미지를 업로드할 수 없다")
-	@Test
-	void upload_whenOverProfileImageFile_thenResponse400Error() {
-		// given
-		MultipartFile profileFile = TestDataFactory.createOverSizeMockProfileFile(); // 3MB
-		// when
-		Throwable throwable = catchThrowable(() -> service.upload(profileFile));
-		// then
-		assertThat(throwable)
-			.isInstanceOf(MemberProfileUploadException.class);
 	}
 }
