@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.domain.notification.service.ListNotifications;
+import co.fineants.api.domain.notification.service.MarkNotificationsAsRead;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.member.application.MemberNotificationService;
@@ -33,6 +34,7 @@ public class MemberNotificationRestController {
 	private final MemberNotificationService notificationService;
 	private final UpdateNotificationPreference preferenceService;
 	private final ListNotifications listNotifications;
+	private final MarkNotificationsAsRead markNotificationsAsRead;
 
 	// 회원의 알림 목록 조회
 	@GetMapping("/notifications")
@@ -79,7 +81,7 @@ public class MemberNotificationRestController {
 	public ApiResponse<Void> readAllNotifications(
 		@PathVariable Long memberId,
 		@Valid @RequestBody MemberNotificationAllReadRequest request) {
-		List<Long> notificationIds = notificationService.fetchMemberNotifications(memberId, request.notificationIds());
+		List<Long> notificationIds = markNotificationsAsRead.markBy(memberId, request.notificationIds());
 		log.info("회원 알림 모두 읽기 처리 결과 : memberId={}, 읽은 알림 등록 번호={}", memberId, notificationIds);
 		return ApiResponse.success(MemberSuccessCode.OK_FETCH_ALL_NOTIFICATIONS);
 	}

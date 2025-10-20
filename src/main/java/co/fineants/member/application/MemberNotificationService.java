@@ -23,37 +23,6 @@ public class MemberNotificationService {
 
 	private final NotificationRepository notificationRepository;
 
-	// 입력 받은 알림들 중에서 안 읽은 알람들을 읽음 처리하고 읽은 알림의 등록번호 리스트를 반환
-	@Transactional
-	@Authorized(serviceClass = NotificationAuthorizedService.class)
-	@Secured("ROLE_USER")
-	public List<Long> fetchMemberNotifications(@ResourceId Long memberId, List<Long> notificationIds) {
-		verifyExistNotifications(memberId, notificationIds);
-
-		// 읽지 않은 알림 조회
-		List<Notification> notifications = notificationRepository.findAllByMemberIdAndIds(memberId, notificationIds)
-			.stream()
-			.filter(notification -> !notification.getIsRead())
-			.toList();
-		log.info("읽지 않은 알림 목록 개수 : {}개", notifications.size());
-
-		// 알림 읽기 처리
-		notifications.forEach(Notification::markAsRead);
-
-		// 읽은 알림들의 등록번호 반환
-		return notifications.stream()
-			.map(Notification::getId)
-			.toList();
-	}
-
-	private void verifyExistNotifications(Long memberId, List<Long> notificationIds) {
-		List<Notification> findNotifications = notificationRepository.findAllByMemberIdAndIds(memberId,
-			notificationIds);
-		if (notificationIds.size() != findNotifications.size()) {
-			throw new NotificationNotFoundException(notificationIds.toString());
-		}
-	}
-
 	@Transactional
 	@Authorized(serviceClass = NotificationAuthorizedService.class)
 	@Secured("ROLE_USER")
@@ -65,5 +34,13 @@ public class MemberNotificationService {
 
 		// 삭제한 알림들의 등록번호를 반환
 		return notificationIds;
+	}
+
+	private void verifyExistNotifications(Long memberId, List<Long> notificationIds) {
+		List<Notification> findNotifications = notificationRepository.findAllByMemberIdAndIds(memberId,
+			notificationIds);
+		if (notificationIds.size() != findNotifications.size()) {
+			throw new NotificationNotFoundException(notificationIds.toString());
+		}
 	}
 }
