@@ -15,14 +15,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
-import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupValidatorService;
-import co.fineants.member.application.SignupVerificationService;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.member.application.SendVerificationCode;
+import co.fineants.member.application.SignupMember;
 import co.fineants.member.application.UploadMemberProfileImageFile;
+import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -46,12 +50,16 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SignUpRestController {
 
-	private final SignupService signupService;
-	private final SignupVerificationService verificationService;
-	private final SignupValidatorService signupValidatorService;
+	private final SignupMember signupMember;
+	private final SendVerificationCode verificationService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
+	private final DeleteProfileImageFileService deleteProfileImageFileService;
 	private final FindRole findRole;
+	private final NicknameValidator nicknameValidator;
+	private final EmailValidator emailValidator;
+	private final PasswordValidator passwordValidator;
+	private final VerifyCode verifyCode;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -61,7 +69,7 @@ public class SignUpRestController {
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
-		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
+		passwordValidator.validateMatch(request.getPassword(), request.getPasswordConfirm());
 		String profileUrl = uploadMemberProfileImageFile.upload(profileImageFile).orElse(null);
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
@@ -73,10 +81,10 @@ public class SignUpRestController {
 		Member member = Member.createMember(profile, notificationPreference, Set.of(userRole.getId()));
 
 		try {
-			signupService.signup(member);
+			signupMember.signup(member);
 		} catch (BusinessException exception) {
 			log.warn("BusinessException occurred during signup: {}", exception.getMessage(), exception);
-			signupService.deleteProfileImageFile(profileUrl);
+			deleteProfileImageFileService.delete(profileUrl);
 			throw new SignupException(exception);
 		}
 
@@ -86,28 +94,28 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
 	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
-		verificationService.sendSignupVerification(request.getEmail());
+		verificationService.send(request.getEmail());
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
 	@PostMapping("/auth/signup/verifyCode")
 	@PermitAll
 	public ApiResponse<Void> checkVerifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-		verificationService.verifyCode(request.email(), request.code());
+		verifyCode.verifyBy(request.email(), request.code());
 		return ApiResponse.success(MemberSuccessCode.OK_VERIF_CODE);
 	}
 
 	@GetMapping("/auth/signup/duplicationcheck/nickname/{nickname}")
 	@PermitAll
 	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) {
-		signupValidatorService.validateNickname(nickname);
+		nicknameValidator.validate(nickname);
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
 	@GetMapping("/auth/signup/duplicationcheck/email/{email}")
 	@PermitAll
 	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) {
-		signupValidatorService.validateEmail(email);
+		emailValidator.validate(email);
 		return ApiResponse.success(MemberSuccessCode.OK_EMAIL_CHECK);
 	}
 }

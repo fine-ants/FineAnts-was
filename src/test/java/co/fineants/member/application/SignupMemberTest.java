@@ -2,13 +2,7 @@ package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
@@ -17,18 +11,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
@@ -44,10 +34,10 @@ import co.fineants.member.presentation.dto.request.SignUpRequest;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 
-class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
+class SignupMemberTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
-	private SignupService service;
+	private SignupMember service;
 
 	@Autowired
 	private MemberRepository memberRepository;
@@ -76,17 +66,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 		Nickname nickname = new Nickname(request.getNickname());
 		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
 		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
-	}
-
-	private static Stream<Arguments> invalidProfileUrlSource() {
-		return Stream.of(
-			Arguments.of((String)null), // null URL
-			Arguments.of(""), // 빈 문자열
-			Arguments.of("invalidUrl"), // 잘못된 형식의 URL
-			Arguments.of("https://example.com/invalid/path/profile.jpeg"), // S3 경로가 아닌 URL
-			Arguments.of("https://fineants.s3.ap-northeast-2.amazonaws.com/invalid/path/profile.jpeg")
-			// S3 경로가 맞지만 잘못된 키
-		);
 	}
 
 	@Transactional
@@ -146,52 +125,6 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			.isInstanceOf(NicknameDuplicateException.class);
 	}
 
-	@DisplayName("업로드된 파일의 URL이 주어지고 프로필 사진을 제거하면 S3에 해당 파일이 삭제된다")
-	@Test
-	void should_deleteProfileImage_whenUploadAndDelete() {
-		// given
-		MultipartFile profileFile = createProfileFile();
-		String profileUrl = writeProfileImageFileService.upload(profileFile);
-		String key = extractKeyFromUrl(profileUrl);
-		assertThat(amazonS3.doesObjectExist(bucketName, key)).isTrue();
-		// when
-		service.deleteProfileImageFile(profileUrl);
-		// then
-		assertThat(amazonS3.doesObjectExist(bucketName, key)).isFalse();
-	}
-
-	private static MultipartFile createProfileFile() {
-		ClassPathResource classPathResource = new ClassPathResource("profile.jpeg");
-		try {
-			Path path = Paths.get(classPathResource.getURI());
-			byte[] profile = Files.readAllBytes(path);
-			return new MockMultipartFile("profileImageFile", "profile.jpeg", "image/jpeg",
-				profile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private String extractKeyFromUrl(String url) {
-		Pattern pattern = Pattern.compile(profilePath + "[0-9a-f\\-]+profile\\.jpeg");
-		Matcher matcher = pattern.matcher(url);
-		if (matcher.find()) {
-			return matcher.group();
-		}
-		throw new IllegalArgumentException("Invalid URL: " + url);
-	}
-
-	@DisplayName("유효하지 않은 프로필 URL이 주어지고 삭제하려고 할때 예외가 발생하지 않는다")
-	@ParameterizedTest
-	@MethodSource(value = "invalidProfileUrlSource")
-	void givenInvalidProfileUrl_whenDelete_thenNotThrowException(String profileUrl) {
-		// when & then
-		assertThatCode(() -> {
-			// 테스트 대상 코드
-			service.deleteProfileImageFile(profileUrl);
-		}).doesNotThrowAnyException();
-	}
-
 	@DisplayName("사용자는 일반 회원가입한다")
 	@Test
 	void signup() {
@@ -202,7 +135,7 @@ class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
 			"ants1234@",
 			"ants1234@"
 		);
-		MultipartFile profileImageFile = createProfileFile();
+		MultipartFile profileImageFile = TestDataFactory.createProfileFile();
 		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
 		MemberProfile profile = createMemberProfile(request, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();

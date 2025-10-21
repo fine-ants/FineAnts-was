@@ -12,7 +12,7 @@ public interface RoleRepository {
 
 	Set<Role> findAll();
 
-	void save(Role role);
+	Role save(Role role);
 
 	void deleteAll();
 }

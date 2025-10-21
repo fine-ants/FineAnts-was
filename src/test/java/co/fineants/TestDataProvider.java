@@ -245,8 +245,19 @@ public class TestDataProvider {
 	public static Stream<Arguments> invalidProfileFileSource() {
 		MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]); // 빈 파일
 		return Stream.of(
-			Arguments.of((Object)null, "null 파일"),
+			Arguments.of(null, "null 파일"),
 			Arguments.of(emptyFile, "빈 파일")
+		);
+	}
+
+	public static Stream<Arguments> invalidProfileUrlSource() {
+		return Stream.of(
+			Arguments.of((String)null), // null URL
+			Arguments.of(""), // 빈 문자열
+			Arguments.of("invalidUrl"), // 잘못된 형식의 URL
+			Arguments.of("https://example.com/invalid/path/profile.jpeg"), // S3 경로가 아닌 URL
+			Arguments.of("https://fineants.s3.ap-northeast-2.amazonaws.com/invalid/path/profile.jpeg")
+			// S3 경로가 맞지만 잘못된 키
 		);
 	}
 }

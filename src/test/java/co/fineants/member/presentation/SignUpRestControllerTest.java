@@ -26,8 +26,8 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupVerificationService;
+import co.fineants.member.application.SendVerificationCode;
+import co.fineants.member.application.SignupMember;
 import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.member.domain.Member;
 
@@ -39,17 +39,17 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	private SignUpRestController controller;
 
 	@Autowired
-	private SignupService signupService;
+	private SignupMember signupMember;
 
 	@Autowired
-	private SignupVerificationService signupVerificationService;
+	private SendVerificationCode sendVerificationCode;
 
 	@Autowired
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
 
 	private void saveMember(String nickname, String email) {
 		Member member = TestDataFactory.createMember(nickname, email);
-		signupService.signup(member);
+		signupMember.signup(member);
 	}
 
 	@BeforeEach
@@ -369,13 +369,13 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 검증코드를 제출하고 검증 완료 응답을 받는다")
 	@Test
-	void checkVerifyCode() throws Exception {
+	void send() throws Exception {
 		// given
 		String code = "123456";
 		BDDMockito.given(spyVerifyCodeGenerator.generate())
 			.willReturn(code);
 		String email = "ants1234@gmail.com";
-		signupVerificationService.sendSignupVerification(email);
+		sendVerificationCode.send(email);
 		String body = ObjectMapperUtil.serialize(Map.of("email", email, "code", code));
 
 		// when & then
