@@ -64,7 +64,7 @@ public class MemberProfile {
 
 	public Map<String, Object> toMap() {
 		return Map.ofEntries(
-			Map.entry("email", email),
+			Map.entry("email", email.getValue()),
 			Map.entry("nickname", nickname.getValue()),
 			Map.entry("provider", provider),
 			Map.entry("profileUrl", profileUrl)
