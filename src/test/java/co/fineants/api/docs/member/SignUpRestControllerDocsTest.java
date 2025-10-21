@@ -22,10 +22,12 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import co.fineants.api.docs.RestDocsSupport;
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.MemberPasswordEncoder;
@@ -39,7 +41,6 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 	protected Object initController() {
 		SignupService signupService = mock(SignupService.class);
 		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
-		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
 		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
 		FindRole findRole = mock(FindRole.class);
@@ -47,8 +48,19 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		BDDMockito.given(findRole.findBy("ROLE_USER"))
 			.willReturn(role);
 		DeleteProfileImageFileService deleteProfileImageFileService = mock(DeleteProfileImageFileService.class);
-		return new SignUpRestController(signupService, signupVerificationService, signupValidatorService,
-			memberPasswordEncoder, uploadMemberProfileImageFile, deleteProfileImageFileService, findRole);
+		NicknameValidator nicknameValidator = mock(NicknameValidator.class);
+		EmailValidator emailValidator = mock(EmailValidator.class);
+		PasswordValidator passwordValidator = mock(PasswordValidator.class);
+		return new SignUpRestController(
+			signupService,
+			signupVerificationService,
+			memberPasswordEncoder,
+			uploadMemberProfileImageFile,
+			deleteProfileImageFileService,
+			findRole,
+			nicknameValidator,
+			emailValidator,
+			passwordValidator);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

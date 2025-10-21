@@ -15,13 +15,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupValidatorService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.domain.Member;
@@ -49,11 +51,13 @@ public class SignUpRestController {
 
 	private final SignupService signupService;
 	private final SignupVerificationService verificationService;
-	private final SignupValidatorService signupValidatorService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;
 	private final FindRole findRole;
+	private final NicknameValidator nicknameValidator;
+	private final EmailValidator emailValidator;
+	private final PasswordValidator passwordValidator;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -63,7 +67,7 @@ public class SignUpRestController {
 		@Valid @RequestPart(value = "signupData") SignUpRequest request,
 		@RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile
 	) {
-		signupValidatorService.validatePassword(request.getPassword(), request.getPasswordConfirm());
+		passwordValidator.validateMatch(request.getPassword(), request.getPasswordConfirm());
 		String profileUrl = uploadMemberProfileImageFile.upload(profileImageFile).orElse(null);
 		MemberEmail memberEmail = new MemberEmail(request.getEmail());
 		Nickname nickname = new Nickname(request.getNickname());
@@ -102,14 +106,14 @@ public class SignUpRestController {
 	@GetMapping("/auth/signup/duplicationcheck/nickname/{nickname}")
 	@PermitAll
 	public ApiResponse<Void> nicknameDuplicationCheck(@PathVariable final String nickname) {
-		signupValidatorService.validateNickname(nickname);
+		nicknameValidator.validate(nickname);
 		return ApiResponse.success(MemberSuccessCode.OK_NICKNAME_CHECK);
 	}
 
 	@GetMapping("/auth/signup/duplicationcheck/email/{email}")
 	@PermitAll
 	public ApiResponse<Void> emailDuplicationCheck(@PathVariable final String email) {
-		signupValidatorService.validateEmail(email);
+		emailValidator.validate(email);
 		return ApiResponse.success(MemberSuccessCode.OK_EMAIL_CHECK);
 	}
 }
