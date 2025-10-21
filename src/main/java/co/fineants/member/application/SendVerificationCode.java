@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SignupVerificationService {
+public class SendVerificationCode {
 
 	private final VerifyCodeGenerator generator;
 	private final VerifyCodeRepository verifyCodeRedisRepository;

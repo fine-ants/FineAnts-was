@@ -23,8 +23,8 @@ import co.fineants.api.global.errors.exception.business.BusinessException;
 import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.member.application.SendVerificationCode;
 import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.Member;
@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SignUpRestController {
 
 	private final SignupService signupService;
-	private final SignupVerificationService verificationService;
+	private final SendVerificationCode verificationService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
 	private final DeleteProfileImageFileService deleteProfileImageFileService;

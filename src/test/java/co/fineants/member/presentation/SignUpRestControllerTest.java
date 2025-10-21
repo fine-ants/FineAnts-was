@@ -26,8 +26,8 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.application.SendVerificationCode;
 import co.fineants.member.application.SignupService;
-import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.member.domain.Member;
 
@@ -42,7 +42,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	private SignupService signupService;
 
 	@Autowired
-	private SignupVerificationService signupVerificationService;
+	private SendVerificationCode sendVerificationCode;
 
 	@Autowired
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
@@ -375,7 +375,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		BDDMockito.given(spyVerifyCodeGenerator.generate())
 			.willReturn(code);
 		String email = "ants1234@gmail.com";
-		signupVerificationService.send(email);
+		sendVerificationCode.send(email);
 		String body = ObjectMapperUtil.serialize(Map.of("email", email, "code", code));
 
 		// when & then

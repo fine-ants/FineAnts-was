@@ -11,10 +11,10 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.mail.EmailService;
 import jakarta.mail.internet.MimeMessage;
 
-class SignupVerificationServiceTest extends AbstractContainerBaseTest {
+class SendVerificationCodeTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private SignupVerificationService service;
+	private SendVerificationCode service;
 
 	@Autowired
 	private EmailService mockEmailService;
