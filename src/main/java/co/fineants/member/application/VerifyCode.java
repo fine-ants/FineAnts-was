@@ -12,7 +12,7 @@ public class VerifyCode {
 
 	private final VerifyCodeRepository repository;
 
-	public void verifyCode(String email, String code) {
+	public void verifyBy(String email, String code) {
 		String verifyCode = repository.get(email)
 			.orElseThrow(() -> new VerifyCodeInvalidInputException(code));
 		if (!verifyCode.equals(code)) {

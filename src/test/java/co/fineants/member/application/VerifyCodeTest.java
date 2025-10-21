@@ -27,7 +27,7 @@ class VerifyCodeTest extends AbstractContainerBaseTest {
 		String code = "123456";
 		repository.save(email, code);
 		// when & then
-		Assertions.assertDoesNotThrow(() -> verifyCode.verifyCode(email, code));
+		Assertions.assertDoesNotThrow(() -> verifyCode.verifyBy(email, code));
 	}
 
 	@DisplayName("사용자는 매치되지 않은 검증 코드를 전달하며 검사를 요청했을때 예외가 발생한다")
@@ -38,7 +38,7 @@ class VerifyCodeTest extends AbstractContainerBaseTest {
 		String code = "234567";
 
 		// when
-		Throwable throwable = catchThrowable(() -> verifyCode.verifyCode(email, code));
+		Throwable throwable = catchThrowable(() -> verifyCode.verifyBy(email, code));
 
 		// then
 		assertThat(throwable)
