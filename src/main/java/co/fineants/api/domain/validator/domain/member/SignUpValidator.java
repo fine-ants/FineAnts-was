@@ -3,7 +3,7 @@ package co.fineants.api.domain.validator.domain.member;
 import java.util.Arrays;
 import java.util.List;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.domain.validator.domain.Validator;
 

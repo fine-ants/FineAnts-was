@@ -6,12 +6,13 @@ import java.util.stream.Collectors;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
+import co.fineants.member.application.NicknameGenerator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +23,7 @@ public abstract class AbstractUserService {
 	private final MemberRepository memberRepository;
 	private final NicknameGenerator nicknameGenerator;
 	private final RoleRepository roleRepository;
+	private final FindRole findRole;
 
 	public OAuthAttribute getUserInfo(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 		String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -35,8 +37,9 @@ public abstract class AbstractUserService {
 	}
 
 	public Member saveOrUpdate(OAuthAttribute attributes) {
+		Role userRole = findRole.findBy("ROLE_USER");
 		Member member = attributes.findMember(memberRepository)
-			.orElseGet(() -> attributes.toEntity(nicknameGenerator));
+			.orElseGet(() -> attributes.toEntity(nicknameGenerator, userRole.getId()));
 		attributes.updateProfileUrlIfAbsent(member);
 
 		Set<String> roleNames = roleRepository.findAllById(member.getRoleIds()).stream()

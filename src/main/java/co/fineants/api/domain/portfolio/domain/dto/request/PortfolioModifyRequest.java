@@ -2,7 +2,6 @@ package co.fineants.api.domain.portfolio.domain.dto.request;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.valiator.MoneyNumberWithZero;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -12,13 +11,16 @@ import co.fineants.api.global.errors.exception.domain.MoneyNegativeException;
 import co.fineants.api.global.errors.exception.domain.PortfolioNameInvalidException;
 import co.fineants.api.global.errors.exception.domain.SecuritiesFirmNotContainException;
 import co.fineants.api.global.errors.exception.domain.TargetGainLessThanBudgetException;
+import co.fineants.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class PortfolioModifyRequest {
 	@NotBlank(message = "포트폴리오 이름은 필수 정보입니다")
 	private String name;

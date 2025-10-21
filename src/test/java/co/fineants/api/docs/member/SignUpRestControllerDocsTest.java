@@ -15,32 +15,55 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import co.fineants.api.docs.RestDocsSupport;
-import co.fineants.api.domain.member.controller.SignUpRestController;
-import co.fineants.api.domain.member.domain.factory.MemberProfileFactory;
-import co.fineants.api.domain.member.service.SignupService;
-import co.fineants.api.domain.member.service.SignupValidatorService;
-import co.fineants.api.domain.member.service.SignupVerificationService;
+import co.fineants.api.domain.validator.domain.member.EmailValidator;
+import co.fineants.api.domain.validator.domain.member.NicknameValidator;
+import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
+import co.fineants.member.application.SendVerificationCode;
+import co.fineants.member.application.SignupMember;
+import co.fineants.member.application.UploadMemberProfileImageFile;
+import co.fineants.member.application.VerifyCode;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.member.presentation.SignUpRestController;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
 
 class SignUpRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		SignupService signupService = mock(SignupService.class);
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		MemberProfileFactory memberProfileFactory = new MemberProfileFactory();
-		SignupVerificationService signupVerificationService = mock(SignupVerificationService.class);
-		SignupValidatorService signupValidatorService = mock(SignupValidatorService.class);
-		return new SignUpRestController(signupService, passwordEncoder, memberProfileFactory, signupVerificationService,
-			signupValidatorService);
+		SignupMember signupMember = mock(SignupMember.class);
+		SendVerificationCode sendVerificationCode = mock(SendVerificationCode.class);
+		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
+		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
+		FindRole findRole = mock(FindRole.class);
+		Role role = new Role(1L, "ROLE_USER", "사용자");
+		BDDMockito.given(findRole.findBy("ROLE_USER"))
+			.willReturn(role);
+		DeleteProfileImageFileService deleteProfileImageFileService = mock(DeleteProfileImageFileService.class);
+		NicknameValidator nicknameValidator = mock(NicknameValidator.class);
+		EmailValidator emailValidator = mock(EmailValidator.class);
+		PasswordValidator passwordValidator = mock(PasswordValidator.class);
+		VerifyCode verifyCode = mock(VerifyCode.class);
+		return new SignUpRestController(
+			signupMember,
+			sendVerificationCode,
+			memberPasswordEncoder,
+			uploadMemberProfileImageFile,
+			deleteProfileImageFileService,
+			findRole,
+			nicknameValidator,
+			emailValidator,
+			passwordValidator,
+			verifyCode);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")
@@ -224,7 +247,7 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 			.andExpect(jsonPath("data").value(equalTo(null)))
 			.andDo(
 				document(
-					"member_email_validation_code-verify",
+					"member_email_validation_code-hasMemberWith",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(

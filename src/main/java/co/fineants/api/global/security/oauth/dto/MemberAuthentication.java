@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

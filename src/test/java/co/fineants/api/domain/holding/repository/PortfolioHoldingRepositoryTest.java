@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
 class PortfolioHoldingRepositoryTest extends AbstractContainerBaseTest {
 

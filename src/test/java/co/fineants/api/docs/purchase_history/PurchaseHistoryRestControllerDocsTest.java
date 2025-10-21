@@ -23,7 +23,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.controller.PurchaseHistoryRestController;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;

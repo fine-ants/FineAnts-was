@@ -13,9 +13,6 @@ import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusCheckerRule;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
-import co.fineants.api.domain.member.service.MemberNotificationPreferenceService;
-import co.fineants.api.domain.member.service.MemberNotificationService;
-import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
@@ -28,6 +25,12 @@ import co.fineants.api.domain.stock_target_price.service.TargetPriceNotification
 import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
+import co.fineants.member.application.ChangeMemberPassword;
+import co.fineants.member.application.ChangeMemberProfile;
+import co.fineants.member.application.DeleteMember;
+import co.fineants.member.application.LogoutMember;
+import co.fineants.member.application.ReadMemberProfile;
+import co.fineants.member.application.UpdateNotificationPreference;
 
 @TestConfiguration
 public class ControllerTestConfig {
@@ -36,11 +39,7 @@ public class ControllerTestConfig {
 	@MockBean
 	private FcmService fcmService;
 	@MockBean
-	private MemberNotificationService notificationService;
-	@MockBean
-	private MemberNotificationPreferenceService preferenceService;
-	@MockBean
-	private MemberService memberService;
+	private UpdateNotificationPreference preferenceService;
 	@MockBean
 	private PortfolioService portFolioService;
 	@MockBean
@@ -89,4 +88,19 @@ public class ControllerTestConfig {
 
 	@MockBean
 	private PortfolioHoldingFacade portfolioHoldingFacade;
+
+	@MockBean
+	private LogoutMember logoutMember;
+
+	@MockBean
+	private ChangeMemberProfile changeMemberProfile;
+
+	@MockBean
+	private ChangeMemberPassword changeMemberPassword;
+
+	@MockBean
+	private ReadMemberProfile readMemberProfile;
+
+	@MockBean
+	private DeleteMember deleteMember;
 }

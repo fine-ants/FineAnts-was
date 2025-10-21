@@ -1,0 +1,54 @@
+package co.fineants.member.presentation.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.Nickname;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@EqualsAndHashCode
+@Getter
+public class SignUpRequest {
+	@Pattern(regexp = Nickname.NICKNAME_REGEXP, message = "잘못된 입력 형식입니다")
+	@NotBlank(message = "닉네임은 필수 정보입니다")
+	@JsonProperty
+	private final String nickname;
+
+	@Pattern(regexp = MemberEmail.EMAIL_REGEXP, message = "잘못된 입력 형식입니다")
+	@NotBlank(message = "이메일은 필수 정보입니다")
+	@JsonProperty
+	private final String email;
+
+	@Pattern(regexp = MemberPassword.PASSWORD_REGEXP, message = "잘못된 입력 형식입니다")
+	@NotBlank(message = "비밀번호는 필수 정보입니다")
+	@JsonProperty
+	private final String password;
+
+	@Pattern(regexp = MemberPassword.PASSWORD_REGEXP, message = "잘못된 입력 형식입니다")
+	@NotBlank(message = "비밀번호 확인은 필수 정보입니다")
+	@JsonProperty
+	private final String passwordConfirm;
+
+	@JsonCreator
+	public SignUpRequest(
+		@JsonProperty("nickname") String nickname,
+		@JsonProperty("email") String email,
+		@JsonProperty("password") String password,
+		@JsonProperty("passwordConfirm") String passwordConfirm) {
+		this.nickname = nickname;
+		this.email = email;
+		this.password = password;
+		this.passwordConfirm = passwordConfirm;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("SignUpRequest(nickname=%s, email=%s, password=%s, passwordConfirm=%s)", nickname, email,
+			password, passwordConfirm);
+	}
+}

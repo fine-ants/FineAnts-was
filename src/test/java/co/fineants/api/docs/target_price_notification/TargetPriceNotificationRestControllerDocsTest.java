@@ -21,7 +21,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock_target_price.controller.TargetPriceNotificationRestController;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationDeleteResponse;

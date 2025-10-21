@@ -35,8 +35,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -47,6 +45,8 @@ import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import co.fineants.support.cache.PortfolioCacheSupportService;
 
 class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {

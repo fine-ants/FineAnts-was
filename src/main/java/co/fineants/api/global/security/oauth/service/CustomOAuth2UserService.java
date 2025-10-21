@@ -17,12 +17,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
+import co.fineants.member.application.NicknameGenerator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,8 +34,8 @@ public class CustomOAuth2UserService extends AbstractUserService
 	private final RoleRepository roleRepository;
 
 	public CustomOAuth2UserService(MemberRepository memberRepository,
-		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
-		super(memberRepository, nicknameGenerator, roleRepository);
+		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, FindRole findRole) {
+		super(memberRepository, nicknameGenerator, roleRepository, findRole);
 		this.roleRepository = roleRepository;
 	}
 

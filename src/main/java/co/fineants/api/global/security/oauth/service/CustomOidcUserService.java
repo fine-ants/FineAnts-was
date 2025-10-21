@@ -20,12 +20,13 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
+import co.fineants.member.application.NicknameGenerator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -34,8 +35,8 @@ public class CustomOidcUserService extends AbstractUserService implements OAuth2
 	private final RoleRepository roleRepository;
 
 	public CustomOidcUserService(MemberRepository memberRepository,
-		NicknameGenerator nicknameGenerator, RoleRepository roleRepository) {
-		super(memberRepository, nicknameGenerator, roleRepository);
+		NicknameGenerator nicknameGenerator, RoleRepository roleRepository, FindRole findRole) {
+		super(memberRepository, nicknameGenerator, roleRepository, findRole);
 		this.roleRepository = roleRepository;
 	}
 

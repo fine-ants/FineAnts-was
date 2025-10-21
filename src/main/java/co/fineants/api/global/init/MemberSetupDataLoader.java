@@ -1,31 +1,33 @@
 package co.fineants.api.global.init;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
 import co.fineants.api.global.init.properties.MemberProperties;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class MemberSetupDataLoader {
 
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
-	private final PasswordEncoder passwordEncoder;
-
-	public MemberSetupDataLoader(RoleRepository roleRepository, MemberRepository memberRepository,
-		PasswordEncoder passwordEncoder) {
-		this.roleRepository = roleRepository;
-		this.memberRepository = memberRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+	private final MemberPasswordEncoder memberPasswordEncoder;
+	private final FindRole findRole;
 
 	@Transactional
 	public void setupMembers(MemberProperties memberProperties) {
@@ -37,7 +39,7 @@ public class MemberSetupDataLoader {
 	}
 
 	private void saveMember(MemberProperties.MemberAuthProperty properties, Role role) {
-		String email = properties.getEmail();
+		MemberEmail email = new MemberEmail(properties.getEmail());
 		String provider = properties.getProvider();
 		if (isEmptyMemberBy(email, provider)) {
 			Member member = createMember(properties);
@@ -46,16 +48,20 @@ public class MemberSetupDataLoader {
 		}
 	}
 
-	private boolean isEmptyMemberBy(String email, String provider) {
+	private boolean isEmptyMemberBy(MemberEmail email, String provider) {
 		return memberRepository.findMemberByEmailAndProvider(email, provider).isEmpty();
 	}
 
 	private Member createMember(MemberProperties.MemberAuthProperty properties) {
-		MemberProfile profile = MemberProfile.localMemberProfile(properties.getEmail(),
-			properties.getNickname(), passwordEncoder.encode(properties.getPassword()),
-			null);
+		MemberEmail memberEmail = new MemberEmail(properties.getEmail());
+		Nickname nickname = new Nickname(properties.getNickname());
+		MemberPassword memberPassword = new MemberPassword(properties.getPassword(), memberPasswordEncoder);
+		String profileUrl = null;
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
+		Role role = findRole.findBy(properties.getRoleName());
+		Set<Long> roleIds = Set.of(role.getId());
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 }

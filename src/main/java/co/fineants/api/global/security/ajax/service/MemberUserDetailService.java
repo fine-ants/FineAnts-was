@@ -10,11 +10,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.global.security.ajax.provider.MemberContext;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +30,8 @@ public class MemberUserDetailService implements UserDetailsService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Member member = memberRepository.findMemberByEmailAndProvider(email, "local")
+		MemberEmail memberEmail = new MemberEmail(email);
+		Member member = memberRepository.findMemberByEmailAndProvider(memberEmail, "local")
 			.orElseThrow(() -> new BadCredentialsException("invalid email"));
 		log.debug("findMember : {}", member);
 

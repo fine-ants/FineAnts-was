@@ -1,0 +1,279 @@
+package co.fineants.member.application;
+
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Set;
+import java.util.stream.Stream;
+
+import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amazonaws.services.s3.AmazonS3;
+
+import co.fineants.TestDataFactory;
+import co.fineants.api.global.errors.exception.business.EmailDuplicateException;
+import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
+import co.fineants.api.infra.s3.service.WriteProfileImageFileService;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
+import co.fineants.member.presentation.dto.request.SignUpRequest;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
+
+class SignupMemberTest extends co.fineants.AbstractContainerBaseTest {
+
+	@Autowired
+	private SignupMember service;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private AmazonS3 amazonS3;
+
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+
+	@Value("${aws.s3.profile-path}")
+	private String profilePath;
+
+	@Autowired
+	private MemberPasswordEncoder memberPasswordEncoder;
+
+	@Autowired
+	private WriteProfileImageFileService writeProfileImageFileService;
+
+	@Autowired
+	private RoleRepository roleRepository;
+
+	@NotNull
+	private MemberProfile createMemberProfile(SignUpRequest request, String profileUrl) {
+		MemberEmail memberEmail = new MemberEmail(request.getEmail());
+		Nickname nickname = new Nickname(request.getNickname());
+		MemberPassword memberPassword = new MemberPassword(request.getPassword(), memberPasswordEncoder);
+		return MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, profileUrl);
+	}
+
+	@Transactional
+	@DisplayName("사용자는 회원가입시 회원 정보를 저장한다")
+	@Test
+	void should_saveMember_whenSignup() {
+		// given
+		MemberEmail memberEmail = new MemberEmail("ants1@gmail.com");
+		Nickname nickname = new Nickname("ants1");
+		String rawPassword = "ants1234@";
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword, null);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+		// when
+		service.signup(member);
+		// then
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		assertThat(findMember).isNotNull();
+		assertThat(findMember.getRoleIds())
+			.hasSize(1)
+			.containsExactlyInAnyOrder(userRole.getId());
+	}
+
+	@DisplayName("사용자는 이미 존재하는 닉네임을 가지고 회원가입 할 수 없다.")
+	@Test
+	void givenDuplicatedNickname_whenValidateNickname_thenFailSignup() {
+		// given
+		MemberEmail memberEmail = new MemberEmail("ants1234@gmail.com");
+		Nickname nickname = new Nickname("ants1234");
+		String rawPassword = "ants1234@";
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
+			null);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
+		memberRepository.save(member);
+
+		MemberEmail changeMemberEmail = new MemberEmail("ants4567@gmail.com");
+		rawPassword = "ants4567@";
+		memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		MemberProfile otherProfile = MemberProfile.localMemberProfile(changeMemberEmail, nickname, memberPassword,
+			null);
+
+		Member otherMember = Member.createMember(otherProfile, notificationPreference, roleIds);
+		// when
+		Throwable throwable = catchThrowable(() -> service.signup(otherMember));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(NicknameDuplicateException.class);
+	}
+
+	@DisplayName("사용자는 일반 회원가입한다")
+	@Test
+	void signup() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
+		);
+		MultipartFile profileImageFile = TestDataFactory.createProfileFile();
+		String profileUrl = writeProfileImageFileService.upload(profileImageFile);
+		MemberProfile profile = createMemberProfile(request, profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+		// when
+		service.signup(member);
+
+		// then
+		Assertions.assertThat(memberRepository.findAll())
+			.hasSize(1)
+			.contains(member);
+	}
+
+	@DisplayName("사용자는 일반 회원가입 할때 프로필 사진을 기본 프로필 사진으로 가입한다")
+	@Test
+	void signup_whenDefaultProfile_thenSaveDefaultProfileUrl() {
+		// given
+		SignUpRequest request = new SignUpRequest(
+			"일개미1234",
+			"ants1234@gmail.com",
+			"ants1234@",
+			"ants1234@"
+		);
+		String profileUrl = null;
+		MemberProfile profile = createMemberProfile(request, profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+		Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+		Set<Long> roleIds = Set.of(userRole.getId());
+		Member member = Member.createMember(profile, notificationPreference, roleIds);
+		// when
+		service.signup(member);
+
+		// then
+		Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+		Assertions.assertThat(findMember).isNotNull();
+		Assertions.assertThat(findMember.getProfileUrl()).isEmpty();
+	}
+
+	@DisplayName("사용자는 닉네임이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateNickname() {
+		final String nickname = "일개미1234";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants1234@gmail.com",
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = createMemberProfile(request, null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("닉네임이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					nickname,
+					"ants2345@gmail.com",
+					"ants2345@",
+					"ants2345@"
+				);
+
+				MemberProfile profile = createMemberProfile(request, null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(NicknameDuplicateException.class);
+			})
+		);
+	}
+
+	@DisplayName("사용자는 로컬 플랫폼의 이메일이 중복되어 회원가입 할 수 없다")
+	@TestFactory
+	Stream<DynamicTest> duplicateLocalEmail() {
+		String email = "ants1234@gmail.com";
+		return Stream.of(
+			DynamicTest.dynamicTest("회원가입을 정상 진행한다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미1234",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = createMemberProfile(request, null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+				// when
+				service.signup(member);
+				// then
+				Member findMember = memberRepository.findAll().stream().findAny().orElseThrow();
+				Assertions.assertThat(findMember).isNotNull();
+			}),
+			DynamicTest.dynamicTest("이메일이 중복되서 회원가입 할 수 없다", () -> {
+				// given
+				SignUpRequest request = new SignUpRequest(
+					"일개미2345",
+					email,
+					"ants1234@",
+					"ants1234@"
+				);
+
+				MemberProfile profile = createMemberProfile(request, null);
+				NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
+				Role userRole = roleRepository.findRoleByRoleName("ROLE_USER").orElseThrow();
+				Set<Long> roleIds = Set.of(userRole.getId());
+				Member member = Member.createMember(profile, notificationPreference, roleIds);
+
+				// when
+				Throwable throwable = catchThrowable(() -> service.signup(member));
+				// then
+				Assertions.assertThat(throwable)
+					.isInstanceOf(EmailDuplicateException.class);
+			})
+		);
+	}
+}

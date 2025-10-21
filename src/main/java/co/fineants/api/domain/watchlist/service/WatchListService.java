@@ -8,8 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
@@ -34,6 +32,8 @@ import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.errors.exception.business.WatchListForbiddenException;
 import co.fineants.api.global.errors.exception.business.WatchListNotFoundException;
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

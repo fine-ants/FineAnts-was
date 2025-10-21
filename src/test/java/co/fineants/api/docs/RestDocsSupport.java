@@ -31,13 +31,8 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
-import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessage;
 import co.fineants.api.domain.notification.domain.dto.response.PortfolioNotifyMessage;
 import co.fineants.api.domain.notification.domain.dto.response.StockNotifyMessage;
@@ -59,6 +54,7 @@ import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
+import co.fineants.member.domain.Member;
 import jakarta.servlet.http.Cookie;
 
 @ExtendWith(RestDocumentationExtension.class)
@@ -66,7 +62,6 @@ public abstract class RestDocsSupport {
 	private final PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권", "FineAnts"});
 	protected MockMvc mockMvc;
 	protected MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
-	private ExDividendDateCalculator exDividendDateCalculator;
 
 	@BeforeEach
 	void setUp(RestDocumentationContextProvider provider) throws Exception {
@@ -82,8 +77,6 @@ public abstract class RestDocsSupport {
 			.willReturn(true);
 		given(memberAuthenticationArgumentResolver.resolveArgument(any(), any(), any(), any()))
 			.willReturn(createMemberAuthentication());
-		this.exDividendDateCalculator = new FileExDividendDateCalculator(
-			new FileHolidayRepository(new HolidayFileReader()));
 	}
 
 	private MemberAuthentication createMemberAuthentication() {

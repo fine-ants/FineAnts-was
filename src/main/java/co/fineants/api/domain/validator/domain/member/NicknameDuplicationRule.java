@@ -1,22 +1,24 @@
 package co.fineants.api.domain.validator.domain.member;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.application.NicknameDuplicateValidator;
 import co.fineants.api.domain.validator.domain.MemberValidationRule;
 import co.fineants.api.global.errors.exception.business.NicknameDuplicateException;
 
 public class NicknameDuplicationRule implements MemberValidationRule {
 
-	private final MemberRepository memberRepository;
+	private final NicknameDuplicateValidator validator;
 
-	public NicknameDuplicationRule(MemberRepository memberRepository) {
-		this.memberRepository = memberRepository;
+	public NicknameDuplicationRule(NicknameDuplicateValidator validator) {
+		this.validator = validator;
 	}
 
 	@Override
-	public void validate(String nickname) {
-		if (memberRepository.findMemberByNickname(nickname).isPresent()) {
-			throw new NicknameDuplicateException(nickname);
+	public void validate(String value) {
+		Nickname nickname = new Nickname(value);
+		if (validator.isDuplicate(nickname)) {
+			throw new NicknameDuplicateException(nickname.getValue());
 		}
 	}
 

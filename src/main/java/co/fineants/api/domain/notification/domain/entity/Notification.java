@@ -5,8 +5,8 @@ import java.util.List;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.member.domain.entity.Member;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
+import co.fineants.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -108,7 +108,7 @@ public abstract class Notification extends BaseEntity {
 			.build();
 	}
 
-	public void read() {
+	public void markAsRead() {
 		this.isRead = true;
 	}
 

@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.role.domain.Role;
+import co.fineants.member.domain.Member;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 
 class MemberAuthenticationTest extends AbstractContainerBaseTest {
 

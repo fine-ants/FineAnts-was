@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Builder
 public class TargetPriceNotificationUpdateRequest {
 	@NotBlank(message = "필수 정보입니다")

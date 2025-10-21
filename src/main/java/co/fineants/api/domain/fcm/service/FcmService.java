@@ -3,7 +3,6 @@ package co.fineants.api.domain.fcm.service;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +16,14 @@ import co.fineants.api.domain.fcm.domain.dto.response.FcmDeleteResponse;
 import co.fineants.api.domain.fcm.domain.dto.response.FcmRegisterResponse;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +38,6 @@ public class FcmService {
 	private final FirebaseMessaging firebaseMessaging;
 
 	@Transactional
-	@Secured("ROLE_USER")
 	public FcmRegisterResponse createToken(FcmRegisterRequest request, Long memberId) {
 		Member member = findMember(memberId);
 		verifyFcmToken(request.getFcmToken());
@@ -77,7 +75,6 @@ public class FcmService {
 
 	@Transactional
 	@Authorized(serviceClass = FcmAuthorizedService.class)
-	@Secured("ROLE_USER")
 	public FcmDeleteResponse deleteToken(@ResourceId Long fcmTokenId) {
 		int deleteCount = fcmRepository.deleteByFcmTokenId(fcmTokenId);
 		log.info("FCM 토큰 삭제 개수 : deleteCount={}", deleteCount);

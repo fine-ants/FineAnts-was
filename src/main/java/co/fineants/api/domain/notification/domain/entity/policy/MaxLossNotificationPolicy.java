@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import co.fineants.api.domain.common.notification.Notifiable;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.member.domain.NotificationPreference;
 
 public class MaxLossNotificationPolicy extends AbstractNotificationPolicy {
 

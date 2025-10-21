@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,5 +1,7 @@
 package co.fineants;
 
+import static co.fineants.api.domain.notification.domain.entity.type.NotificationType.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -20,35 +23,46 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
+import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.api.domain.notification.domain.entity.Notification;
+import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.api.domain.watchlist.domain.entity.WatchList;
+import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
+import co.fineants.member.infrastructure.SpringMemberPasswordEncoder;
+import co.fineants.role.domain.Role;
 
 public final class TestDataFactory {
 
 	private static final ExDividendDateCalculator exDividendDateCalculator = new FileExDividendDateCalculator(
 		new FileHolidayRepository(new HolidayFileReader()));
+	public static Long userRoleId = 1L;
 
 	private TestDataFactory() {
 
 	}
 
 	public static KisAccessToken createKisAccessToken() {
-		final int EXPIRED_SECONDS = 86400;
-		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(EXPIRED_SECONDS),
-			EXPIRED_SECONDS);
+		int expiredSeconds = 86400;
+		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(expiredSeconds),
+			expiredSeconds);
 	}
 
 	public static Role createRole(String roleName, String roleDesc) {
@@ -65,10 +79,18 @@ public final class TestDataFactory {
 
 	public static Member createMember(String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String password = passwordEncoder.encode("nemo1234@");
-		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
+
+		MemberEmail memberEmail = new MemberEmail(email);
+		Nickname memberNickname = new Nickname(nickname);
+		MemberPasswordEncoder memberPasswordEncoder = new SpringMemberPasswordEncoder(passwordEncoder);
+		String rawPassword = "nemo1234@";
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, memberNickname, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		return Member.createMember(profile, notificationPreference);
+		Set<Long> roleIds = Set.of(TestDataFactory.userRoleId);
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	public static Portfolio createPortfolio(Member member) {
@@ -133,6 +155,10 @@ public final class TestDataFactory {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static MultipartFile createEmptyMockMultipartFile() {
+		return new MockMultipartFile("profileImageFile", new byte[] {});
 	}
 
 	public static MultipartFile createOverSizeMockProfileFile() {
@@ -334,6 +360,66 @@ public final class TestDataFactory {
 				LocalDate.of(2024, 2, 29),
 				null,
 				tickerSymbol
+			)
+		);
+	}
+
+	public static Notification createPortfolioNotification(Member member, Portfolio portfolio, NotificationType type) {
+		String title = "포트폴리오";
+		String referenceId = portfolio.getReferenceId();
+		String link = portfolio.getLink();
+		List<String> messageIds = List.of("messageId1", "messageId2");
+		String portfolioName = portfolio.name();
+		Long portfolioId = portfolio.getId();
+
+		return Notification.portfolioNotification(
+			title,
+			type,
+			referenceId,
+			link,
+			member,
+			messageIds,
+			portfolioName,
+			portfolioId
+		);
+	}
+
+	public static PortfolioGainHistory createEmptyPortfolioGainHistory(Portfolio portfolio) {
+		return PortfolioGainHistory.empty(portfolio);
+	}
+
+	public static WatchList createWatchList(String title, Member member) {
+		return WatchList.newWatchList(title, member);
+	}
+
+	public static WatchStock createWatchStock(Stock stock, WatchList watchList) {
+		return WatchStock.newWatchStock(watchList, stock);
+	}
+
+	public static Member createOauthMember() {
+		MemberEmail memberEmail = new MemberEmail("nemo1234@gmail.com");
+		Nickname memberNickname = new Nickname("nemo1234");
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, memberNickname, "google", profileUrl);
+		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Set<Long> roleIds = Set.of(1L); // ROLE_USER
+		return Member.createMember(profile, notificationPreference, roleIds);
+	}
+
+	public static List<Notification> createNotifications(Member member) {
+		return List.of(
+			Notification.stockTargetPriceNotification(
+				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
+				Money.won(60000L),
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
+				1L
+			),
+			Notification.portfolioNotification(
+				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
+				2L
 			)
 		);
 	}

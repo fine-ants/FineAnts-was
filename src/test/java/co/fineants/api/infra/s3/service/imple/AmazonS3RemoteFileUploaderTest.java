@@ -17,7 +17,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
-import co.fineants.api.domain.member.domain.entity.ProfileImageFile;
+import co.fineants.member.domain.ProfileImageFile;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 

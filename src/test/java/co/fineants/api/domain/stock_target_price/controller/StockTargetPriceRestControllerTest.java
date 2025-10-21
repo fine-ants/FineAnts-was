@@ -1,239 +1,257 @@
 package co.fineants.api.domain.stock_target_price.controller;
 
+import static co.fineants.api.global.errors.errorcode.ErrorCode.*;
+import static co.fineants.api.global.success.StockSuccessCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.anyLong;
-import static org.mockito.BDDMockito.anyString;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationCreateResponse;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSearchResponse;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecificItem;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationSpecifiedSearchResponse;
-import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationUpdateResponse;
-import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
+import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
+import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.support.controller.ControllerTestSupport;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
 
-class StockTargetPriceRestControllerTest extends ControllerTestSupport {
+class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private StockTargetPriceService mockedStockTargetPriceService;
+	private StockTargetPriceRestController controller;
 
-	public static Stream<Arguments> invalidTargetPrice() {
-		return Stream.of(
-			Arguments.of(null, -1L),
-			Arguments.of(null, null)
-		);
-	}
+	@Autowired
+	private MemberRepository memberRepository;
 
-	@Override
-	protected Object initController() {
-		return new StockTargetPriceRestController(mockedStockTargetPriceService);
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private StockTargetPriceRepository stockTargetPriceRepository;
+
+	@Autowired
+	private TargetPriceNotificationRepository targetPriceNotificationRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	private MockMvc mockMvc;
+
+	@BeforeEach
+	void setUp() {
+		mockMvc = createMockMvc(controller);
+		closingPriceRepository.addPrice("005930", 50000L);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")
 	@Test
 	void createStockTargetPriceNotification() throws Exception {
 		// given
-		given(mockedStockTargetPriceService.createStockTargetPrice(
-			any(TargetPriceNotificationCreateRequest.class),
-			anyLong()))
-			.willReturn(TargetPriceNotificationCreateResponse.builder()
-				.targetPriceNotificationId(1L)
-				.tickerSymbol("005930")
-				.targetPrice(Money.won(60000L))
-				.build());
+		memberRepository.save(TestDataFactory.createMember());
+		stockRepository.save(TestDataFactory.createSamsungStock());
 
 		String tickerSymbol = "005930";
-		Map<String, Object> body = Map.of(
-			"tickerSymbol", tickerSymbol,
-			"targetPrice", 60000L);
+		Money targetPrice = Money.won(60000L);
+		TargetPriceNotificationCreateRequest request = new TargetPriceNotificationCreateRequest(tickerSymbol,
+			targetPrice);
 
 		// when & then
 		mockMvc.perform(post("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isCreated())
-			.andExpect(jsonPath("code").value(equalTo(201)))
-			.andExpect(jsonPath("status").value(equalTo("Created")))
-			.andExpect(jsonPath("message").value(equalTo("해당 종목 지정가 알림을 추가했습니다")))
-			.andExpect(jsonPath("data.targetPriceNotificationId").value(equalTo(1)))
-			.andExpect(jsonPath("data.tickerSymbol").value(equalTo("005930")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.CREATED.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.CREATED.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_CREATE_TARGET_PRICE_NOTIFICATION.getMessage())))
+			.andExpect(jsonPath("data.targetPriceNotificationId").value(greaterThan(0)))
+			.andExpect(jsonPath("data.tickerSymbol").value(equalTo(tickerSymbol)));
 	}
 
 	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림을 추가할 수 없습니다")
-	@MethodSource(value = "invalidTargetPrice")
 	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#invalidTargetPrice")
 	void createStockTargetPriceNotification_whenInvalidTargetPrice_thenResponse400Error(String tickerSymbol,
-		Long targetPrice) throws
+		Money targetPrice) throws
 		Exception {
 		// given
-		Map<String, Object> body = new HashMap<>();
-		body.put("tickerSymbol", tickerSymbol);
-		body.put("targetPrice", targetPrice);
+		memberRepository.save(TestDataFactory.createMember());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+
+		TargetPriceNotificationCreateRequest request = new TargetPriceNotificationCreateRequest(tickerSymbol,
+			targetPrice);
 
 		// when & then
 		mockMvc.perform(post("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol", "targetPrice")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("필수 정보입니다", "금액은 양수여야 합니다")));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림 목록을 조회합니다")
 	@Test
 	void searchStockTargetPriceNotification() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		LocalDateTime now = LocalDateTime.now();
-		given(mockedStockTargetPriceService.searchStockTargetPrices(anyLong()))
-			.willReturn(TargetPriceNotificationSearchResponse.builder()
-				.stocks(List.of(TargetPriceNotificationSearchItem.builder()
-					.companyName(stock.getCompanyName())
-					.tickerSymbol(stock.getTickerSymbol())
-					.lastPrice(Money.won(50000L))
-					.targetPrices(List.of(
-						TargetPriceItem.builder()
-							.notificationId(1L)
-							.targetPrice(Money.won(60000L))
-							.dateAdded(now)
-							.build(),
-						TargetPriceItem.builder()
-							.notificationId(2L)
-							.targetPrice(Money.won(70000L))
-							.dateAdded(now)
-							.build()
-					))
-					.isActive(true)
-					.lastUpdated(now)
-					.build()))
-				.build());
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		Money targetPrice = Money.won(60000L);
+		TargetPriceNotification targetPriceNotification = TargetPriceNotification.newTargetPriceNotification(
+			targetPrice, saveStockTargetPrice);
+		TargetPriceNotification saveTargetPriceNotification = targetPriceNotificationRepository.save(
+			targetPriceNotification);
 
 		// when & then
 		mockMvc.perform(get("/api/stocks/target-price/notifications"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("모든 알림 조회를 성공했습니다")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SEARCH_TARGET_PRICE_NOTIFICATIONS.getMessage())))
 			.andExpect(jsonPath("data.stocks[0].companyName").value(equalTo(stock.getCompanyName())))
 			.andExpect(jsonPath("data.stocks[0].tickerSymbol").value(equalTo(stock.getTickerSymbol())))
 			.andExpect(jsonPath("data.stocks[0].lastPrice").value(equalTo(50000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].notificationId").value(equalTo(1)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].targetPrice").value(equalTo(60000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[0].dateAdded").isNotEmpty())
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].notificationId").value(equalTo(2)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].targetPrice").value(equalTo(70000)))
-			.andExpect(jsonPath("data.stocks[0].targetPrices[1].dateAdded").isNotEmpty())
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].notificationId").value(
+				equalTo(saveTargetPriceNotification.getId().intValue())))
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].targetPrice").value(equalTo(60_000)))
+			.andExpect(jsonPath("data.stocks[0].targetPrices[0].dateAdded").value(notNullValue()))
 			.andExpect(jsonPath("data.stocks[0].isActive").value(equalTo(true)))
-			.andExpect(jsonPath("data.stocks[0].lastUpdated").isNotEmpty());
+			.andExpect(jsonPath("data.stocks[0].lastUpdated").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 특정 종목의 지정 알림가들을 조회합니다")
 	@Test
 	void searchTargetPriceNotifications() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		LocalDateTime now = LocalDateTime.now();
-		given(mockedStockTargetPriceService.searchStockTargetPrice(anyString(), anyLong()))
-			.willReturn(TargetPriceNotificationSpecifiedSearchResponse.builder()
-				.targetPrices(List.of(
-					TargetPriceNotificationSpecificItem.builder()
-						.notificationId(1L)
-						.targetPrice(Money.won(60000L))
-						.dateAdded(now)
-						.build(),
-					TargetPriceNotificationSpecificItem.builder()
-						.notificationId(2L)
-						.targetPrice(Money.won(70000L))
-						.dateAdded(now)
-						.build()
-				))
-				.build());
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		TargetPriceNotification targetPriceNotification1 = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(
+				Money.won(60000L), saveStockTargetPrice));
+		TargetPriceNotification targetPriceNotification2 = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(
+				Money.won(70000L), saveStockTargetPrice));
 
 		// when & then
 		mockMvc.perform(get("/api/stocks/{tickerSymbol}/target-price/notifications", stock.getTickerSymbol()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("종목 지정가 알림 특정 조회를 성공했습니다")))
-			.andExpect(jsonPath("data.targetPrices[0].notificationId").value(equalTo(1)))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_SEARCH_SPECIFIC_TARGET_PRICE_NOTIFICATIONS.getMessage())))
+			.andExpect(jsonPath("data.targetPrices[0].notificationId").value(
+				equalTo(targetPriceNotification1.getId().intValue())))
 			.andExpect(jsonPath("data.targetPrices[0].targetPrice").value(equalTo(60000)))
-			.andExpect(jsonPath("data.targetPrices[0].dateAdded").isNotEmpty())
-			.andExpect(jsonPath("data.targetPrices[1].notificationId").value(equalTo(2)))
+			.andExpect(jsonPath("data.targetPrices[0].dateAdded").value(notNullValue()))
+			.andExpect(jsonPath("data.targetPrices[1].notificationId").value(
+				equalTo(targetPriceNotification2.getId().intValue())))
 			.andExpect(jsonPath("data.targetPrices[1].targetPrice").value(equalTo(70000)))
-			.andExpect(jsonPath("data.targetPrices[1].dateAdded").isNotEmpty());
+			.andExpect(jsonPath("data.targetPrices[1].dateAdded").value(notNullValue()));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림의 정보를 수정한다")
 	@Test
 	void updateStockTargetPriceNotification() throws Exception {
 		// given
-		Stock stock = createSamsungStock();
-		Map<String, Object> body = Map.of(
-			"tickerSymbol", stock.getTickerSymbol(),
-			"isActive", false
-		);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		stockTargetPriceRepository.save(stockTargetPrice);
 
-		given(mockedStockTargetPriceService.updateStockTargetPrice(any(TargetPriceNotificationUpdateRequest.class),
-			anyLong()))
-			.willReturn(TargetPriceNotificationUpdateResponse.builder()
-				.stockTargetPriceId(1L)
-				.tickerSymbol(stock.getTickerSymbol())
-				.isActive(false)
-				.build());
+		TargetPriceNotificationUpdateRequest request = new TargetPriceNotificationUpdateRequest(stock.getTickerSymbol(),
+			false);
 
 		// when & then
 		mockMvc.perform(put("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("code").value(equalTo(200)))
-			.andExpect(jsonPath("status").value(equalTo("OK")))
-			.andExpect(jsonPath("message").value(equalTo("종목 지정가 알림을 비 활성화하였습니다")));
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_UPDATE_TARGET_PRICE_NOTIFICATION_INACTIVE.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
 	}
 
-	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림의 정보를  수정할 수 없다")
+	@DisplayName("사용자는 유효하지 않은 입력으로 종목 지정가 알림의 정보를 수정할 수 없다")
 	@Test
 	void updateStockTargetPriceNotification_whenInvalidInput_thenResponse400Error() throws Exception {
 		// given
-		Map<String, Object> body = new HashMap<>();
-		body.put("tickerSymbol", null);
-		body.put("isActive", null);
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		stockTargetPriceRepository.save(stockTargetPrice);
+
+		TargetPriceNotificationUpdateRequest request = new TargetPriceNotificationUpdateRequest(null, null);
 
 		// when & then
 		mockMvc.perform(put("/api/stocks/target-price/notifications")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectMapperUtil.serialize(body)))
+				.content(ObjectMapperUtil.serialize(request)))
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("code").value(equalTo(400)))
-			.andExpect(jsonPath("status").value(equalTo("Bad Request")))
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.BAD_REQUEST.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())))
 			.andExpect(jsonPath("message").value(equalTo("잘못된 입력형식입니다")))
-			.andExpect(jsonPath("data").isArray());
+			.andExpect(jsonPath("data").isArray())
+			.andExpect(jsonPath("data[*].field", containsInAnyOrder("tickerSymbol", "isActive")))
+			.andExpect(jsonPath("data[*].defaultMessage", containsInAnyOrder("필수 정보입니다", "필수 정보입니다")));
+	}
+
+	@DisplayName("사용자는 종목 지정가 알림을 삭제한다")
+	@Test
+	void deleteStockTargetPrice() throws Exception {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
+		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+
+		// when & then
+		mockMvc.perform(delete("/api/stocks/target-price/{stockTargetPriceId}", saveStockTargetPrice.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_DELETE_STOCK_TARGET_PRICE.getMessage())))
+			.andExpect(jsonPath("data").value(nullValue()));
+	}
+
+	@DisplayName("사용자는 존재하지 않는 종목 지정가 알림을 삭제할 수 없다")
+	@Test
+	void deleteStockTargetPrice_whenNotExistStockTargetPrice_thenNotDeleteStockTargetPrice() throws Exception {
+		// given
+		memberRepository.save(TestDataFactory.createMember());
+		Long stockTargetPriceId = 999L;
+
+		// when & then
+		mockMvc.perform(delete("/api/stocks/target-price/{stockTargetPriceId}", stockTargetPriceId))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.NOT_FOUND.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.NOT_FOUND.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(STOCK_TARGET_PRICE_NOT_FOUND.getMessage())))
+			.andExpect(jsonPath("data").value(stockTargetPriceId.toString()));
 	}
 }

@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -20,8 +19,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.MemberService;
 import co.fineants.api.global.security.ajax.entrypoint.CommonLoginAuthenticationEntryPoint;
 import co.fineants.api.global.security.ajax.filter.AjaxLoginProcessingFilter;
 import co.fineants.api.global.security.ajax.handler.AjaxAuthenticationFailHandler;
@@ -31,6 +28,9 @@ import co.fineants.api.global.security.ajax.provider.AjaxAuthenticationProvider;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.handler.JwtLogoutSuccessHandler;
 import co.fineants.api.global.security.oauth.service.TokenService;
+import co.fineants.member.application.LogoutMember;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.role.domain.RoleRepository;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 
@@ -44,12 +44,12 @@ public class AjaxSecurityConfig {
 
 	private final UserDetailsService memberUserDetailsService;
 	private final CorsConfiguration corsConfiguration;
-	private final PasswordEncoder passwordEncoder;
+	private final MemberPasswordEncoder passwordEncoder;
 	private final ObjectMapper objectMapper;
 	private final TokenService tokenService;
-	private final MemberService memberService;
 	private final TokenFactory tokenFactory;
 	private final RoleRepository roleRepository;
+	private final LogoutMember logoutMember;
 
 	@Bean
 	@Order(0)
@@ -81,7 +81,7 @@ public class AjaxSecurityConfig {
 
 		http.logout(configurer -> configurer
 			.logoutUrl(LOGOUT_ENDPOINT)
-			.addLogoutHandler(logoutHandler())
+			.addLogoutHandler(logoutHandler(logoutMember))
 			.logoutSuccessHandler(jwtLogoutSuccessHandler())
 			.permitAll()
 		);
@@ -104,8 +104,8 @@ public class AjaxSecurityConfig {
 	}
 
 	@Bean
-	protected LogoutHandler logoutHandler() {
-		return new AjaxLogoutHandler(memberService);
+	protected LogoutHandler logoutHandler(LogoutMember logoutMember) {
+		return new AjaxLogoutHandler(logoutMember);
 	}
 
 	@Bean

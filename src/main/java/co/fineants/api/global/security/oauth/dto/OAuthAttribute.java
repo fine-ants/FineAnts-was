@@ -3,12 +3,15 @@ package co.fineants.api.global.security.oauth.dto;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
+import co.fineants.member.application.NicknameGenerator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -74,21 +77,24 @@ public class OAuthAttribute {
 	}
 
 	public Optional<Member> findMember(MemberRepository repository) {
-		return repository.findMemberByEmailAndProvider(email, provider)
+		MemberEmail memberEmail = new MemberEmail(email);
+		return repository.findMemberByEmailAndProvider(memberEmail, provider)
 			.stream()
 			.findAny();
 	}
 
 	public void updateProfileUrlIfAbsent(Member member) {
-		if (member.getProfileUrl() == null) {
+		if (member.getProfileUrl().isEmpty()) {
 			member.changeProfileUrl(profileUrl);
 		}
 	}
 
-	public Member toEntity(NicknameGenerator generator) {
-		String nickname = generator.generate();
-		MemberProfile profile = MemberProfile.oauthMemberProfile(email, nickname, provider, profileUrl);
+	public Member toEntity(NicknameGenerator generator, Long userRoleId) {
+		MemberEmail memberEmail = new MemberEmail(this.email);
+		Nickname nickname = generator.generate();
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, provider, profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.defaultSetting();
-		return Member.createMember(profile, notificationPreference);
+		Set<Long> roleIds = Set.of(userRoleId);
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 }

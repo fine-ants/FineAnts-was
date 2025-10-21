@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
-import co.fineants.api.domain.member.domain.factory.MimeMessageFactory;
 import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 import co.fineants.api.global.errors.exception.business.ExternalApiGetRequestException;
 import co.fineants.api.infra.mail.EmailService;
+import co.fineants.api.infra.mail.MimeMessageFactory;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 

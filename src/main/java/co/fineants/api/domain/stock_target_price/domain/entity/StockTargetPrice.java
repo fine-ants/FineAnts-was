@@ -8,7 +8,7 @@ import java.util.List;
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
+import co.fineants.member.domain.Member;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -12,7 +12,7 @@ import co.fineants.api.domain.notification.domain.entity.policy.MaxLossNotificat
 import co.fineants.api.domain.notification.domain.entity.policy.TargetGainNotificationPolicy;
 import co.fineants.api.domain.notification.domain.entity.policy.TargetPriceNotificationPolicy;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
+import co.fineants.member.domain.NotificationPreference;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 

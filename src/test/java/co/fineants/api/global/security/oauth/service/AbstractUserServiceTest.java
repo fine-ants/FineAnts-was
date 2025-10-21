@@ -11,11 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.repository.MemberRepository;
-import co.fineants.api.domain.member.repository.RoleRepository;
-import co.fineants.api.domain.member.service.NicknameGenerator;
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
+import co.fineants.member.application.NicknameGenerator;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberRepository;
+import co.fineants.role.application.FindRole;
+import co.fineants.role.domain.RoleRepository;
 
 class AbstractUserServiceTest extends AbstractContainerBaseTest {
 
@@ -28,6 +29,9 @@ class AbstractUserServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private RoleRepository roleRepository;
 
+	@Autowired
+	private FindRole findRole;
+
 	@Transactional
 	@DisplayName("OAuth google 계정이 다른 프로필로 변경한 상태에서 회원 정보 저장시 프로필 사진을 유지한다")
 	@Test
@@ -35,7 +39,7 @@ class AbstractUserServiceTest extends AbstractContainerBaseTest {
 		// given
 		memberRepository.save(createOauthMember());
 		AbstractUserService userService = new CustomOidcUserService(memberRepository,
-			nicknameGenerator, roleRepository);
+			nicknameGenerator, roleRepository, findRole);
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("email", "fineants1234@gmail.com");
 		attributes.put("profile", "profileUrl0");

@@ -1,5 +1,7 @@
 package co.fineants;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -15,35 +17,33 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
-import co.fineants.api.domain.member.domain.entity.Member;
-import co.fineants.api.domain.member.domain.entity.MemberProfile;
-import co.fineants.api.domain.member.domain.entity.NotificationPreference;
-import co.fineants.api.domain.member.repository.RoleRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.role.domain.Role;
 import co.fineants.api.domain.stock.domain.entity.Market;
 import co.fineants.api.domain.stock.domain.entity.Stock;
 import co.fineants.api.domain.stock.domain.entity.StockDividend;
@@ -52,12 +52,23 @@ import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotifi
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.global.errors.exception.business.RoleNotFoundException;
+import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.factory.CookieDomainProvider;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
+import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.config.AmazonS3TestConfig;
 import co.fineants.config.TestConfig;
+import co.fineants.member.domain.Member;
+import co.fineants.member.domain.MemberEmail;
+import co.fineants.member.domain.MemberPassword;
+import co.fineants.member.domain.MemberPasswordEncoder;
+import co.fineants.member.domain.MemberProfile;
+import co.fineants.member.domain.Nickname;
+import co.fineants.member.domain.NotificationPreference;
+import co.fineants.role.domain.Role;
+import co.fineants.role.domain.RoleRepository;
 import co.fineants.support.mysql.DatabaseCleaner;
 import co.fineants.support.redis.RedisRepository;
 import jakarta.servlet.http.Cookie;
@@ -89,9 +100,6 @@ public abstract class AbstractContainerBaseTest {
 	}
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
-
-	@Autowired
 	private RoleRepository roleRepository;
 
 	@Autowired
@@ -110,13 +118,22 @@ public abstract class AbstractContainerBaseTest {
 	private CookieDomainProvider cookieDomainProvider;
 
 	@Autowired
-	private ExDividendDateCalculator exDividendDateCalculator;
-
-	@Autowired
 	private ApplicationContextInitListener applicationContextInitListener;
 
 	@Autowired
 	private ApplicationContext applicationContext;
+
+	@Autowired
+	private GlobalExceptionHandler globalExceptionHandler;
+
+	@Autowired
+	private MemberAuthenticationArgumentResolver memberAuthenticationArgumentResolver;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
+	private MemberPasswordEncoder memberPasswordEncoder;
 
 	@DynamicPropertySource
 	public static void overrideProps(DynamicPropertyRegistry registry) {
@@ -143,7 +160,8 @@ public abstract class AbstractContainerBaseTest {
 	public void abstractSetup() {
 		roleRepository.save(TestDataFactory.createRole("ROLE_ADMIN", "관리자"));
 		roleRepository.save(TestDataFactory.createRole("ROLE_MANAGER", "매니저"));
-		roleRepository.save(TestDataFactory.createRole("ROLE_USER", "회원"));
+		Role userRole = roleRepository.save(TestDataFactory.createRole("ROLE_USER", "회원"));
+		TestDataFactory.userRoleId = userRole.getId();
 		kisAccessTokenRepository.refreshAccessToken(TestDataFactory.createKisAccessToken());
 	}
 
@@ -153,6 +171,15 @@ public abstract class AbstractContainerBaseTest {
 		redisRepository.clearAll();
 		System.out.println("applicationContext.hashCode() : " + applicationContext.hashCode());
 		System.out.println("context init count : " + applicationContextInitListener.getContextInitCount());
+	}
+
+	protected MockMvc createMockMvc(Object controller) {
+		return MockMvcBuilders.standaloneSetup(controller)
+			.setControllerAdvice(globalExceptionHandler)
+			.setCustomArgumentResolvers(memberAuthenticationArgumentResolver)
+			.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+			.alwaysDo(print())
+			.build();
 	}
 
 	public KisAccessToken createKisAccessToken() {
@@ -167,32 +194,35 @@ public abstract class AbstractContainerBaseTest {
 		return createMember(nickname, "dragonbead95@naver.com");
 	}
 
-	protected Member createMember(String nickname, String email) {
+	protected Member createMember(String nicknameValue, String email) {
 		String roleName = "ROLE_USER";
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
 		// 회원 생성
-		String password = passwordEncoder.encode("nemo1234@");
-		MemberProfile profile = MemberProfile.localMemberProfile(email, nickname, password, "profileUrl");
+		String rawPassword = "nemo1234@";
+		MemberEmail memberEmail = new MemberEmail(email);
+		Nickname nickname = new Nickname(nicknameValue);
+		MemberPassword memberPassword = new MemberPassword(rawPassword, memberPasswordEncoder);
+		String profileUrl = "profileUrl";
+		MemberProfile profile = MemberProfile.localMemberProfile(memberEmail, nickname, memberPassword,
+			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
-		Member member = Member.createMember(profile, notificationPreference);
-		// 역할 설정
-		member.addRoleId(userRole.getId());
-		return member;
+		Set<Long> roleIds = Set.of(userRole.getId());
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	protected Member createOauthMember() {
 		String roleName = "ROLE_USER";
 		Role userRole = roleRepository.findRoleByRoleName(roleName)
 			.orElseThrow(() -> new RoleNotFoundException(roleName));
-		MemberProfile profile = MemberProfile.oauthMemberProfile("fineants1234@gmail.com", "fineants1234", "google",
+		MemberEmail memberEmail = new MemberEmail("fineants1234@gmail.com");
+		Nickname nickname = new Nickname("fineants1234");
+		MemberProfile profile = MemberProfile.oauthMemberProfile(memberEmail, nickname, "google",
 			"profileUrl1");
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
+		Set<Long> roleIds = Set.of(userRole.getId());
 		// 회원 생성
-		Member member = Member.createMember(profile, notificationPreference);
-		// 역할 설정
-		member.addRoleId(userRole.getId());
-		return member;
+		return Member.createMember(profile, notificationPreference, roleIds);
 	}
 
 	protected NotificationPreference createNotificationPreference(boolean browserNotify, boolean targetGainNotify,

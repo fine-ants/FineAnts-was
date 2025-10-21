@@ -14,7 +14,7 @@ import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @ToString
 public class PortfolioHoldingCreateRequest {
 	@NotBlank(message = "티커심볼은 필수 정보입니다")
@@ -25,19 +25,7 @@ public class PortfolioHoldingCreateRequest {
 		PurchaseHistoryCreateRequest purchaseHistory) {
 		return new PortfolioHoldingCreateRequest(tickerSymbol, purchaseHistory);
 	}
-
-	public boolean isPurchaseHistoryAllNull() {
-		return purchaseHistory == null
-			|| purchaseHistory.getPurchaseDate() == null && purchaseHistory.getNumShares() == null
-			&& purchaseHistory.getPurchasePricePerShare() == null && purchaseHistory.getMemo() == null;
-	}
-
-	public boolean isPurchaseHistoryComplete() {
-		return purchaseHistory != null && purchaseHistory.getPurchaseDate() != null
-			&& purchaseHistory.getNumShares() != null
-			&& purchaseHistory.getPurchasePricePerShare() != null;
-	}
-
+	
 	public Optional<PurchaseHistory> toPurchaseHistoryEntity(PortfolioHolding saveHolding) {
 		if (purchaseHistory == null) {
 			return Optional.empty();
