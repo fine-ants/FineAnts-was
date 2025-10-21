@@ -19,7 +19,7 @@ public class SignupVerificationService {
 	private final MimeMessageFactory verifyCodeMimeMessageFactory;
 	private final EmailService emailService;
 
-	public void sendVerificationCode(String email) {
+	public void send(String email) {
 		// 검증 코드 생성
 		String verifyCode = generator.generate();
 		// 검증 코드 임시 저장

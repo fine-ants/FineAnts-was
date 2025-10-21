@@ -21,11 +21,11 @@ class SignupVerificationServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("이메일로 회원가입 검증 코드 전송 테스트")
 	@Test
-	void sendVerificationCode() {
+	void send() {
 		// given
 		String email = "dragonbead95@naver.com";
 		// when
-		service.sendVerificationCode(email);
+		service.send(email);
 		// then
 		BDDMockito.then(mockEmailService)
 			.should(new Times(1))

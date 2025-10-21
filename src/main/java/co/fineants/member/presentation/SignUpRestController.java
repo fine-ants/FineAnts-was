@@ -94,7 +94,7 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyEmail")
 	@PermitAll
 	public ApiResponse<Void> sendVerifyCode(@Valid @RequestBody VerifyEmailRequest request) {
-		verificationService.sendVerificationCode(request.getEmail());
+		verificationService.send(request.getEmail());
 		return ApiResponse.success(MemberSuccessCode.OK_SEND_VERIFY_CODE);
 	}
 
