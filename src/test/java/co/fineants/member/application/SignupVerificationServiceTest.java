@@ -21,7 +21,7 @@ class SignupVerificationServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("이메일로 회원가입 검증 코드 전송 테스트")
 	@Test
-	void givenEmail_whenSendSignupVerification_thenShouldOnceSendEmail() {
+	void sendVerificationCode() {
 		// given
 		String email = "dragonbead95@naver.com";
 		// when
