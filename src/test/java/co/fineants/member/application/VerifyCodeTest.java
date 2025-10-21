@@ -21,7 +21,7 @@ class VerifyCodeTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 검증코드를 제출하여 검증코드가 일치하는지 검사한다")
 	@Test
-	void checkVerifyCode() {
+	void verifyBy() {
 		// given
 		String email = "dragonbead95@naver.com";
 		String code = "123456";
@@ -32,7 +32,7 @@ class VerifyCodeTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 매치되지 않은 검증 코드를 전달하며 검사를 요청했을때 예외가 발생한다")
 	@Test
-	void checkVerifyCode_whenNotMatchVerifyCode_thenThrowException() {
+	void verifyCode_whenNotMatchVerifyCode_thenThrowException() {
 		// given
 		String email = "dragonbead95@naver.com";
 		String code = "234567";
