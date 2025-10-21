@@ -27,7 +27,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.SendVerificationCode;
-import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupMember;
 import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.member.domain.Member;
 
@@ -39,7 +39,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	private SignUpRestController controller;
 
 	@Autowired
-	private SignupService signupService;
+	private SignupMember signupMember;
 
 	@Autowired
 	private SendVerificationCode sendVerificationCode;
@@ -49,7 +49,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 
 	private void saveMember(String nickname, String email) {
 		Member member = TestDataFactory.createMember(nickname, email);
-		signupService.signup(member);
+		signupMember.signup(member);
 	}
 
 	@BeforeEach

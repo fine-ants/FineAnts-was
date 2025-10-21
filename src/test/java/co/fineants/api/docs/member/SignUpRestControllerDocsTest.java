@@ -28,7 +28,7 @@ import co.fineants.api.domain.validator.domain.member.PasswordValidator;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SendVerificationCode;
-import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupMember;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.MemberPasswordEncoder;
@@ -40,7 +40,7 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		SignupService signupService = mock(SignupService.class);
+		SignupMember signupMember = mock(SignupMember.class);
 		SendVerificationCode sendVerificationCode = mock(SendVerificationCode.class);
 		MemberPasswordEncoder memberPasswordEncoder = mock(MemberPasswordEncoder.class);
 		UploadMemberProfileImageFile uploadMemberProfileImageFile = mock(UploadMemberProfileImageFile.class);
@@ -54,7 +54,7 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		PasswordValidator passwordValidator = mock(PasswordValidator.class);
 		VerifyCode verifyCode = mock(VerifyCode.class);
 		return new SignUpRestController(
-			signupService,
+			signupMember,
 			sendVerificationCode,
 			memberPasswordEncoder,
 			uploadMemberProfileImageFile,

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SignupService {
+public class SignupMember {
 
 	private final SignUpValidator signUpValidator;
 	private final MemberRepository memberRepository;

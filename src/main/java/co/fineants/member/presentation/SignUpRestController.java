@@ -24,7 +24,7 @@ import co.fineants.api.global.errors.exception.business.SignupException;
 import co.fineants.api.global.success.MemberSuccessCode;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SendVerificationCode;
-import co.fineants.member.application.SignupService;
+import co.fineants.member.application.SignupMember;
 import co.fineants.member.application.UploadMemberProfileImageFile;
 import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.Member;
@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SignUpRestController {
 
-	private final SignupService signupService;
+	private final SignupMember signupMember;
 	private final SendVerificationCode verificationService;
 	private final MemberPasswordEncoder memberPasswordEncoder;
 	private final UploadMemberProfileImageFile uploadMemberProfileImageFile;
@@ -81,7 +81,7 @@ public class SignUpRestController {
 		Member member = Member.createMember(profile, notificationPreference, Set.of(userRole.getId()));
 
 		try {
-			signupService.signup(member);
+			signupMember.signup(member);
 		} catch (BusinessException exception) {
 			log.warn("BusinessException occurred during signup: {}", exception.getMessage(), exception);
 			deleteProfileImageFileService.delete(profileUrl);

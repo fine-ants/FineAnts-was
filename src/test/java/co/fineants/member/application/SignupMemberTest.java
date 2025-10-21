@@ -34,10 +34,10 @@ import co.fineants.member.presentation.dto.request.SignUpRequest;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
 
-class SignupServiceTest extends co.fineants.AbstractContainerBaseTest {
+class SignupMemberTest extends co.fineants.AbstractContainerBaseTest {
 
 	@Autowired
-	private SignupService service;
+	private SignupMember service;
 
 	@Autowired
 	private MemberRepository memberRepository;
