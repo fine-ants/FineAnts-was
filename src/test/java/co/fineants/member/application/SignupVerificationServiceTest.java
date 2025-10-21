@@ -25,7 +25,7 @@ class SignupVerificationServiceTest extends AbstractContainerBaseTest {
 		// given
 		String email = "dragonbead95@naver.com";
 		// when
-		service.sendSignupVerification(email);
+		service.sendVerificationCode(email);
 		// then
 		BDDMockito.then(mockEmailService)
 			.should(new Times(1))

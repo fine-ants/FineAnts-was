@@ -375,7 +375,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 		BDDMockito.given(spyVerifyCodeGenerator.generate())
 			.willReturn(code);
 		String email = "ants1234@gmail.com";
-		signupVerificationService.sendSignupVerification(email);
+		signupVerificationService.sendVerificationCode(email);
 		String body = ObjectMapperUtil.serialize(Map.of("email", email, "code", code));
 
 		// when & then
