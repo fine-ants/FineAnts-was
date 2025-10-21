@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import co.fineants.api.global.errors.exception.business.VerifyCodeInvalidInputException;
 import co.fineants.api.infra.mail.EmailService;
 import co.fineants.api.infra.mail.MimeMessageFactory;
 import co.fineants.member.domain.VerifyCodeRepository;
@@ -30,13 +29,5 @@ public class SignupVerificationService {
 		MimeMessage message = verifyCodeMimeMessageFactory.create(email, variables);
 		// 검증 코드 이메일 전송
 		emailService.sendEmail(message);
-	}
-
-	public void verifyCode(String email, String code) {
-		String verifyCode = verifyCodeRedisRepository.get(email)
-			.orElseThrow(() -> new VerifyCodeInvalidInputException(code));
-		if (!verifyCode.equals(code)) {
-			throw new VerifyCodeInvalidInputException(code);
-		}
 	}
 }

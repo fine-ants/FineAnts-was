@@ -30,6 +30,7 @@ import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
+import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.MemberPasswordEncoder;
 import co.fineants.member.presentation.SignUpRestController;
 import co.fineants.role.application.FindRole;
@@ -51,6 +52,7 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 		NicknameValidator nicknameValidator = mock(NicknameValidator.class);
 		EmailValidator emailValidator = mock(EmailValidator.class);
 		PasswordValidator passwordValidator = mock(PasswordValidator.class);
+		VerifyCode verifyCode = mock(VerifyCode.class);
 		return new SignUpRestController(
 			signupService,
 			signupVerificationService,
@@ -60,7 +62,8 @@ class SignUpRestControllerDocsTest extends RestDocsSupport {
 			findRole,
 			nicknameValidator,
 			emailValidator,
-			passwordValidator);
+			passwordValidator,
+			verifyCode);
 	}
 
 	@DisplayName("사용자 일반 회원가입 API")

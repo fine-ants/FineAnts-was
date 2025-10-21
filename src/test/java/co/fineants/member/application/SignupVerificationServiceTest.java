@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.infra.mail.EmailService;
-import co.fineants.member.domain.VerifyCodeRepository;
 import jakarta.mail.internet.MimeMessage;
 
 class SignupVerificationServiceTest extends AbstractContainerBaseTest {
@@ -19,9 +18,6 @@ class SignupVerificationServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private EmailService mockEmailService;
-
-	@Autowired
-	private VerifyCodeRepository verifyCodeRedisRepository;
 
 	@DisplayName("이메일로 회원가입 검증 코드 전송 테스트")
 	@Test

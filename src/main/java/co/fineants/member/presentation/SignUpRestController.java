@@ -26,6 +26,7 @@ import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
 import co.fineants.member.application.SignupService;
 import co.fineants.member.application.SignupVerificationService;
 import co.fineants.member.application.UploadMemberProfileImageFile;
+import co.fineants.member.application.VerifyCode;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberPassword;
@@ -58,6 +59,7 @@ public class SignUpRestController {
 	private final NicknameValidator nicknameValidator;
 	private final EmailValidator emailValidator;
 	private final PasswordValidator passwordValidator;
+	private final VerifyCode verifyCode;
 
 	@ResponseStatus(CREATED)
 	@PostMapping(value = "/auth/signup", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -99,7 +101,7 @@ public class SignUpRestController {
 	@PostMapping("/auth/signup/verifyCode")
 	@PermitAll
 	public ApiResponse<Void> checkVerifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-		verificationService.verifyCode(request.email(), request.code());
+		verifyCode.verifyCode(request.email(), request.code());
 		return ApiResponse.success(MemberSuccessCode.OK_VERIF_CODE);
 	}
 
