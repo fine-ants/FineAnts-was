@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
@@ -190,7 +191,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void reloadStocks() {
 		// given
-		Stock nokwon = stockRepository.save(createNokwonCI());
+		Stock nokwon = stockRepository.save(TestDataFactory.createNokwonCI());
 
 		StockDataResponse.StockIntegrationInfo hynix = StockDataResponse.StockIntegrationInfo.create(
 			"000660",
