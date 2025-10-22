@@ -42,7 +42,7 @@ public class SearchStock {
 	}
 
 	@Transactional(readOnly = true)
-	public StockResponse getDetailedStock(String tickerSymbol) {
+	public StockResponse findDetailedStock(String tickerSymbol) {
 		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		return StockResponse.of(stock, (CurrentPriceRedisRepository)currentPriceRepository, closingPriceRepository,

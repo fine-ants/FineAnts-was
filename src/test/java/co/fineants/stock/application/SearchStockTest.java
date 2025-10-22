@@ -118,7 +118,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자는 종목 정보를 상세 조회합니다")
 	@Test
-	void getDetailedStock() {
+	void findDetailedStock() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
@@ -132,7 +132,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 		String tickerSymbol = "005930";
 		// when
-		StockResponse response = searchStock.getDetailedStock(tickerSymbol);
+		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
 		// then
 		Assertions.assertAll(
 			() -> assertThat(response)
@@ -168,7 +168,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 서버로부터 조회하여 가져온다")
 	@Test
-	void getDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
+	void findDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
@@ -184,7 +184,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 		String tickerSymbol = "005930";
 		// when
-		StockResponse response = searchStock.getDetailedStock(tickerSymbol);
+		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
 		// then
 		Assertions.assertAll(
 			() -> assertThat(response)
