@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.repository;
+package co.fineants.stock.infrastructure;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,13 +15,12 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.stock.domain.StockRepository;
 
 @Transactional
-class StockRepositoryTest extends AbstractContainerBaseTest {
+class StockSpringDataJpaRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@DisplayName("배당금 정보가 없어도 종목 정보 존재할때 종목을 조회한다")
 	@Test

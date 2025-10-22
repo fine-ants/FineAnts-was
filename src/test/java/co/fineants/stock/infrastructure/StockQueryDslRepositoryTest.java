@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.repository;
+package co.fineants.stock.infrastructure;
 
 import java.io.IOException;
 import java.io.InputStream;

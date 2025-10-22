@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.repository;
+package co.fineants.stock.infrastructure;
 
 import static co.fineants.stock.domain.QStock.*;
 
