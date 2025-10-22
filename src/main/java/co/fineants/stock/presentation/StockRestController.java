@@ -68,7 +68,7 @@ public class StockRestController {
 	@PostMapping("/sync")
 	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<Void> syncAllStocksWithLatestData() {
-		stockService.syncAllStocksWithLatestData();
+		stockService.syncAllStocks();
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS);
 	}
 

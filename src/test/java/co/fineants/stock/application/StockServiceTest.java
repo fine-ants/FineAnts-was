@@ -184,7 +184,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				"의료"
 			)));
 		// when
-		List<Stock> actual = stockService.syncAllStocksWithLatestData();
+		List<Stock> actual = stockService.syncAllStocks();
 		// then
 		assertThat(actual).hasSize(1);
 		assertThat(actual.get(0).getMarket()).isEqualTo(Market.KOSDAQ);

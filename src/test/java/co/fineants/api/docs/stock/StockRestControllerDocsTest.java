@@ -52,7 +52,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	private final WriteStockService writeStockService = Mockito.mock(WriteStockService.class);
 
 	private final FindStock findStock = Mockito.mock(FindStock.class);
-	
+
 	@Override
 	protected Object initController() {
 		return new StockRestController(service, searchStock, writeStockService, findStock);
@@ -415,7 +415,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void syncAllStocksWithLatestData() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.syncAllStocksWithLatestData()).willReturn(List.of(stock));
+		given(service.syncAllStocks()).willReturn(List.of(stock));
 		// when
 		mockMvc.perform(post("/api/stocks/sync")
 				.cookie(createTokenCookies()))

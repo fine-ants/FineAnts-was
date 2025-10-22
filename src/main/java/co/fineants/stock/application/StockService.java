@@ -44,7 +44,7 @@ public class StockService {
 	 * @return 최신화된 종목 리스트
 	 */
 	@Transactional
-	public List<Stock> syncAllStocksWithLatestData() {
+	public List<Stock> syncAllStocks() {
 		List<String> tickerSymbols = stockRepository.findAll().stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
