@@ -18,9 +18,9 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 	private StockDividendService stockDividendService;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationDeleteResponse;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
@@ -33,7 +33,7 @@ class TargetPriceNotificationServiceTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private StockTargetPriceRepository repository;

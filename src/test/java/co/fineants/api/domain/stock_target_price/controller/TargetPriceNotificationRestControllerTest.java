@@ -21,7 +21,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationDeleteRequest;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
@@ -44,7 +44,7 @@ class TargetPriceNotificationRestControllerTest extends AbstractContainerBaseTes
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private StockTargetPriceRepository stockTargetPriceRepository;

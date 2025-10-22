@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -42,7 +42,7 @@ public class WatchListService {
 
 	private final WatchListRepository watchListRepository;
 	private final MemberRepository memberRepository;
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 	private final WatchStockRepository watchStockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;

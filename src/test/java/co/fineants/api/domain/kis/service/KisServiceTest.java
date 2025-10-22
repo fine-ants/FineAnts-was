@@ -41,7 +41,7 @@ import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
@@ -74,7 +74,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;

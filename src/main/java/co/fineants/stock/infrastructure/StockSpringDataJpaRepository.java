@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.repository;
+package co.fineants.stock.infrastructure;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import co.fineants.stock.domain.Stock;
 
-public interface StockRepository extends JpaRepository<Stock, Long> {
+public interface StockSpringDataJpaRepository extends JpaRepository<Stock, Long> {
 
 	@Query("select s from Stock s where s.isDeleted = false")
 	List<Stock> findAllStocks();

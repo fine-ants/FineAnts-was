@@ -30,8 +30,8 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
@@ -50,7 +50,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
 	@Autowired

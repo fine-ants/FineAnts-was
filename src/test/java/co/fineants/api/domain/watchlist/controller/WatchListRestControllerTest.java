@@ -24,7 +24,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -54,7 +54,7 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	private WatchStockRepository watchStockRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private PriceRepository priceRepository;

@@ -28,7 +28,7 @@ import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -60,7 +60,7 @@ public class KisService {
 	private final DelayManager delayManager;
 	private final KisAccessTokenRepository kisAccessTokenRepository;
 	private final KisAccessTokenRedisService kisAccessTokenRedisService;
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
 
 	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신

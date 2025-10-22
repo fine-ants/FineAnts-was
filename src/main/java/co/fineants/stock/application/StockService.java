@@ -17,7 +17,7 @@ import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.domain.stock.repository.StockQueryRepository;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Service
 public class StockService {
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockQueryRepository stockQueryRepository;

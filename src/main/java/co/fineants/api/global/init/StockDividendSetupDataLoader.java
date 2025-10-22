@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,9 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 public class StockDividendSetupDataLoader {
 
 	private final FetchDividendService fetchDividendService;
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 
-	public StockDividendSetupDataLoader(FetchDividendService fetchDividendService, StockRepository stockRepository) {
+	public StockDividendSetupDataLoader(FetchDividendService fetchDividendService,
+		StockSpringDataJpaRepository stockRepository) {
 		this.fetchDividendService = fetchDividendService;
 		this.stockRepository = stockRepository;
 	}

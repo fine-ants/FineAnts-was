@@ -17,7 +17,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class ReloadStock {
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final ExDividendDateCalculator exDividendDateCalculator;

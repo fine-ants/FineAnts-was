@@ -36,7 +36,7 @@ import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchStockService;
@@ -53,7 +53,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	private StockService stockService;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;

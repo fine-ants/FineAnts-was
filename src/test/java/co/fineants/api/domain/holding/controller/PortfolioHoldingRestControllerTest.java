@@ -33,8 +33,8 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
@@ -60,7 +60,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;

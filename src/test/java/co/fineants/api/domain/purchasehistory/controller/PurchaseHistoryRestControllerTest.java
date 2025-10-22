@@ -29,13 +29,13 @@ import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistory
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
 class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
-	
+
 	@Autowired
 	private PurchaseHistoryRestController controller;
 
@@ -49,7 +49,7 @@ class PurchaseHistoryRestControllerTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private PurchaseHistoryRepository purchaseHistoryRepository;

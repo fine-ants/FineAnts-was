@@ -15,7 +15,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StockDividendService {
 
-	private final StockRepository stockRepository;
+	private final StockSpringDataJpaRepository stockRepository;
 	private final KisService kisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final ExDividendDateCalculator exDividendDateCalculator;

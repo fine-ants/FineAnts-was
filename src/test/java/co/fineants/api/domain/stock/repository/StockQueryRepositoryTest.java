@@ -17,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,7 +27,7 @@ class StockQueryRepositoryTest extends AbstractContainerBaseTest {
 	private StockQueryRepository repository;
 
 	@Autowired
-	private StockRepository stockRepository;
+	private StockSpringDataJpaRepository stockRepository;
 
 	@Autowired
 	private StockCsvParser stockCsvParser;
