@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.domain.Stock;
@@ -69,12 +68,6 @@ public class StockService {
 		}
 		writeStockService.writeStocks(stocks);
 		return stocks;
-	}
-
-	@Transactional(readOnly = true)
-	public Stock getStock(String tickerSymbol) {
-		return stockRepository.findByTickerSymbol(tickerSymbol)
-			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 	}
 
 	@Transactional(readOnly = true)
