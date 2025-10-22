@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.infra.s3.dto.StockDividendDto;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;

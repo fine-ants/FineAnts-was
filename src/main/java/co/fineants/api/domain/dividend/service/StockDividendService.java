@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,6 +1,6 @@
 package co.fineants.api.infra.s3.service.imple;
 
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteDividendService;

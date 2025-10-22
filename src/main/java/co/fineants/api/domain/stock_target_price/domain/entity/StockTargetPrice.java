@@ -9,7 +9,7 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.member.domain.Member;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

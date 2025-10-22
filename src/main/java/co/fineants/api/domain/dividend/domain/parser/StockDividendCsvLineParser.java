@@ -1,6 +1,6 @@
 package co.fineants.api.domain.dividend.domain.parser;
 
-import static co.fineants.api.domain.stock.domain.entity.StockDividend.*;
+import static co.fineants.stock.domain.StockDividend.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import lombok.RequiredArgsConstructor;
 
 @Component

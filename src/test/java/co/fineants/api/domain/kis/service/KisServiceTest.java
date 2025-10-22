@@ -1,10 +1,11 @@
 package co.fineants.api.domain.kis.service;
 
-import static co.fineants.api.domain.stock.domain.dto.response.StockDataResponse.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +40,6 @@ import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.domain.stock.service.StockCsvReader;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -49,6 +47,10 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.application.StockCsvParser;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -77,9 +79,6 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private KisAccessTokenRepository kisAccessTokenRepository;
 
 	@Autowired
-	private StockCsvReader stockCsvReader;
-
-	@Autowired
 	private KisAccessTokenRedisService kisAccessTokenRedisService;
 
 	@Autowired
@@ -105,6 +104,9 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private DelayManager spyDelayManager;
+
+	@Autowired
+	private StockCsvParser stockCsvParser;
 
 	@BeforeEach
 	void setUp() {
@@ -192,10 +194,15 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	}
 
 	private List<Stock> saveStocks(int limit) {
-		return stockRepository.saveAll(stockCsvReader.readStockCsv()
-			.stream()
-			.limit(limit)
-			.toList());
+		try {
+			InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
+			List<Stock> stocks = stockCsvParser.parse(inputStream).stream()
+				.limit(limit)
+				.toList();
+			return stockRepository.saveAll(stocks);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@DisplayName("현재가를 갱신할때 액세스 토큰의 만료시간이 1시간 이전어서 새로운 액세스 토큰을 재발급한다")

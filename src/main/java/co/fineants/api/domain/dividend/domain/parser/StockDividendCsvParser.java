@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

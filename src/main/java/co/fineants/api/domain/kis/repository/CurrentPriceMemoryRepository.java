@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 
 public class CurrentPriceMemoryRepository implements PriceRepository {
 

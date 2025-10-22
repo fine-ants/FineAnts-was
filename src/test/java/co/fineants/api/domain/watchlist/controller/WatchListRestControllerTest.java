@@ -23,8 +23,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -38,6 +36,8 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class WatchListRestControllerTest extends AbstractContainerBaseTest {
 

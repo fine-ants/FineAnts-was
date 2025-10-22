@@ -19,7 +19,7 @@ import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 
 class PieChartTest extends AbstractContainerBaseTest {
 

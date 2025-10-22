@@ -2,7 +2,7 @@ package co.fineants.api.infra.s3.service.imple;
 
 import java.util.List;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.RemoteFileUploader;
 import co.fineants.api.infra.s3.service.WriteStockService;
