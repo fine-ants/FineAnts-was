@@ -7,11 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
@@ -19,7 +16,6 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
-import co.fineants.stock.presentation.dto.response.StockResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -29,21 +25,11 @@ import reactor.core.publisher.Mono;
 @Service
 public class StockService {
 	private final StockRepository stockRepository;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
-	private final ClosingPriceRepository closingPriceRepository;
 	private final ReloadStock reloadStock;
 	private final KisService kisService;
 	private final DelayManager delayManager;
-	private final LocalDateTimeService localDateTimeService;
 	private final WriteDividendService writeDividendService;
 	private final WriteStockService writeStockService;
-
-	@Transactional(readOnly = true)
-	public StockResponse getDetailedStock(String tickerSymbol) {
-		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
-			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
-		return StockResponse.of(stock, currentPriceRedisRepository, closingPriceRepository, localDateTimeService);
-	}
 
 	@Transactional
 	public StockReloadResponse reloadStocks() {

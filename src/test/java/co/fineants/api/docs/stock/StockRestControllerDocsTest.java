@@ -322,7 +322,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 			.willReturn(Optional.of(currentPrice));
 		given(closingPriceRepository.fetchPrice(stock.getTickerSymbol()))
 			.willReturn(Optional.of(closingPrice));
-		given(service.getDetailedStock(stock.getTickerSymbol()))
+		given(searchStock.getDetailedStock(stock.getTickerSymbol()))
 			.willReturn(StockResponse.create(
 				stock.getStockCode(),
 				stock.getTickerSymbol(),

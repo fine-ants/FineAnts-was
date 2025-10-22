@@ -69,6 +69,6 @@ public class StockRestController {
 	@PermitAll
 	public ApiResponse<StockResponse> getStock(@PathVariable String tickerSymbol) {
 		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK,
-			stockService.getDetailedStock(tickerSymbol));
+			searchStock.getDetailedStock(tickerSymbol));
 	}
 }
