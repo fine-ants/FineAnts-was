@@ -1,4 +1,4 @@
-package co.fineants.api.domain.dividend.config;
+package co.fineants.stock.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
