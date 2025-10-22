@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.stock.domain.StockRepository;
 import co.fineants.stock.presentation.dto.response.StockSearchItem;
 
@@ -24,8 +25,8 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	@Test
 	void search_givenStockName_whenSearch_thenReturnStockSearchItemList() {
 		// given
-		stockRepository.save(createSamsungStock());
-		stockRepository.save(createNokwonCI());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		stockRepository.save(TestDataFactory.createNokwonCI());
 
 		String searchTerm = "삼성";
 		// when
@@ -38,8 +39,8 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	@Test
 	void search_givenTickerSymbol_whenSearch_thenReturnStockSearchItemList() {
 		// given
-		stockRepository.save(createSamsungStock());
-		stockRepository.save(createNokwonCI());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		stockRepository.save(TestDataFactory.createNokwonCI());
 
 		String searchTerm = "005930";
 		// when
@@ -52,8 +53,8 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	@Test
 	void search_givenStockNameEng_whenSearch_thenReturnStockSearchItemList() {
 		// given
-		stockRepository.save(createSamsungStock());
-		stockRepository.save(createNokwonCI());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		stockRepository.save(TestDataFactory.createNokwonCI());
 
 		String searchTerm = "samsung";
 		// when
@@ -66,8 +67,8 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	@Test
 	void search_whenSearchTermIsNull_ThenReturnEmptyList() {
 		// given
-		stockRepository.save(createSamsungStock());
-		stockRepository.save(createNokwonCI());
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		stockRepository.save(TestDataFactory.createNokwonCI());
 
 		String searchTerm = null;
 		// when
