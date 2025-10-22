@@ -1,6 +1,6 @@
 package co.fineants.api.domain.stock.repository;
 
-import static co.fineants.api.domain.stock.domain.entity.QStock.*;
+import static co.fineants.stock.domain.QStock.*;
 
 import java.util.Collections;
 import java.util.List;
