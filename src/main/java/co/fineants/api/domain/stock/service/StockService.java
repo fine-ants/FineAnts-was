@@ -16,8 +16,6 @@ import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.domain.stock.repository.StockQueryRepository;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -25,6 +23,8 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -37,7 +37,7 @@ public class StockService {
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockQueryRepository stockQueryRepository;
-	private final StockAndDividendManager stockAndDividendManager;
+	private final ReloadStock reloadStock;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;
@@ -68,7 +68,7 @@ public class StockService {
 
 	@Transactional
 	public StockReloadResponse reloadStocks() {
-		StockReloadResponse response = stockAndDividendManager.reloadStocks();
+		StockReloadResponse response = reloadStock.reloadStocks();
 		log.info("refreshStocks response : {}", response);
 		List<Stock> stocks = stockRepository.findAll();
 		writeStockService.writeStocks(stocks);

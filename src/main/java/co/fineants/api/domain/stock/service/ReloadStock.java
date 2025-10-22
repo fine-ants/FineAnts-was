@@ -17,10 +17,10 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class StockAndDividendManager {
+public class ReloadStock {
 	private final StockRepository stockRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
