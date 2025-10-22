@@ -16,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
 
 class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -52,7 +52,7 @@ class StockDividendSetupDataLoaderTest extends AbstractContainerBaseTest {
 	private DeleteDividendService deleteDividendService;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@BeforeEach
 	void setUp() throws IOException {

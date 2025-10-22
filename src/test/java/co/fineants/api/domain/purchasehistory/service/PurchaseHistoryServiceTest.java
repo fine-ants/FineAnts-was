@@ -37,13 +37,13 @@ import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistor
 import co.fineants.api.domain.purchasehistory.domain.dto.response.PurchaseHistoryUpdateResponse;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.errors.exception.business.CashNotSufficientInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PurchaseHistoryNotFoundException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
 class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
@@ -58,7 +58,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private PurchaseHistoryRepository purchaseHistoryRepository;

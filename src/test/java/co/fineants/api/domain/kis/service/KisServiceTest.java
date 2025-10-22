@@ -41,8 +41,6 @@ import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -50,8 +48,10 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -74,7 +74,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private KisAccessTokenRepository kisAccessTokenRepository;

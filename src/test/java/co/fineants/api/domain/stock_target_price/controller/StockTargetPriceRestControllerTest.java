@@ -20,8 +20,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
@@ -31,6 +29,8 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 
@@ -41,7 +41,7 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private StockTargetPriceRepository stockTargetPriceRepository;

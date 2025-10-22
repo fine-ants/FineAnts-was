@@ -17,10 +17,10 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class ReloadStock {
-	private final StockSpringDataJpaRepository stockRepository;
+	private final StockRepository stockRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final ExDividendDateCalculator exDividendDateCalculator;
@@ -172,7 +172,7 @@ public class ReloadStock {
 
 	@NotNull
 	private Set<String> findAllTickerSymbols() {
-		return stockRepository.findAllStocks()
+		return stockRepository.findAll()
 			.stream()
 			.map(Stock::getTickerSymbol)
 			.collect(Collectors.toUnmodifiableSet());

@@ -24,10 +24,10 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.domain.Stock;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class PortfolioGainHistoryServiceTest extends AbstractContainerBaseTest {
 
@@ -44,7 +44,7 @@ class PortfolioGainHistoryServiceTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private PortfolioHoldingRepository portFolioHoldingRepository;

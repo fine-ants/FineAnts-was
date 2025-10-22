@@ -17,8 +17,8 @@ public class StockJpaRepository implements StockRepository {
 	private final StockSpringDataJpaRepository repository;
 
 	@Override
-	public List<Stock> findAllStocks() {
-		return repository.findAll();
+	public List<Stock> findAll() {
+		return repository.findAllStocks();
 	}
 
 	@Override
@@ -39,5 +39,15 @@ public class StockJpaRepository implements StockRepository {
 	@Override
 	public int deleteAllByTickerSymbols(Set<String> tickerSymbols) {
 		return repository.deleteAllByTickerSymbols(tickerSymbols);
+	}
+
+	@Override
+	public List<Stock> saveAll(List<Stock> stocks) {
+		return repository.saveAll(stocks);
+	}
+
+	@Override
+	public Stock save(Stock stock) {
+		return repository.save(stock);
 	}
 }

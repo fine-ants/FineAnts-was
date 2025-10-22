@@ -15,12 +15,12 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
@@ -30,7 +30,7 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	private int port;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 	@Autowired
 	private PriceRepository priceRepository;
 

@@ -6,7 +6,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationDeleteResponse;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
@@ -17,6 +16,7 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.api.global.errors.exception.business.TargetPriceNotificationNotFoundException;
+import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +28,7 @@ public class TargetPriceNotificationService {
 
 	private final StockTargetPriceRepository repository;
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
-	private final StockSpringDataJpaRepository stockRepository;
+	private final StockRepository stockRepository;
 
 	// 종목 지정가 알림 다수 제거
 	@Transactional

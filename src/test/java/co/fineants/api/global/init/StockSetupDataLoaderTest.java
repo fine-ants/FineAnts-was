@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class StockSetupDataLoaderTest extends AbstractContainerBaseTest {
 
@@ -24,7 +24,7 @@ class StockSetupDataLoaderTest extends AbstractContainerBaseTest {
 	private StockSetupDataLoader loader;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private WriteStockService writeStockService;

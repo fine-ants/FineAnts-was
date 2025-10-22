@@ -27,8 +27,6 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -36,6 +34,8 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
 import co.fineants.api.global.errors.exception.business.ExpiredAccessTokenKisException;
 import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Exceptions;
@@ -60,7 +60,7 @@ public class KisService {
 	private final DelayManager delayManager;
 	private final KisAccessTokenRepository kisAccessTokenRepository;
 	private final KisAccessTokenRedisService kisAccessTokenRedisService;
-	private final StockSpringDataJpaRepository stockRepository;
+	private final StockRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
 
 	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신

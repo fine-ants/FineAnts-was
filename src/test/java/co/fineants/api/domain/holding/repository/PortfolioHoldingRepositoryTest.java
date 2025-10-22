@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class PortfolioHoldingRepositoryTest extends AbstractContainerBaseTest {
 
@@ -24,7 +24,7 @@ class PortfolioHoldingRepositoryTest extends AbstractContainerBaseTest {
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private PortfolioHoldingRepository holdingRepository;

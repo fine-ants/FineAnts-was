@@ -26,8 +26,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.security.factory.TokenFactory;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
@@ -37,6 +35,8 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.domain.Role;
 import co.fineants.role.domain.RoleRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
@@ -62,7 +62,7 @@ class PortfolioHoldingRestControllerIntegrationTest extends AbstractContainerBas
 	private PortfolioRepository portfolioRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private PortfolioHoldingRepository portfolioHoldingRepository;

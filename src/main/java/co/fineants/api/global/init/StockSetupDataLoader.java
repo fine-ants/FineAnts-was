@@ -5,22 +5,19 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StockSetupDataLoader {
 
 	private final FetchStockService fetchStockService;
-	private final StockSpringDataJpaRepository stockRepository;
-
-	public StockSetupDataLoader(FetchStockService fetchStockService, StockSpringDataJpaRepository stockRepository) {
-		this.fetchStockService = fetchStockService;
-		this.stockRepository = stockRepository;
-	}
+	private final StockRepository stockRepository;
 
 	@Transactional
 	public void setupStocks() {

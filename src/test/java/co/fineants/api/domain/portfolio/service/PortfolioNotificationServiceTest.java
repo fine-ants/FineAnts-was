@@ -24,12 +24,12 @@ import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNotificatio
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.global.errors.exception.business.ForbiddenException;
 import co.fineants.api.global.errors.exception.business.PortfolioInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 
@@ -46,7 +46,7 @@ class PortfolioNotificationServiceTest extends AbstractContainerBaseTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private ObjectMapper objectMapper;

@@ -15,8 +15,6 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
@@ -25,6 +23,8 @@ import co.fineants.api.domain.watchlist.repository.WatchListRepository;
 import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class DeleteMemberTest extends AbstractContainerBaseTest {
 
@@ -49,7 +49,7 @@ class DeleteMemberTest extends AbstractContainerBaseTest {
 	@Autowired
 	private TargetPriceNotificationRepository targetPriceNotificationRepository;
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private WatchListRepository watchListRepository;

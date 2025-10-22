@@ -40,8 +40,6 @@ import co.fineants.api.domain.notification.repository.NotificationSentRepository
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
@@ -50,6 +48,8 @@ import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberEmail;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.member.domain.NotificationPreference;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
 class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
@@ -73,7 +73,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 	private TargetPriceNotificationRepository targetPriceNotificationRepository;
 
 	@Autowired
-	private StockSpringDataJpaRepository stockRepository;
+	private StockRepository stockRepository;
 
 	@Autowired
 	private PortfolioHoldingRepository portfolioHoldingRepository;

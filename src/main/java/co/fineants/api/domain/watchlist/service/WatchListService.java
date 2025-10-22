@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.stock.infrastructure.StockSpringDataJpaRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -34,6 +33,7 @@ import co.fineants.api.global.errors.exception.business.WatchListNotFoundExcepti
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class WatchListService {
 
 	private final WatchListRepository watchListRepository;
 	private final MemberRepository memberRepository;
-	private final StockSpringDataJpaRepository stockRepository;
+	private final StockRepository stockRepository;
 	private final WatchStockRepository watchStockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;

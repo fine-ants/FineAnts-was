@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface StockRepository {
 
-	List<Stock> findAllStocks();
+	List<Stock> findAll();
 
 	Optional<Stock> findByTickerSymbolIncludingDeleted(String tickerSymbol);
 
@@ -15,4 +15,8 @@ public interface StockRepository {
 	List<Stock> findAllWithDividends(List<String> tickerSymbols);
 
 	int deleteAllByTickerSymbols(Set<String> tickerSymbols);
+
+	List<Stock> saveAll(List<Stock> stocks);
+
+	Stock save(Stock stock);
 }
