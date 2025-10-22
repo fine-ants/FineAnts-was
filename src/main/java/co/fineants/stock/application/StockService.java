@@ -37,11 +37,11 @@ public class StockService {
 		log.info("refreshStocks response : {}", response);
 		List<Stock> stocks = stockRepository.findAll();
 		writeStockService.writeStocks(stocks);
-		writeDividendService.writeDividend(getStockDividendArray(stocks));
+		writeDividendService.writeDividend(toStockDividends(stocks));
 		return response;
 	}
 
-	private StockDividend[] getStockDividendArray(List<Stock> stocks) {
+	private StockDividend[] toStockDividends(List<Stock> stocks) {
 		return stocks.stream()
 			.flatMap(stock -> stock.getStockDividends().stream())
 			.toArray(StockDividend[]::new);
