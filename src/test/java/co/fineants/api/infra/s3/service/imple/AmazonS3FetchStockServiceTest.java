@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
-import co.fineants.api.domain.stock.service.StockCsvLineParser;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvLineParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.stock.domain.Stock;

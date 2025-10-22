@@ -3,7 +3,7 @@ package co.fineants.api.infra.s3.service.imple;
 import java.io.InputStream;
 import java.util.List;
 
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.stock.domain.Stock;

@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.service;
+package co.fineants.stock.application;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -36,13 +36,13 @@ import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.stock.domain.Market;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import jakarta.persistence.EntityManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

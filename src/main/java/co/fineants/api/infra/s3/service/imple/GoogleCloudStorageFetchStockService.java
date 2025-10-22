@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.service;
+package co.fineants.stock.application;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

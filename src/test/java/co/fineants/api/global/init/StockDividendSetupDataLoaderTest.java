@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.WriteDividendService;

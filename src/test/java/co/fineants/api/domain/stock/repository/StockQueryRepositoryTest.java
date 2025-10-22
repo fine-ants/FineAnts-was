@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
 import lombok.extern.slf4j.Slf4j;
 

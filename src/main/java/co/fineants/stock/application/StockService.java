@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.service;
+package co.fineants.stock.application;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
-import co.fineants.api.domain.stock.service.StockService;
+import co.fineants.stock.application.StockService;
 import lombok.RequiredArgsConstructor;
 
 @Component

@@ -22,7 +22,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
@@ -39,7 +39,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-	
+
 	@Autowired
 	private KisService mockedKisService;
 

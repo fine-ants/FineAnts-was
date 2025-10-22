@@ -13,7 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.domain.stock.service.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.DeleteStockService;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.domain.Stock;
