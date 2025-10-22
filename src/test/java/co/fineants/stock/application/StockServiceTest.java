@@ -20,11 +20,8 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -48,16 +45,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private CurrentPriceRedisRepository currentPriceRedisRepository;
-
-	@Autowired
-	private ClosingPriceRepository closingPriceRepository;
-
-	@Autowired
 	private FetchStockService fetchStockService;
-
-	@Autowired
-	private KisClient kisClient;
 
 	@Autowired
 	private KisService mockedKisService;
