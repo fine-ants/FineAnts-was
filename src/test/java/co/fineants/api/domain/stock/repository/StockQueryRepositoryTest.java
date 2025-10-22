@@ -1,5 +1,7 @@
 package co.fineants.api.domain.stock.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,10 +12,11 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.stock.service.StockCsvParser;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.domain.stock.service.StockCsvReader;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,13 +29,18 @@ class StockQueryRepositoryTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private StockCsvReader stockCsvReader;
+	private StockCsvParser stockCsvParser;
 
 	private String lastTickerSymbol;
 
 	@BeforeEach
 	void setup() {
-		stockRepository.saveAll(stockCsvReader.readStockCsv());
+		try {
+			InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
+			stockRepository.saveAll(stockCsvParser.parse(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@DisplayName("사용자는 키워드 없이 종목을 검색한다")
@@ -63,9 +71,7 @@ class StockQueryRepositoryTest extends AbstractContainerBaseTest {
 				stocks.forEach(s -> log.debug("stock : {}", s));
 				Assertions.assertThat(stocks).hasSize(10);
 
-				if (!stocks.isEmpty()) {
-					lastTickerSymbol = stocks.get(stocks.size() - 1).getTickerSymbol();
-				}
+				lastTickerSymbol = stocks.get(stocks.size() - 1).getTickerSymbol();
 			}),
 			DynamicTest.dynamicTest("사용자는 스크롤을 하여 추가적인 종목 검색을 한다", () -> {
 				// given
@@ -77,9 +83,7 @@ class StockQueryRepositoryTest extends AbstractContainerBaseTest {
 				stocks.forEach(s -> log.debug("stock : {}", s));
 				Assertions.assertThat(stocks).hasSize(10);
 
-				if (!stocks.isEmpty()) {
-					lastTickerSymbol = stocks.get(stocks.size() - 1).getTickerSymbol();
-				}
+				lastTickerSymbol = stocks.get(stocks.size() - 1).getTickerSymbol();
 			}),
 			DynamicTest.dynamicTest("사용자는 스크롤을 하여 남은 종목 전부를 검색한다", () -> {
 				// given
