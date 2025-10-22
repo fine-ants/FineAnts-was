@@ -38,7 +38,6 @@ import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
-import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockDataResponse;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
@@ -324,9 +323,8 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		stockRepository.save(createNokwonCI());
 
 		String searchTerm = "삼성";
-		StockSearchRequest request = new StockSearchRequest(searchTerm);
 		// when
-		List<StockSearchItem> items = stockService.search(request);
+		List<StockSearchItem> items = stockService.search(searchTerm);
 		// then
 		assertThat(items).hasSize(1);
 	}
@@ -339,9 +337,8 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		stockRepository.save(createNokwonCI());
 
 		String searchTerm = "005930";
-		StockSearchRequest request = new StockSearchRequest(searchTerm);
 		// when
-		List<StockSearchItem> items = stockService.search(request);
+		List<StockSearchItem> items = stockService.search(searchTerm);
 		// then
 		assertThat(items).hasSize(1);
 	}
@@ -354,9 +351,8 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		stockRepository.save(createNokwonCI());
 
 		String searchTerm = "samsung";
-		StockSearchRequest request = new StockSearchRequest(searchTerm);
 		// when
-		List<StockSearchItem> items = stockService.search(request);
+		List<StockSearchItem> items = stockService.search(searchTerm);
 		// then
 		assertThat(items).hasSize(1);
 	}
@@ -369,9 +365,8 @@ class StockServiceTest extends AbstractContainerBaseTest {
 		stockRepository.save(createNokwonCI());
 
 		String searchTerm = null;
-		StockSearchRequest request = new StockSearchRequest(searchTerm);
 		// when
-		List<StockSearchItem> items = stockService.search(request);
+		List<StockSearchItem> items = stockService.search(searchTerm);
 		// then
 		assertThat(items).isEmpty();
 	}

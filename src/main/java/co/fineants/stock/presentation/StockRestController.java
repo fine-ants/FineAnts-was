@@ -31,7 +31,7 @@ public class StockRestController {
 	@PostMapping("/search")
 	@PermitAll
 	public ApiResponse<List<StockSearchItem>> search(@RequestBody final StockSearchRequest request) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(request));
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(request.getSearchTerm()));
 	}
 
 	@GetMapping("/search")

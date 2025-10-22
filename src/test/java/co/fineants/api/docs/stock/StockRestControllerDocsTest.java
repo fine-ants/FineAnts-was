@@ -38,7 +38,6 @@ import co.fineants.stock.application.StockService;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.presentation.StockRestController;
-import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
 import co.fineants.stock.presentation.dto.response.StockSearchItem;
@@ -57,7 +56,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void search() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.search(ArgumentMatchers.any(StockSearchRequest.class)))
+		given(service.search(ArgumentMatchers.eq("삼성")))
 			.willReturn(List.of(
 				StockSearchItem.from(stock)
 			));

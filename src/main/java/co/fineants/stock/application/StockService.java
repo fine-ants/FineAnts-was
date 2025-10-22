@@ -21,7 +21,6 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
 import co.fineants.stock.infrastructure.StockQueryDslRepository;
-import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
 import co.fineants.stock.presentation.dto.response.StockSearchItem;
@@ -45,8 +44,7 @@ public class StockService {
 	private final WriteStockService writeStockService;
 
 	@Transactional(readOnly = true)
-	public List<StockSearchItem> search(StockSearchRequest request) {
-		String keyword = request.getSearchTerm();
+	public List<StockSearchItem> search(String keyword) {
 		return stockQueryDslRepository.getStock(keyword).stream()
 			.map(StockSearchItem::from)
 			.toList();
