@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.parser;
+package co.fineants.api.domain.stock.service;
 
 import java.util.Arrays;
 
