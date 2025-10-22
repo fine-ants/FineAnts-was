@@ -21,10 +21,10 @@ import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class StockQueryRepositoryTest extends AbstractContainerBaseTest {
+class StockQueryDslRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private StockQueryRepository repository;
+	private StockQueryDslRepository repository;
 
 	@Autowired
 	private StockRepository stockRepository;

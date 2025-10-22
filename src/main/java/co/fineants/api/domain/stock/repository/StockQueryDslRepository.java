@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class StockQueryRepository {
+public class StockQueryDslRepository {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	public List<Stock> getSliceOfStock(@Nullable String tickerSymbol, int size, @Nullable String keyword) {

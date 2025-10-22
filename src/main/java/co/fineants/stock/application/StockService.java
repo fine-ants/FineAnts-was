@@ -16,7 +16,7 @@ import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.api.domain.stock.repository.StockQueryRepository;
+import co.fineants.api.domain.stock.repository.StockQueryDslRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
@@ -36,7 +36,7 @@ public class StockService {
 	private final StockRepository stockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
-	private final StockQueryRepository stockQueryRepository;
+	private final StockQueryDslRepository stockQueryDslRepository;
 	private final ReloadStock reloadStock;
 	private final KisService kisService;
 	private final DelayManager delayManager;
@@ -47,14 +47,14 @@ public class StockService {
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(StockSearchRequest request) {
 		String keyword = request.getSearchTerm();
-		return stockQueryRepository.getStock(keyword).stream()
+		return stockQueryDslRepository.getStock(keyword).stream()
 			.map(StockSearchItem::from)
 			.toList();
 	}
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(String tickerSymbol, int size, String keyword) {
-		return stockQueryRepository.getSliceOfStock(tickerSymbol, size, keyword).stream()
+		return stockQueryDslRepository.getSliceOfStock(tickerSymbol, size, keyword).stream()
 			.map(StockSearchItem::from)
 			.toList();
 	}
