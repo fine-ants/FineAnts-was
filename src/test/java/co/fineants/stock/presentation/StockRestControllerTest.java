@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.controller;
+package co.fineants.stock.presentation;
 
 import static org.hamcrest.Matchers.*;
 

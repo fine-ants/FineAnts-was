@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.controller;
+package co.fineants.stock.presentation;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.stock.application.StockService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
+import co.fineants.stock.application.StockService;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 
