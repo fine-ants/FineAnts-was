@@ -1,7 +1,5 @@
 package co.fineants.stock.domain;
 
-import static co.fineants.api.domain.stock.service.StockCsvReader.*;
-
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -246,7 +244,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	@Override
 	public String toCsvLine() {
 		String ticker = String.format("%s%s", TICKER_PREFIX, tickerSymbol);
-		return String.join(CSV_DELIMITER,
+		return String.join("$",
 			stockCode,
 			ticker,
 			companyName,
