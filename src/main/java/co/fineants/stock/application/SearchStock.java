@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
@@ -45,7 +44,7 @@ public class SearchStock {
 	public StockResponse findDetailedStock(String tickerSymbol) {
 		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
-		return StockResponse.of(stock, (CurrentPriceRedisRepository)currentPriceRepository, closingPriceRepository,
+		return StockResponse.of(stock, currentPriceRepository, closingPriceRepository,
 			localDateTimeService);
 	}
 }

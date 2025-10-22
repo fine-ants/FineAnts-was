@@ -69,9 +69,4 @@ public class StockService {
 		writeStockService.writeStocks(stocks);
 		return stocks;
 	}
-
-	@Transactional(readOnly = true)
-	public void writeDividendCsvToBucket() {
-		writeStockService.writeStocks(stockRepository.findAll());
-	}
 }

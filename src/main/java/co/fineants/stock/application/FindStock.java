@@ -1,5 +1,7 @@
 package co.fineants.stock.application;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,5 +20,10 @@ public class FindStock {
 	public Stock byTickerSymbol(String tickerSymbol) {
 		return repository.findByTickerSymbol(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
+	}
+
+	@Transactional(readOnly = true)
+	public List<Stock> findAll() {
+		return repository.findAll();
 	}
 }
