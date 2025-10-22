@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.converter;
+package co.fineants.stock.infrastructure;
 
 import co.fineants.stock.domain.Market;
 import jakarta.persistence.AttributeConverter;
