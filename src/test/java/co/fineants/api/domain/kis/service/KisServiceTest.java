@@ -1,5 +1,6 @@
 package co.fineants.api.domain.kis.service;
 
+import static co.fineants.stock.presentation.dto.response.StockDataResponse.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
