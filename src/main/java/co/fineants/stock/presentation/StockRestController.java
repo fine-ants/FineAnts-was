@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
-import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
-import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
-import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.stock.application.StockService;
+import co.fineants.stock.presentation.dto.request.StockSearchRequest;
+import co.fineants.stock.presentation.dto.response.StockReloadResponse;
+import co.fineants.stock.presentation.dto.response.StockResponse;
+import co.fineants.stock.presentation.dto.response.StockSearchItem;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 

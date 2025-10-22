@@ -20,7 +20,6 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
@@ -28,6 +27,7 @@ import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.presentation.dto.response.StockDataResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

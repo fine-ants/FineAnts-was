@@ -14,13 +14,13 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 

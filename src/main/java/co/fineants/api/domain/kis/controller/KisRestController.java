@@ -20,9 +20,9 @@ import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.KisSuccessCode;
+import co.fineants.stock.presentation.dto.response.StockDataResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

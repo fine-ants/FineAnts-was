@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.domain.dto.response;
+package co.fineants.stock.presentation.dto.response;
 
 import java.time.Month;
 import java.util.List;
@@ -11,9 +11,9 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

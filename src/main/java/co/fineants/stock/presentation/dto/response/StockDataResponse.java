@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.domain.dto.response;
+package co.fineants.stock.presentation.dto.response;
 
 import java.util.Set;
 

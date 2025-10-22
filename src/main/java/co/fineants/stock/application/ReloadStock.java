@@ -15,12 +15,12 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
-import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.presentation.dto.response.StockDataResponse;
+import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
