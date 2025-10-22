@@ -38,8 +38,8 @@ import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
 import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
 import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 

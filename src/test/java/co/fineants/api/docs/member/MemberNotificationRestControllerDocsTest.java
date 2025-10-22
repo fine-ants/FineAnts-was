@@ -26,7 +26,7 @@ import co.fineants.api.domain.notification.service.DeleteNotifications;
 import co.fineants.api.domain.notification.service.ListNotifications;
 import co.fineants.api.domain.notification.service.MarkNotificationsAsRead;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.application.UpdateNotificationPreference;

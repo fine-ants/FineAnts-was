@@ -6,8 +6,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
 
 class StockCsvReaderTest {
 

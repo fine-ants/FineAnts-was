@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
 
 class StockDividendCsvFormatterTest {

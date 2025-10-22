@@ -34,7 +34,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartRes
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.DashboardService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 
 class DashboardRestControllerDocsTest extends RestDocsSupport {

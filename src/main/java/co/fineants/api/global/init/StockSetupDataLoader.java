@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import lombok.extern.slf4j.Slf4j;

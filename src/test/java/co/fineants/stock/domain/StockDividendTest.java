@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.domain.entity;
+package co.fineants.stock.domain;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -13,9 +13,9 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.member.domain.Member;
 
 class StockDividendTest {
 	@NotNull

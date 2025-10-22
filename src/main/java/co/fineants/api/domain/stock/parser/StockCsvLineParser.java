@@ -6,8 +6,8 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
 
 @Component
 public class StockCsvLineParser {

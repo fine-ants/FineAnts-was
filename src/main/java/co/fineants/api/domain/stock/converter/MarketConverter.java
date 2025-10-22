@@ -1,6 +1,6 @@
 package co.fineants.api.domain.stock.converter;
 
-import co.fineants.api.domain.stock.domain.entity.Market;
+import co.fineants.stock.domain.Market;
 import jakarta.persistence.AttributeConverter;
 
 public class MarketConverter implements AttributeConverter<Market, String> {

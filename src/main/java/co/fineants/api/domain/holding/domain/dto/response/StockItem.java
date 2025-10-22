@@ -2,7 +2,7 @@ package co.fineants.api.domain.holding.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

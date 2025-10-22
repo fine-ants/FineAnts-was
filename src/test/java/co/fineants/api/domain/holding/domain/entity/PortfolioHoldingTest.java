@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 
 class PortfolioHoldingTest extends AbstractContainerBaseTest {
 

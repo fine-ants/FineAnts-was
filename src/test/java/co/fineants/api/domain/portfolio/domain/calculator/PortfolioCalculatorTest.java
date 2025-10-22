@@ -32,8 +32,8 @@ import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 
 class PortfolioCalculatorTest extends AbstractContainerBaseTest {

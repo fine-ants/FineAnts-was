@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.domain.entity;
+package co.fineants.stock.domain;
 
 import static co.fineants.api.domain.stock.service.StockCsvReader.*;
 
