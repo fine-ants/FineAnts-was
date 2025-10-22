@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
+import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.StockService;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
@@ -27,11 +28,12 @@ import lombok.RequiredArgsConstructor;
 public class StockRestController {
 
 	private final StockService stockService;
+	private final SearchStock searchStock;
 
 	@PostMapping("/search")
 	@PermitAll
 	public ApiResponse<List<StockSearchItem>> search(@RequestBody final StockSearchRequest request) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(request.getSearchTerm()));
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, searchStock.search(request.getSearchTerm()));
 	}
 
 	@GetMapping("/search")

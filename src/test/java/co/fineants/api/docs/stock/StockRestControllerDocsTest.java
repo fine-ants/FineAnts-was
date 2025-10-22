@@ -33,6 +33,7 @@ import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.StockService;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
@@ -44,10 +45,11 @@ import co.fineants.stock.presentation.dto.response.StockSearchItem;
 class StockRestControllerDocsTest extends RestDocsSupport {
 
 	private final StockService service = Mockito.mock(StockService.class);
+	private final SearchStock searchStock = Mockito.mock(SearchStock.class);
 
 	@Override
 	protected Object initController() {
-		return new StockRestController(service);
+		return new StockRestController(service, searchStock);
 	}
 
 	@DisplayName("종목 검색 API")
@@ -55,7 +57,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void search() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.search("삼성"))
+		given(searchStock.search("삼성"))
 			.willReturn(List.of(
 				StockSearchItem.from(stock)
 			));
