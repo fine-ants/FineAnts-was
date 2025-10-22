@@ -260,4 +260,12 @@ public class TestDataProvider {
 			// S3 경로가 맞지만 잘못된 키
 		);
 	}
+
+	public static Stream<Arguments> validSearchTermSource() {
+		return Stream.of(
+			Arguments.of("삼성"),
+			Arguments.of("005930"),
+			Arguments.of("samsung")
+		);
+	}
 }

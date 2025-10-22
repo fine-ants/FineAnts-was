@@ -1,17 +1,38 @@
 package co.fineants.stock.application;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.domain.kis.client.KisClient;
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.presentation.dto.response.StockResponse;
 import co.fineants.stock.presentation.dto.response.StockSearchItem;
+import reactor.core.publisher.Mono;
 
 class SearchStockTest extends AbstractContainerBaseTest {
 
@@ -21,42 +42,32 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	@Autowired
 	private SearchStock searchStock;
 
+	@Autowired
+	private PriceRepository currentPriceRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private KisClient kisClient;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
+
+	@BeforeEach
+	void setUp() {
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2024, 1, 1));
+	}
+
 	@DisplayName("종목 이름을 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
-	@Test
-	void search_givenStockName_whenSearch_thenReturnStockSearchItemList() {
+	@ParameterizedTest
+	@MethodSource(value = "co.fineants.TestDataProvider#validSearchTermSource")
+	void search_givenStockName_whenSearch_thenReturnStockSearchItemList(String searchTerm) {
 		// given
 		stockRepository.save(TestDataFactory.createSamsungStock());
 		stockRepository.save(TestDataFactory.createNokwonCI());
 
-		String searchTerm = "삼성";
-		// when
-		List<StockSearchItem> items = searchStock.search(searchTerm);
-		// then
-		assertThat(items).hasSize(1);
-	}
-
-	@DisplayName("티커 심볼을 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
-	@Test
-	void search_givenTickerSymbol_whenSearch_thenReturnStockSearchItemList() {
-		// given
-		stockRepository.save(TestDataFactory.createSamsungStock());
-		stockRepository.save(TestDataFactory.createNokwonCI());
-
-		String searchTerm = "005930";
-		// when
-		List<StockSearchItem> items = searchStock.search(searchTerm);
-		// then
-		assertThat(items).hasSize(1);
-	}
-
-	@DisplayName("영어 종목 이름을 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
-	@Test
-	void search_givenStockNameEng_whenSearch_thenReturnStockSearchItemList() {
-		// given
-		stockRepository.save(TestDataFactory.createSamsungStock());
-		stockRepository.save(TestDataFactory.createNokwonCI());
-
-		String searchTerm = "samsung";
 		// when
 		List<StockSearchItem> items = searchStock.search(searchTerm);
 		// then
@@ -103,5 +114,107 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		List<StockSearchItem> items = searchStock.search(tickerSymbol, size, keyword);
 		// then
 		assertThat(items).hasSize(1);
+	}
+
+	@DisplayName("사용자는 종목 정보를 상세 조회합니다")
+	@Test
+	void getDetailedStock() {
+		// given
+		Stock samsung = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
+		Stock saveSamsung = stockRepository.save(samsung);
+
+		currentPriceRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
+		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 49000L));
+		given(kisClient.fetchAccessToken())
+			.willReturn(
+				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusSeconds(86400), 86400)));
+
+		String tickerSymbol = "005930";
+		// when
+		StockResponse response = searchStock.getDetailedStock(tickerSymbol);
+		// then
+		Assertions.assertAll(
+			() -> assertThat(response)
+				.extracting(
+					StockResponse::getStockCode,
+					StockResponse::getTickerSymbol,
+					StockResponse::getCompanyName,
+					StockResponse::getCompanyNameEng,
+					StockResponse::getMarket,
+					StockResponse::getCurrentPrice,
+					StockResponse::getDailyChange,
+					StockResponse::getDailyChangeRate,
+					StockResponse::getSector,
+					StockResponse::getAnnualDividend,
+					StockResponse::getAnnualDividendYield)
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
+					Money.won(50000),
+					Money.won(1000),
+					Percentage.from(0.0204),
+					saveSamsung.getSector(),
+					Money.won(1083),
+					Percentage.from(0.0217)
+				)
+		);
+	}
+
+	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 서버로부터 조회하여 가져온다")
+	@Test
+	void getDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
+		// given
+		Stock samsung = TestDataFactory.createSamsungStock();
+		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
+		Stock saveSamsung = stockRepository.save(samsung);
+
+		given(kisClient.fetchAccessToken())
+			.willReturn(
+				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusDays(1), 3600 * 24)));
+		given(kisClient.fetchCurrentPrice(anyString()))
+			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
+		given(kisClient.fetchClosingPrice(anyString()))
+			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
+
+		String tickerSymbol = "005930";
+		// when
+		StockResponse response = searchStock.getDetailedStock(tickerSymbol);
+		// then
+		Assertions.assertAll(
+			() -> assertThat(response)
+				.extracting(
+					StockResponse::getStockCode,
+					StockResponse::getTickerSymbol,
+					StockResponse::getCompanyName,
+					StockResponse::getCompanyNameEng,
+					StockResponse::getMarket,
+					StockResponse::getCurrentPrice,
+					StockResponse::getDailyChange,
+					StockResponse::getDailyChangeRate,
+					StockResponse::getSector,
+					StockResponse::getAnnualDividend,
+					StockResponse::getAnnualDividendYield)
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					saveSamsung.getStockCode(),
+					saveSamsung.getTickerSymbol(),
+					saveSamsung.getCompanyName(),
+					saveSamsung.getCompanyNameEng(),
+					saveSamsung.getMarket(),
+					Money.won(50000),
+					Money.won(1000),
+					Percentage.from(0.0204),
+					saveSamsung.getSector(),
+					Money.won(361),
+					Percentage.from(0.0072)
+				)
+		);
 	}
 }
