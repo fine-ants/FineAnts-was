@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -56,7 +55,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void search() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.search(ArgumentMatchers.eq("삼성")))
+		given(service.search("삼성"))
 			.willReturn(List.of(
 				StockSearchItem.from(stock)
 			));
