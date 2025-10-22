@@ -2,8 +2,6 @@ package co.fineants.stock.application;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +18,8 @@ import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
-import co.fineants.stock.infrastructure.StockQueryDslRepository;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
-import co.fineants.stock.presentation.dto.response.StockSearchItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -35,27 +31,12 @@ public class StockService {
 	private final StockRepository stockRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
-	private final StockQueryDslRepository stockQueryDslRepository;
 	private final ReloadStock reloadStock;
 	private final KisService kisService;
 	private final DelayManager delayManager;
 	private final LocalDateTimeService localDateTimeService;
 	private final WriteDividendService writeDividendService;
 	private final WriteStockService writeStockService;
-
-	@Transactional(readOnly = true)
-	public List<StockSearchItem> search(String keyword) {
-		return stockQueryDslRepository.getStock(keyword).stream()
-			.map(StockSearchItem::from)
-			.toList();
-	}
-
-	@Transactional(readOnly = true)
-	public List<StockSearchItem> search(String tickerSymbol, int size, String keyword) {
-		return stockQueryDslRepository.getSliceOfStock(tickerSymbol, size, keyword).stream()
-			.map(StockSearchItem::from)
-			.toList();
-	}
 
 	@Transactional(readOnly = true)
 	public StockResponse getDetailedStock(String tickerSymbol) {
@@ -113,12 +94,5 @@ public class StockService {
 	@Transactional(readOnly = true)
 	public void writeDividendCsvToBucket() {
 		writeStockService.writeStocks(stockRepository.findAll());
-	}
-
-	@Transactional
-	public Set<StockDividend> getAllStockDividends() {
-		return stockRepository.findAll().stream()
-			.flatMap(stock -> stock.getStockDividends().stream())
-			.collect(Collectors.toUnmodifiableSet());
 	}
 }

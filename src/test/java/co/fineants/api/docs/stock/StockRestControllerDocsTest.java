@@ -119,7 +119,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 		int size = 10;
 		String keyword = "삼성";
 		List<StockSearchItem> stockSearchItemList = createStockSearchItemList();
-		given(service.search(tickerSymbol, size, keyword))
+		given(searchStock.search(tickerSymbol, size, keyword))
 			.willReturn(stockSearchItemList);
 
 		// when & then

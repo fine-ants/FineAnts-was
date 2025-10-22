@@ -42,7 +42,7 @@ public class StockRestController {
 		@RequestParam(name = "tickerSymbol", required = false) String tickerSymbol,
 		@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 		@RequestParam(name = "keyword", required = false) String keyword) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(tickerSymbol, size, keyword));
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, searchStock.search(tickerSymbol, size, keyword));
 	}
 
 	@PostMapping("/refresh")

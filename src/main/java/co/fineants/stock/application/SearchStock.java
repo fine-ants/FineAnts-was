@@ -21,4 +21,11 @@ public class SearchStock {
 			.map(StockSearchItem::from)
 			.toList();
 	}
+
+	@Transactional(readOnly = true)
+	public List<StockSearchItem> search(String tickerSymbol, int size, String keyword) {
+		return repository.getSliceOfStock(tickerSymbol, size, keyword).stream()
+			.map(StockSearchItem::from)
+			.toList();
+	}
 }
