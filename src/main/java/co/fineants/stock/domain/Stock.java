@@ -14,7 +14,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
@@ -175,7 +174,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.reduce(Money.zero(), Expression::plus);
 	}
 
-	public RateDivision getAnnualDividendYield(CurrentPriceRedisRepository manager,
+	public RateDivision getAnnualDividendYield(PriceRepository manager,
 		LocalDateTimeService localDateTimeService) {
 		Expression dividends = stockDividends.stream()
 			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
@@ -185,14 +184,14 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return dividends.divide(getCurrentPrice(manager));
 	}
 
-	public Expression getDailyChange(CurrentPriceRedisRepository currentPriceRedisRepository,
+	public Expression getDailyChange(PriceRepository currentPriceRedisRepository,
 		ClosingPriceRepository closingPriceRepository) {
 		Expression currentPrice = getCurrentPrice(currentPriceRedisRepository);
 		Expression closingPrice = getClosingPrice(closingPriceRepository);
 		return currentPrice.minus(closingPrice);
 	}
 
-	public RateDivision getDailyChangeRate(CurrentPriceRedisRepository currentPriceRedisRepository,
+	public RateDivision getDailyChangeRate(PriceRepository currentPriceRedisRepository,
 		ClosingPriceRepository closingPriceRepository) {
 		Money currentPrice = currentPriceRedisRepository.fetchPriceBy(tickerSymbol).orElse(null);
 		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(tickerSymbol).orElse(null);

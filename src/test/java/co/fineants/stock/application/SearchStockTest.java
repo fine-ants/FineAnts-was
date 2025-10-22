@@ -160,8 +160,8 @@ class SearchStockTest extends AbstractContainerBaseTest {
 					Money.won(1000),
 					Percentage.from(0.0204),
 					saveSamsung.getSector(),
-					Money.won(1083),
-					Percentage.from(0.0217)
+					Money.won(361),
+					Percentage.from(0.0072)
 				)
 		);
 	}

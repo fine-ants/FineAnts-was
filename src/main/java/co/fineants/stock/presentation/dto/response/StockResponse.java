@@ -2,7 +2,6 @@ package co.fineants.stock.presentation.dto.response;
 
 import java.time.Month;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
@@ -10,7 +9,7 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
@@ -62,7 +61,7 @@ public class StockResponse {
 			.build();
 	}
 
-	public static StockResponse of(Stock stock, CurrentPriceRedisRepository currentPriceRedisRepository,
+	public static StockResponse of(Stock stock, PriceRepository currentPriceRedisRepository,
 		ClosingPriceRepository closingPriceRepository, LocalDateTimeService localDateTimeService) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
@@ -82,7 +81,7 @@ public class StockResponse {
 				stock.getAnnualDividendYield(currentPriceRedisRepository, localDateTimeService).toPercentage(bank, to))
 			.dividendMonths(stock.getDividendMonths(localDateTimeService).stream()
 				.map(Month::getValue)
-				.collect(Collectors.toList()))
+				.toList())
 			.build();
 	}
 }
