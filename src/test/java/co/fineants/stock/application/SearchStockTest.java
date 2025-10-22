@@ -77,4 +77,31 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		assertThat(items).isEmpty();
 	}
 
+	@DisplayName("사이즈, 키워드를 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
+	@Test
+	void search_givenTickerSymbolAndSizeAndKeyword_whenSearch_thenReturnStockSearchItemList() {
+		// given
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		String tickerSymbol = null;
+		int size = 10;
+		String keyword = "삼성";
+		// when
+		List<StockSearchItem> items = searchStock.search(tickerSymbol, size, keyword);
+		// then
+		assertThat(items).hasSize(1);
+	}
+
+	@DisplayName("티커 심볼과 사이즈, 키워드를 가지고 검색하면 종목 검색 아이템 리스트를 반환한다")
+	@Test
+	void search_givenTickerSymbolAndSizeAndKeyword2_whenSearch_thenReturnStockSearchItemList() {
+		// given
+		stockRepository.save(TestDataFactory.createSamsungStock());
+		String tickerSymbol = "006000";
+		int size = 10;
+		String keyword = "삼성";
+		// when
+		List<StockSearchItem> items = searchStock.search(tickerSymbol, size, keyword);
+		// then
+		assertThat(items).hasSize(1);
+	}
 }
