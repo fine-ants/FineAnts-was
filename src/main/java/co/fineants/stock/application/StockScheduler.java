@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.scheduler;
+package co.fineants.stock.application;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
-import co.fineants.stock.application.StockService;
 import lombok.RequiredArgsConstructor;
 
 @Component

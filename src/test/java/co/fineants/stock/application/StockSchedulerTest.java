@@ -1,4 +1,4 @@
-package co.fineants.api.domain.stock.scheduler;
+package co.fineants.stock.application;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -22,7 +22,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
