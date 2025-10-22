@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -18,14 +21,14 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.stock.domain.dto.response.StockDataResponse;
-import co.fineants.stock.domain.Market;
-import co.fineants.stock.domain.Stock;
-import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.domain.stock.repository.StockRepository;
-import co.fineants.api.domain.stock.service.StockCsvReader;
+import co.fineants.api.domain.stock.service.StockCsvParser;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.infra.s3.service.FetchDividendService;
 import co.fineants.api.infra.s3.service.FetchStockService;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,10 +39,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
-
-	@Autowired
-	private StockCsvReader stockCsvReader;
-
+	
 	@Autowired
 	private KisService mockedKisService;
 
@@ -51,6 +51,9 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private FetchStockService fetchStockService;
+
+	@Autowired
+	private StockCsvParser stockCsvParser;
 
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
@@ -108,9 +111,14 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 	}
 
 	private List<Stock> saveStocks() {
-		List<Stock> stocks = stockCsvReader.readStockCsv().stream()
-			.limit(100)
-			.toList();
-		return stockRepository.saveAll(stocks);
+		try {
+			InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
+			List<Stock> stocks = stockCsvParser.parse(inputStream).stream()
+				.limit(100)
+				.toList();
+			return stockRepository.saveAll(stocks);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
