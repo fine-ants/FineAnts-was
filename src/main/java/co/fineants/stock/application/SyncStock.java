@@ -13,13 +13,12 @@ import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
-@RequiredArgsConstructor
 @Service
-public class StockService {
+@RequiredArgsConstructor
+public class SyncStock {
+
 	private final StockRepository stockRepository;
 	private final KisService kisService;
 	private final DelayManager delayManager;

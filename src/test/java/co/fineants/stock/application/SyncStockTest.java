@@ -22,10 +22,9 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
-class StockServiceTest extends AbstractContainerBaseTest {
-
+class SyncStockTest extends AbstractContainerBaseTest {
 	@Autowired
-	private StockService stockService;
+	private SyncStock syncStock;
 
 	@Autowired
 	private StockRepository stockRepository;
@@ -63,7 +62,7 @@ class StockServiceTest extends AbstractContainerBaseTest {
 				"의료"
 			)));
 		// when
-		List<Stock> actual = stockService.syncAllStocks();
+		List<Stock> actual = syncStock.syncAllStocks();
 		// then
 		assertThat(actual).hasSize(1);
 		assertThat(actual.get(0).getMarket()).isEqualTo(Market.KOSDAQ);

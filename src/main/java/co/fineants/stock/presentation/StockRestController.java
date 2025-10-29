@@ -18,6 +18,7 @@ import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.StockService;
+import co.fineants.stock.application.SyncStock;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
@@ -35,6 +36,7 @@ public class StockRestController {
 	private final WriteStockService writeStockService;
 	private final FindStock findStock;
 	private final ReloadStock reloadStock;
+	private final SyncStock syncStock;
 
 	@PostMapping("/search")
 	@PermitAll
@@ -70,7 +72,7 @@ public class StockRestController {
 	@PostMapping("/sync")
 	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<Void> syncAllStocksWithLatestData() {
-		stockService.syncAllStocks();
+		syncStock.syncAllStocks();
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS);
 	}
 

@@ -38,6 +38,7 @@ import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.StockService;
+import co.fineants.stock.application.SyncStock;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.presentation.StockRestController;
@@ -55,10 +56,11 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	private final FindStock findStock = Mockito.mock(FindStock.class);
 
 	private final StockService service = Mockito.mock(StockService.class);
+	private final SyncStock syncStock = Mockito.mock(SyncStock.class);
 
 	@Override
 	protected Object initController() {
-		return new StockRestController(service, searchStock, writeStockService, findStock, reloadStock);
+		return new StockRestController(service, searchStock, writeStockService, findStock, reloadStock, syncStock);
 	}
 
 	@DisplayName("종목 검색 API")
