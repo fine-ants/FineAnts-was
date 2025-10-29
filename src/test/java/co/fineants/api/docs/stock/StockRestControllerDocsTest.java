@@ -47,13 +47,14 @@ import co.fineants.stock.presentation.dto.response.StockSearchItem;
 
 class StockRestControllerDocsTest extends RestDocsSupport {
 
-	private final StockService service = Mockito.mock(StockService.class);
+	private final ReloadStock reloadStock = Mockito.mock(ReloadStock.class);
 	private final SearchStock searchStock = Mockito.mock(SearchStock.class);
 
 	private final WriteStockService writeStockService = Mockito.mock(WriteStockService.class);
 
 	private final FindStock findStock = Mockito.mock(FindStock.class);
-	private final ReloadStock reloadStock = Mockito.mock(ReloadStock.class);
+
+	private final StockService service = Mockito.mock(StockService.class);
 
 	@Override
 	protected Object initController() {
@@ -225,7 +226,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 				LocalDate.of(2024, 5, 1)
 			)
 		);
-		given(service.reloadStocks())
+		given(reloadStock.reloadStocks())
 			.willReturn(StockReloadResponse.create(addedStocks, deletedStocks, addedDividends));
 
 		// when & then
