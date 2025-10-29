@@ -38,7 +38,7 @@ import reactor.core.publisher.Mono;
 class ReloadStockTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private StockService stockService;
+	private ReloadStock reloadStock;
 
 	@Autowired
 	private StockRepository stockRepository;
@@ -104,7 +104,7 @@ class ReloadStockTest extends AbstractContainerBaseTest {
 					LocalDate.parse("20240814", dtf))));
 		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
 		// when
-		StockReloadResponse response = stockService.reloadStocks();
+		StockReloadResponse response = reloadStock.reloadStocks();
 		// then
 		entityManager.flush();
 		entityManager.clear();
@@ -155,7 +155,7 @@ class ReloadStockTest extends AbstractContainerBaseTest {
 			.willReturn(Flux.error(
 				new IllegalStateException("blockOptional() is blocking, which is not supported in thread parallel-1")));
 		// when
-		StockReloadResponse response = stockService.reloadStocks();
+		StockReloadResponse response = reloadStock.reloadStocks();
 		// then
 		assertThat(response.getAddedStocks()).isEmpty();
 		assertThat(response.getDeletedStocks()).isEmpty();
