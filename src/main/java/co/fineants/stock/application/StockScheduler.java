@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StockScheduler {
 
-	private final StockService stockService;
+	private final ReloadStock reloadStock;
 
 	/**
 	 * 매일 오전 8시에 주식 정보를 업데이트합니다.
@@ -21,6 +21,6 @@ public class StockScheduler {
 	@Scheduled(cron = "${cron.expression.reload-stocks:0 0 8 * * ?}")
 	@Transactional
 	public void scheduledReloadStocks() {
-		stockService.reloadStocks();
+		reloadStock.reloadStocks();
 	}
 }

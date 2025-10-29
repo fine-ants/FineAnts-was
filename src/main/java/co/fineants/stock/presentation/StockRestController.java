@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
-import co.fineants.stock.application.StockService;
+import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.application.FindStock;
+import co.fineants.stock.application.ReloadStock;
+import co.fineants.stock.application.SearchStock;
+import co.fineants.stock.application.SyncStock;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
@@ -26,12 +30,17 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class StockRestController {
 
-	private final StockService stockService;
+	private final SearchStock searchStock;
+	private final WriteStockService writeStockService;
+	private final FindStock findStock;
+	private final ReloadStock reloadStock;
+	private final SyncStock syncStock;
 
 	@PostMapping("/search")
 	@PermitAll
 	public ApiResponse<List<StockSearchItem>> search(@RequestBody final StockSearchRequest request) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(request));
+		List<StockSearchItem> items = searchStock.search(request.getSearchTerm());
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, items);
 	}
 
 	@GetMapping("/search")
@@ -40,33 +49,35 @@ public class StockRestController {
 		@RequestParam(name = "tickerSymbol", required = false) String tickerSymbol,
 		@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 		@RequestParam(name = "keyword", required = false) String keyword) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, stockService.search(tickerSymbol, size, keyword));
+		List<StockSearchItem> items = searchStock.search(tickerSymbol, size, keyword);
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_STOCKS, items);
 	}
 
 	@PostMapping("/refresh")
 	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<StockReloadResponse> refreshStocks() {
-		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS, stockService.reloadStocks());
+		StockReloadResponse response = reloadStock.reloadStocks();
+		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS, response);
 	}
 
 	@PostMapping("/write/csv")
 	@Secured(value = {"ROLE_ADMIN"})
-	public ApiResponse<Void> writeStockCsvToBucket() {
-		stockService.writeDividendCsvToBucket();
+	public ApiResponse<Void> writeAllStocks() {
+		writeStockService.writeStocks(findStock.findAll());
 		return ApiResponse.success(StockSuccessCode.OK_WRITE_STOCKS_CSV_TO_BUCKET);
 	}
 
 	@PostMapping("/sync")
 	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<Void> syncAllStocksWithLatestData() {
-		stockService.syncAllStocksWithLatestData();
+		syncStock.syncAllStocks();
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS);
 	}
 
 	@GetMapping("/{tickerSymbol}")
 	@PermitAll
 	public ApiResponse<StockResponse> getStock(@PathVariable String tickerSymbol) {
-		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK,
-			stockService.getDetailedStock(tickerSymbol));
+		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
+		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK, response);
 	}
 }
