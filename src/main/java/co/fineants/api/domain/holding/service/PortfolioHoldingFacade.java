@@ -12,7 +12,6 @@ import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.stock.application.FindStock;
-import co.fineants.stock.application.StockService;
 import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class PortfolioHoldingFacade {
 
 	private final PortfolioService portfolioService;
-	private final StockService stockService;
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final PurchaseHistoryService purchaseHistoryService;
 	private final FindStock findStock;

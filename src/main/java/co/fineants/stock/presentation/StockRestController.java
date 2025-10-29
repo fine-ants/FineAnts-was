@@ -17,7 +17,6 @@ import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
-import co.fineants.stock.application.StockService;
 import co.fineants.stock.application.SyncStock;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
@@ -31,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class StockRestController {
 
-	private final StockService stockService;
 	private final SearchStock searchStock;
 	private final WriteStockService writeStockService;
 	private final FindStock findStock;

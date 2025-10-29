@@ -19,7 +19,6 @@ import co.fineants.api.domain.portfolio.service.PortfolioNotificationService;
 import co.fineants.api.domain.portfolio.service.PortfolioNotificationSettingService;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.stock.application.StockService;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.domain.stock_target_price.service.TargetPriceNotificationService;
 import co.fineants.api.domain.watchlist.service.WatchListService;
@@ -54,8 +53,6 @@ public class ControllerTestConfig {
 	private PortfolioNotificationSettingService portfolioNotificationSettingService;
 	@MockBean
 	private PurchaseHistoryService purchaseHistoryService;
-	@MockBean
-	private StockService stockService;
 	@MockBean
 	private StockTargetPriceService stockTargetPriceService;
 	@MockBean
