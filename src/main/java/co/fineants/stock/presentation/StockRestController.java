@@ -15,6 +15,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.application.FindStock;
+import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.StockService;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
@@ -33,6 +34,7 @@ public class StockRestController {
 	private final SearchStock searchStock;
 	private final WriteStockService writeStockService;
 	private final FindStock findStock;
+	private final ReloadStock reloadStock;
 
 	@PostMapping("/search")
 	@PermitAll
@@ -54,7 +56,7 @@ public class StockRestController {
 	@PostMapping("/refresh")
 	@Secured(value = {"ROLE_ADMIN"})
 	public ApiResponse<StockReloadResponse> refreshStocks() {
-		StockReloadResponse response = stockService.reloadStocks();
+		StockReloadResponse response = reloadStock.reloadStocks();
 		return ApiResponse.success(StockSuccessCode.OK_REFRESH_STOCKS, response);
 	}
 
