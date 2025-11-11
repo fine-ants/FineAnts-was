@@ -53,7 +53,7 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockCsvParser stockCsvParser;
-
+	
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
 	void scheduledRefreshStocks() {
