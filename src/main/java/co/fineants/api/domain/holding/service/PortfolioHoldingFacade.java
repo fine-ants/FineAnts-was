@@ -8,11 +8,11 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
+import co.fineants.stock.application.FindStock;
+import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,9 +20,9 @@ import lombok.RequiredArgsConstructor;
 public class PortfolioHoldingFacade {
 
 	private final PortfolioService portfolioService;
-	private final StockService stockService;
 	private final PortfolioHoldingService portfolioHoldingService;
 	private final PurchaseHistoryService purchaseHistoryService;
+	private final FindStock findStock;
 
 	@Transactional
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
@@ -31,7 +31,7 @@ public class PortfolioHoldingFacade {
 		// 포트폴리오 탐색
 		Portfolio portfolio = portfolioService.findPortfolio(portfolioId);
 		// 종목 탐색
-		Stock stock = stockService.getStock(request.getTickerSymbol());
+		Stock stock = findStock.byTickerSymbol(request.getTickerSymbol());
 		// 기존 포트폴리오 종목 조회 or 생성
 		PortfolioHolding holding = portfolioHoldingService.getPortfolioHoldingBy(portfolio, stock)
 			.orElseGet(() -> PortfolioHolding.of(portfolio, stock));

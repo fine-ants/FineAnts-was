@@ -7,24 +7,21 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.infra.s3.service.FetchDividendService;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StockDividendSetupDataLoader {
 
 	private final FetchDividendService fetchDividendService;
 	private final StockRepository stockRepository;
-
-	public StockDividendSetupDataLoader(FetchDividendService fetchDividendService, StockRepository stockRepository) {
-		this.fetchDividendService = fetchDividendService;
-		this.stockRepository = stockRepository;
-	}
-
+	
 	@Transactional
 	public void setupStockDividends() {
 		List<Stock> stocks = stockRepository.findAll();

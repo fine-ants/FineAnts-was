@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.fineants.api.domain.dividend.service.StockDividendService;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockDividendSuccessCode;
 import co.fineants.api.infra.s3.service.WriteDividendService;

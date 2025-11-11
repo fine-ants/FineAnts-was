@@ -34,9 +34,6 @@ import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
@@ -48,6 +45,9 @@ import co.fineants.member.domain.Nickname;
 import co.fineants.member.domain.NotificationPreference;
 import co.fineants.member.infrastructure.SpringMemberPasswordEncoder;
 import co.fineants.role.domain.Role;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 
 public final class TestDataFactory {
 
@@ -143,6 +143,15 @@ public final class TestDataFactory {
 
 	public static Stock createKakaoStock() {
 		return Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
+	}
+
+	/**
+	 * 해당 종목은 상장 폐지된 종목입니다.
+	 * @return 상장 폐지된 종목
+	 */
+	public static Stock createNokwonCI() {
+		return Stock.of("065560", "녹원씨엔아이", "Nokwon Commercials & Industries, Inc.", "KR7065560005", "소프트웨어",
+			Market.KOSDAQ);
 	}
 
 	public static MultipartFile createProfileFile() {

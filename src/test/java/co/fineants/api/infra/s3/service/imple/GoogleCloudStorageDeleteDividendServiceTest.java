@@ -10,7 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.config.GoogleCloudStorageBucketInitializer;

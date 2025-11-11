@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -32,9 +32,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.handler.GlobalExceptionHandler;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
@@ -42,6 +39,9 @@ import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.api.infra.s3.service.imple.FileContentComparator;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
+import co.fineants.stock.domain.StockRepository;
 
 @WithMockUser(roles = {"ADMIN"})
 class StockDividendRestControllerTest extends AbstractContainerBaseTest {

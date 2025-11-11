@@ -27,7 +27,7 @@ import co.fineants.api.domain.kis.controller.KisRestController;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import reactor.core.publisher.Mono;
 

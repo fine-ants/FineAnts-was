@@ -30,10 +30,10 @@ import co.fineants.api.domain.purchasehistory.event.aop.PurchaseHistoryEventSend
 import co.fineants.api.domain.purchasehistory.event.domain.PushNotificationEvent;
 import co.fineants.api.domain.purchasehistory.event.listener.PurchaseHistoryEventListener;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.repository.StockRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 

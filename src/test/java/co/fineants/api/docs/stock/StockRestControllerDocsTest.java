@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -33,23 +32,33 @@ import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.stock.controller.StockRestController;
-import co.fineants.api.domain.stock.domain.dto.request.StockSearchRequest;
-import co.fineants.api.domain.stock.domain.dto.response.StockReloadResponse;
-import co.fineants.api.domain.stock.domain.dto.response.StockResponse;
-import co.fineants.api.domain.stock.domain.dto.response.StockSearchItem;
-import co.fineants.api.domain.stock.domain.entity.Market;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.service.StockService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.application.FindStock;
+import co.fineants.stock.application.ReloadStock;
+import co.fineants.stock.application.SearchStock;
+import co.fineants.stock.application.SyncStock;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.presentation.StockRestController;
+import co.fineants.stock.presentation.dto.response.StockReloadResponse;
+import co.fineants.stock.presentation.dto.response.StockResponse;
+import co.fineants.stock.presentation.dto.response.StockSearchItem;
 
 class StockRestControllerDocsTest extends RestDocsSupport {
 
-	private final StockService service = Mockito.mock(StockService.class);
+	private final ReloadStock reloadStock = Mockito.mock(ReloadStock.class);
+	private final SearchStock searchStock = Mockito.mock(SearchStock.class);
+
+	private final WriteStockService writeStockService = Mockito.mock(WriteStockService.class);
+
+	private final FindStock findStock = Mockito.mock(FindStock.class);
+
+	private final SyncStock syncStock = Mockito.mock(SyncStock.class);
 
 	@Override
 	protected Object initController() {
-		return new StockRestController(service);
+		return new StockRestController(searchStock, writeStockService, findStock, reloadStock, syncStock);
 	}
 
 	@DisplayName("종목 검색 API")
@@ -57,7 +66,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void search() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.search(ArgumentMatchers.any(StockSearchRequest.class)))
+		given(searchStock.search("삼성"))
 			.willReturn(List.of(
 				StockSearchItem.from(stock)
 			));
@@ -119,7 +128,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 		int size = 10;
 		String keyword = "삼성";
 		List<StockSearchItem> stockSearchItemList = createStockSearchItemList();
-		given(service.search(tickerSymbol, size, keyword))
+		given(searchStock.search(tickerSymbol, size, keyword))
 			.willReturn(stockSearchItemList);
 
 		// when & then
@@ -217,7 +226,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 				LocalDate.of(2024, 5, 1)
 			)
 		);
-		given(service.reloadStocks())
+		given(reloadStock.reloadStocks())
 			.willReturn(StockReloadResponse.create(addedStocks, deletedStocks, addedDividends));
 
 		// when & then
@@ -322,7 +331,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 			.willReturn(Optional.of(currentPrice));
 		given(closingPriceRepository.fetchPrice(stock.getTickerSymbol()))
 			.willReturn(Optional.of(closingPrice));
-		given(service.getDetailedStock(stock.getTickerSymbol()))
+		given(searchStock.findDetailedStock(stock.getTickerSymbol()))
 			.willReturn(StockResponse.create(
 				stock.getStockCode(),
 				stock.getTickerSymbol(),
@@ -409,7 +418,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	void syncAllStocksWithLatestData() throws Exception {
 		// given
 		Stock stock = createSamsungStock();
-		given(service.syncAllStocksWithLatestData()).willReturn(List.of(stock));
+		given(syncStock.syncAllStocks()).willReturn(List.of(stock));
 		// when
 		mockMvc.perform(post("/api/stocks/sync")
 				.cookie(createTokenCookies()))

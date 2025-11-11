@@ -3,7 +3,7 @@ package co.fineants.api.domain.watchlist.domain.entity;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

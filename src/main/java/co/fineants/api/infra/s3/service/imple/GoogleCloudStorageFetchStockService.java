@@ -3,8 +3,8 @@ package co.fineants.api.infra.s3.service.imple;
 import java.util.Collections;
 import java.util.List;
 
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.parser.StockCsvParser;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.infra.s3.service.FetchStockService;
 import co.fineants.api.infra.s3.service.RemoteFileFetcher;
 import lombok.extern.slf4j.Slf4j;

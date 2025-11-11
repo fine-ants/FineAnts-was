@@ -12,7 +12,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingCreateResponse;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
-import co.fineants.api.domain.stock.domain.entity.Stock;
+import co.fineants.stock.domain.Stock;
 import co.fineants.member.presentation.dto.request.MemberNotificationPreferenceRequest;
 
 class ObjectMapperTest extends AbstractContainerBaseTest {

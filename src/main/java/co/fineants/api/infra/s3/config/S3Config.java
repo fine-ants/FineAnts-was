@@ -13,9 +13,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import co.fineants.api.domain.dividend.domain.parser.StockDividendCsvParser;
 import co.fineants.api.domain.holding.domain.factory.UuidGenerator;
-import co.fineants.api.domain.stock.domain.entity.Stock;
-import co.fineants.api.domain.stock.domain.entity.StockDividend;
-import co.fineants.api.domain.stock.parser.StockCsvParser;
+import co.fineants.stock.application.StockCsvParser;
 import co.fineants.api.global.common.csv.CsvFormatter;
 import co.fineants.api.infra.s3.service.DeleteDividendService;
 import co.fineants.api.infra.s3.service.DeleteProfileImageFileService;
@@ -37,6 +35,8 @@ import co.fineants.api.infra.s3.service.imple.AmazonS3RemoteFileUploader;
 import co.fineants.api.infra.s3.service.imple.AmazonS3WriteDividendService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3WriteProfileImageFileService;
 import co.fineants.api.infra.s3.service.imple.AmazonS3WriteStockService;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import lombok.extern.slf4j.Slf4j;
 
 @Profile(value = {"aws"})
