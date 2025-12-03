@@ -172,7 +172,10 @@ tasks.register('restDocsTest', Test) {
 }
 
 test {
-    outputs.dir snippetsDir
+    // rest-docs with tag exclude
+    useJUnitPlatform {
+        excludeTags 'rest-docs'
+    }
 }
 
 asciidoctor {
