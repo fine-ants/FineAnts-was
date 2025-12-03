@@ -153,34 +153,6 @@ ext { // 전역변수
     snippetsDir = file('build/generated-snippets') as File
 }
 
-test {
-    outputs.dir snippetsDir
-}
-
-asciidoctor {
-    inputs.dir snippetsDir
-    configurations 'asciidoctorExt'
-
-
-    sources { // 특정 파일만 html로 만든다
-        include("**/index.adoc")
-    }
-    baseDirFollowsSourceFile() // 다른 adoc 파일을 include 할때 경로를 baseDir로 맞춘다
-    dependsOn test
-}
-// Rest Docs configuration end
-
-bootJar {
-    // Rest Docs
-    dependsOn asciidoctor
-    from("${asciidoctor.outputDir}") {
-        into 'static/docs'
-    }
-
-    archiveFileName = "fineAnts_app.jar"
-    copyPrivate
-}
-
 tasks.register('restDocsTest', Test) {
     description = "Runs only tests tagged with 'rest-docs' for documentation."
     group = "verification"
@@ -197,6 +169,33 @@ tasks.register('restDocsTest', Test) {
 
     // 기존 test task처럼 스니펫 디렉토리를 출력으로 지정
     outputs.dir snippetsDir
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+
+    sources { // 특정 파일만 html로 만든다
+        include("**/index.adoc")
+    }
+    baseDirFollowsSourceFile() // 다른 adoc 파일을 include 할때 경로를 baseDir로 맞춘다
+    dependsOn tasks.named("restDocsTest") // restDocsTest task 이후에 실행되도록 설정
+}
+// Rest Docs configuration end
+
+bootJar {
+    // Rest Docs
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}") {
+        into 'static/docs'
+    }
+
+    archiveFileName = "fineAnts_app.jar"
+    copyPrivate
 }
 
 // QueryDSL configuration start
