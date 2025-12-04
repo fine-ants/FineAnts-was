@@ -10,6 +10,7 @@
 /htmlReport/
 .env.local
 .env.production
+.secrets
 /loki_data/
 /prometheus/
 

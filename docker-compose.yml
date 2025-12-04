@@ -2,7 +2,7 @@ version: "3.8"
 services:
   app:
     container_name: fineAnts_app
-    image: fineants/fineants-app:latest
+    image: ${IMAGE_TAG:fineants/fineants-app:production-latest}
     restart: always
     volumes:
       - ./logs:/app/logs
