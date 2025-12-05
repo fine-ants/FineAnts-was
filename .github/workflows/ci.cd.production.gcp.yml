@@ -2,7 +2,7 @@ name: CI/CD - GCP Compute Engine Deployment
 
 on:
   push:
-    branches: [ main, infra/#727 ]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -95,6 +95,7 @@ jobs:
     environment: gcp-production
     env:
       IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
+      ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
     needs: build-image
     defaults:
       run:
@@ -106,7 +107,20 @@ jobs:
         with:
           submodules: true
           token: ${{ env.GIT_TOKEN }}
-      # 2. gcp ssh 연결 확인
+      # 2. .env.production 파일 동적 생성
+      - name: Create .env.production file from Secret (Conditional)
+        # 💡 조건부 실행을 위한 run 스크립트 수정
+        run: |
+          # ENV_PRODUCTION 변수가 비어 있지 않은 경우에만 파일 생성 및 덮어쓰기 실행
+          # -n (non-empty) 플래그를 사용하여 변수가 비어있는지 확인합니다.
+          if [[ -n "${{ env.ENV_PRODUCTION }}" ]]; then
+            echo "✅ Creating .env.production from secret..."
+            echo "${{ env.ENV_PRODUCTION }}" > .env.production
+            ls -al .env.production
+          else
+            echo "⚠️ ENV_PRODUCTION secret is empty. Using existing .env.production file for upload (Local Act Test)."
+          fi
+      # 3. gcp ssh 연결 확인
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -117,7 +131,7 @@ jobs:
           port: 22
           script: |
             echo "SSH connection successful!"
-      # 3. docker-compose 파일 및 필요 파일 VM에 업로드
+      # 4. docker-compose 파일 및 필요 파일 VM에 업로드
       - name: Upload Docker Compose and Files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -137,7 +151,7 @@ jobs:
           port: 22
           script: |
             ls -al /home/${{ env.GCP_SSH_USERNAME }}/app/
-      # 4. SSH를 사용하여 원격 서버에 접속 및 배포
+      # 5. SSH를 사용하여 원격 서버에 접속 및 배포
       - name: Deploy with Docker Compose via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -157,10 +171,7 @@ jobs:
             # 2. Docker Hub 로그인
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
-            # 3. 이미지 태그 설정
-            IMAGE_TAG=$IMAGE_TAG
-            
-            # 4. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
+            # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
             docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
             docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
