@@ -92,7 +92,7 @@ jobs:
   deploy:
     runs-on: ubuntu-22.04
     environment: gcp-production
-    #    needs: build-image
+    needs: build-image
     defaults:
       run:
         shell: bash
