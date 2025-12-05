@@ -72,7 +72,7 @@ jobs:
         id: set-image-tag
         run: |
           FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}"
-          echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
+          echo "global_image_uri=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
       # 2. Docker 이미지 빌드
