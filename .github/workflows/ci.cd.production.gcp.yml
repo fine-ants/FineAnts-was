@@ -17,6 +17,7 @@ env:
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
+  GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
 
 jobs:
@@ -105,9 +106,8 @@ jobs:
           token: ${{ env.GIT_TOKEN }}
       # 2. 이미지 태그를 환경 변수로 설정
       - name: Set Image Tag Environment Variable
-        # FULL_TAG="${{ needs.build-image.outputs.image_tag }}"
         run: |
-          FULL_TAG="fineants/fineants-app:production-latest" 
+          FULL_TAG="${{ needs.build-image.outputs.image_tag }}" 
           echo "IMAGE_TAG=$FULL_TAG" >> $GITHUB_ENV
       # gcp ssh 연결 확인
       - name: Test SSH Connection
@@ -115,7 +115,7 @@ jobs:
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
-          passphrase: ${{ env.GCP_SSH_PASSWORD }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
           script: |
@@ -126,6 +126,7 @@ jobs:
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
           target: "/home/${{ env.GCP_SSH_USERNAME }}/app/"  # VM 내 타겟 디렉토리
@@ -134,6 +135,7 @@ jobs:
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
           script: |
@@ -144,6 +146,7 @@ jobs:
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
 
@@ -171,6 +174,7 @@ jobs:
             IMAGE_TAG="${{ needs.build-image.outputs.image_tag }}"
             echo "IMAGE_TAG=$IMAGE_TAG"
             
-            # docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (pull, up -d)
-#            docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
-#            docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+            # docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml down
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
