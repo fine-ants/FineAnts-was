@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: gcp-production
     outputs:
-      global_image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
+      image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
 
     defaults:
       run:
@@ -72,7 +72,7 @@ jobs:
         id: set-image-tag
         run: |
           FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}"
-          echo "global_image_uri=$FULL_TAG" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
       # 2. Docker 이미지 빌드
@@ -93,6 +93,8 @@ jobs:
   deploy:
     runs-on: ubuntu-22.04
     environment: gcp-production
+    env:
+      IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
     needs: build-image
     defaults:
       run:
@@ -104,12 +106,7 @@ jobs:
         with:
           submodules: true
           token: ${{ env.GIT_TOKEN }}
-      # 2. 이미지 태그를 환경 변수로 설정
-      - name: Set Image Tag Environment Variable
-        run: |
-          FULL_TAG="${{ needs.build-image.outputs.global_image_uri }}" 
-          echo "IMAGE_TAG=$FULL_TAG" >> $GITHUB_ENV
-      # gcp ssh 연결 확인
+      # 2. gcp ssh 연결 확인
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -160,21 +157,10 @@ jobs:
             # 2. Docker Hub 로그인
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
-            # 3. Docker Compose 실행
-            # docker-compose 파일이 ${IMAGE_TAG} 환경 변수를 사용하도록 설정되어 있다고 가정합니다.
+            # 3. 이미지 태그 설정
+            IMAGE_TAG=$IMAGE_TAG
             
-            # 팁: 이미지 태그를 동적으로 사용하려면,
-            # VM 환경 변수(예: IMAGE_TAG)를 docker-compose 파일에 설정해야 합니다.
-            # 예: docker-compose 파일 내 image: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
-            
-            # .env 파일을 VM에 업로드하고,
-            # --env-file 옵션을 사용하거나 쉘 환경 변수를 설정하여 docker-compose를 실행합니다.
-            
-            # 환경 변수를 쉘에 직접 설정하고 docker-compose 실행
-            IMAGE_TAG="${{ needs.build-image.outputs.global_image_uri }}"
-            echo "IMAGE_TAG=$IMAGE_TAG"
-            
-            # docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
+            # 4. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
             docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
             docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
