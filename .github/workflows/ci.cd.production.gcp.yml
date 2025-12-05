@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: gcp-production
     outputs:
-      image_tag: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
+      global_image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
 
     defaults:
       run:
@@ -107,7 +107,7 @@ jobs:
       # 2. 이미지 태그를 환경 변수로 설정
       - name: Set Image Tag Environment Variable
         run: |
-          FULL_TAG="${{ needs.build-image.outputs.image_tag }}" 
+          FULL_TAG="${{ needs.build-image.outputs.global_image_uri }}" 
           echo "IMAGE_TAG=$FULL_TAG" >> $GITHUB_ENV
       # gcp ssh 연결 확인
       - name: Test SSH Connection
@@ -171,7 +171,7 @@ jobs:
             # --env-file 옵션을 사용하거나 쉘 환경 변수를 설정하여 docker-compose를 실행합니다.
             
             # 환경 변수를 쉘에 직접 설정하고 docker-compose 실행
-            IMAGE_TAG="${{ needs.build-image.outputs.image_tag }}"
+            IMAGE_TAG="${{ needs.build-image.outputs.global_image_uri }}"
             echo "IMAGE_TAG=$IMAGE_TAG"
             
             # docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
