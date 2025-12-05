@@ -57,12 +57,12 @@ jobs:
         run: chmod +x ./gradlew
 
       # Test
-      #      - name: Run Tests
-      #        run: ./gradlew test --no-daemon
+      - name: Run Tests
+        run: ./gradlew test
 
       # bootjar
       - name: Build with Gradle
-        run: ./gradlew clean bootJar
+        run: ./gradlew bootJar
 
       # --- Docker Hub 인증 및 푸시
 
@@ -109,6 +109,17 @@ jobs:
         run: |
           FULL_TAG="fineants/fineants-app:production-latest" 
           echo "IMAGE_TAG=$FULL_TAG" >> $GITHUB_ENV
+      # gcp ssh 연결 확인
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSWORD }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "SSH connection successful!"
       # 3. docker-compose 파일 및 필요 파일 VM에 업로드
       - name: Upload Docker Compose and Files via SCP
         uses: appleboy/scp-action@v0.1.7
