@@ -78,9 +78,9 @@ dependencies {
 
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     // final class mocking
     testImplementation 'org.mockito:mockito-inline:2.13.0'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // test container
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
