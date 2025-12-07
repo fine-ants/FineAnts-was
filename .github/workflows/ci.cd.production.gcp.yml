@@ -2,7 +2,7 @@ name: CI/CD - GCP Compute Engine Deployment
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, infra/#727 ]
 
 permissions:
   contents: read
