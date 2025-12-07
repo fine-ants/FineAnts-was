@@ -25,6 +25,7 @@ env:
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
   GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+  GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
 
 jobs:
   ## 1. CI: 빌드 및 이미지 저장소 푸시
@@ -164,7 +165,7 @@ jobs:
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
-          target: "/home/${{ env.GCP_SSH_USERNAME }}/app/"  # VM 내 타겟 디렉토리
+          target: ${{ env.GCP_DEPLOY_PATH }}
       # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
@@ -175,7 +176,7 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            ls -al /home/${{ env.GCP_SSH_USERNAME }}/app/
+            ls -al ${{ env.GCP_DEPLOY_PATH }}
       # SSH를 사용하여 원격 서버에 접속 및 배포 과정 수행
       - name: Deploy with Docker Compose via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -189,8 +190,8 @@ jobs:
           # GCP 인스턴스에서 실행할 스크립트
           script: |
             # 1. VM에서 배포 폴더 생성 및 이동
-            DEPLOY_DIR="/home/${{ env.GCP_SSH_USERNAME }}/app"
-            mkdir -p $DEPLOY_DIR
+            DEPLOY_DIR=${{ env.GCP_DEPLOY_PATH }}
+            echo "Navigating to deployment directory: $DEPLOY_DIR"
             cd $DEPLOY_DIR
             
             # 2. Docker Hub 로그인
