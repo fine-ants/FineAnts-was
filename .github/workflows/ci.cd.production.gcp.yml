@@ -220,15 +220,15 @@ jobs:
       # crontab 설정
       - name: Setup Crontab via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GCP_DEPLOY_PATH: ${{ env.GCP_DEPLOY_PATH }}
+          ENV_FILE: ${{ env.ENV_FILE }}
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
-          env:
-            GCP_DEPLOY_PATH: ${{ env.GCP_DEPLOY_PATH }}
-            ENV_FILE: ${{ env.ENV_FILE }}
           script: |
             echo "Setting up crontab..."
             echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: $GCP_DEPLOY_PATH"
