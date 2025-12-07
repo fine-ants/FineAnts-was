@@ -2,7 +2,13 @@ name: CI/CD - GCP Compute Engine Deployment
 
 on:
   push:
-    branches: [ main, infra/#727 ]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
 
 permissions:
   contents: read
