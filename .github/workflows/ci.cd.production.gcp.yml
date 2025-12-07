@@ -27,6 +27,7 @@ env:
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
   GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
   GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
+  ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
 
 jobs:
   ## 1. CI: 빌드 및 이미지 저장소 푸시
@@ -122,7 +123,6 @@ jobs:
     env:
       IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
-      BACKUP_ENV_FILE: ${{ env.GCP_DEPLOY_PATH }}/.env.production
     needs: build-image
     defaults:
       run:
@@ -229,4 +229,6 @@ jobs:
           port: 22
           script: |
             echo "Setting up crontab..."
-            crontab ${{ env.GCP_CRON_SCRIPT_PATH }}
+            
+            /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
+            echo "Crontab setup script finished."

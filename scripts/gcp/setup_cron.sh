@@ -16,6 +16,7 @@ fi
 
 # 스크립트 경로 정의
 BACKUP_MYSQL_SCRIPT_PATH="$DEPLOY_BASE_PATH/backup_mysql_data.sh"
+echo "Backup MySQL script path: $BACKUP_MYSQL_SCRIPT_PATH"
 # ex) LOGS_SCRIPT_PATH="$DEPLOY_BASE_PATH/send_logs_to_gcs.sh" # 필요시 추가
 
 # 💡 등록할 모든 Cron 작업 내용을 배열에 정의합니다.
