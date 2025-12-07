@@ -25,7 +25,6 @@ env:
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
   GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-  GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
 jobs:
   ## 1. CI: 빌드 및 이미지 저장소 푸시
   build-image:
@@ -121,6 +120,7 @@ jobs:
       IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
       ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
+      GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
       GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
     needs: build-image
     defaults:
