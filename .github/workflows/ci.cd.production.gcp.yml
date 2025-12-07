@@ -13,7 +13,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: fineants-app
-  TAG: production-latest
+  DEPLOY_ENV: production
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
@@ -26,7 +26,9 @@ jobs:
     runs-on: ubuntu-22.04
     environment: gcp-production
     outputs:
+      project_version: ${{ steps.get-version.outputs.project_version }}
       image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
+
 
     defaults:
       run:
@@ -66,18 +68,28 @@ jobs:
         run: ./gradlew bootJar
 
       # --- Docker Hub 인증 및 푸시
+      # 1. Project Version 저장
+      - name: Get Project Version
+        id: get-version
+        run: |
+          PROJECT_VERSION=$(./gradlew properties | grep "^version:" | awk '{print $2}')
+          echo "project_version=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Project Version is $PROJECT_VERSION"
 
-      # 1. 최종 이미지 태그 생성 (도커 허브 사용자명 포함)
+      # 2. 최종 이미지 태그 생성 (도커 허브 사용자명 포함)
       - name: Set Image Tag
         id: set-image-tag
         run: |
-          FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}"
+          FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV}}-${{ steps.get-version.outputs.project_version }}"
           echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
       # 2. Docker 이미지 빌드
       - name: Build Docker Image
-        run: docker build --platform linux/amd64 -t ${{ steps.set-image-tag.outputs.image_tag }} .
+        run: docker build --platform linux/amd64 \
+          --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
+          -t ${{ steps.set-image-tag.outputs.image_tag }} \
+          .
 
       # 3. Docker Hub 로그인
       - name: Login to Docker Hub

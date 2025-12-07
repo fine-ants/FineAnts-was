@@ -1,7 +1,8 @@
 FROM eclipse-temurin:17-alpine
+ARG PROJECT_VERSION
 # 작성자 및 메타데이터 추가
 LABEL maintainer="fineants.co.2024@gmail.com" \
-      version="0.0.26" \
+      version=$PROJECT_VERSION \
       description="FineAnts Application - Spring Boot App" \
       created="2025-10-13" \
       org.opencontainers.image.source="https://github.com/fine-ants/FineAnts-was" \
