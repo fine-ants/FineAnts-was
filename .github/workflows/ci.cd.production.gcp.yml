@@ -1,0 +1,205 @@
+name: CI/CD - GCP Compute Engine Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+
+permissions:
+  contents: read
+
+env:
+  GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+  # Docker Hub Registry 설정
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_IMAGE_NAME: fineants-app
+  DEPLOY_ENV: production
+  # Google Cloud 설정
+  GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
+  GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
+  GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
+  GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+
+jobs:
+  ## 1. CI: 빌드 및 이미지 저장소 푸시
+  build-image:
+    runs-on: ubuntu-22.04
+    environment: gcp-production
+    outputs:
+      project_version: ${{ steps.get-version.outputs.project_version }}
+      image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
+
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4.1.7
+        with:
+          submodules: true
+          token: ${{ env.GIT_TOKEN }}
+      ## JDK 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4.2.2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      # gradle caching - 빌드 시간 향상
+      - name: Gradle Caching
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      # gradlew 실행을 위해서 실행 권한을 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # Test
+      - name: Run Tests
+        run: ./gradlew test
+
+      # bootjar
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+      # --- Docker Hub 인증 및 푸시
+      - name: Get Project Version
+        id: get-version
+        run: |
+          PROJECT_VERSION=$(./gradlew properties | grep "^version:" | awk '{print $2}')
+          echo "project_version=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Project Version is $PROJECT_VERSION"
+
+      - name: Set Image Tag
+        id: set-image-tag
+        run: |
+          FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV}}-${{ steps.get-version.outputs.project_version }}"
+          echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
+          echo "Full Image Tag is $FULL_TAG"
+
+      - name: Build Docker Image
+        run: |
+          docker build --platform linux/amd64 \
+          --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
+          -t ${{ steps.set-image-tag.outputs.image_tag }} \
+          .
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      # 푸시된 브랜치가 main 브랜치인 경우 docker latest 태그 추가
+      - name: Tag Docker Image as Latest (Conditional)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          LATEST_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+          docker tag ${{ steps.set-image-tag.outputs.image_tag }} $LATEST_TAG
+          echo "Tagged image as latest: $LATEST_TAG"
+          # latest 태그 푸시
+          docker push $LATEST_TAG
+
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ steps.set-image-tag.outputs.image_tag }}
+  # 2. CD: GCP Compute Engine SSH 배포
+  deploy:
+    runs-on: ubuntu-22.04
+    environment: gcp-production
+    env:
+      IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
+      ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
+    needs: build-image
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # 코드 체크아웃
+      - uses: actions/checkout@v4.1.7
+        with:
+          submodules: true
+          token: ${{ env.GIT_TOKEN }}
+      # 환경 설정 파일 동적 생성
+      - name: Create .env.production file from Secret (Conditional)
+        # 💡 조건부 실행을 위한 run 스크립트 수정
+        run: |
+          # ENV_PRODUCTION 변수가 비어 있지 않은 경우에만 파일 생성 및 덮어쓰기 실행
+          # -n (non-empty) 플래그를 사용하여 변수가 비어있는지 확인합니다.
+          if [[ -n "${{ env.ENV_PRODUCTION }}" ]]; then
+            echo "✅ Creating .env.production from secret..."
+            echo "${{ env.ENV_PRODUCTION }}" > .env.production
+            ls -al .env.production
+          else
+            echo "⚠️ ENV_PRODUCTION secret is empty. Using existing .env.production file for upload (Local Act Test)."
+          fi
+      # gcp ssh 연결 확인
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "SSH connection successful!"
+      # docker-compose 파일 및 필수 설정 파일 VM에 업로드
+      - name: Upload Docker Compose and Files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
+          target: "/home/${{ env.GCP_SSH_USERNAME }}/app/"  # VM 내 타겟 디렉토리
+      # 업로드된 파일 확인
+      - name: check uploaded files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            ls -al /home/${{ env.GCP_SSH_USERNAME }}/app/
+      # SSH를 사용하여 원격 서버에 접속 및 배포 과정 수행
+      - name: Deploy with Docker Compose via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+
+          # GCP 인스턴스에서 실행할 스크립트
+          script: |
+            # 1. VM에서 배포 폴더 생성 및 이동
+            DEPLOY_DIR="/home/${{ env.GCP_SSH_USERNAME }}/app"
+            mkdir -p $DEPLOY_DIR
+            cd $DEPLOY_DIR
+            
+            # 2. Docker Hub 로그인
+            echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
+            
+            # 3. IMAGE_TAG 체크
+            echo "Using IMAGE_TAG: $IMAGE_TAG"
+            
+            # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml down
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d

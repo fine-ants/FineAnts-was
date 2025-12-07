@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -43,8 +44,6 @@ import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.stock.domain.Market;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
@@ -55,8 +54,11 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.dto.Token;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationArgumentResolver;
 import co.fineants.member.domain.Member;
+import co.fineants.stock.domain.Market;
+import co.fineants.stock.domain.Stock;
 import jakarta.servlet.http.Cookie;
 
+@Tag("rest-docs")
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class RestDocsSupport {
 	private final PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권", "FineAnts"});

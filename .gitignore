@@ -8,8 +8,11 @@
 /src/main/resources/secret/
 /src/main/generated/
 /htmlReport/
-.env
+.env.local
+.env.production
+.secrets
 /loki_data/
 /prometheus/
 
 /db/
+/mysql/
