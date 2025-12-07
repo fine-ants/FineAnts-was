@@ -83,7 +83,8 @@ jobs:
           echo "Full Image Tag is $FULL_TAG"
 
       - name: Build Docker Image
-        run: docker build --platform linux/amd64 \
+        run: |
+          docker build --platform linux/amd64 \
           --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
           -t ${{ steps.set-image-tag.outputs.image_tag }} \
           .
