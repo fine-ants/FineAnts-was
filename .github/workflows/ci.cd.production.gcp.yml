@@ -121,6 +121,7 @@ jobs:
     env:
       IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
+      BACKUP_ENV_FILE: ${{ env.GCP_DEPLOY_PATH }}/.env.production
     needs: build-image
     defaults:
       run:
