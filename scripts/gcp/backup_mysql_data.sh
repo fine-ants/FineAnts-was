@@ -1,10 +1,7 @@
 #!/bin/bash
 # backup_mysql_data.sh
 
-# 1. .env.production 파일 경로 정의
-ENV_FILE=${ENV_FILE}
-
-# 2. .env 파일이 존재하는 경우 환경 변수로 로드
+# .env 파일이 존재하는 경우 환경 변수로 로드
 if [ -f "$ENV_FILE" ]; then
     # shellcheck disable=SC1090
     source "$ENV_FILE"
