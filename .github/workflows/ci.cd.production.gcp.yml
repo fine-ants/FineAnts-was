@@ -26,6 +26,7 @@ env:
   GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
   GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
+  GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
 
 jobs:
   ## 1. CI: 빌드 및 이미지 저장소 푸시
@@ -165,7 +166,7 @@ jobs:
           username: ${{ env.GCP_SSH_USERNAME }}
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
+          source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
           target: ${{ env.GCP_DEPLOY_PATH }}
       # 업로드된 파일 확인
       - name: check uploaded files
@@ -205,3 +206,27 @@ jobs:
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
             docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
             docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+      # 불필요한 이미지 정리
+      - name: Clean up Unused Docker Images via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Cleaning up unused Docker images..."
+            docker image prune -f
+      # crontab 설정
+      - name: Setup Crontab via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Setting up crontab..."
+            crontab ${{ env.GCP_CRON_SCRIPT_PATH }}
