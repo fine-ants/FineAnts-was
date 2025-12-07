@@ -196,8 +196,7 @@ jobs:
             # 2. Docker Hub 로그인
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
-            # 3. IMAGE_TAG 환경 변수 설정
-            IMAGE_TAG=${{ env.IMAGE_TAG }}
+            # 3. IMAGE_TAG 체크
             echo "Using IMAGE_TAG: $IMAGE_TAG"
             
             # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
