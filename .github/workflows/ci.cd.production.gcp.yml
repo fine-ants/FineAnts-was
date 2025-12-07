@@ -95,6 +95,16 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
 
+      # 푸시된 브랜치가 main 브랜치인 경우 docker latest 태그 추가
+      - name: Tag Docker Image as Latest (Conditional)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          LATEST_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+          docker tag ${{ steps.set-image-tag.outputs.image_tag }} $LATEST_TAG
+          echo "Tagged image as latest: $LATEST_TAG"
+          # latest 태그 푸시
+          docker push $LATEST_TAG
+
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ steps.set-image-tag.outputs.image_tag }}
   # 2. CD: GCP Compute Engine SSH 배포
