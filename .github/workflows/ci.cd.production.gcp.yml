@@ -199,7 +199,7 @@ jobs:
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
             # 3. IMAGE_TAG 체크
-            echo "Using IMAGE_TAG: $IMAGE_TAG"
+            echo "Using IMAGE_TAG: ${{ env.IMAGE_TAG }}"
             
             # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
@@ -226,8 +226,12 @@ jobs:
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
+          env:
+            GCP_DEPLOY_PATH: ${{ env.GCP_DEPLOY_PATH }}
+            ENV_FILE: ${{ env.ENV_FILE }}
           script: |
             echo "Setting up crontab..."
+            echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: $GCP_DEPLOY_PATH"
             
             /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
             echo "Crontab setup script finished."
