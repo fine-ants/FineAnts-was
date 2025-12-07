@@ -68,7 +68,6 @@ jobs:
         run: ./gradlew bootJar
 
       # --- Docker Hub 인증 및 푸시
-      # 1. Project Version 저장
       - name: Get Project Version
         id: get-version
         run: |
@@ -76,7 +75,6 @@ jobs:
           echo "project_version=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
           echo "Project Version is $PROJECT_VERSION"
 
-      # 2. 최종 이미지 태그 생성 (도커 허브 사용자명 포함)
       - name: Set Image Tag
         id: set-image-tag
         run: |
@@ -84,21 +82,18 @@ jobs:
           echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
-      # 2. Docker 이미지 빌드
       - name: Build Docker Image
         run: docker build --platform linux/amd64 \
           --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
           -t ${{ steps.set-image-tag.outputs.image_tag }} \
           .
 
-      # 3. Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
 
-      # 4. Docker 이미지 푸시
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ steps.set-image-tag.outputs.image_tag }}
   # 2. CD: GCP Compute Engine SSH 배포
@@ -114,12 +109,12 @@ jobs:
         shell: bash
 
     steps:
-      # 1. 이전 작업에서 사용된 소스 코드 재확인 (파일 업로드 위해서)
+      # 코드 체크아웃
       - uses: actions/checkout@v4.1.7
         with:
           submodules: true
           token: ${{ env.GIT_TOKEN }}
-      # 2. .env.production 파일 동적 생성
+      # 환경 설정 파일 동적 생성
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
         run: |
@@ -132,7 +127,7 @@ jobs:
           else
             echo "⚠️ ENV_PRODUCTION secret is empty. Using existing .env.production file for upload (Local Act Test)."
           fi
-      # 3. gcp ssh 연결 확인
+      # gcp ssh 연결 확인
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -143,7 +138,7 @@ jobs:
           port: 22
           script: |
             echo "SSH connection successful!"
-      # 4. docker-compose 파일 및 필요 파일 VM에 업로드
+      # docker-compose 파일 및 필수 설정 파일 VM에 업로드
       - name: Upload Docker Compose and Files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -153,6 +148,7 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
           target: "/home/${{ env.GCP_SSH_USERNAME }}/app/"  # VM 내 타겟 디렉토리
+      # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -163,7 +159,7 @@ jobs:
           port: 22
           script: |
             ls -al /home/${{ env.GCP_SSH_USERNAME }}/app/
-      # 5. SSH를 사용하여 원격 서버에 접속 및 배포
+      # SSH를 사용하여 원격 서버에 접속 및 배포 과정 수행
       - name: Deploy with Docker Compose via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
