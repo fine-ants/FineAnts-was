@@ -220,9 +220,6 @@ jobs:
       # crontab 설정
       - name: Setup Crontab via SSH
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          GCP_DEPLOY_PATH: ${{ env.GCP_DEPLOY_PATH }}
-          ENV_FILE: ${{ env.ENV_FILE }}
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
