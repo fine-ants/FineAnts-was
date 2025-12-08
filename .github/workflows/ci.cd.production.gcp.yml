@@ -16,7 +16,7 @@ permissions:
 env:
   GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
   # Docker Hub Registry 설정
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_USERNAME: fineants
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: fineants-app
   DEPLOY_ENV: production
