@@ -117,6 +117,12 @@ jobs:
     runs-on: ubuntu-22.04
     environment: gcp-production
     needs: build-image
+    env:
+      IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
+      ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
+      ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
+      GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
+      GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
     defaults:
       run:
         shell: bash
@@ -127,12 +133,6 @@ jobs:
         with:
           submodules: true
           token: ${{ env.GIT_TOKEN }}
-        env:
-          IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
-          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
-          ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
-          GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
-          GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
       # 환경 설정 파일 동적 생성
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
