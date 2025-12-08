@@ -25,8 +25,7 @@ echo "Crontab environment file path: $CRON_ENV_FILE"
 # 💡 등록할 모든 Cron 작업 내용을 배열에 정의합니다.
 # 형식: "[분] [시] [일] [월] [요일] [실행 명령어]"
 CRON_JOBS=(
-    # 1. MySQL 백업 스크립트
-    "10 0 * * * ENV_FILE=$CRON_ENV_FILE /bin/bash $BACKUP_MYSQL_SCRIPT_PATH",
+    "10 0 * * * ENV_FILE=$CRON_ENV_FILE /bin/bash $BACKUP_MYSQL_SCRIPT_PATH"
     "0 0 * * * ENV_FILE=$CRON_ENV_FILE /bin/bash $BACKUP_LOG_SCRIPT_PATH"
 )
 
