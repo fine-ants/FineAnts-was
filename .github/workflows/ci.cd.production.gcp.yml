@@ -232,7 +232,20 @@ jobs:
           port: 22
           script: |
             echo "Setting up crontab..."
+            
+            # GitHub Actions 환경 변수 값을 로컬 셸 변수로 설정
+            DEPLOY_PATH_VALUE="${{ env.GCP_DEPLOY_PATH }}"
+            echo "Setting GCP_DEPLOY_PATH to: $DEPLOY_PATH_VALUE"
+            
+            # 셸 변수를 'export'하여 하위 스크립트가 참조 가능하도록 설정
+            export GCP_DEPLOY_PATH="$DEPLOY_PATH_VALUE"
             echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: ${{ env.GCP_DEPLOY_PATH }}"
+            
+            ENV_FILE_VALUE="${{ env.ENV_FILE }}"
+            echo "Setting ENV_FILE to: $ENV_FILE_VALUE"
+            
+            export ENV_FILE="$ENV_FILE_VALUE"
+            echo "Remote Shell Check - ENV_FILE is set to: ${{ env.ENV_FILE }}"
             
             /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
             echo "Crontab setup script finished."
