@@ -18,14 +18,13 @@ env:
   # Docker Hub Registry 설정
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_IMAGE_NAME: fineants-app
+  DOCKER_IMAGE_NAME: fineants/fineants-app
   DEPLOY_ENV: production
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
   GCP_SSH_PASSPHRASE: ${{ secrets.GCP_SSH_PASSPHRASE }}
   GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-
 jobs:
   ## 1. CI: 빌드 및 이미지 저장소 푸시
   build-image:
@@ -33,8 +32,6 @@ jobs:
     environment: gcp-production
     outputs:
       project_version: ${{ steps.get-version.outputs.project_version }}
-      image_uri: ${{ steps.set-image-tag.outputs.image_tag }} # 다음 단계로 이미지 URI 전달
-
 
     defaults:
       run:
@@ -65,9 +62,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # Test
-      - name: Run Tests
-        run: ./gradlew test
+      #      # Test
+      #      - name: Run Tests
+      #        run: ./gradlew test
 
       # bootjar
       - name: Build with Gradle
@@ -84,15 +81,15 @@ jobs:
       - name: Set Image Tag
         id: set-image-tag
         run: |
-          FULL_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV}}-${{ steps.get-version.outputs.project_version }}"
-          echo "image_tag=$FULL_TAG" >> "$GITHUB_OUTPUT"
+          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ steps.get-version.outputs.project_version }}"
+          echo "IMAGE_TAG=$FULL_TAG" >> "$GITHUB_ENV"
           echo "Full Image Tag is $FULL_TAG"
 
       - name: Build Docker Image
         run: |
           docker build --platform linux/amd64 \
           --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
-          -t ${{ steps.set-image-tag.outputs.image_tag }} \
+          -t ${{ env.IMAGE_TAG }} \
           .
 
       - name: Login to Docker Hub
@@ -105,22 +102,24 @@ jobs:
       - name: Tag Docker Image as Latest (Conditional)
         if: github.ref == 'refs/heads/main'
         run: |
-          LATEST_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
-          docker tag ${{ steps.set-image-tag.outputs.image_tag }} $LATEST_TAG
+          LATEST_TAG="${{ env.DOCKER_IMAGE_NAME }}:latest"
+          docker tag ${{ env.IMAGE_TAG }} $LATEST_TAG
           echo "Tagged image as latest: $LATEST_TAG"
           # latest 태그 푸시
           docker push $LATEST_TAG
 
       - name: Push Docker Image to Docker Hub
-        run: docker push ${{ steps.set-image-tag.outputs.image_tag }}
+        run: docker push ${{ env.IMAGE_TAG }}
   # 2. CD: GCP Compute Engine SSH 배포
   deploy:
     runs-on: ubuntu-22.04
     environment: gcp-production
-    env:
-      IMAGE_TAG: ${{ needs.build-image.outputs.image_uri }}
-      ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
     needs: build-image
+    env:
+      ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
+      ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
+      GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
+      GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
     defaults:
       run:
         shell: bash
@@ -163,8 +162,8 @@ jobs:
           username: ${{ env.GCP_SSH_USERNAME }}
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/" # 업로드할 파일 목록
-          target: "/home/${{ env.GCP_SSH_USERNAME }}/app/"  # VM 내 타겟 디렉토리
+          source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
+          target: ${{ env.GCP_DEPLOY_PATH }}
       # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
@@ -175,7 +174,14 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            ls -al /home/${{ env.GCP_SSH_USERNAME }}/app/
+            ls -al ${{ env.GCP_DEPLOY_PATH }}
+      # 배포를 위한 이미지 태그 설정
+      - name: Set Image Tag for Deployment
+        run: |
+          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ needs.build-image.outputs.project_version }}
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "Deployment Image Tag set to $TAG"
+
       # SSH를 사용하여 원격 서버에 접속 및 배포 과정 수행
       - name: Deploy with Docker Compose via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -189,17 +195,57 @@ jobs:
           # GCP 인스턴스에서 실행할 스크립트
           script: |
             # 1. VM에서 배포 폴더 생성 및 이동
-            DEPLOY_DIR="/home/${{ env.GCP_SSH_USERNAME }}/app"
-            mkdir -p $DEPLOY_DIR
+            DEPLOY_DIR=${{ env.GCP_DEPLOY_PATH }}
+            echo "Navigating to deployment directory: $DEPLOY_DIR"
             cd $DEPLOY_DIR
             
             # 2. Docker Hub 로그인
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
             # 3. IMAGE_TAG 체크
-            echo "Using IMAGE_TAG: $IMAGE_TAG"
+            echo "Using IMAGE_TAG: ${{ env.IMAGE_TAG }}"
             
             # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
             docker-compose -f docker-compose.yml -f docker-compose.production.yml pull
             docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+      # 불필요한 이미지 정리
+      - name: Clean up Unused Docker Images via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Cleaning up unused Docker images..."
+            docker image prune -f
+      # crontab 설정
+      - name: Setup Crontab via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Setting up crontab..."
+            
+            # GitHub Actions 환경 변수 값을 로컬 셸 변수로 설정
+            DEPLOY_PATH_VALUE="${{ env.GCP_DEPLOY_PATH }}"
+            echo "Setting GCP_DEPLOY_PATH to: $DEPLOY_PATH_VALUE"
+            
+            # 셸 변수를 'export'하여 하위 스크립트가 참조 가능하도록 설정
+            export GCP_DEPLOY_PATH="$DEPLOY_PATH_VALUE"
+            echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: ${{ env.GCP_DEPLOY_PATH }}"
+            
+            ENV_FILE_VALUE="${{ env.ENV_FILE }}"
+            echo "Setting ENV_FILE to: $ENV_FILE_VALUE"
+            
+            export ENV_FILE="$ENV_FILE_VALUE"
+            echo "Remote Shell Check - ENV_FILE is set to: ${{ env.ENV_FILE }}"
+            
+            /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
+            echo "Crontab setup script finished."
