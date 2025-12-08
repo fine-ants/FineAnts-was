@@ -32,7 +32,7 @@ jobs:
     environment: gcp-production
     outputs:
       project_version: ${{ steps.get-version.outputs.project_version }}
-      image_uri: ${{ steps.set-image-tag.outputs.image_uri }} # 다음 단계로 이미지 URI 전달
+      image_uri: ${{ steps.set-image-tag.outputs.image_uri_value }} # 다음 단계로 이미지 URI 전달
 
 
     defaults:
@@ -84,14 +84,14 @@ jobs:
         id: set-image-tag
         run: |
           FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ steps.get-version.outputs.project_version }}"
-          echo "image_uri=$FULL_TAG" >> "$GITHUB_OUTPUT"
+          echo "image_uri_value=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
       - name: Build Docker Image
         run: |
           docker build --platform linux/amd64 \
           --build-arg PROJECT_VERSION=${{ steps.get-version.outputs.project_version }} \
-          -t ${{ steps.set-image-tag.outputs.image_uri }} \
+          -t ${{ steps.set-image-tag.outputs.image_uri_value }} \
           .
 
       - name: Login to Docker Hub
@@ -105,13 +105,13 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           LATEST_TAG="${{ env.DOCKER_IMAGE_NAME }}:latest"
-          docker tag ${{ steps.set-image-tag.outputs.image_uri }} $LATEST_TAG
+          docker tag ${{ steps.set-image-tag.outputs.image_uri_value }} $LATEST_TAG
           echo "Tagged image as latest: $LATEST_TAG"
           # latest 태그 푸시
           docker push $LATEST_TAG
 
       - name: Push Docker Image to Docker Hub
-        run: docker push ${{ steps.set-image-tag.outputs.image_uri }}
+        run: docker push ${{ steps.set-image-tag.outputs.image_uri_value }}
   # 2. CD: GCP Compute Engine SSH 배포
   deploy:
     runs-on: ubuntu-22.04
