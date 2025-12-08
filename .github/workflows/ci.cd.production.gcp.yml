@@ -232,7 +232,7 @@ jobs:
           port: 22
           script: |
             echo "Setting up crontab..."
-            echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: $GCP_DEPLOY_PATH"
+            echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: ${{ env.GCP_DEPLOY_PATH }}"
             
             /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
             echo "Crontab setup script finished."
