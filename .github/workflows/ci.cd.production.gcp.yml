@@ -116,7 +116,6 @@ jobs:
     environment: gcp-production
     needs: build-image
     env:
-      IMAGE_TAG: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV}}-${{ needs.build-image.outputs.project_version }}
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
       ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
       GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
@@ -176,6 +175,13 @@ jobs:
           port: 22
           script: |
             ls -al ${{ env.GCP_DEPLOY_PATH }}
+      # 배포를 위한 이미지 태그 설정
+      - name: Set Image Tag for Deployment
+        run: |
+          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ needs.build-image.outputs.project_version }}
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "Deployment Image Tag set to $TAG"
+
       # SSH를 사용하여 원격 서버에 접속 및 배포 과정 수행
       - name: Deploy with Docker Compose via SSH
         uses: appleboy/ssh-action@v1.0.3
