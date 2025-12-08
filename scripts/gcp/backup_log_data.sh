@@ -13,7 +13,6 @@ fi
 YEAR_PATH="year=$(date -d "yesterday" +"%Y")"
 MONTH_PATH="month=$(date -d "yesterday" +"%m")"
 DAY_PATH="day=$(date -d "yesterday" +"%d")"
-INSTANCE_ID=$(gcloud compute instances describe fineants-vm --format="value(id)")
 
 # 설정값 출력
 echo "LOG_DIR=$LOG_DIR" >> "$DEPLOY_FILE"
@@ -23,7 +22,6 @@ echo "RETENTION_DAYS=$RETENTION_DAYS" >> "$DEPLOY_FILE"
 echo "YEAR=$YEAR_PATH" >> "$DEPLOY_FILE"
 echo "MONTH=$MONTH_PATH" >> "$DEPLOY_FILE"
 echo "DAY=$DAY_PATH" >> "$DEPLOY_FILE"
-echo "INSTANCE_ID=$INSTANCE_ID" >> "$DEPLOY_FILE"
 echo "DEPLOY_FILE=$DEPLOY_FILE" >> "$DEPLOY_FILE"
 
 # 백업 디렉토리 생성 (없으면 생성)
@@ -39,7 +37,7 @@ sudo find "$LOG_DIR" -type f -name "spring*.log.gz" -exec mv {} "$BACKUP_DIR/" \
 
 # Bucket 업로드
 echo "Uploading to Bucket..." >> "$DEPLOY_FILE"
-sudo gsutil cp -r "$BACKUP_DIR/" "$BUCKET_PATH/$YEAR_PATH/$MONTH_PATH/$DAY_PATH/$INSTANCE_ID/"
+sudo gsutil cp -r "$BACKUP_DIR/" "$BUCKET_LOG_PATH/$YEAR_PATH/$MONTH_PATH/$DAY_PATH/"
 
 # 업로드 완료 후 로컬 백업 파일 정리
 echo "Cleaning up local back files..." >> "$DEPLOY_FILE"
