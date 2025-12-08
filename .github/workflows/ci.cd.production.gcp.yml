@@ -16,9 +16,9 @@ permissions:
 env:
   GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
   # Docker Hub Registry 설정
-  DOCKER_USERNAME: fineants
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_IMAGE_NAME: fineants-app
+  DOCKER_IMAGE_NAME: fineants/fineants-app
   DEPLOY_ENV: production
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
@@ -82,12 +82,8 @@ jobs:
 
       - name: Set Image Tag
         id: set-image-tag
-        env:
-          DOCKER_USERNAME_LOCAL: ${{ env.DOCKER_USERNAME }}
-          DOCKER_IMAGE_NAME_LOCAL: ${{ env.DOCKER_IMAGE_NAME }}
-          DEPLOY_ENV_LOCAL: ${{ env.DEPLOY_ENV }}
         run: |
-          FULL_TAG="${{ env.DOCKER_USERNAME_LOCAL }}/${{ env.DOCKER_IMAGE_NAME_LOCAL }}:${{ env.DEPLOY_ENV_LOCAL}}-${{ steps.get-version.outputs.project_version }}"
+          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ steps.get-version.outputs.project_version }}"
           echo "image_uri=$FULL_TAG" >> "$GITHUB_OUTPUT"
           echo "Full Image Tag is $FULL_TAG"
 
@@ -108,7 +104,7 @@ jobs:
       - name: Tag Docker Image as Latest (Conditional)
         if: github.ref == 'refs/heads/main'
         run: |
-          LATEST_TAG="${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+          LATEST_TAG="${{ env.DOCKER_IMAGE_NAME }}:latest"
           docker tag ${{ steps.set-image-tag.outputs.image_uri }} $LATEST_TAG
           echo "Tagged image as latest: $LATEST_TAG"
           # latest 태그 푸시
