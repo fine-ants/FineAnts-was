@@ -14,8 +14,7 @@ fi
 BACKUP_DIR="$MYSQL_DATA_DIR"
 # 백업 파일 경로 (ENV_FILE에서 로드)
 BACKUP_FILE="$BACKUP_FILE_PATH"
-
-# 💡 3. GCP Storage 경로 변수 설정
+# GCP Storage 경로 변수 설정
 GCP_BUCKET="$GCP_BACKUP_BUCKET"
 
 # 디렉토리에서 tar로 묶고 gzip 압축
