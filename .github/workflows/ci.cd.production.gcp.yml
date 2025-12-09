@@ -134,6 +134,9 @@ jobs:
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
         run: |
+          # 작업 디렉토리 변수 설정
+          WORK_DIR=${{ env.GCP_DEPLOY_PATH }}
+          echo "set to WORK_DIR ENV: $WORK_DIR"
           # ENV_PRODUCTION 변수가 비어 있지 않은 경우에만 파일 생성 및 덮어쓰기 실행
           # -n (non-empty) 플래그를 사용하여 변수가 비어있는지 확인합니다.
           if [[ -n "${{ env.ENV_PRODUCTION }}" ]]; then
