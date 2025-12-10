@@ -28,9 +28,14 @@
 - Docker, Github Actions, AWS(EC2, S3, RDS)
 
 ## 3. 설계 및 구조
-### 3.1 시스템 아키텍처
 
-![infra](./img/infra/infra.png)
+### 3.1 인프라 구조
+
+v2
+![infra_v2](./img/infra/infra_v2.png)
+
+v1
+![infra](./img/infra/infra_v1.png)
 
 ### 3.2 ERD 설계
 
