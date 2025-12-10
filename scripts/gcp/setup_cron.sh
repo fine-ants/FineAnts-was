@@ -14,9 +14,9 @@ if [ -z "$WORK_DIR" ]; then
 fi
 
 # 스크립트 경로 정의
-BACKUP_MYSQL_SCRIPT_PATH="$WORK_DIR/scripts/gcp/backup_mysql_data.sh"
-echo "Backup MySQL script path: $BACKUP_MYSQL_SCRIPT_PATH"
-BACKUP_LOG_SCRIPT_PATH="$WORK_DIR/scripts/gcp/backup_log_data.sh"
+MYSQL_BACKUP_SCRIPT="$WORK_DIR/scripts/gcp/backup_mysql_data.sh"
+echo "MySQL Backup script path: $MYSQL_BACKUP_SCRIPT"
+LOG_BACKUP_SCRIPT="$WORK_DIR/scripts/gcp/backup_log_data.sh"
 # ex) LOGS_SCRIPT_PATH="$DEPLOY_BASE_PATH/send_logs_to_gcs.sh" # 필요시 추가
 
 echo "Crontab environment file path: $ENV_FILE"
@@ -24,8 +24,8 @@ echo "Crontab environment file path: $ENV_FILE"
 # 💡 등록할 모든 Cron 작업 내용을 배열에 정의합니다.
 # 형식: "[분] [시] [일] [월] [요일] [실행 명령어]"
 CRON_JOBS=(
-    "10 0 * * * ENV_FILE=$ENV_FILE /bin/bash $BACKUP_MYSQL_SCRIPT_PATH"
-    "0 0 * * * ENV_FILE=$ENV_FILE /bin/bash $BACKUP_LOG_SCRIPT_PATH"
+    "10 0 * * * ENV_FILE=$ENV_FILE /bin/bash $MYSQL_BACKUP_SCRIPT"
+    "0 0 * * * ENV_FILE=$ENV_FILE /bin/bash $LOG_BACKUP_SCRIPT"
 )
 
 # =========================================================

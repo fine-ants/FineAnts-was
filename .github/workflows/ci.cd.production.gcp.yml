@@ -19,7 +19,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: fineants/fineants-app
-  DEPLOY_ENV: production
+  DEPLOY_PROFILE: production
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
@@ -81,7 +81,7 @@ jobs:
       - name: Set Image Tag
         id: set-image-tag
         run: |
-          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ steps.get-version.outputs.project_version }}"
+          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_PROFILE }}-${{ steps.get-version.outputs.project_version }}"
           echo "IMAGE_TAG=$FULL_TAG" >> "$GITHUB_ENV"
           echo "Full Image Tag is $FULL_TAG"
 
@@ -117,9 +117,9 @@ jobs:
     needs: build-image
     env:
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
-      ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
       WORK_DIR: /home/${{ secrets.GCP_SSH_USERNAME }}/app
-      GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
+      ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
+      SETUP_CRON_SCRIPT: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
     defaults:
       run:
         shell: bash
@@ -127,9 +127,6 @@ jobs:
     steps:
       # 코드 체크아웃
       - uses: actions/checkout@v4.1.7
-        with:
-          submodules: true
-          token: ${{ env.GIT_TOKEN }}
       # 환경 설정 파일 동적 생성
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
@@ -182,7 +179,7 @@ jobs:
       # 배포를 위한 이미지 태그 설정
       - name: Set Image Tag for Deployment
         run: |
-          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ needs.build-image.outputs.project_version }}
+          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_PROFILE }}-${{ needs.build-image.outputs.project_version }}
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
           echo "Deployment Image Tag set to $TAG"
 
@@ -244,5 +241,5 @@ jobs:
             export ENV_FILE="${{ env.ENV_FILE }}"
             echo "Remote Shell Check - ENV_FILE is set to: $ENV_FILE"
             
-            /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
+            /bin/bash ${{ env.SETUP_CRON_SCRIPT }} 
             echo "Crontab setup script finished."
