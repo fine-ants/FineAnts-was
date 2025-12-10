@@ -6,17 +6,17 @@
 # =========================================================
 
 # GCP VM 내의 배포 경로를 환경 변수에서 가져옵니다.
-# 💡 GCP_DEPLOY_PATH는 GitHub Actions에서 이미 설정되었다고 가정합니다.
-echo "Deploy base path from GCP_DEPLOY_PATH: $GCP_DEPLOY_PATH"
-if [ -z "$GCP_DEPLOY_PATH" ]; then
-    echo "Error: GCP_DEPLOY_PATH environment variable is not set."
+# 💡 WORK_DIR는 GitHub Actions에서 이미 설정되었다고 가정합니다.
+echo "Deploy base path from WORK_DIR: $WORK_DIR"
+if [ -z "$WORK_DIR" ]; then
+    echo "Error: WORK_DIR environment variable is not set."
     exit 1
 fi
 
 # 스크립트 경로 정의
-BACKUP_MYSQL_SCRIPT_PATH="$GCP_DEPLOY_PATH/scripts/gcp/backup_mysql_data.sh"
+BACKUP_MYSQL_SCRIPT_PATH="$WORK_DIR/scripts/gcp/backup_mysql_data.sh"
 echo "Backup MySQL script path: $BACKUP_MYSQL_SCRIPT_PATH"
-BACKUP_LOG_SCRIPT_PATH="$GCP_DEPLOY_PATH/scripts/gcp/backup_log_data.sh"
+BACKUP_LOG_SCRIPT_PATH="$WORK_DIR/scripts/gcp/backup_log_data.sh"
 # ex) LOGS_SCRIPT_PATH="$DEPLOY_BASE_PATH/send_logs_to_gcs.sh" # 필요시 추가
 
 CRON_ENV_FILE="$ENV_FILE"
