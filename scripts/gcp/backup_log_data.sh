@@ -15,14 +15,17 @@ MONTH_PATH="month=$(date -d "yesterday" +"%m")"
 DAY_PATH="day=$(date -d "yesterday" +"%d")"
 
 # 설정값 출력
-echo "LOG_DIR=$LOG_DIR" >> "$DEPLOY_FILE"
-echo "BACKUP_DIR=$BACKUP_DIR" >> "$DEPLOY_FILE"
-echo "BUCKET_LOG_PATH=$BUCKET_LOG_PATH" >> "$DEPLOY_FILE"
-echo "RETENTION_DAYS=$RETENTION_DAYS" >> "$DEPLOY_FILE"
-echo "YEAR=$YEAR_PATH" >> "$DEPLOY_FILE"
-echo "MONTH=$MONTH_PATH" >> "$DEPLOY_FILE"
-echo "DAY=$DAY_PATH" >> "$DEPLOY_FILE"
-echo "DEPLOY_FILE=$DEPLOY_FILE" >> "$DEPLOY_FILE"
+{
+  echo "LOG_DIR=$LOG_DIR"
+  echo "BACKUP_DIR=$BACKUP_DIR"
+  echo "BUCKET_LOG_PATH=$BUCKET_LOG_PATH"
+  echo "RETENTION_DAYS=$RETENTION_DAYS"
+  echo "YEAR=$YEAR_PATH"
+  echo "MONTH=$MONTH_PATH"
+  echo "DAY=$DAY_PATH"
+  echo "DEPLOY_FILE=$DEPLOY_FILE"
+} >> "$DEPLOY_FILE"
+
 
 # 백업 디렉토리 생성 (없으면 생성)
 mkdir -p "$BACKUP_DIR"
