@@ -31,11 +31,11 @@
 
 ### 3.1 인프라 구조
 
-v2
-![infra_v2](./img/infra/infra_v2.png)
-
 v1
 ![infra](./img/infra/infra_v1.png)
+
+v2
+![infra_v2](./img/infra/infra_v2.png)
 
 ### 3.2 ERD 설계
 
