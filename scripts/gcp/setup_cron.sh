@@ -6,27 +6,26 @@
 # =========================================================
 
 # GCP VM 내의 배포 경로를 환경 변수에서 가져옵니다.
-# 💡 GCP_DEPLOY_PATH는 GitHub Actions에서 이미 설정되었다고 가정합니다.
-echo "Deploy base path from GCP_DEPLOY_PATH: $GCP_DEPLOY_PATH"
-if [ -z "$GCP_DEPLOY_PATH" ]; then
-    echo "Error: GCP_DEPLOY_PATH environment variable is not set."
+# 💡 WORK_DIR는 GitHub Actions에서 이미 설정되었다고 가정합니다.
+echo "Deploy base path from WORK_DIR: $WORK_DIR"
+if [ -z "$WORK_DIR" ]; then
+    echo "Error: WORK_DIR environment variable is not set."
     exit 1
 fi
 
 # 스크립트 경로 정의
-BACKUP_MYSQL_SCRIPT_PATH="$GCP_DEPLOY_PATH/scripts/gcp/backup_mysql_data.sh"
-echo "Backup MySQL script path: $BACKUP_MYSQL_SCRIPT_PATH"
-BACKUP_LOG_SCRIPT_PATH="$GCP_DEPLOY_PATH/scripts/gcp/backup_log_data.sh"
+MYSQL_BACKUP_SCRIPT="$WORK_DIR/scripts/gcp/backup_mysql_data.sh"
+echo "MySQL Backup script path: $MYSQL_BACKUP_SCRIPT"
+LOG_BACKUP_SCRIPT="$WORK_DIR/scripts/gcp/backup_log_data.sh"
 # ex) LOGS_SCRIPT_PATH="$DEPLOY_BASE_PATH/send_logs_to_gcs.sh" # 필요시 추가
 
-CRON_ENV_FILE="$ENV_FILE"
-echo "Crontab environment file path: $CRON_ENV_FILE"
+echo "Crontab environment file path: $ENV_FILE"
 
 # 💡 등록할 모든 Cron 작업 내용을 배열에 정의합니다.
 # 형식: "[분] [시] [일] [월] [요일] [실행 명령어]"
 CRON_JOBS=(
-    "10 0 * * * ENV_FILE=$CRON_ENV_FILE /bin/bash $BACKUP_MYSQL_SCRIPT_PATH"
-    "0 0 * * * ENV_FILE=$CRON_ENV_FILE /bin/bash $BACKUP_LOG_SCRIPT_PATH"
+    "10 0 * * * ENV_FILE=$ENV_FILE /bin/bash $MYSQL_BACKUP_SCRIPT"
+    "0 0 * * * ENV_FILE=$ENV_FILE /bin/bash $LOG_BACKUP_SCRIPT"
 )
 
 # =========================================================

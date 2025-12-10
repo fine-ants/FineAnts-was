@@ -19,7 +19,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: fineants/fineants-app
-  DEPLOY_ENV: production
+  DEPLOY_PROFILE: production
   # Google Cloud 설정
   GCP_INSTANCE_IP: ${{ secrets.GCP_INSTANCE_IP }}
   GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
@@ -62,9 +62,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      #      # Test
-      #      - name: Run Tests
-      #        run: ./gradlew test
+      # Test
+      - name: Run Tests
+        run: ./gradlew test
 
       # bootjar
       - name: Build with Gradle
@@ -81,7 +81,7 @@ jobs:
       - name: Set Image Tag
         id: set-image-tag
         run: |
-          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ steps.get-version.outputs.project_version }}"
+          FULL_TAG="${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_PROFILE }}-${{ steps.get-version.outputs.project_version }}"
           echo "IMAGE_TAG=$FULL_TAG" >> "$GITHUB_ENV"
           echo "Full Image Tag is $FULL_TAG"
 
@@ -117,9 +117,9 @@ jobs:
     needs: build-image
     env:
       ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION_CONTENT }}
+      WORK_DIR: /home/${{ secrets.GCP_SSH_USERNAME }}/app
       ENV_FILE: /home/${{ secrets.GCP_SSH_USERNAME }}/app/.env.production
-      GCP_DEPLOY_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app
-      GCP_CRON_SCRIPT_PATH: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
+      SETUP_CRON_SCRIPT: /home/${{ secrets.GCP_SSH_USERNAME }}/app/scripts/gcp/setup_cron.sh
     defaults:
       run:
         shell: bash
@@ -127,13 +127,14 @@ jobs:
     steps:
       # 코드 체크아웃
       - uses: actions/checkout@v4.1.7
-        with:
-          submodules: true
-          token: ${{ env.GIT_TOKEN }}
       # 환경 설정 파일 동적 생성
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
         run: |
+          # 작업 디렉토리 변수 설정
+          WORK_DIR=${{ env.WORK_DIR }}
+          echo "set to WORK_DIR ENV: $WORK_DIR"
+          
           # ENV_PRODUCTION 변수가 비어 있지 않은 경우에만 파일 생성 및 덮어쓰기 실행
           # -n (non-empty) 플래그를 사용하여 변수가 비어있는지 확인합니다.
           if [[ -n "${{ env.ENV_PRODUCTION }}" ]]; then
@@ -163,7 +164,7 @@ jobs:
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
-          target: ${{ env.GCP_DEPLOY_PATH }}
+          target: ${{ env.WORK_DIR }}
       # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
@@ -174,11 +175,11 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            ls -al ${{ env.GCP_DEPLOY_PATH }}
+            ls -al ${{ env.WORK_DIR }}
       # 배포를 위한 이미지 태그 설정
       - name: Set Image Tag for Deployment
         run: |
-          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_ENV }}-${{ needs.build-image.outputs.project_version }}
+          TAG=${{ env.DOCKER_IMAGE_NAME }}:${{ env.DEPLOY_PROFILE }}-${{ needs.build-image.outputs.project_version }}
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
           echo "Deployment Image Tag set to $TAG"
 
@@ -195,9 +196,9 @@ jobs:
           # GCP 인스턴스에서 실행할 스크립트
           script: |
             # 1. VM에서 배포 폴더 생성 및 이동
-            DEPLOY_DIR=${{ env.GCP_DEPLOY_PATH }}
-            echo "Navigating to deployment directory: $DEPLOY_DIR"
-            cd $DEPLOY_DIR
+            WORK_DIR=${{ env.WORK_DIR }}
+            echo "Navigating to deployment directory: $WORK_DIR"
+            cd $WORK_DIR
             
             # 2. Docker Hub 로그인
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
@@ -233,19 +234,12 @@ jobs:
           script: |
             echo "Setting up crontab..."
             
-            # GitHub Actions 환경 변수 값을 로컬 셸 변수로 설정
-            DEPLOY_PATH_VALUE="${{ env.GCP_DEPLOY_PATH }}"
-            echo "Setting GCP_DEPLOY_PATH to: $DEPLOY_PATH_VALUE"
-            
             # 셸 변수를 'export'하여 하위 스크립트가 참조 가능하도록 설정
-            export GCP_DEPLOY_PATH="$DEPLOY_PATH_VALUE"
-            echo "Remote Shell Check - GCP_DEPLOY_PATH is set to: ${{ env.GCP_DEPLOY_PATH }}"
+            export WORK_DIR="${{ env.WORK_DIR }}"
+            echo "Remote Shell Check - WORK_DIR is set to: $WORK_DIR"
             
-            ENV_FILE_VALUE="${{ env.ENV_FILE }}"
-            echo "Setting ENV_FILE to: $ENV_FILE_VALUE"
+            export ENV_FILE="${{ env.ENV_FILE }}"
+            echo "Remote Shell Check - ENV_FILE is set to: $ENV_FILE"
             
-            export ENV_FILE="$ENV_FILE_VALUE"
-            echo "Remote Shell Check - ENV_FILE is set to: ${{ env.ENV_FILE }}"
-            
-            /bin/bash ${{ env.GCP_CRON_SCRIPT_PATH }} 
+            /bin/bash ${{ env.SETUP_CRON_SCRIPT }} 
             echo "Crontab setup script finished."
