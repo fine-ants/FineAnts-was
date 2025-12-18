@@ -14,7 +14,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Profile(value = "production")
+@Profile(value = {"production", "kis-scheduler"})
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -30,7 +30,8 @@ public class KisProductionScheduler {
 	 * </p>
 	 */
 	@SchedulerLock(name = "kisCurrentPriceScheduler", lockAtLeastFor = "6s", lockAtMostFor = "12s")
-	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
+	// @Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
+	@Scheduled(cron = "0/5 * * ? * MON,TUE,WED,THU,FRI")
 	@Transactional
 	public void refreshCurrentPrice() {
 		if (holidayService.isHoliday(LocalDate.now())) {
