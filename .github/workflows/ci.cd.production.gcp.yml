@@ -127,6 +127,9 @@ jobs:
     steps:
       # 코드 체크아웃
       - uses: actions/checkout@v4.1.7
+        with:
+          submodules: true
+          token: ${{ env.GIT_TOKEN }}
       # 환경 설정 파일 동적 생성
       - name: Create .env.production file from Secret (Conditional)
         # 💡 조건부 실행을 위한 run 스크립트 수정
@@ -165,6 +168,16 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
           target: ${{ env.WORK_DIR }}
+      # submoudle 디렉토리에 존재하는 prometheus 설정 파일 업로드
+      - name: Upload Prometheus Config via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          source: "secret/prometheus/config/prometheus.production.yml" # 업로드할 파일 목록
+          target: ${{ env.WORK_DIR }}/prometheus/config/prometheus.production.yml
       # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
