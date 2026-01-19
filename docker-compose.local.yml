@@ -7,3 +7,6 @@ services:
   db:
     env_file:
       - .env.local
+  prometheus:
+    volumes:
+      - ./secret/prometheus/config/prometheus.local.yml:/etc/prometheus/prometheus.yml
