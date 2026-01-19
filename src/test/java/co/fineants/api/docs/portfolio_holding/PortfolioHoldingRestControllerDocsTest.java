@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -84,6 +85,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
 		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
 		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2025, 12, 1));
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
