@@ -169,10 +169,11 @@ jobs:
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
           target: ${{ env.WORK_DIR }}
       - name: Prepare Prometheus Directory
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.0.7
         with:
           host: ${{ env.GCP_INSTANCE_IP }}
           username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           script: |
             mkdir -p ${{ env.WORK_DIR }}/prometheus/config
