@@ -1,7 +1,5 @@
 package co.fineants.api.domain.holding.controller;
 
-import java.time.LocalDate;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +29,7 @@ import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.api.ApiResponse;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
@@ -52,6 +51,7 @@ public class PortfolioHoldingRestController {
 	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioHoldingEventPublisher publisher;
 	private final PortfolioHoldingFacade portfolioHoldingFacade;
+	private final LocalDateTimeService localDateTimeService;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -96,7 +96,8 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 차트 조회
 	@GetMapping("/charts")
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
-		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId, LocalDate.now());
+		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId,
+			localDateTimeService.getLocalDateWithNow());
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
 	}
 

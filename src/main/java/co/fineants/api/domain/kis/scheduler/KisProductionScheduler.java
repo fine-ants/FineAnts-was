@@ -14,7 +14,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Profile(value = "production")
+@Profile(value = {"production", "kis-scheduler"})
 @Slf4j
 @RequiredArgsConstructor
 @Service
