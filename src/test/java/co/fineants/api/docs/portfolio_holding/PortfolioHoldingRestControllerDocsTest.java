@@ -51,13 +51,13 @@ import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
+import co.fineants.stock.domain.Stock;
 import reactor.core.publisher.Flux;
 
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
@@ -83,6 +83,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		PortfolioCacheService portfolioCacheService = mock(PortfolioCacheService.class);
 		PortfolioHoldingEventPublisher portfolioHoldingEventPublisher = mock(PortfolioHoldingEventPublisher.class);
 		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
+		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
@@ -91,7 +92,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			portfolioSseEventBuilderFactory,
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
-			portfolioHoldingFacade
+			portfolioHoldingFacade,
+			localDateTimeService
 		);
 	}
 
