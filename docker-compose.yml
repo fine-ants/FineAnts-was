@@ -43,7 +43,7 @@ services:
       - spring-net
   prometheus:
     container_name: fineAnts_prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.48.0
     ports:
       - "9090:9090"
     command:
