@@ -177,8 +177,10 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           script: |
             mkdir -p ${{ env.WORK_DIR }}/prometheus/config
+            mkdir -p ${{ env.WORK_DIR }}/prometheus/data
             sudo chown -R ${{ env.GCP_SSH_USERNAME }}:${{ env.GCP_SSH_USERNAME }} ${{ env.WORK_DIR }}/prometheus
             chmod -R 755 ${{ env.WORK_DIR }}/prometheus
+            sudo chown -R 65534:65534 ${{ env.WORK_DIR }}/prometheus/data
       # submodule 디렉토리에 존재하는 prometheus 디렉토리 업로드
       - name: Upload Prometheus Config via SCP
         uses: appleboy/scp-action@v0.1.7
