@@ -168,6 +168,16 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
           target: ${{ env.WORK_DIR }}
+      - name: Prepare Prometheus Directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ${{ env.WORK_DIR }}/prometheus/config
+            sudo chown -R ${{ env.GCP_SSH_USERNAME }}:${{ env.GCP_SSH_USERNAME }} ${{ env.WORK_DIR }}/prometheus
+            chmod -R 755 ${{ env.WORK_DIR }}/prometheus
       # submodule 디렉토리에 존재하는 prometheus 디렉토리 업로드
       - name: Upload Prometheus Config via SCP
         uses: appleboy/scp-action@v0.1.7
