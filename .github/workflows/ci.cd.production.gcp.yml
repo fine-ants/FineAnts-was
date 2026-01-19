@@ -177,7 +177,7 @@ jobs:
           passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "secret/prometheus/config"
-          target: ${{ env.WORK_DIR }}/prometheus/config
+          target: ${{ env.WORK_DIR }}
       # 업로드된 파일 확인
       - name: check uploaded files
         uses: appleboy/ssh-action@v1.0.3
