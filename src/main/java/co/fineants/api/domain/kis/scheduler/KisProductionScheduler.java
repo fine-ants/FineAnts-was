@@ -30,8 +30,7 @@ public class KisProductionScheduler {
 	 * </p>
 	 */
 	@SchedulerLock(name = "kisCurrentPriceScheduler", lockAtLeastFor = "6s", lockAtMostFor = "12s")
-	// @Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
-	@Scheduled(cron = "0/5 * * ? * MON,TUE,WED,THU,FRI")
+	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
 	@Transactional
 	public void refreshCurrentPrice() {
 		if (holidayService.isHoliday(LocalDate.now())) {
