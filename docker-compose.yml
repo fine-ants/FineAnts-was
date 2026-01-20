@@ -36,16 +36,18 @@ services:
     container_name: fineAnts_grafana
     image: grafana/grafana:11.4.0
     restart: always
+    user: "472:472"
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana_data:/var/lib/grafana
+      - ./grafana-storage:/var/lib/grafana
     networks:
       - spring-net
   prometheus:
     container_name: fineAnts_prometheus
     image: prom/prometheus:v2.48.0
     restart: always
+    user: "65534:65534"
     ports:
       - "9090:9090"
     command:

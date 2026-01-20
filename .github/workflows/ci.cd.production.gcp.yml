@@ -168,6 +168,17 @@ jobs:
           key: ${{ env.GCP_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml, docker-compose.production.yml, .env.production, redis/, scripts/gcp/" # 업로드할 파일 목록
           target: ${{ env.WORK_DIR }}
+      - name: Prepare Grafana Directory
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ env.GCP_INSTANCE_IP }}
+          username: ${{ env.GCP_SSH_USERNAME }}
+          passphrase: ${{ env.GCP_SSH_PASSPHRASE }}
+          key: ${{ env.GCP_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ${{ env.WORK_DIR }}/grafana-storage
+            sudo chown -R 472:472 ${{ env.WORK_DIR }}/grafana-storage
+            sudo chmod -R 755 ${{ env.WORK_DIR }}/grafana-storage
       - name: Prepare Prometheus Directory
         uses: appleboy/ssh-action@v0.1.7
         with:
