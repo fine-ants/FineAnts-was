@@ -180,7 +180,7 @@ jobs:
             mkdir -p ${{ env.WORK_DIR }}/prometheus/volume/data
             sudo chown -R ${{ env.GCP_SSH_USERNAME }}:${{ env.GCP_SSH_USERNAME }} ${{ env.WORK_DIR }}/prometheus
             sudo chmod -R 755 ${{ env.WORK_DIR }}/prometheus
-            sudo chmod -R 777 ${{ env.WORK_DIR }}/prometheus/volume/data
+            sudo chown -R 65534:65534 ${{ env.WORK_DIR }}/prometheus/volume/data
       # submodule 디렉토리에 존재하는 prometheus 디렉토리 업로드
       - name: Upload Prometheus Config via SCP
         uses: appleboy/scp-action@v0.1.7
