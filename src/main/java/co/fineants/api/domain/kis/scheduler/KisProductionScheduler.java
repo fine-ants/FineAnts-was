@@ -49,4 +49,13 @@ public class KisProductionScheduler {
 		List<KisCurrentPrice> prices = kisService.refreshAllStockCurrentPrice(activeTickerSymbols);
 		log.info("The stock's current price has renewed {} out of {}", prices.size(), activeTickerSymbols.size());
 	}
+
+	/**
+	 * 매 시간마다 활동이 없는 종목 데이터 정리
+	 */
+	@SchedulerLock(name = "kisCleanupInactiveStocksScheduler", lockAtLeastFor = "50s", lockAtMostFor = "110s")
+	@Scheduled(cron = "0 0 * * * *")
+	public void cleanup() {
+		activeStockService.cleanupInactiveStocks(60);
+	}
 }
