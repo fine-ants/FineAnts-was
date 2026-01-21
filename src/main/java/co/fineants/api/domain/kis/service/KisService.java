@@ -65,10 +65,6 @@ public class KisService {
 	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신
 	@Transactional
 	public List<KisCurrentPrice> refreshAllStockCurrentPrice(Set<String> tickerSymbols) {
-		// Set<String> totalTickerSymbol = new HashSet<>();
-		// totalTickerSymbol.addAll(portFolioHoldingRepository.findAllTickerSymbol());
-		// totalTickerSymbol.addAll(stockTargetPriceRepository.findAllTickerSymbol());
-
 		List<KisCurrentPrice> prices = this.refreshStockCurrentPrice(tickerSymbols);
 		stockTargetPricePublisher.publishEvent(tickerSymbols);
 		portfolioPublisher.publishCurrentPriceEvent();
@@ -91,7 +87,6 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 		currentPriceRedisRepository.savePrice(toArray(prices));
-		log.info("The stock's current price has renewed {} out of {}", prices.size(), tickerSymbols.size());
 		return prices;
 	}
 
