@@ -1,5 +1,7 @@
 package co.fineants.stock.application;
 
+import java.util.Set;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -29,5 +31,15 @@ public class ActiveStockService {
 		} catch (IllegalArgumentException e) {
 			log.warn("Ticker symbol is null. Skipping marking stock as active.");
 		}
+	}
+
+	/**
+	 * 최근 N분 동안 활동이 있었던 종목 리스트를 가져옵니다.
+	 */
+	public Set<String> getActiveStockTickerSymbols(long minutesAgo) {
+		long threshold = System.currentTimeMillis() - (minutesAgo * 60 * 1000);
+
+		// ZRANGEBYSCORE active_stocks <threshold> <infinity>
+		return template.opsForZSet().rangeByScore(ACTIVE_STOCKS_KEY, threshold, Double.MAX_VALUE);
 	}
 }

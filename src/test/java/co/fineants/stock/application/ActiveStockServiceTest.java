@@ -1,5 +1,7 @@
 package co.fineants.stock.application;
 
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +37,19 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// then
 		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
+	}
+
+	@Test
+	void getActiveStockTickerSymbols_whenMinutesAgoIsOne_thenReturnRecentlyActiveStocks() {
+		// given
+		String tickerSymbol1 = "005930";
+		String tickerSymbol2 = "000660";
+		service.markStockAsActive(tickerSymbol1);
+		service.markStockAsActive(tickerSymbol2);
+		// when
+		Set<String> activeStocks = service.getActiveStockTickerSymbols(1); // 1분 이내 활동한 종목 조회
+		// then
+		Assertions.assertThat(activeStocks)
+			.containsExactlyInAnyOrder(tickerSymbol1, tickerSymbol2);
 	}
 }
