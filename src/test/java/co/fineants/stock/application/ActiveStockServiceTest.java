@@ -78,4 +78,18 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// then
 		Assertions.assertThat(activeStocks).isEmpty();
 	}
+
+	@Test
+	void cleanupInactiveStocks() {
+		// given
+		String tickerSymbol1 = "005930";
+		String tickerSymbol2 = "000660";
+		service.markStockAsActive(tickerSymbol1);
+		service.markStockAsActive(tickerSymbol2);
+		// when
+		service.cleanupInactiveStocks(0); // 0분 이상 활동이 없는 종목 정리
+		// then
+		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Assertions.assertThat(size).isZero();
+	}
 }

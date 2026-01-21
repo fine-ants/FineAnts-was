@@ -42,4 +42,14 @@ public class ActiveStockService {
 		// ZRANGEBYSCORE active_stocks <threshold> <infinity>
 		return template.opsForZSet().rangeByScore(ACTIVE_STOCKS_KEY, threshold, Double.MAX_VALUE);
 	}
+
+	/**
+	 * 너무 오래된(예: 1시간 이상) 활동 기록은 Redis 메모리 관리를 위해 삭제합니다.
+	 */
+	public void cleanupInactiveStocks(long minutesAgo) {
+		long threshold = System.currentTimeMillis() - (minutesAgo * 60 * 1000);
+
+		// ZREMRANGEBYSCORE active_stocks 0 <threshold>
+		template.opsForZSet().removeRangeByScore(ACTIVE_STOCKS_KEY, 0, threshold);
+	}
 }
