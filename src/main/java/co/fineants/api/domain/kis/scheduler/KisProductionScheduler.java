@@ -1,6 +1,7 @@
 package co.fineants.api.domain.kis.scheduler;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +12,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.service.KisService;
+import co.fineants.stock.application.ActiveStockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +24,7 @@ public class KisProductionScheduler {
 
 	private final HolidayService holidayService;
 	private final KisService kisService;
+	private final ActiveStockService activeStockService;
 
 	/**
 	 * 평일 09:00~16:00 시간 동안 5초 간격으로 KIS에서 주식 현재가를 업데이트합니다.
@@ -36,6 +39,7 @@ public class KisProductionScheduler {
 		if (holidayService.isHoliday(LocalDate.now())) {
 			return;
 		}
-		kisService.refreshAllStockCurrentPrice();
+		Set<String> activeTickerSymbols = activeStockService.getActiveStockTickerSymbols(5);
+		kisService.refreshAllStockCurrentPrice(activeTickerSymbols);
 	}
 }
