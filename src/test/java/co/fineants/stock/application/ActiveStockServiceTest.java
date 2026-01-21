@@ -52,4 +52,30 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(activeStocks)
 			.containsExactlyInAnyOrder(tickerSymbol1, tickerSymbol2);
 	}
+
+	@Test
+	void getActiveStockTickerSymbols_whenMinutesAgoIsZero_thenReturnEmptySet() {
+		// given
+		String tickerSymbol1 = "005930";
+		String tickerSymbol2 = "000660";
+		service.markStockAsActive(tickerSymbol1);
+		service.markStockAsActive(tickerSymbol2);
+		// when
+		Set<String> activeStocks = service.getActiveStockTickerSymbols(0); // 0분 이내 활동한 종목 조회
+		// then
+		Assertions.assertThat(activeStocks).isEmpty();
+	}
+
+	@Test
+	void getActiveStockTickerSymbols_whenMinutesAgoIsNegative_thenReturnEmptySet() {
+		// given
+		String tickerSymbol1 = "005930";
+		String tickerSymbol2 = "000660";
+		service.markStockAsActive(tickerSymbol1);
+		service.markStockAsActive(tickerSymbol2);
+		// when
+		Set<String> activeStocks = service.getActiveStockTickerSymbols(-1); // -1분 이내 활동한 종목 조회
+		// then
+		Assertions.assertThat(activeStocks).isEmpty();
+	}
 }
