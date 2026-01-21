@@ -55,9 +55,11 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
+import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.domain.Stock;
 import reactor.core.publisher.Flux;
 
@@ -71,6 +73,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PortfolioStreamMessageConsumerFactory portfolioStreamMessageConsumerFactory;
 	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
+	private PortfolioService portfolioService;
 
 	@Override
 	protected Object initController() {
@@ -87,6 +90,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
 		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2025, 12, 1));
+		ActiveStockService activeStockService = mock(ActiveStockService.class);
+		portfolioService = mock(PortfolioService.class);
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
@@ -96,7 +101,9 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
 			portfolioHoldingFacade,
-			localDateTimeService
+			localDateTimeService,
+			activeStockService,
+			portfolioService
 		);
 	}
 
@@ -197,6 +204,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			timeService,
 			calculator);
 
+		given(portfolioService.findPortfolio(portfolio.getId()))
+			.willReturn(portfolio);
 		given(service.readPortfolioHoldings(anyLong())).willReturn(mockResponse);
 		// when & then
 		ResultActions resultActions = mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId())

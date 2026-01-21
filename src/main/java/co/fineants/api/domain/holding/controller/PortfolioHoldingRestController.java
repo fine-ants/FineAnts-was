@@ -1,5 +1,8 @@
 package co.fineants.api.domain.holding.controller;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,11 +31,14 @@ import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
+import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.domain.Stock;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +58,8 @@ public class PortfolioHoldingRestController {
 	private final PortfolioHoldingEventPublisher publisher;
 	private final PortfolioHoldingFacade portfolioHoldingFacade;
 	private final LocalDateTimeService localDateTimeService;
+	private final ActiveStockService activeStockService;
+	private final PortfolioService portfolioService;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -72,6 +80,13 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 종목 조회
 	@GetMapping("/holdings")
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
+		// 활성 종목 등록
+		Set<String> tickerSymbols = portfolioService.findPortfolio(portfolioId).getPortfolioHoldings().stream()
+			.map(PortfolioHolding::getStock)
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toSet());
+		tickerSymbols.forEach(activeStockService::markStockAsActive);
+
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
 	}
