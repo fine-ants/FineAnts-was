@@ -1,12 +1,15 @@
 package co.fineants.stock.application;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ActiveStockService {
 	public static final String ACTIVE_STOCKS_KEY = "active_stocks";
 	private final StringRedisTemplate template;
@@ -16,7 +19,15 @@ public class ActiveStockService {
 	 * 종목 코드의 score를 현재 시간(ms)으로 업데이트합니다.
 	 */
 	public void markStockAsActive(String tickerSymbol) {
-		// ZADD active_stocks <current_time> <tickerSymbol>
-		template.opsForZSet().add(ACTIVE_STOCKS_KEY, tickerSymbol, System.currentTimeMillis());
+		if (Strings.isEmpty(tickerSymbol)) {
+			log.warn("Ticker symbol is blank. Skipping marking stock as active.");
+			return;
+		}
+		try {
+			// ZADD active_stocks <current_time> <tickerSymbol>
+			template.opsForZSet().add(ACTIVE_STOCKS_KEY, tickerSymbol, System.currentTimeMillis());
+		} catch (IllegalArgumentException e) {
+			log.warn("Ticker symbol is null. Skipping marking stock as active.");
+		}
 	}
 }
