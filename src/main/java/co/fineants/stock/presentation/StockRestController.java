@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.infra.s3.service.WriteStockService;
+import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
@@ -35,6 +36,7 @@ public class StockRestController {
 	private final FindStock findStock;
 	private final ReloadStock reloadStock;
 	private final SyncStock syncStock;
+	private final ActiveStockService activeStockService;
 
 	@PostMapping("/search")
 	@PermitAll
@@ -77,6 +79,7 @@ public class StockRestController {
 	@GetMapping("/{tickerSymbol}")
 	@PermitAll
 	public ApiResponse<StockResponse> getStock(@PathVariable String tickerSymbol) {
+		activeStockService.markStockAsActive(tickerSymbol);
 		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
 		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK, response);
 	}
