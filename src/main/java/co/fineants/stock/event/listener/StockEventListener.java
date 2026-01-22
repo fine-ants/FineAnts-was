@@ -25,7 +25,7 @@ public class StockEventListener {
 
 	@EventListener
 	@Async
-	public void handleStockViewedEvent(StocksViewedEvent event) {
+	public void handleStocksViewedEvent(StocksViewedEvent event) {
 		log.info("Handling StocksViewedEvent for tickers: {}", event.getTickerSymbols());
 		service.markStocksAsActive(event.getTickerSymbols());
 	}
