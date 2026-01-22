@@ -1,8 +1,10 @@
 package co.fineants.stock.application;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,19 @@ public class ActiveStockService {
 		} catch (IllegalArgumentException e) {
 			log.warn("Ticker symbol is null. Skipping marking stock as active.");
 		}
+	}
+
+	public void markStocksAsActive(Collection<String> tickerSymbols) {
+		long currentTime = System.currentTimeMillis();
+		template.executePipelined((RedisCallback<?>)connection -> {
+			tickerSymbols.forEach(symbol ->
+				connection.zSetCommands().zAdd(
+					ACTIVE_STOCKS_KEY.getBytes(),
+					currentTime,
+					symbol.getBytes()
+				));
+			return null;
+		});
 	}
 
 	/**

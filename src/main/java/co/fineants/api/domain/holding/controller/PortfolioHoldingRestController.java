@@ -80,7 +80,7 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
 		Set<String> tickerSymbols = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		tickerSymbols.forEach(activeStockService::markStockAsActive);
+		activeStockService.markStocksAsActive(tickerSymbols);
 
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
@@ -107,8 +107,9 @@ public class PortfolioHoldingRestController {
 	@GetMapping("/charts")
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
-		portfolioService.getTickerSymbolsInPortfolio(portfolioId).forEach(activeStockService::markStockAsActive);
-		
+		Set<String> tickerSymbolsInPortfolio = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
+		activeStockService.markStocksAsActive(tickerSymbolsInPortfolio);
+
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId,
 			localDateTimeService.getLocalDateWithNow());
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
