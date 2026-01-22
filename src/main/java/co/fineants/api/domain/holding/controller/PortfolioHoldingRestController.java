@@ -106,6 +106,9 @@ public class PortfolioHoldingRestController {
 	// 포트폴리오 차트 조회
 	@GetMapping("/charts")
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
+		// 활성 종목 등록
+		portfolioService.getTickerSymbolsInPortfolio(portfolioId).forEach(activeStockService::markStockAsActive);
+		
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId,
 			localDateTimeService.getLocalDateWithNow());
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
