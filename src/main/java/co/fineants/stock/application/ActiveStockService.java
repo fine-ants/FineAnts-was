@@ -35,6 +35,10 @@ public class ActiveStockService {
 		}
 	}
 
+	/**
+	 * 여러 종목을 한 번에 활성 종목으로 등록합니다.
+	 * @param tickerSymbols 종목 코드 컬렉션
+	 */
 	public void markStocksAsActive(Collection<String> tickerSymbols) {
 		if (tickerSymbols == null || tickerSymbols.isEmpty()) {
 			log.warn("Ticker symbols collection is null or empty. Skipping marking stocks as active.");
