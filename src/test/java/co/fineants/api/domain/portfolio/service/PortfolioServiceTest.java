@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.assertj.core.groups.Tuple;
@@ -587,6 +588,41 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		setAuthentication(hacker);
 		// when
 		Throwable throwable = catchThrowable(() -> service.deletePortfolios(portfolioIds, member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
+	}
+
+	@DisplayName("포트폴리오에 등록된 종목의 티커 집합을 반환한다")
+	@Test
+	void getTickerSymbolsInPortfolio() {
+		Member member = memberRepository.save(createMember());
+		Stock stock = stockRepository.save(createSamsungStock());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+
+		// when
+		Set<String> tickerSymbols = service.getTickerSymbolsInPortfolio(portfolio.getId());
+
+		// then
+		assertThat(tickerSymbols).containsExactly(stock.getTickerSymbol());
+	}
+
+	@DisplayName("회원은 다른 회원의 포트폴리오에서 티커 집합을 조회할 수 없다")
+	@Test
+	void getTickerSymbolsInPortfolio_whenAccessOtherMemberPortfolio_thenThrowException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		Stock stock = stockRepository.save(createSamsungStock());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> service.getTickerSymbolsInPortfolio(portfolio.getId()));
 
 		// then
 		assertThat(throwable)

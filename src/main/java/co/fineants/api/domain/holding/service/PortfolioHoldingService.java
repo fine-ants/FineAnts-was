@@ -34,7 +34,6 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PortfolioHoldingAuthorizedService;
@@ -42,6 +41,7 @@ import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
 import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.stock.domain.Stock;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +101,7 @@ public class PortfolioHoldingService {
 		return portfolioRepository.findById(portfolioId)
 			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
-	
+
 	private void validateExistPortfolioHolding(List<Long> portfolioHoldingIds) {
 		portfolioHoldingIds.stream()
 			.filter(portfolioHoldingId -> !portfolioHoldingRepository.existsById(portfolioHoldingId))
