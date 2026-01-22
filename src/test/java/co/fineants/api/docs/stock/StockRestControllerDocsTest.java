@@ -19,6 +19,7 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -34,7 +35,6 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.api.infra.s3.service.WriteStockService;
-import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
@@ -56,12 +56,12 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 	private final FindStock findStock = Mockito.mock(FindStock.class);
 
 	private final SyncStock syncStock = Mockito.mock(SyncStock.class);
-	private final ActiveStockService activeStockService = Mockito.mock(ActiveStockService.class);
+	private final ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
 
 	@Override
 	protected Object initController() {
 		return new StockRestController(searchStock, writeStockService, findStock, reloadStock, syncStock,
-			activeStockService);
+			eventPublisher);
 	}
 
 	@DisplayName("종목 검색 API")

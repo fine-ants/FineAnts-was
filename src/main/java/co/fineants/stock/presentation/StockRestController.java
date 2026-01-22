@@ -2,6 +2,7 @@ package co.fineants.stock.presentation;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.infra.s3.service.WriteStockService;
-import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
 import co.fineants.stock.application.SyncStock;
+import co.fineants.stock.event.StockViewedEvent;
 import co.fineants.stock.presentation.dto.request.StockSearchRequest;
 import co.fineants.stock.presentation.dto.response.StockReloadResponse;
 import co.fineants.stock.presentation.dto.response.StockResponse;
@@ -36,7 +37,7 @@ public class StockRestController {
 	private final FindStock findStock;
 	private final ReloadStock reloadStock;
 	private final SyncStock syncStock;
-	private final ActiveStockService activeStockService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@PostMapping("/search")
 	@PermitAll
@@ -79,7 +80,7 @@ public class StockRestController {
 	@GetMapping("/{tickerSymbol}")
 	@PermitAll
 	public ApiResponse<StockResponse> getStock(@PathVariable String tickerSymbol) {
-		activeStockService.markStockAsActive(tickerSymbol);
+		eventPublisher.publishEvent(new StockViewedEvent(tickerSymbol));
 		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
 		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK, response);
 	}

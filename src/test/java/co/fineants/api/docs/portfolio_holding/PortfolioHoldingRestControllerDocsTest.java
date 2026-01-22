@@ -20,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -59,7 +60,6 @@ import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
-import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.domain.Stock;
 import reactor.core.publisher.Flux;
 
@@ -90,8 +90,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
 		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.now());
-		ActiveStockService activeStockService = mock(ActiveStockService.class);
 		portfolioService = mock(PortfolioService.class);
+		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 		return new PortfolioHoldingRestController(
 			service,
 			portfolioStreamerFactory,
@@ -102,8 +102,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			portfolioHoldingEventPublisher,
 			portfolioHoldingFacade,
 			localDateTimeService,
-			activeStockService,
-			portfolioService
+			portfolioService,
+			eventPublisher
 		);
 	}
 
