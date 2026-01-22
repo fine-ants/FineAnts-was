@@ -209,7 +209,7 @@ public class PortfolioService {
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
-	public Set<String> getTickerSymbolsInPortfolio(Long portfolioId) {
+	public Set<String> getTickerSymbolsInPortfolio(@ResourceId Long portfolioId) {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		return portfolio.getPortfolioHoldings().stream()
 			.map(PortfolioHolding::getStock)
