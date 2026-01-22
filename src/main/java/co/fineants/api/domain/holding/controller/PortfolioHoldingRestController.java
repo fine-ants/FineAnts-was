@@ -37,7 +37,6 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
-import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.event.StocksViewedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +57,6 @@ public class PortfolioHoldingRestController {
 	private final PortfolioHoldingEventPublisher publisher;
 	private final PortfolioHoldingFacade portfolioHoldingFacade;
 	private final LocalDateTimeService localDateTimeService;
-	private final ActiveStockService activeStockService;
 	private final PortfolioService portfolioService;
 	private final ApplicationEventPublisher eventPublisher;
 
