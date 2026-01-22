@@ -122,4 +122,16 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
 	}
+
+	@DisplayName("컬렉션의 요소가 빈 문자열이면 활성 종목 등록 작업은 아무 작업도 수행하지 않는다.")
+	@Test
+	void markStocksAsActive_whenCollectionElementIsEmpty_thenDoNothing() {
+		// given
+		Set<String> tickerSymbols = Set.of("", " ", "  ");
+		// when
+		service.markStocksAsActive(tickerSymbols);
+		// then
+		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Assertions.assertThat(size).isZero();
+	}
 }

@@ -42,12 +42,14 @@ public class ActiveStockService {
 		}
 		long currentTime = System.currentTimeMillis();
 		template.executePipelined((RedisCallback<?>)connection -> {
-			tickerSymbols.forEach(symbol ->
-				connection.zSetCommands().zAdd(
-					ACTIVE_STOCKS_KEY.getBytes(),
-					currentTime,
-					symbol.getBytes()
-				));
+			tickerSymbols.stream()
+				.filter(Strings::isNotBlank)
+				.forEach(symbol ->
+					connection.zSetCommands().zAdd(
+						ACTIVE_STOCKS_KEY.getBytes(),
+						currentTime,
+						symbol.getBytes()
+					));
 			return null;
 		});
 	}
