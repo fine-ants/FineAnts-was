@@ -104,5 +104,7 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 			Double score = redisTemplate.opsForZSet().score(ActiveStockService.ACTIVE_STOCKS_KEY, symbol);
 			Assertions.assertThat(score).isGreaterThan(0);
 		}
+		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Assertions.assertThat(size).isEqualTo(tickerSymbols.size());
 	}
 }
