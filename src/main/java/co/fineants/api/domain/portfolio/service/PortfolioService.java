@@ -207,6 +207,8 @@ public class PortfolioService {
 
 	// 포트폴리오에 등록된 종목의 티커 집합을 반환하는 서비스
 	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	@Authorized(serviceClass = PortfolioAuthorizedService.class)
 	public Set<String> getTickerSymbolsInPortfolio(Long portfolioId) {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		return portfolio.getPortfolioHoldings().stream()
