@@ -1,7 +1,6 @@
 package co.fineants.api.domain.holding.controller;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +37,6 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
 import co.fineants.stock.application.ActiveStockService;
-import co.fineants.stock.domain.Stock;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,10 +79,7 @@ public class PortfolioHoldingRestController {
 	@GetMapping("/holdings")
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
-		Set<String> tickerSymbols = portfolioService.findPortfolio(portfolioId).getPortfolioHoldings().stream()
-			.map(PortfolioHolding::getStock)
-			.map(Stock::getTickerSymbol)
-			.collect(Collectors.toSet());
+		Set<String> tickerSymbols = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
 		tickerSymbols.forEach(activeStockService::markStockAsActive);
 
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
