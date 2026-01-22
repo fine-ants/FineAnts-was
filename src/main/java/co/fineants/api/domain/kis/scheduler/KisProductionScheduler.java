@@ -55,7 +55,7 @@ public class KisProductionScheduler {
 	 */
 	@SchedulerLock(name = "kisCleanupInactiveStocksScheduler", lockAtLeastFor = "50s", lockAtMostFor = "110s")
 	@Scheduled(cron = "0 0 * * * *")
-	public void cleanup() {
+	public void cleanupInactiveStocks() {
 		activeStockService.cleanupInactiveStocks(60);
 		log.info("Inactive stock data cleanup completed.");
 	}
