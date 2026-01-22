@@ -31,7 +31,7 @@ public class ActiveStockService {
 			// ZADD active_stocks <current_time> <tickerSymbol>
 			template.opsForZSet().add(ACTIVE_STOCKS_KEY, tickerSymbol, System.currentTimeMillis());
 		} catch (IllegalArgumentException e) {
-			log.warn("Ticker symbol is null. Skipping marking stock as active.");
+			log.warn("Failed to mark stock as active for ticker symbol '{}': {}", tickerSymbol, e.getMessage());
 		}
 	}
 
