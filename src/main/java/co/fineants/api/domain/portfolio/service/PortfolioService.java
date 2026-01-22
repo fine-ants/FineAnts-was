@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -43,6 +44,7 @@ import co.fineants.api.global.errors.exception.business.SecuritiesFirmInvalidInp
 import co.fineants.api.global.errors.exception.domain.DomainException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -201,5 +203,17 @@ public class PortfolioService {
 			.map(PortfolioNameItem::from)
 			.toList();
 		return PortfolioNameResponse.from(items);
+	}
+
+	// 포트폴리오에 등록된 종목의 티커 집합을 반환하는 서비스
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	@Authorized(serviceClass = PortfolioAuthorizedService.class)
+	public Set<String> getTickerSymbolsInPortfolio(@ResourceId Long portfolioId) {
+		Portfolio portfolio = findPortfolio(portfolioId);
+		return portfolio.getPortfolioHoldings().stream()
+			.map(PortfolioHolding::getStock)
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toSet());
 	}
 }

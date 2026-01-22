@@ -3,7 +3,6 @@ package co.fineants.api.domain.kis.service;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,13 +64,9 @@ public class KisService {
 
 	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신
 	@Transactional
-	public List<KisCurrentPrice> refreshAllStockCurrentPrice() {
-		Set<String> totalTickerSymbol = new HashSet<>();
-		totalTickerSymbol.addAll(portFolioHoldingRepository.findAllTickerSymbol());
-		totalTickerSymbol.addAll(stockTargetPriceRepository.findAllTickerSymbol());
-
-		List<KisCurrentPrice> prices = this.refreshStockCurrentPrice(totalTickerSymbol);
-		stockTargetPricePublisher.publishEvent(totalTickerSymbol);
+	public List<KisCurrentPrice> refreshAllStockCurrentPrice(Set<String> tickerSymbols) {
+		List<KisCurrentPrice> prices = this.refreshStockCurrentPrice(tickerSymbols);
+		stockTargetPricePublisher.publishEvent(tickerSymbols);
 		portfolioPublisher.publishCurrentPriceEvent();
 		return prices;
 	}
@@ -92,7 +87,6 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 		currentPriceRedisRepository.savePrice(toArray(prices));
-		log.info("The stock's current price has renewed {} out of {}", prices.size(), tickerSymbols.size());
 		return prices;
 	}
 

@@ -11,9 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -27,24 +30,32 @@ import co.fineants.api.domain.kis.controller.KisRestController;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.domain.Stock;
 import reactor.core.publisher.Mono;
 
 class KisRestControllerDocsTest extends RestDocsSupport {
 
 	private final KisService service = Mockito.mock(KisService.class);
+	private final ActiveStockService activeStockService = Mockito.mock(ActiveStockService.class);
 
 	@Override
 	protected Object initController() {
-		return new KisRestController(service);
+		return new KisRestController(service, activeStockService);
+	}
+
+	@BeforeEach
+	void setUp() {
+		BDDMockito.given(activeStockService.getActiveStockTickerSymbols(5))
+			.willReturn(Set.of("005930"));
 	}
 
 	@DisplayName("모든 종목 현재가 갱신 API")
 	@Test
 	void refreshAllStockCurrentPrice() throws Exception {
 		// given
-		given(service.refreshAllStockCurrentPrice())
+		given(service.refreshAllStockCurrentPrice(Set.of("005930")))
 			.willReturn(List.of(
 				KisCurrentPrice.create("005930", 60000L)
 			));
