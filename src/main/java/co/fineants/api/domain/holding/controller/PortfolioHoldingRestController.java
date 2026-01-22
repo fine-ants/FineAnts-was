@@ -2,6 +2,7 @@ package co.fineants.api.domain.holding.controller;
 
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,6 +38,7 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
 import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.event.StocksViewedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +60,7 @@ public class PortfolioHoldingRestController {
 	private final LocalDateTimeService localDateTimeService;
 	private final ActiveStockService activeStockService;
 	private final PortfolioService portfolioService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 포트폴리오 종목 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -80,7 +83,7 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
 		Set<String> tickerSymbols = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		activeStockService.markStocksAsActive(tickerSymbols);
+		eventPublisher.publishEvent(new StocksViewedEvent(tickerSymbols));
 
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
@@ -108,7 +111,7 @@ public class PortfolioHoldingRestController {
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
 		Set<String> tickerSymbolsInPortfolio = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		activeStockService.markStocksAsActive(tickerSymbolsInPortfolio);
+		eventPublisher.publishEvent(new StocksViewedEvent(tickerSymbolsInPortfolio));
 
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId,
 			localDateTimeService.getLocalDateWithNow());
