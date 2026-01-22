@@ -89,7 +89,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		portfolioHoldingFacade = mock(PortfolioHoldingFacade.class);
 		LocalDateTimeService localDateTimeService = mock(LocalDateTimeService.class);
 		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2025, 12, 1));
+			.willReturn(LocalDate.now());
 		ActiveStockService activeStockService = mock(ActiveStockService.class);
 		portfolioService = mock(PortfolioService.class);
 		return new PortfolioHoldingRestController(
