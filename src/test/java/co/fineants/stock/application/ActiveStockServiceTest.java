@@ -1,5 +1,6 @@
 package co.fineants.stock.application;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
@@ -108,5 +109,17 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		}
 		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isEqualTo(tickerSymbols.size());
+	}
+
+	@DisplayName("컬렉션이 유효하지 않으면 활성 종목 등록 작업은 아무 작업도 수행하지 않는다.")
+	@Test
+	void markStocksAsActive_whenCollectionsIsInvalid_thenDoNothing() {
+		// given
+		// when
+		service.markStocksAsActive(null);
+		service.markStocksAsActive(Collections.emptySet());
+		// then
+		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Assertions.assertThat(size).isZero();
 	}
 }

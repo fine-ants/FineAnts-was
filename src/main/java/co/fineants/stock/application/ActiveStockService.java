@@ -36,6 +36,10 @@ public class ActiveStockService {
 	}
 
 	public void markStocksAsActive(Collection<String> tickerSymbols) {
+		if (tickerSymbols == null || tickerSymbols.isEmpty()) {
+			log.warn("Ticker symbols collection is null or empty. Skipping marking stocks as active.");
+			return;
+		}
 		long currentTime = System.currentTimeMillis();
 		template.executePipelined((RedisCallback<?>)connection -> {
 			tickerSymbols.forEach(symbol ->
