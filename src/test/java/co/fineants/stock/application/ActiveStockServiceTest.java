@@ -3,6 +3,7 @@ package co.fineants.stock.application;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -93,6 +94,7 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(size).isZero();
 	}
 
+	@DisplayName("여러 종목을 활성 상태로 표시할 수 있다.")
 	@Test
 	void markStocksAsActive() {
 		// given
