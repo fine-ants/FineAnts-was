@@ -609,4 +609,24 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(tickerSymbols).containsExactly(stock.getTickerSymbol());
 	}
+
+	@DisplayName("회원은 다른 회원의 포트폴리오에서 티커 집합을 조회할 수 없다")
+	@Test
+	void getTickerSymbolsInPortfolio_whenAccessOtherMemberPortfolio_thenThrowException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		Stock stock = stockRepository.save(createSamsungStock());
+		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> service.getTickerSymbolsInPortfolio(portfolio.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(portfolio.toString());
+	}
 }
