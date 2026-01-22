@@ -3,6 +3,7 @@ package co.fineants.stock.application;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
-import joptsimple.internal.Strings;
 
 class ActiveStockServiceTest extends AbstractContainerBaseTest {
 
