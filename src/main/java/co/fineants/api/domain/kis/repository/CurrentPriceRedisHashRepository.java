@@ -36,7 +36,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(Stock stock, long price) {
-		template.opsForHash().put(KEY, stock.getTickerSymbol(), String.valueOf(price));
+		savePrice(stock.getTickerSymbol(), price);
 	}
 
 	@Override
