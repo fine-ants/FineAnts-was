@@ -23,6 +23,10 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(KisCurrentPrice... currentPrices) {
+		if (currentPrices == null || currentPrices.length == 0) {
+			log.warn("currentPrices is null or empty");
+			return;
+		}
 		template.opsForHash().putAll(KEY,
 			java.util.Arrays.stream(currentPrices)
 				.collect(
