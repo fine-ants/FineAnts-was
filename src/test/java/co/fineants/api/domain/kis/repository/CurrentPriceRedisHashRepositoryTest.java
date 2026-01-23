@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
 
 class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
@@ -50,6 +51,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(size).isZero();
 	}
 
+	@DisplayName("savePrice - 가격이 음수일때 저장하지 않음")
 	@Test
 	void savePrice_whenPriceIsNegative_thenDoNothing() {
 		// given
@@ -60,6 +62,23 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		// then
 		Long size = template.opsForHash().size(CurrentPriceRedisHashRepository.KEY);
 		Assertions.assertThat(size).isZero();
+	}
+
+	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
+	@Test
+	void savePrice_whenKisCurrentPrice_thenSaveThePrice() {
+		// given
+		KisCurrentPrice kisCurrentPrice1 = KisCurrentPrice.create("005930", 50000L);
+		KisCurrentPrice kisCurrentPrice2 = KisCurrentPrice.create("035720", 30000L);
+
+		// when
+		repository.savePrice(kisCurrentPrice1, kisCurrentPrice2);
+
+		// then
+		Assertions.assertThat(template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "005930"))
+			.isEqualTo(String.valueOf(50000L));
+		Assertions.assertThat(template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "035720"))
+			.isEqualTo(String.valueOf(30000L));
 	}
 
 	@DisplayName("fetchPriceBy - 티커 심볼로 현재가 조회")
