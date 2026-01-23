@@ -35,6 +35,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 			.isEqualTo(String.valueOf(price));
 	}
 
+	@DisplayName("savePrice - 티커 심볼이 유효하지 않을때 저장하지 않음")
 	@Test
 	void savePrice_whenTickerSymbolIsInvalid_thenDoNothing() {
 		// given
