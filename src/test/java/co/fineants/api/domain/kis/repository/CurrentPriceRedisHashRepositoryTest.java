@@ -9,9 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
+import co.fineants.api.global.util.ObjectMapperUtil;
 
 class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
@@ -20,6 +24,9 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StringRedisTemplate template;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
@@ -32,8 +39,10 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(tickerSymbol, price);
 
 		// then
-		Assertions.assertThat(template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol))
-			.isEqualTo(String.valueOf(price));
+		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.now(tickerSymbol, price);
+		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol);
+		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
+		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 
 	@DisplayName("savePrice - 티커 심볼이 유효하지 않을때 저장하지 않음")

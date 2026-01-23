@@ -1,13 +1,28 @@
 package co.fineants.api.domain.kis.domain;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@Getter
+@EqualsAndHashCode(of = {"tickerSymbol", "price"})
 public class CurrentPriceRedisEntity {
+	@JsonProperty("tickerSymbol")
 	private final String tickerSymbol;
+	@JsonProperty("price")
 	private final long price;
+	@JsonProperty("lastUpdatedAt")
 	private final long lastUpdatedAt;
+
+	@JsonCreator
+	private CurrentPriceRedisEntity(@JsonProperty("tickerSymbol") String tickerSymbol,
+		@JsonProperty("price") long price, @JsonProperty("lastUpdatedAt") long lastUpdatedAt) {
+		this.tickerSymbol = tickerSymbol;
+		this.price = price;
+		this.lastUpdatedAt = lastUpdatedAt;
+	}
 
 	public static CurrentPriceRedisEntity now(String tickerSymbol, long price) {
 		return new CurrentPriceRedisEntity(tickerSymbol, price, System.currentTimeMillis());
