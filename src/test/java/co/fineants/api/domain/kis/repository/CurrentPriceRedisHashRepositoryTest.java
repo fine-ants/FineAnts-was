@@ -51,6 +51,19 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(currentPrice.orElseThrow()).isEqualTo(Money.won(price));
 	}
 
+	@DisplayName("fetchPriceBy - 저장되지 않은 티커 심볼로 조회시 빈 Optional 반환")
+	@Test
+	void fetchPriceBy_whenNotSave_thenReturnEmptyOptional() {
+		// given
+		String tickerSymbol = "005930";
+
+		// when
+		Optional<Money> currentPrice = repository.fetchPriceBy(tickerSymbol);
+
+		// then
+		Assertions.assertThat(currentPrice).isEmpty();
+	}
+
 	@DisplayName("fetchPriceBy - 티커 심볼이 유효하지 않을때 빈 Optional 반환")
 	@Test
 	void fetchPriceBy_whenTickerSymbolIsInvalid_thenReturnEmptyOptional() {
