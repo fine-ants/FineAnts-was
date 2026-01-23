@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.repository;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +11,11 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	public static final String KEY = "current_prices";
@@ -53,6 +56,10 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public Optional<Money> getCachedPrice(String tickerSymbol) {
+		if (Strings.isBlank(tickerSymbol)) {
+			log.warn("tickerSymbol is blank");
+			return Optional.empty();
+		}
 		Object value = template.opsForHash().get(KEY, tickerSymbol);
 		if (value == null) {
 			return Optional.empty();

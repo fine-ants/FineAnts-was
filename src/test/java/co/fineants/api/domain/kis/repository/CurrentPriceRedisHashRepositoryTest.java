@@ -2,7 +2,9 @@ package co.fineants.api.domain.kis.repository;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,6 +20,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StringRedisTemplate template;
 
+	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
 	void savePrice() {
 		// given
@@ -32,6 +35,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 			.isEqualTo(String.valueOf(price));
 	}
 
+	@DisplayName("fetchPriceBy - 티커 심볼로 현재가 조회")
 	@Test
 	void fetchPriceBy() {
 		// given
@@ -45,5 +49,14 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		// then
 		Assertions.assertThat(currentPrice).isPresent();
 		Assertions.assertThat(currentPrice.orElseThrow()).isEqualTo(Money.won(price));
+	}
+
+	@DisplayName("fetchPriceBy - 티커 심볼이 유효하지 않을때 빈 Optional 반환")
+	@Test
+	void fetchPriceBy_whenTickerSymbolIsInvalid_thenReturnEmptyOptional() {
+		// when & then
+		Assertions.assertThat(repository.fetchPriceBy((String)null)).isEmpty();
+		Assertions.assertThat(repository.fetchPriceBy(Strings.EMPTY)).isEmpty();
+		Assertions.assertThat(repository.fetchPriceBy("  ")).isEmpty();
 	}
 }
