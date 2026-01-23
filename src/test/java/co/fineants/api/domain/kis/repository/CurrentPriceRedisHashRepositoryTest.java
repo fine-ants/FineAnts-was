@@ -50,6 +50,18 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(size).isZero();
 	}
 
+	@Test
+	void savePrice_whenPriceIsNegative_thenDoNothing() {
+		// given
+		String tickerSymbol = "005930";
+		long price = -1L;
+		// when
+		repository.savePrice(tickerSymbol, price);
+		// then
+		Long size = template.opsForHash().size(CurrentPriceRedisHashRepository.KEY);
+		Assertions.assertThat(size).isZero();
+	}
+
 	@DisplayName("fetchPriceBy - 티커 심볼로 현재가 조회")
 	@Test
 	void fetchPriceBy() {
