@@ -35,6 +35,20 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 			.isEqualTo(String.valueOf(price));
 	}
 
+	@Test
+	void savePrice_whenTickerSymbolIsInvalid_thenDoNothing() {
+		// given
+		long price = 50000L;
+		// when
+		repository.savePrice((String)null, price);
+		repository.savePrice("", price);
+		repository.savePrice(" ", price);
+		repository.savePrice("  ", price);
+		// then
+		Long size = template.opsForHash().size(CurrentPriceRedisHashRepository.KEY);
+		Assertions.assertThat(size).isZero();
+	}
+
 	@DisplayName("fetchPriceBy - 티커 심볼로 현재가 조회")
 	@Test
 	void fetchPriceBy() {

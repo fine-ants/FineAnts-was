@@ -41,6 +41,14 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
+		if (Strings.isBlank(tickerSymbol)) {
+			log.warn("tickerSymbol is blank");
+			return;
+		}
+		if (price < 0) {
+			log.warn("price is negative: {}", price);
+			return;
+		}
 		template.opsForHash().put(KEY, tickerSymbol, String.valueOf(price));
 	}
 
