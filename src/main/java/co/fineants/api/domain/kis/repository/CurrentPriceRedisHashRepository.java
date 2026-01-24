@@ -90,7 +90,16 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 		if (value == null) {
 			return Optional.empty();
 		}
-		CurrentPriceRedisEntity entity = (CurrentPriceRedisEntity)value;
+		CurrentPriceRedisEntity entity = fromJson((String)value);
 		return Optional.of(Money.won(entity.getPrice()));
+	}
+
+	private CurrentPriceRedisEntity fromJson(String json) {
+		try {
+			return objectMapper.readValue(json, CurrentPriceRedisEntity.class);
+		} catch (Exception e) {
+			log.error("Failed to deserialize JSON to CurrentPriceRedisEntity", e);
+			throw new IllegalArgumentException("Deserialization error", e);
+		}
 	}
 }
