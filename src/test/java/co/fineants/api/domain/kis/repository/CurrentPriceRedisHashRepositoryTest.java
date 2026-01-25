@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -27,6 +28,9 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private Clock spyClock;
+
+	@Value("${stock.current-price.freshness-threshold-millis:300000}")
+	private long freshnessThresholdMillis;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
@@ -165,7 +169,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		// given
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + 5 * 60 * 1000L); // after 5 minutes
+			.willReturn(1_000_000L + freshnessThresholdMillis); // after 5 minutes
 		String tickerSymbol = "005930";
 		long price = 50000L;
 		repository.savePrice(tickerSymbol, price);
@@ -183,7 +187,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		// given
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + 5 * 60 * 1000L + 1L); // after 5 minutes and 1 millisecond
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L); // after 5 minutes and 1 millisecond
 		String tickerSymbol = "005930";
 		long price = 50000L;
 		repository.savePrice(tickerSymbol, price);
