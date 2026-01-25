@@ -1,5 +1,6 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
@@ -26,6 +27,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 	public static final String KEY = "current_prices";
 	private final StringRedisTemplate template;
 	private final ObjectMapper objectMapper;
+	private final Clock clock;
 
 	@Override
 	public void savePrice(KisCurrentPrice... currentPrices) {
@@ -38,7 +40,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 				.collect(
 					java.util.stream.Collectors.toMap(
 						KisCurrentPrice::getTickerSymbol,
-						cp -> toJson(CurrentPriceRedisEntity.of(cp.getTickerSymbol(), cp.getPrice()))
+						cp -> toJson(CurrentPriceRedisEntity.of(cp.getTickerSymbol(), cp.getPrice(),
+							clock.millis()))
 					)
 				)
 		);
@@ -59,7 +62,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			log.warn("price is negative: {}", price);
 			return;
 		}
-		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price);
+		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
 	}
 

@@ -24,8 +24,8 @@ public class CurrentPriceRedisEntity {
 		this.lastUpdatedAt = lastUpdatedAt;
 	}
 
-	public static CurrentPriceRedisEntity of(String tickerSymbol, long price) {
-		return new CurrentPriceRedisEntity(tickerSymbol, price, System.currentTimeMillis());
+	public static CurrentPriceRedisEntity of(String tickerSymbol, long price, long lastUpdatedAt) {
+		return new CurrentPriceRedisEntity(tickerSymbol, price, lastUpdatedAt);
 	}
 
 	/**

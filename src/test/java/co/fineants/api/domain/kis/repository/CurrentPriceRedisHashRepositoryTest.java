@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
@@ -25,9 +23,6 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StringRedisTemplate template;
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
 	void savePrice() {
@@ -39,7 +34,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(tickerSymbol, price);
 
 		// then
-		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.of(tickerSymbol, price);
+		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.of(tickerSymbol, price, System.currentTimeMillis());
 		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol);
 		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
 		Assertions.assertThat(actual).isEqualTo(expected);
