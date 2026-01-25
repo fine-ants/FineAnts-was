@@ -46,7 +46,7 @@ public class KisProductionScheduler {
 			log.info("No active stocks in the last 5 minutes. Skipping KIS current price refresh.");
 			return;
 		}
-		List<KisCurrentPrice> prices = kisService.refreshAllStockCurrentPrice(activeTickerSymbols);
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(activeTickerSymbols);
 		log.info("The stock's current price has renewed {} out of {}", prices.size(), activeTickerSymbols.size());
 	}
 

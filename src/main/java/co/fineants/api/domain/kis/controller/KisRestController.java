@@ -40,7 +40,7 @@ public class KisRestController {
 	@Secured(value = {"ROLE_MANAGER", "ROLE_ADMIN"})
 	public ApiResponse<List<KisCurrentPrice>> refreshAllStockCurrentPrice() {
 		Set<String> activeTickerSymbols = activeStockService.getActiveStockTickerSymbols(5);
-		List<KisCurrentPrice> responses = service.refreshAllStockCurrentPrice(activeTickerSymbols);
+		List<KisCurrentPrice> responses = service.refreshStockCurrentPrice(activeTickerSymbols);
 		return ApiResponse.success(KisSuccessCode.OK_REFRESH_CURRENT_PRICE_STOCKS, responses);
 	}
 

@@ -25,7 +25,7 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(Stock stock, long price) {
-		stock.savePrice(this, price);
+		savePrice(stock.getTickerSymbol(), price);
 	}
 
 	@Override

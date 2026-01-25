@@ -1,5 +1,6 @@
 package co.fineants.stock.application;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.Set;
 
@@ -7,6 +8,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -19,6 +21,9 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
+
+	@Autowired
+	private Clock spyClock;
 
 	@Test
 	void markStockAsActive() {
@@ -55,9 +60,14 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 			.containsExactlyInAnyOrder(tickerSymbol1, tickerSymbol2);
 	}
 
+	@DisplayName("활성 종목이 없으면 빈 집합을 반환한다.")
 	@Test
 	void getActiveStockTickerSymbols_whenMinutesAgoIsZero_thenReturnEmptySet() {
 		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1000000L) // 현재 시간
+			.willReturn(1000000L) // 현재 시간
+			.willReturn(1000000L + 1L); // 1밀리초 후
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
 		service.markStockAsActive(tickerSymbol1);

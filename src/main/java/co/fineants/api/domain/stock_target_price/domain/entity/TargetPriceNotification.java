@@ -6,7 +6,7 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -66,8 +66,8 @@ public class TargetPriceNotification extends BaseEntity {
 		return stockTargetPrice.getIsActive();
 	}
 
-	public boolean isSameTargetPrice(CurrentPriceRedisRepository manager) {
-		Expression currentPrice = stockTargetPrice.getCurrentPrice(manager);
+	public boolean isSameTargetPrice(PriceRepository priceRepository) {
+		Expression currentPrice = stockTargetPrice.getCurrentPrice(priceRepository);
 		return targetPrice.compareTo(currentPrice) == 0;
 	}
 

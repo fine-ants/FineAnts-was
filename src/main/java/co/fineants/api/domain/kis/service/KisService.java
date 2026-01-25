@@ -4,17 +4,12 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.client.KisWebSocketApprovalKey;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
@@ -22,11 +17,10 @@ import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
-import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
@@ -50,43 +44,27 @@ public class KisService {
 	private static final int CONCURRENCY = 20;
 
 	private final KisClient kisClient;
-	private final PortfolioHoldingRepository portFolioHoldingRepository;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
+	private final PriceRepository priceRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
-	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final DelayManager delayManager;
 	private final KisAccessTokenRepository kisAccessTokenRepository;
 	private final KisAccessTokenRedisService kisAccessTokenRedisService;
 	private final StockRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
 
-	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신
-	@Transactional
-	public List<KisCurrentPrice> refreshAllStockCurrentPrice(Set<String> tickerSymbols) {
-		List<KisCurrentPrice> prices = this.refreshStockCurrentPrice(tickerSymbols);
-		stockTargetPricePublisher.publishEvent(tickerSymbols);
-		portfolioPublisher.publishCurrentPriceEvent();
-		return prices;
-	}
-
 	// 주식 현재가 갱신
-	@Transactional(readOnly = true)
 	public List<KisCurrentPrice> refreshStockCurrentPrice(Collection<String> tickerSymbols) {
 		List<KisCurrentPrice> prices = Flux.fromIterable(tickerSymbols)
-			.flatMap(ticker -> this.fetchCurrentPrice(ticker)
-				.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
-				.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
-				.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
-				.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
-					.filter(RequestLimitExceededKisException.class::isInstance))
-				.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty()), CONCURRENCY)
+			.flatMap(this::fetchCurrentPrice, CONCURRENCY)
 			.delayElements(delayManager.delay())
 			.collectList()
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
-		currentPriceRedisRepository.savePrice(toArray(prices));
+		priceRepository.savePrice(toArray(prices));
+		stockTargetPricePublisher.publishEvent(tickerSymbols);
+		portfolioPublisher.publishCurrentPriceEvent();
 		return prices;
 	}
 
@@ -95,7 +73,14 @@ public class KisService {
 	}
 
 	public Mono<KisCurrentPrice> fetchCurrentPrice(String tickerSymbol) {
-		return Mono.defer(() -> kisClient.fetchCurrentPrice(tickerSymbol));
+		return Mono.defer(() -> kisClient.fetchCurrentPrice(tickerSymbol))
+			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
+			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
+			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
+			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
+				.filter(RequestLimitExceededKisException.class::isInstance))
+			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
+			.timeout(delayManager.timeout());
 	}
 
 	public List<KisClosingPrice> refreshAllClosingPrice() {
@@ -216,17 +201,5 @@ public class KisService {
 		KisAccessToken kisAccessToken = kisAccessTokenRedisService.getAccessTokenMap().orElse(null);
 		kisAccessTokenRedisService.deleteAccessTokenMap();
 		return kisAccessToken;
-	}
-
-	public Optional<String> fetchApprovalKey() {
-		return kisClient.fetchWebSocketApprovalKey()
-			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedAccessTokenDelay()))
-			.onErrorResume(throwable -> {
-				log.error(throwable.getMessage());
-				return Mono.empty();
-			})
-			.log()
-			.blockOptional(delayManager.timeout())
-			.map(KisWebSocketApprovalKey::getApprovalKey);
 	}
 }

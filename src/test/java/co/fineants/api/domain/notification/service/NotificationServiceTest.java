@@ -30,7 +30,7 @@ import co.fineants.api.domain.fcm.service.FirebaseMessagingService;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
 import co.fineants.api.domain.notification.domain.entity.Notification;
@@ -91,7 +91,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 	private FirebaseMessaging firebaseMessaging;
 
 	@Autowired
-	private CurrentPriceRedisRepository manager;
+	private PriceRepository priceRepository;
 
 	@Autowired
 	private KisService mockedKisService;
@@ -119,7 +119,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
@@ -162,8 +162,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
-		manager.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 83300L));
-		manager.savePrice(KisCurrentPrice.create(ccs.getTickerSymbol(), 3750L));
+		priceRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 83300L));
+		priceRepository.savePrice(KisCurrentPrice.create(ccs.getTickerSymbol(), 3750L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
@@ -196,7 +196,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.empty());
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
@@ -234,7 +234,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
 		fcmRepository.save(createFcmToken("token", member));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
@@ -264,7 +264,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 100L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 100L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyMaxLossAll();
@@ -296,7 +296,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 100L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 100L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
@@ -332,7 +332,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
 		fcmRepository.save(createFcmToken("token", member));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
@@ -364,7 +364,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 
 		given(firebaseMessaging.send(any(Message.class)))
 			.willThrow(FirebaseMessagingException.class);
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
@@ -403,8 +403,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding2));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
 
@@ -447,8 +447,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 		targetPriceNotificationRepository.saveAll(
 			createTargetPriceNotification(stockTargetPrice4, List.of(10000L, 20000L)));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
 		given(mockedKisService.fetchCurrentPrice(stock2.getTickerSymbol()))
 			.willReturn(Mono.just(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L)));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
@@ -485,7 +485,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 				targetPriceNotificationRepository.saveAll(
 					createTargetPriceNotification(stockTargetPrice1, List.of(60000L, 70000L)));
 
-				manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+				priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
 				given(mockedKisService.fetchCurrentPrice(stock.getTickerSymbol()))
 					.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 10000L)));
 				given(mockedFirebaseMessagingService.send(any(Message.class)))
@@ -548,8 +548,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 		List<TargetPriceNotification> targetPriceNotifications2 = targetPriceNotificationRepository.saveAll(
 			createTargetPriceNotification(stockTargetPrice2, List.of(10000L, 20000L)));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
 		// when
@@ -620,8 +620,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 			sendTargetPriceNotification.getId()
 		));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
 		sentManager.addTargetPriceSendHistory(notification);
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
@@ -664,7 +664,7 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 			List.of(60000L, 70000L));
 		targetPriceNotificationRepository.saveAll(targetPriceNotifications);
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.empty());
 		// when
@@ -694,8 +694,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 		List<TargetPriceNotification> targetPriceNotifications2 = targetPriceNotificationRepository.saveAll(
 			createTargetPriceNotification(stockTargetPrice2, List.of(10000L, 20000L)));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
 		// when
@@ -765,8 +765,8 @@ class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding2));
 
-		manager.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-		manager.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
 		given(mockedFirebaseMessagingService.send(any(Message.class)))
 			.willReturn(Optional.of("messageId"));
 
