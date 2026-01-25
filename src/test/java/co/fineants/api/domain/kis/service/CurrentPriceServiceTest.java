@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
@@ -29,6 +30,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private Clock spyClock;
+
+	@Value("${stock.current-price.freshness-threshold-millis:300000}")
+	private long freshnessThresholdMillis;
 
 	@DisplayName("특정 종목의 현재가를 조회한다.")
 	@Test
@@ -81,13 +85,34 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasMessageContaining("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
 	}
 
+	@DisplayName("특정 종목의 현재가가 존재하고, 신선도(freshness) 기준에 맞으면 캐시된 가격을 반환한다.")
+	@Test
+	void fetchPrice_whenPriceIsFresh_thenReturnCachedPrice() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + freshnessThresholdMillis - 1L);
+		String tickerSymbol = "005930";
+		long freshPrice = 50000L;
+		priceRepository.savePrice(tickerSymbol, freshPrice);
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
+		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
+			.isPresent()
+			.contains(Money.won(freshPrice));
+	}
+
 	@DisplayName("특정 종목의 현재가가 존재하지만 신선도(freshness) 기준에 맞지 않으면 외부 API를 호출하여 최신 가격을 가져온다.")
 	@Test
 	void fetchPrice_whenPriceIsStale_thenFetchFromExternalApi() {
 		// given
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + 10 * 60 * 1000L + 1L); // after 10 minutes and 1 millisecond
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
 		String tickerSymbol = "005930";
 		long stalePrice = 45000L;
 		priceRepository.savePrice(tickerSymbol, stalePrice);
