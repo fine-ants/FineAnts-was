@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,9 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Primary
-@RequiredArgsConstructor
 @Component
 @Slf4j
 public class CurrentPriceRedisHashRepository implements PriceRepository {
@@ -28,6 +27,22 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 	private final StringRedisTemplate template;
 	private final ObjectMapper objectMapper;
 	private final Clock clock;
+	private final long freshnessThresholdMillis;
+
+	/**
+	 * Constructor
+	 * @param template RedisTemplate
+	 * @param objectMapper ObjectMapper
+	 * @param clock Clock
+	 * @param freshnessThresholdMillis 신선도 임계값 (밀리초), 기본값 300000ms (5분)
+	 */
+	public CurrentPriceRedisHashRepository(StringRedisTemplate template, ObjectMapper objectMapper, Clock clock,
+		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis) {
+		this.template = template;
+		this.objectMapper = objectMapper;
+		this.clock = clock;
+		this.freshnessThresholdMillis = freshnessThresholdMillis;
+	}
 
 	@Override
 	public void savePrice(KisCurrentPrice... currentPrices) {
@@ -97,8 +112,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 		}
 		CurrentPriceRedisEntity entity = fromJson((String)value);
 		// 신선도가 만족 되지 않는 경우 빈 Optional 반환
-		long thresholdMillis = 5 * 60 * 1000L; // 5 minutes
-		if (!entity.isFresh(clock.millis(), thresholdMillis)) { // 5 minutes freshness
+		// 5 minutes
+		if (!entity.isFresh(clock.millis(), freshnessThresholdMillis)) {
 			return Optional.empty();
 		}
 		return Optional.of(Money.won(entity.getPrice()));
