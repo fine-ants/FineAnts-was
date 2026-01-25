@@ -42,7 +42,6 @@ import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
-import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.KisApiRequestException;
@@ -93,10 +92,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioPublisher portfolioPublisher;
-
-	@Autowired
-	private StockTargetPriceRepository stockTargetPriceRepository;
-
+	
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
 
@@ -113,12 +109,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void setUp() {
 		kisService = new KisService(
 			mockedKisClient,
-			portfolioHoldingRepository,
 			currentPriceRedisRepository,
 			closingPriceRepository,
 			stockTargetPricePublisher,
 			portfolioPublisher,
-			stockTargetPriceRepository,
 			spyDelayManager,
 			kisAccessTokenRepository,
 			kisAccessTokenRedisService,

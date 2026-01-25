@@ -55,7 +55,7 @@ class KisRestControllerDocsTest extends RestDocsSupport {
 	@Test
 	void refreshAllStockCurrentPrice() throws Exception {
 		// given
-		given(service.refreshAllStockCurrentPrice(Set.of("005930")))
+		given(service.refreshStockCurrentPrice(Set.of("005930")))
 			.willReturn(List.of(
 				KisCurrentPrice.create("005930", 60000L)
 			));

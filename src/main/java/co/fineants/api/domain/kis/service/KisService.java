@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,15 +55,6 @@ public class KisService {
 	private final StockRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
 
-	// 회원이 가지고 있는 모든 종목에 대하여 현재가 갱신
-	@Transactional
-	public List<KisCurrentPrice> refreshAllStockCurrentPrice(Set<String> tickerSymbols) {
-		List<KisCurrentPrice> prices = this.refreshStockCurrentPrice(tickerSymbols);
-		stockTargetPricePublisher.publishEvent(tickerSymbols);
-		portfolioPublisher.publishCurrentPriceEvent();
-		return prices;
-	}
-
 	// 주식 현재가 갱신
 	@Transactional(readOnly = true)
 	public List<KisCurrentPrice> refreshStockCurrentPrice(Collection<String> tickerSymbols) {
@@ -75,6 +65,8 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 		currentPriceRedisRepository.savePrice(toArray(prices));
+		stockTargetPricePublisher.publishEvent(tickerSymbols);
+		portfolioPublisher.publishCurrentPriceEvent();
 		return prices;
 	}
 
