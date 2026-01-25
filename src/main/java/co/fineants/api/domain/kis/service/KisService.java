@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
@@ -18,8 +17,8 @@ import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -45,7 +44,7 @@ public class KisService {
 	private static final int CONCURRENCY = 20;
 
 	private final KisClient kisClient;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
+	private final PriceRepository priceRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
@@ -56,7 +55,6 @@ public class KisService {
 	private final LocalDateTimeService localDateTimeService;
 
 	// 주식 현재가 갱신
-	@Transactional(readOnly = true)
 	public List<KisCurrentPrice> refreshStockCurrentPrice(Collection<String> tickerSymbols) {
 		List<KisCurrentPrice> prices = Flux.fromIterable(tickerSymbols)
 			.flatMap(this::fetchCurrentPrice, CONCURRENCY)
@@ -64,7 +62,7 @@ public class KisService {
 			.collectList()
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
-		currentPriceRedisRepository.savePrice(toArray(prices));
+		priceRepository.savePrice(toArray(prices));
 		stockTargetPricePublisher.publishEvent(tickerSymbols);
 		portfolioPublisher.publishCurrentPriceEvent();
 		return prices;

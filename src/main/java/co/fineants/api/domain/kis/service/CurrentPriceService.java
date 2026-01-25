@@ -17,10 +17,6 @@ public class CurrentPriceService {
 	private final PriceRepository priceRepository;
 	private final KisService kisService;
 
-	public void savePrice(String tickerSymbol, long price) {
-		priceRepository.savePrice(tickerSymbol, price);
-	}
-
 	public Money fetchPrice(String tickerSymbol) {
 		Optional<Money> money = priceRepository.fetchPriceBy(tickerSymbol);
 
