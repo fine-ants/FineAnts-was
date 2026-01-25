@@ -40,23 +40,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
 	}
 
-	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
-	@Test
-	void fetchPrice_whenPriceNotFound_thenThrowException() {
-		// given
-		String tickerSymbol = "005930";
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
-			.willReturn(Mono.empty());
-		// when
-		Throwable throwable = Assertions.catchThrowable(() -> {
-			service.fetchPrice(tickerSymbol);
-		});
-		// then
-		BDDAssertions.then(throwable)
-			.isInstanceOf(IllegalStateException.class)
-			.hasMessageContaining("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
-	}
-
 	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 외부 API를 호출하여 가져온다.")
 	@Test
 	void fetchPrice_whenPriceIsNotInCache_thenFetchFromExternalApi() {
@@ -74,5 +57,22 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
 			.isPresent()
 			.contains(Money.won(price));
+	}
+
+	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
+	@Test
+	void fetchPrice_whenPriceNotFound_thenThrowException() {
+		// given
+		String tickerSymbol = "005930";
+		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.empty());
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> {
+			service.fetchPrice(tickerSymbol);
+		});
+		// then
+		BDDAssertions.then(throwable)
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessageContaining("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
 	}
 }
