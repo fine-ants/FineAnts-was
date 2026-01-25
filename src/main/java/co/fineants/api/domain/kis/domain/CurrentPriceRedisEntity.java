@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * &#064;EqualsAndHashCode 에서 lastUpdatedAt 필드를 제외한 이유는 다음과 같습니다.
+ * lastUpdatedAt 필드는 데이터의 시간적 상태를 나타내는 가변적인 값으로, 객체의 고유성을 판단하는 데 적합하지 않다고 판단하여 제외함.
+ */
 @Getter
 @EqualsAndHashCode(of = {"tickerSymbol", "price"})
 public class CurrentPriceRedisEntity {
