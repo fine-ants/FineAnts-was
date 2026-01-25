@@ -36,6 +36,8 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void savePrice() {
 		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L);
 		String tickerSymbol = "005930";
 		long price = 50000L;
 
@@ -43,7 +45,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(tickerSymbol, price);
 
 		// then
-		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.of(tickerSymbol, price, System.currentTimeMillis());
+		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.of(tickerSymbol, price, spyClock.millis());
 		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol);
 		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
 		Assertions.assertThat(actual).isEqualTo(expected);
