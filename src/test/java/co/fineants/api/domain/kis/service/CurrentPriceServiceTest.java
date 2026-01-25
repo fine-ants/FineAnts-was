@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import reactor.core.publisher.Mono;
@@ -26,7 +25,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	private PriceRepository priceRepository;
 
 	@Autowired
-	private KisClient mockedKisClient;
+	private KisService kisService;
 
 	@Autowired
 	private Clock spyClock;
@@ -55,7 +54,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol = "000660";
 		long price = 50000L;
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, price)));
 
 		// when
@@ -73,7 +72,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	void fetchPrice_whenPriceNotFound_thenThrowException() {
 		// given
 		String tickerSymbol = "005930";
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.empty());
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> {
@@ -118,7 +117,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		priceRepository.savePrice(tickerSymbol, stalePrice);
 
 		long freshPrice = 50000L;
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
 
 		// when
