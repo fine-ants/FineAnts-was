@@ -26,19 +26,18 @@ public class CurrentPriceService {
 	private final KisClient kisClient;
 	private final DelayManager delayManager;
 
-	public Optional<Money> fetchPrice(String tickerSymbol) {
+	public Money fetchPrice(String tickerSymbol) {
 		Optional<Money> money = priceRepository.fetchPriceBy(tickerSymbol);
 
 		if (money.isEmpty()) {
 			Optional<Long> freshPrice = fetchPriceFromKis(tickerSymbol);
 			if (freshPrice.isPresent()) {
 				priceRepository.savePrice(tickerSymbol, freshPrice.get());
-				return Optional.of(Money.won(freshPrice.get()));
+				return Money.won(freshPrice.get());
 			}
-			// todo: 예외 처리 방식 재고, DB 기반의 종목 종가를 반환하도록 변경 고려
-			throw new IllegalStateException("현재가를 가져올 수 없습니다.");
+			throw new IllegalStateException("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
 		}
-		return money;
+		return money.get();
 	}
 
 	private Optional<Long> fetchPriceFromKis(String tickerSymbol) {
