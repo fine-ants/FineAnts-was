@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.repository;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Primary
 @RequiredArgsConstructor
 @Component
 @Slf4j
@@ -36,7 +38,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 				.collect(
 					java.util.stream.Collectors.toMap(
 						KisCurrentPrice::getTickerSymbol,
-						cp -> String.valueOf(cp.getPrice())
+						cp -> toJson(CurrentPriceRedisEntity.now(cp.getTickerSymbol(), cp.getPrice()))
 					)
 				)
 		);

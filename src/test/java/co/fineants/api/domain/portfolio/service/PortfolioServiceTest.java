@@ -31,7 +31,7 @@ import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryReposit
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
@@ -76,7 +76,7 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private CurrentPriceRedisRepository currentPriceRedisRepository;
+	private PriceRepository priceRepository;
 
 	private static Stream<Arguments> invalidTargetGain() {
 		return Stream.of(
@@ -474,7 +474,7 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 				portfolio
 			)
 		);
-		currentPriceRedisRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 40000L));
+		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 40000L));
 		// when
 		PortfoliosResponse response = service.readMyAllPortfolio(member.getId());
 

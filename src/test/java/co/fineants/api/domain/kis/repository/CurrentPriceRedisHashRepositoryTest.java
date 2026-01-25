@@ -84,10 +84,13 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(kisCurrentPrice1, kisCurrentPrice2);
 
 		// then
-		Assertions.assertThat(template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "005930"))
-			.isEqualTo(String.valueOf(50000L));
-		Assertions.assertThat(template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "035720"))
-			.isEqualTo(String.valueOf(30000L));
+		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "005930");
+		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
+		Assertions.assertThat(actual.getPrice()).isEqualTo(50000L);
+
+		json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, "035720");
+		actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
+		Assertions.assertThat(actual.getPrice()).isEqualTo(30000L);
 	}
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")

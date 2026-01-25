@@ -55,13 +55,16 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 			.containsExactlyInAnyOrder(tickerSymbol1, tickerSymbol2);
 	}
 
+	@DisplayName("활성 종목이 없으면 빈 집합을 반환한다.")
 	@Test
-	void getActiveStockTickerSymbols_whenMinutesAgoIsZero_thenReturnEmptySet() {
+	void getActiveStockTickerSymbols_whenMinutesAgoIsZero_thenReturnEmptySet() throws InterruptedException {
 		// given
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
 		service.markStockAsActive(tickerSymbol1);
 		service.markStockAsActive(tickerSymbol2);
+		// wait for 100 milliseconds to ensure the timestamps differ
+		Thread.sleep(100);
 		// when
 		Set<String> activeStocks = service.getActiveStockTickerSymbols(0); // 0분 이내 활동한 종목 조회
 		// then

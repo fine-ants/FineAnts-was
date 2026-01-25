@@ -7,7 +7,7 @@ import java.util.List;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.domain.Stock;
 import jakarta.persistence.Entity;
@@ -73,8 +73,8 @@ public class StockTargetPrice extends BaseEntity {
 		this.isActive = isActive;
 	}
 
-	public Expression getCurrentPrice(CurrentPriceRedisRepository manager) {
-		return stock.getCurrentPrice(manager);
+	public Expression getCurrentPrice(PriceRepository priceRepository) {
+		return stock.getCurrentPrice(priceRepository);
 	}
 
 	public boolean hasAuthorization(Long memberId) {
