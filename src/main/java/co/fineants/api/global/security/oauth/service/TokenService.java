@@ -140,7 +140,7 @@ public class TokenService {
 
 		// 현재 시간
 		LocalDateTime now = LocalDateTime.now();
-		log.debug("of : {}", now);
+		log.debug("now : {}", now);
 
 		// 만료 시간
 		LocalDateTime expirationDateTime = expiration.toInstant()
