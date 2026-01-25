@@ -334,21 +334,22 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 			.willReturn(Optional.of(currentPrice));
 		given(closingPriceRepository.fetchPrice(stock.getTickerSymbol()))
 			.willReturn(Optional.of(closingPrice));
+		StockResponse response = StockResponse.builder()
+			.stockCode(stock.getStockCode())
+			.tickerSymbol(stock.getTickerSymbol())
+			.companyName(stock.getCompanyName())
+			.companyNameEng(stock.getCompanyNameEng())
+			.market(stock.getMarket())
+			.currentPrice(currentPrice)
+			.dailyChange(Money.won(12000))
+			.dailyChangeRate(Percentage.from(0.2045))
+			.sector(stock.getSector())
+			.annualDividend(Money.won(6000))
+			.annualDividendYield(Percentage.from(0.10))
+			.dividendMonths(List.of(1, 4))
+			.build();
 		given(searchStock.findDetailedStock(stock.getTickerSymbol()))
-			.willReturn(StockResponse.create(
-				stock.getStockCode(),
-				stock.getTickerSymbol(),
-				stock.getCompanyName(),
-				stock.getCompanyNameEng(),
-				stock.getMarket(),
-				currentPrice,
-				Money.won(12000),
-				Percentage.from(0.2045),
-				stock.getSector(),
-				Money.won(6000),
-				Percentage.from(0.10),
-				List.of(1, 4)
-			));
+			.willReturn(response);
 
 		String tickerSymbol = stock.getTickerSymbol();
 
