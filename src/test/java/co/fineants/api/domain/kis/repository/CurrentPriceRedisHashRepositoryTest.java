@@ -109,6 +109,26 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(size).isZero();
 	}
 
+	@DisplayName("savePrice - 동일한 tickerSymbol로 여러번 저장시 마지막 값으로 저장")
+	@Test
+	void savePrice_whenSaveMultipleTimes_thenLastValueIsSaved() {
+		// given
+		KisCurrentPrice[] kisCurrentPrices = new KisCurrentPrice[2];
+		String tickerSymbol = "005930";
+		long firstPrice = 50000L;
+		long secondPrice = 60000L;
+		kisCurrentPrices[0] = KisCurrentPrice.create("005930", firstPrice);
+		kisCurrentPrices[1] = KisCurrentPrice.create("005930", secondPrice);
+
+		// when
+		repository.savePrice(kisCurrentPrices);
+
+		// then
+		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol);
+		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
+		Assertions.assertThat(actual.getPrice()).isEqualTo(secondPrice);
+	}
+
 	@DisplayName("fetchPriceBy - 티커 심볼로 현재가 조회")
 	@Test
 	void fetchPriceBy() {

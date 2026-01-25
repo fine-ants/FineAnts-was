@@ -56,7 +56,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 					java.util.stream.Collectors.toMap(
 						KisCurrentPrice::getTickerSymbol,
 						cp -> toJson(CurrentPriceRedisEntity.of(cp.getTickerSymbol(), cp.getPrice(),
-							clock.millis()))
+							clock.millis())),
+						(existing, replacement) -> replacement // 충돌 시 마지막 값 사용
 					)
 				)
 		);
