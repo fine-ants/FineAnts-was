@@ -21,7 +21,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -55,7 +55,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 	private WatchListRepository watchListRepository;
 
 	@Autowired
-	private CurrentPriceRedisRepository currentPriceRedisRepository;
+	private PriceRepository priceRepository;
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;
@@ -112,7 +112,7 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		WatchList watchList = watchListRepository.save(createWatchList("My WatchList 1", member));
 		watchStockRepository.save(createWatchStock(watchList, stock));
 
-		currentPriceRedisRepository.savePrice(KisCurrentPrice.create("005930", 77000L));
+		priceRepository.savePrice(KisCurrentPrice.create("005930", 77000L));
 		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 77000L));
 
 		setAuthentication(member);

@@ -255,11 +255,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 	public Optional<Money> fetchPrice(PriceRepository repository) {
 		return repository.fetchPriceBy(tickerSymbol);
 	}
-
-	public void savePrice(PriceRepository repository, long price) {
-		repository.savePrice(tickerSymbol, price);
-	}
-
+	
 	public List<StockDividend> getStockDividends() {
 		return Collections.unmodifiableList(stockDividends);
 	}

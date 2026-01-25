@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import co.fineants.api.domain.common.notification.Notifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
@@ -26,7 +26,7 @@ public class NotifiableFactory {
 
 	private final PortfolioRepository portfolioRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
+	private final PriceRepository priceRepository;
 
 	public List<Notifiable> getAllPortfolios(Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findAllWithAll().stream()
@@ -56,7 +56,7 @@ public class NotifiableFactory {
 			.flatMap(Collection::stream)
 			.sorted(Comparator.comparingLong(TargetPriceNotification::getId))
 			.map(targetPriceNotification -> {
-				boolean isReached = targetPriceNotification.isSameTargetPrice(currentPriceRedisRepository);
+				boolean isReached = targetPriceNotification.isSameTargetPrice(priceRepository);
 				return TargetPriceNotificationNotifiable.from(targetPriceNotification, isReached);
 			})
 			.map(Notifiable.class::cast)
@@ -70,7 +70,7 @@ public class NotifiableFactory {
 			.map(StockTargetPrice::getTargetPriceNotifications)
 			.flatMap(Collection::stream)
 			.map(targetPriceNotification -> {
-				boolean isReached = targetPriceNotification.isSameTargetPrice(currentPriceRedisRepository);
+				boolean isReached = targetPriceNotification.isSameTargetPrice(priceRepository);
 				return TargetPriceNotificationNotifiable.from(targetPriceNotification, isReached);
 			})
 			.map(Notifiable.class::cast)

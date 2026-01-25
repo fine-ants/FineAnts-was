@@ -3,7 +3,6 @@ package co.fineants.api.domain.kis.repository;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +10,11 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
 import co.fineants.api.global.errors.exception.business.ExpiredAccessTokenKisException;
 import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
+import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Exceptions;
@@ -24,7 +23,6 @@ import reactor.util.retry.Retry;
 
 @RequiredArgsConstructor
 @Component
-@Primary
 @Slf4j
 public class CurrentPriceRedisRepository implements PriceRepository {
 	private static final String CURRENT_PRICE_FORMAT = "cp:%s";
@@ -44,7 +42,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(Stock stock, long price) {
-		stock.savePrice(this, price);
+		savePrice(stock.getTickerSymbol(), price);
 	}
 
 	@Override

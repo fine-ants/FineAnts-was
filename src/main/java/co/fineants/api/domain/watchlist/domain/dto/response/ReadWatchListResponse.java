@@ -10,10 +10,10 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
-import co.fineants.stock.domain.Stock;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.domain.Stock;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +41,7 @@ public class ReadWatchListResponse {
 	}
 
 	public static ReadWatchListResponse.WatchStockResponse from(WatchStock watchStock,
-		CurrentPriceRedisRepository currentPriceRedisRepository, ClosingPriceRepository closingPriceRepository,
+		PriceRepository priceRepository, ClosingPriceRepository closingPriceRepository,
 		LocalDateTimeService localDateTimeService) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
@@ -50,15 +50,15 @@ public class ReadWatchListResponse {
 			.id(watchStock.getId())
 			.companyName(stock.getCompanyName())
 			.tickerSymbol(stock.getTickerSymbol())
-			.currentPrice(stock.getCurrentPrice(currentPriceRedisRepository).reduce(bank, to))
+			.currentPrice(stock.getCurrentPrice(priceRepository).reduce(bank, to))
 			.dailyChange(stock
-				.getDailyChange(currentPriceRedisRepository, closingPriceRepository)
+				.getDailyChange(priceRepository, closingPriceRepository)
 				.reduce(bank, to))
 			.dailyChangeRate(stock
-				.getDailyChangeRate(currentPriceRedisRepository, closingPriceRepository)
+				.getDailyChangeRate(priceRepository, closingPriceRepository)
 				.toPercentage(bank, to))
 			.annualDividendYield(stock
-				.getAnnualDividendYield(currentPriceRedisRepository, localDateTimeService)
+				.getAnnualDividendYield(priceRepository, localDateTimeService)
 				.toPercentage(bank, to))
 			.sector(stock.getSector())
 			.dateAdded(watchStock.getCreateAt())
