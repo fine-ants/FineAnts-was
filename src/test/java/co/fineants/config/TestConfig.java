@@ -1,5 +1,7 @@
 package co.fineants.config;
 
+import java.time.Clock;
+
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,11 +19,11 @@ import co.fineants.api.domain.fcm.service.FirebaseMessagingService;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.member.application.VerifyCodeGenerator;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.mail.EmailService;
+import co.fineants.member.application.VerifyCodeGenerator;
 
 @TestConfiguration
 public class TestConfig {
@@ -54,6 +56,9 @@ public class TestConfig {
 
 	@SpyBean
 	private VerifyCodeGenerator verifyCodeGenerator;
+
+	@SpyBean
+	private Clock clock;
 
 	@Bean
 	public ExDividendDateCalculator exDividendDateCalculator() {

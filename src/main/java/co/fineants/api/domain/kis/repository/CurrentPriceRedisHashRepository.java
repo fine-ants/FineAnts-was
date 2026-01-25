@@ -96,6 +96,11 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			return Optional.empty();
 		}
 		CurrentPriceRedisEntity entity = fromJson((String)value);
+		// 신선도가 만족 되지 않는 경우 빈 Optional 반환
+		long thresholdMillis = 5 * 60 * 1000L; // 5 minutes
+		if (!entity.isFresh(clock.millis(), thresholdMillis)) { // 5 minutes freshness
+			return Optional.empty();
+		}
 		return Optional.of(Money.won(entity.getPrice()));
 	}
 

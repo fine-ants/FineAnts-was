@@ -1,11 +1,13 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -22,6 +24,9 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StringRedisTemplate template;
+
+	@Autowired
+	private Clock spyClock;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
@@ -136,5 +141,57 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(repository.fetchPriceBy((String)null)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy(Strings.EMPTY)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy("  ")).isEmpty();
+	}
+
+	@DisplayName("getCachedPrice - 티커 심볼로 현재가 조회")
+	@Test
+	void getCachedPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long price = 50000L;
+		repository.savePrice(tickerSymbol, price);
+
+		// when
+		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(currentPrice).isPresent();
+		Assertions.assertThat(currentPrice.orElseThrow()).isEqualTo(Money.won(price));
+	}
+
+	@DisplayName("getCachedPrice - 신선도가 만족되면 캐시된 현재가 반환")
+	@Test
+	void getCachedPrice_whenFreshness_thenReturnCachedPrice() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + 5 * 60 * 1000L); // after 5 minutes
+		String tickerSymbol = "005930";
+		long price = 50000L;
+		repository.savePrice(tickerSymbol, price);
+
+		// when
+		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(currentPrice).contains(Money.won(price));
+	}
+
+	@DisplayName("getCachedPrice - 신선도가 만족하지 않으면 빈 Optional 반환")
+	@Test
+	void getCachedPrice_whenNotFreshness_thenReturnEmptyOptional() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + 5 * 60 * 1000L + 1L); // after 5 minutes and 1 millisecond
+		String tickerSymbol = "005930";
+		long price = 50000L;
+		repository.savePrice(tickerSymbol, price);
+
+		// when
+		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(currentPrice).isEmpty();
 	}
 }

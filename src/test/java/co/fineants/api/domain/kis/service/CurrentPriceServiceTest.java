@@ -1,5 +1,7 @@
 package co.fineants.api.domain.kis.service;
 
+import java.time.Clock;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +26,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisClient mockedKisClient;
+
+	@Autowired
+	private Clock spyClock;
 
 	@DisplayName("특정 종목의 현재가를 조회한다.")
 	@Test
@@ -80,6 +85,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchPrice_whenPriceIsStale_thenFetchFromExternalApi() {
 		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + 10 * 60 * 1000L + 1L); // after 10 minutes and 1 millisecond
 		String tickerSymbol = "005930";
 		long stalePrice = 45000L;
 		priceRepository.savePrice(tickerSymbol, stalePrice);
