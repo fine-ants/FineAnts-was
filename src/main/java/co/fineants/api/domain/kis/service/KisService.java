@@ -4,17 +4,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.client.KisWebSocketApprovalKey;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
@@ -26,7 +23,6 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
-import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
@@ -50,12 +46,10 @@ public class KisService {
 	private static final int CONCURRENCY = 20;
 
 	private final KisClient kisClient;
-	private final PortfolioHoldingRepository portFolioHoldingRepository;
 	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
-	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final DelayManager delayManager;
 	private final KisAccessTokenRepository kisAccessTokenRepository;
 	private final KisAccessTokenRedisService kisAccessTokenRedisService;
@@ -217,17 +211,5 @@ public class KisService {
 		KisAccessToken kisAccessToken = kisAccessTokenRedisService.getAccessTokenMap().orElse(null);
 		kisAccessTokenRedisService.deleteAccessTokenMap();
 		return kisAccessToken;
-	}
-
-	public Optional<String> fetchApprovalKey() {
-		return kisClient.fetchWebSocketApprovalKey()
-			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedAccessTokenDelay()))
-			.onErrorResume(throwable -> {
-				log.error(throwable.getMessage());
-				return Mono.empty();
-			})
-			.log()
-			.blockOptional(delayManager.timeout())
-			.map(KisWebSocketApprovalKey::getApprovalKey);
 	}
 }
