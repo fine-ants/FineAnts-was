@@ -39,7 +39,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(tickerSymbol, price);
 
 		// then
-		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.now(tickerSymbol, price);
+		CurrentPriceRedisEntity expected = CurrentPriceRedisEntity.of(tickerSymbol, price);
 		String json = (String)template.opsForHash().get(CurrentPriceRedisHashRepository.KEY, tickerSymbol);
 		CurrentPriceRedisEntity actual = ObjectMapperUtil.deserialize(json, CurrentPriceRedisEntity.class);
 		Assertions.assertThat(actual).isEqualTo(expected);

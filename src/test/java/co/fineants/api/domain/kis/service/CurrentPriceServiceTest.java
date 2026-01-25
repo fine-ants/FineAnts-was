@@ -75,4 +75,26 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessageContaining("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
 	}
+
+	@DisplayName("특정 종목의 현재가가 존재하지만 신선도(freshness) 기준에 맞지 않으면 외부 API를 호출하여 최신 가격을 가져온다.")
+	@Test
+	void fetchPrice_whenPriceIsStale_thenFetchFromExternalApi() {
+		// given
+		String tickerSymbol = "005930";
+		long stalePrice = 45000L;
+		priceRepository.savePrice(tickerSymbol, stalePrice);
+
+		long freshPrice = 50000L;
+		BDDMockito.given(mockedKisClient.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
+		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
+			.isPresent()
+			.contains(Money.won(freshPrice));
+	}
 }

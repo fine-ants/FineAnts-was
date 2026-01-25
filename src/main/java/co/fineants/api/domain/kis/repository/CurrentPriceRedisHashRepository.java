@@ -38,7 +38,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 				.collect(
 					java.util.stream.Collectors.toMap(
 						KisCurrentPrice::getTickerSymbol,
-						cp -> toJson(CurrentPriceRedisEntity.now(cp.getTickerSymbol(), cp.getPrice()))
+						cp -> toJson(CurrentPriceRedisEntity.of(cp.getTickerSymbol(), cp.getPrice()))
 					)
 				)
 		);
@@ -59,7 +59,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			log.warn("price is negative: {}", price);
 			return;
 		}
-		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.now(tickerSymbol, price);
+		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price);
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
 	}
 
