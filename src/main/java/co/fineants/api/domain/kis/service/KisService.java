@@ -76,11 +76,6 @@ public class KisService {
 	public List<KisCurrentPrice> refreshStockCurrentPrice(Collection<String> tickerSymbols) {
 		List<KisCurrentPrice> prices = Flux.fromIterable(tickerSymbols)
 			.flatMap(ticker -> this.fetchCurrentPrice(ticker)
-				.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
-				.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
-				.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
-				.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
-					.filter(RequestLimitExceededKisException.class::isInstance))
 				.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty()), CONCURRENCY)
 			.delayElements(delayManager.delay())
 			.collectList()
@@ -95,7 +90,12 @@ public class KisService {
 	}
 
 	public Mono<KisCurrentPrice> fetchCurrentPrice(String tickerSymbol) {
-		return Mono.defer(() -> kisClient.fetchCurrentPrice(tickerSymbol));
+		return Mono.defer(() -> kisClient.fetchCurrentPrice(tickerSymbol))
+			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
+			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
+			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
+			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
+				.filter(RequestLimitExceededKisException.class::isInstance));
 	}
 
 	public List<KisClosingPrice> refreshAllClosingPrice() {
