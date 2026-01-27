@@ -102,13 +102,13 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 					keysToDelete.add(cursor.next());
 					// Delete in batches of 100 keys
 					if (keysToDelete.size() >= 100) {
-						connection.del(keysToDelete.toArray(new byte[0][]));
+						connection.del(keysToDelete.toArray(new byte[keysToDelete.size()][]));
 						keysToDelete.clear();
 					}
 				}
 				// Delete any remaining keys
 				if (!keysToDelete.isEmpty()) {
-					connection.del(keysToDelete.toArray(new byte[0][]));
+					connection.del(keysToDelete.toArray(new byte[keysToDelete.size()][]));
 				}
 			}
 			return null;
