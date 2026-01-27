@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
+import co.fineants.stock.domain.Stock;
 
 class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 
@@ -87,10 +88,11 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void savePrice_whenStockAndPrice_thenSavePrice() {
 		// given
-		String tickerSymbol = "005930";
+		Stock stock = createSamsungStock();
+		String tickerSymbol = stock.getTickerSymbol();
 		long price = 60000L;
 		// when
-		currentPriceRedisRepository.savePrice(tickerSymbol, price);
+		currentPriceRedisRepository.savePrice(stock, price);
 		// then
 		CurrentPriceRedisEntity actual = currentPriceRedisRepository.fetchPriceBy(tickerSymbol).orElseThrow();
 		Assertions.assertThat(actual)
