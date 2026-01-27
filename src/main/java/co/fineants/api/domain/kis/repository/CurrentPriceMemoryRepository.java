@@ -28,11 +28,7 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(KisCurrentPrice... prices) {
-		Arrays.stream(prices).forEach(this::savePrice);
-	}
-
-	private void savePrice(KisCurrentPrice price) {
-		savePrice(price.getTickerSymbol(), price.getPrice());
+		Arrays.stream(prices).forEach(price -> savePrice(price.getTickerSymbol(), price.getPrice()));
 	}
 
 	@Override
