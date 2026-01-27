@@ -21,8 +21,10 @@ public class CurrentPriceRedisEntity {
 	private final long lastUpdatedAt;
 
 	@JsonCreator
-	private CurrentPriceRedisEntity(@JsonProperty("tickerSymbol") String tickerSymbol,
-		@JsonProperty("price") long price, @JsonProperty("lastUpdatedAt") long lastUpdatedAt) {
+	private CurrentPriceRedisEntity(
+		@JsonProperty("tickerSymbol") String tickerSymbol,
+		@JsonProperty("price") long price,
+		@JsonProperty("lastUpdatedAt") long lastUpdatedAt) {
 		this.tickerSymbol = tickerSymbol;
 		this.price = price;
 		this.lastUpdatedAt = lastUpdatedAt;
