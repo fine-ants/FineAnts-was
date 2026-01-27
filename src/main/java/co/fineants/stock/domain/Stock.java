@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import co.fineants.api.domain.BaseEntity;
@@ -191,17 +190,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		Expression currentPrice = getCurrentPrice(currentPriceRedisRepository);
 		Expression closingPrice = getClosingPrice(closingPriceRepository);
 		return currentPrice.minus(closingPrice);
-	}
-
-	public RateDivision getDailyChangeRate(PriceRepository currentPriceRedisRepository,
-		ClosingPriceRepository closingPriceRepository) {
-		Money currentPrice = Objects.requireNonNull(currentPriceRedisRepository.fetchPriceBy(tickerSymbol).orElse(null))
-			.getPriceMoney();
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(tickerSymbol).orElse(null);
-		if (currentPrice == null || lastDayClosingPrice == null) {
-			return null;
-		}
-		return currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice);
 	}
 
 	public Expression getCurrentPrice(PriceRepository priceRepository) {

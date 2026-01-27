@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
@@ -46,6 +47,7 @@ public class SearchStock {
 			.toList();
 	}
 
+	// TODO: stock 객체에 priceRepository, closingPriceRepository 주입 방식 개선
 	@Transactional(readOnly = true)
 	public StockResponse findDetailedStock(String tickerSymbol) {
 		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
@@ -53,6 +55,9 @@ public class SearchStock {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
+		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElse(null);
+		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
+			.toPercentage(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
@@ -61,8 +66,7 @@ public class SearchStock {
 			.market(stock.getMarket())
 			.currentPrice(currentPrice.reduce(bank, to))
 			.dailyChange(stock.getDailyChange(priceRepository, closingPriceRepository).reduce(bank, to))
-			.dailyChangeRate(stock.getDailyChangeRate(priceRepository, closingPriceRepository).toPercentage(
-				bank, to))
+			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
 			.annualDividend(stock.getAnnualDividend(localDateTimeService).reduce(bank, to))
 			.annualDividendYield(

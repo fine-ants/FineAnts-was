@@ -40,23 +40,27 @@ public class ReadWatchListResponse {
 		private LocalDateTime dateAdded;
 	}
 
+	// TODO: priceRepository, closingPriceRepository 주입 방식 개선, 필요한 필드값을 서비스 레이어에서 빌더와 같은 방식으로 넘기기
 	public static ReadWatchListResponse.WatchStockResponse from(WatchStock watchStock,
 		PriceRepository priceRepository, ClosingPriceRepository closingPriceRepository,
 		LocalDateTimeService localDateTimeService) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Stock stock = watchStock.getStock();
+
+		Money currentPrice = priceRepository.fetchPriceBy(stock.getTickerSymbol()).orElse(null).getPriceMoney();
+		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElse(null);
+		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
+			.toPercentage(bank, to);
 		return ReadWatchListResponse.WatchStockResponse.builder()
 			.id(watchStock.getId())
 			.companyName(stock.getCompanyName())
 			.tickerSymbol(stock.getTickerSymbol())
-			.currentPrice(stock.getCurrentPrice(priceRepository).reduce(bank, to))
+			.currentPrice(currentPrice.reduce(bank, to))
 			.dailyChange(stock
 				.getDailyChange(priceRepository, closingPriceRepository)
 				.reduce(bank, to))
-			.dailyChangeRate(stock
-				.getDailyChangeRate(priceRepository, closingPriceRepository)
-				.toPercentage(bank, to))
+			.dailyChangeRate(dailyChangeRate)
 			.annualDividendYield(stock
 				.getAnnualDividendYield(priceRepository, localDateTimeService)
 				.toPercentage(bank, to))
