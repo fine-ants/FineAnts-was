@@ -49,10 +49,6 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
-		return getCachedPrice(tickerSymbol);
-	}
-
-	private Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
 		if (!store.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}
@@ -62,5 +58,4 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 		}
 		return Optional.of(entity);
 	}
-
 }
