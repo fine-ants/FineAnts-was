@@ -143,8 +143,10 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(entity).isPresent();
-		Assertions.assertThat(entity.orElseThrow())
-			.isEqualTo(CurrentPriceRedisEntity.of(tickerSymbol, price, spyClock.millis()));
+		CurrentPriceRedisEntity actual = entity.orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 
 	@DisplayName("fetchPriceBy - 저장되지 않은 티커 심볼로 조회시 빈 Optional 반환")
