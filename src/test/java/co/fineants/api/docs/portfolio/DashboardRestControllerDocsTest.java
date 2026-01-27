@@ -52,7 +52,7 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 	@BeforeEach
 	void setUp() {
 		Clock clock = Clock.systemDefaultZone();
-		currentPriceRepository = new CurrentPriceMemoryRepository(clock, 300_000L);
+		currentPriceRepository = new CurrentPriceMemoryRepository(clock);
 		calculator = new PortfolioCalculator(currentPriceRepository, new DefaultLocalDateTimeService());
 	}
 

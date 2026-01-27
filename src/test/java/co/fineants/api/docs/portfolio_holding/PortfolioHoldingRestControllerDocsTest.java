@@ -112,7 +112,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	void setUp() {
 		Clock clock = Clock.systemDefaultZone();
 		long freshnessThresholdMillis = 300_000L;
-		currentPriceRepository = new CurrentPriceMemoryRepository(clock, freshnessThresholdMillis);
+		currentPriceRepository = new CurrentPriceMemoryRepository(clock);
 		timeService = mock(LocalDateTimeService.class);
 		calculator = new PortfolioCalculator(currentPriceRepository, timeService);
 

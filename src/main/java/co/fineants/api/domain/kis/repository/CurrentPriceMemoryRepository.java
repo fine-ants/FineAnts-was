@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
@@ -21,13 +20,10 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	private final Map<String, CurrentPriceRedisEntity> store;
 	private final Clock clock;
-	private final long freshnessThresholdMillis;
 
-	public CurrentPriceMemoryRepository(Clock clock,
-		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis) {
+	public CurrentPriceMemoryRepository(Clock clock) {
 		this.store = new ConcurrentHashMap<>();
 		this.clock = clock;
-		this.freshnessThresholdMillis = freshnessThresholdMillis;
 	}
 
 	@Override
