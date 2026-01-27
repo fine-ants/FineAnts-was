@@ -38,6 +38,10 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return;
+		}
 		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		store.put(tickerSymbol, entity);
 	}
