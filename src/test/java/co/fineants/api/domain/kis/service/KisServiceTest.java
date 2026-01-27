@@ -170,8 +170,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisService.refreshStockCurrentPrice(tickerSymbols);
 
 		// then
-		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
-			.isEqualTo(CurrentPriceRedisEntity.of("005930", 10000L, System.currentTimeMillis()));
+		CurrentPriceRedisEntity entity = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		assertThat(entity)
+			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
+			.hasFieldOrPropertyWithValue("price", 10000L);
 	}
 
 	@DisplayName("다수의 종목들의 현재가를 갱신한 다음에 레디스에 저장한다")
