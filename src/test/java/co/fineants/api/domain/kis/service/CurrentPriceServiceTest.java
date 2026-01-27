@@ -48,7 +48,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		// then
 		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
 	}
-	
+
 	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 외부 API를 호출하여 가져온다.")
 	@Test
 	void fetchPrice_whenPriceIsNotInCache_thenFetchFromExternalApi() {
@@ -63,7 +63,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(price));
-		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
+		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol))
 			.isPresent()
 			.contains(CurrentPriceRedisEntity.of(tickerSymbol, price, spyClock.millis()));
 	}
@@ -101,7 +101,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
-		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
+		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol))
 			.isPresent()
 			.contains(CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000L));
 	}
@@ -126,7 +126,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
-		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
+		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol))
 			.isPresent()
 			.contains(CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000L + freshnessThresholdMillis + 1L));
 	}

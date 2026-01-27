@@ -74,8 +74,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 			.map(this::savePrice);
 	}
 
-	@Override
-	public Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
+	private Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
 		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
 		if (value == null) {
 			return Optional.empty();

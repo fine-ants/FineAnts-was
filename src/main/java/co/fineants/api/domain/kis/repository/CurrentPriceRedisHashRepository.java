@@ -68,8 +68,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
-		if (Strings.isBlank(tickerSymbol)) {
-			log.warn("tickerSymbol is blank");
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
 			return;
 		}
 		if (price < 0) {
@@ -78,6 +78,10 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 		}
 		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
+	}
+
+	private boolean isBlankTickerSymbol(String tickerSymbol) {
+		return Strings.isBlank(tickerSymbol);
 	}
 
 	private String toJson(CurrentPriceRedisEntity entity) {
@@ -91,13 +95,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
-		return getCachedPrice(tickerSymbol);
-	}
-
-	@Override
-	public Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
-		if (Strings.isBlank(tickerSymbol)) {
-			log.warn("tickerSymbol is blank");
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
 			return Optional.empty();
 		}
 		Object value = template.opsForHash().get(KEY, tickerSymbol);
@@ -105,10 +104,6 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			return Optional.empty();
 		}
 		CurrentPriceRedisEntity entity = fromJson((String)value);
-		// 신선도가 만족 되지 않는 경우 빈 Optional 반환
-		if (!entity.isFresh(clock.millis(), freshnessThresholdMillis)) {
-			return Optional.empty();
-		}
 		return Optional.of(entity);
 	}
 

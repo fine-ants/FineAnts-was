@@ -14,6 +14,4 @@ public interface PriceRepository {
 	void savePrice(String tickerSymbol, long price);
 
 	Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol);
-
-	Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol);
 }
