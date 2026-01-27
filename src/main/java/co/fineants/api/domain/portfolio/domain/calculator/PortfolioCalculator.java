@@ -36,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PortfolioCalculator {
 
-	private final PriceRepository currentPriceRepository;
+	private final PriceRepository priceRepository;
 	private final LocalDateTimeService timeService;
 
 	private static <T> Expression sumExpressions(List<T> data, Function<T, Expression> mapper) {
@@ -183,12 +183,12 @@ public class PortfolioCalculator {
 
 	private Expression calWithCurrentPriceBy(PortfolioHolding holding, Function<Money, Expression> calFunction) {
 		String tickerSymbol = holding.getStock().getTickerSymbol();
-		return currentPriceRepository.fetchPriceBy(tickerSymbol)
+		return priceRepository.fetchPriceBy(tickerSymbol)
 			.map(CurrentPriceRedisEntity::getPriceMoney)
 			.map(calFunction)
 			.orElseThrow(() -> new NoSuchElementException(
 				String.format("No current price found for holding: %s, PriceRepository:%s", holding,
-					currentPriceRepository)));
+					priceRepository)));
 	}
 
 	/**
