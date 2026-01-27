@@ -238,8 +238,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		assertThat(kisAccessTokenRepository.createAuthorization()).isEqualTo(reloadAccessToken.createAuthorization());
 		assertThat(kisAccessTokenRedisService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
 			reloadAccessToken.getAccessToken());
-		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
-			.isEqualTo(CurrentPriceRedisEntity.of("005930", 10000L, System.currentTimeMillis()));
+		CurrentPriceRedisEntity actual = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
+			.hasFieldOrPropertyWithValue("price", 10000L);
 	}
 
 	@DisplayName("한국투자증권에 종목 현재가 요청중에 액세스 토큰이 만료되어 실패하게 되면, 해당 요청은 조회하지 않는다")
