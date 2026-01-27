@@ -37,7 +37,7 @@ public class CurrentPriceService {
 	 * 특정 종목의 현재가를 조회한다.
 	 * @param tickerSymbol 티커 심볼
 	 * @return 종목 현재가
-	 * @throws IllegalStateException 캐시 저장소에 종목의 현재가가 없는 경우 발생함
+	 * @throws IllegalStateException 캐시 저장소에 종목의 현재가가 없고 외부(KIS)에서 현재가를 가져오지 못한 경우 발생함
 	 */
 	public Money fetchPrice(String tickerSymbol) throws IllegalStateException {
 		Optional<CurrentPriceRedisEntity> entity = priceRepository.fetchPriceBy(tickerSymbol);
