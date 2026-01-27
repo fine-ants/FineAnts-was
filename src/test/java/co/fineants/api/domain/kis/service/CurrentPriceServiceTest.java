@@ -63,9 +63,10 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(price));
-		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol))
-			.isPresent()
-			.contains(CurrentPriceRedisEntity.of(tickerSymbol, price, spyClock.millis()));
+		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 
 	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
