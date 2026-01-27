@@ -1,12 +1,16 @@
 package co.fineants.api.domain.kis.repository;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,10 +87,27 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 
 	@Override
 	public void clear() {
-		Set<String> keys = redisTemplate.keys("cp:*");
-		if (keys == null || keys.isEmpty()) {
-			return;
-		}
-		redisTemplate.delete(keys);
+		redisTemplate.execute((RedisCallback<Object>)connection -> {
+			ScanOptions options = ScanOptions.scanOptions()
+				.match("cp:*")
+				.count(100)
+				.build();
+			try (Cursor<byte[]> cursor = connection.scan(options)) {
+				List<byte[]> keysToDelete = new ArrayList<>();
+				while (cursor.hasNext()) {
+					keysToDelete.add(cursor.next());
+					// Delete in batches of 100 keys
+					if (keysToDelete.size() >= 100) {
+						connection.del(keysToDelete.toArray(new byte[keysToDelete.size()][]));
+						keysToDelete.clear();
+					}
+				}
+				// Delete any remaining keys
+				if (!keysToDelete.isEmpty()) {
+					connection.del(keysToDelete.toArray(new byte[keysToDelete.size()][]));
+				}
+			}
+			return null;
+		});
 	}
 }
