@@ -10,6 +10,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -109,7 +110,9 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
 	@BeforeEach
 	void setUp() {
-		currentPriceRepository = new CurrentPriceMemoryRepository();
+		Clock clock = Clock.systemDefaultZone();
+		long freshnessThresholdMillis = 300_000L;
+		currentPriceRepository = new CurrentPriceMemoryRepository(clock, freshnessThresholdMillis);
 		timeService = mock(LocalDateTimeService.class);
 		calculator = new PortfolioCalculator(currentPriceRepository, timeService);
 

@@ -2,8 +2,8 @@ package co.fineants.api.domain.kis.repository;
 
 import java.util.Optional;
 
-import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
 
 public interface PriceRepository {
@@ -13,7 +13,7 @@ public interface PriceRepository {
 
 	void savePrice(String tickerSymbol, long price);
 
-	Optional<Money> fetchPriceBy(String tickerSymbol);
+	Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol);
 
-	Optional<Money> getCachedPrice(String tickerSymbol);
+	Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol);
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import reactor.core.publisher.Mono;
 
@@ -78,7 +79,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(price));
 		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
 			.isPresent()
-			.contains(Money.won(price));
+			.contains(CurrentPriceRedisEntity.of(tickerSymbol, price, spyClock.millis()));
 	}
 
 	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
@@ -116,7 +117,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
 		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
 			.isPresent()
-			.contains(Money.won(freshPrice));
+			.contains(CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000L));
 	}
 
 	@DisplayName("특정 종목의 현재가가 존재하지만 신선도(freshness) 기준에 맞지 않으면 외부 API를 호출하여 최신 가격을 가져온다.")
@@ -141,6 +142,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
 		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol))
 			.isPresent()
-			.contains(Money.won(freshPrice));
+			.contains(CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000L + freshnessThresholdMillis + 1L));
 	}
 }

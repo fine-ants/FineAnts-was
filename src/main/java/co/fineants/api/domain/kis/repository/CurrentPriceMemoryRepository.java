@@ -1,17 +1,31 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import co.fineants.api.domain.common.money.Money;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
 
+@Component
 public class CurrentPriceMemoryRepository implements PriceRepository {
 
-	private final Map<String, Long> store = new ConcurrentHashMap<>();
+	private final Map<String, CurrentPriceRedisEntity> store;
+	private final Clock clock;
+	private final long freshnessThresholdMillis;
+
+	public CurrentPriceMemoryRepository(Clock clock,
+		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis) {
+		this.store = new ConcurrentHashMap<>();
+		this.clock = clock;
+		this.freshnessThresholdMillis = freshnessThresholdMillis;
+	}
 
 	@Override
 	public void savePrice(KisCurrentPrice... prices) {
@@ -19,7 +33,7 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 	}
 
 	private void savePrice(KisCurrentPrice price) {
-		store.put(price.toMemoryKey(), price.getPrice());
+		savePrice(price.getTickerSymbol(), price.getPrice());
 	}
 
 	@Override
@@ -29,20 +43,25 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
-		store.put(tickerSymbol, price);
+		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
+		store.put(tickerSymbol, entity);
 	}
 
 	@Override
-	public Optional<Money> fetchPriceBy(String tickerSymbol) {
+	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
 		return getCachedPrice(tickerSymbol);
 	}
 
 	@Override
-	public Optional<Money> getCachedPrice(String tickerSymbol) {
+	public Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
 		if (!store.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}
-		return Optional.of(Money.won(store.get(tickerSymbol)));
+		CurrentPriceRedisEntity entity = store.get(tickerSymbol);
+		if (!entity.isFresh(clock.millis(), freshnessThresholdMillis)) {
+			return Optional.empty();
+		}
+		return Optional.of(entity);
 	}
 
 }

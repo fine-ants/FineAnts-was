@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import co.fineants.api.domain.common.money.Money;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -45,5 +46,9 @@ public class CurrentPriceRedisEntity {
 	 */
 	public boolean isFresh(long currentTimeMillis, long thresholdMillis) {
 		return currentTimeMillis - lastUpdatedAt <= thresholdMillis;
+	}
+
+	public Money getPriceMoney() {
+		return Money.won(price);
 	}
 }

@@ -8,6 +8,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,8 +35,8 @@ import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartRes
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.DashboardService;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
+import co.fineants.stock.domain.Stock;
 
 class DashboardRestControllerDocsTest extends RestDocsSupport {
 
@@ -50,7 +51,8 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 
 	@BeforeEach
 	void setUp() {
-		currentPriceRepository = new CurrentPriceMemoryRepository();
+		Clock clock = Clock.systemDefaultZone();
+		currentPriceRepository = new CurrentPriceMemoryRepository(clock, 300_000L);
 		calculator = new PortfolioCalculator(currentPriceRepository, new DefaultLocalDateTimeService());
 	}
 

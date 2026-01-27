@@ -1,14 +1,15 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
 import co.fineants.api.global.errors.exception.business.ExpiredAccessTokenKisException;
@@ -28,6 +29,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final KisClient kisClient;
 	private final DelayManager delayManager;
+	private final Clock clock;
 
 	@Override
 	public void savePrice(KisCurrentPrice... currentPrices) {
@@ -50,13 +52,12 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 	}
 
 	@Override
-	public Optional<Money> fetchPriceBy(String tickerSymbol) {
-		Optional<Money> currentPrice = getCachedPrice(tickerSymbol);
+	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
+		Optional<CurrentPriceRedisEntity> currentPrice = getCachedPrice(tickerSymbol);
 		if (currentPrice.isEmpty()) {
 			Optional<KisCurrentPrice> kisCurrentPrice = fetchAndCachePriceFromKis(tickerSymbol);
 			return kisCurrentPrice
-				.map(KisCurrentPrice::getPrice)
-				.map(Money::won);
+				.map(price -> CurrentPriceRedisEntity.of(price.getTickerSymbol(), price.getPrice(), clock.millis()));
 		}
 		return currentPrice;
 	}
@@ -74,11 +75,11 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 	}
 
 	@Override
-	public Optional<Money> getCachedPrice(String tickerSymbol) {
+	public Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
 		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
 		if (value == null) {
 			return Optional.empty();
 		}
-		return Optional.of(Money.won(value));
+		return Optional.of(CurrentPriceRedisEntity.of(tickerSymbol, Long.parseLong(value), clock.millis()));
 	}
 }

@@ -7,12 +7,14 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -193,7 +195,8 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	public RateDivision getDailyChangeRate(PriceRepository currentPriceRedisRepository,
 		ClosingPriceRepository closingPriceRepository) {
-		Money currentPrice = currentPriceRedisRepository.fetchPriceBy(tickerSymbol).orElse(null);
+		Money currentPrice = Objects.requireNonNull(currentPriceRedisRepository.fetchPriceBy(tickerSymbol).orElse(null))
+			.getPriceMoney();
 		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(tickerSymbol).orElse(null);
 		if (currentPrice == null || lastDayClosingPrice == null) {
 			return null;
@@ -201,8 +204,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice);
 	}
 
-	public Expression getCurrentPrice(PriceRepository manager) {
-		return manager.fetchPriceBy(tickerSymbol).orElseGet(Money::zero);
+	public Expression getCurrentPrice(PriceRepository priceRepository) {
+		return priceRepository.fetchPriceBy(tickerSymbol)
+			.map(CurrentPriceRedisEntity::getPriceMoney)
+			.orElseGet(Money::zero);
 	}
 
 	public Expression getClosingPrice(ClosingPriceRepository manager) {
@@ -252,10 +257,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			market.name());
 	}
 
-	public Optional<Money> fetchPrice(PriceRepository repository) {
-		return repository.fetchPriceBy(tickerSymbol);
-	}
-	
 	public List<StockDividend> getStockDividends() {
 		return Collections.unmodifiableList(stockDividends);
 	}

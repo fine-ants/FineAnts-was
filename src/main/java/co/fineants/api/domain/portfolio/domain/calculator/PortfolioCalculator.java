@@ -23,6 +23,7 @@ import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -183,6 +184,7 @@ public class PortfolioCalculator {
 	private Expression calWithCurrentPriceBy(PortfolioHolding holding, Function<Money, Expression> calFunction) {
 		String tickerSymbol = holding.getStock().getTickerSymbol();
 		return currentPriceRepository.fetchPriceBy(tickerSymbol)
+			.map(CurrentPriceRedisEntity::getPriceMoney)
 			.map(calFunction)
 			.orElseThrow(() -> new NoSuchElementException(
 				String.format("No current price found for holding: %s, PriceRepository:%s", holding,
