@@ -11,19 +11,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.api.global.errors.exception.business.CredentialsTypeKisException;
-import co.fineants.api.global.errors.exception.business.ExpiredAccessTokenKisException;
-import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
 import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.Exceptions;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
 @RequiredArgsConstructor
 @Component
@@ -31,7 +24,6 @@ import reactor.util.retry.Retry;
 public class CurrentPriceRedisRepository implements PriceRepository {
 	private static final String CURRENT_PRICE_FORMAT = "cp:%s";
 	private final RedisTemplate<String, String> redisTemplate;
-	private final KisClient kisClient;
 	private final DelayManager delayManager;
 	private final Clock clock;
 	private final ObjectMapper objectMapper;
@@ -73,9 +65,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 		}
 		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
 		if (value == null) {
-			Optional<KisCurrentPrice> kisCurrentPrice = fetchAndCachePriceFromKis(tickerSymbol);
-			kisCurrentPrice.ifPresent(this::savePrice);
-			return fetchPriceBy(tickerSymbol);
+			return Optional.empty();
 		}
 		return Optional.of(fromJson(value));
 	}
@@ -91,17 +81,6 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 			log.error("Failed to deserialize JSON to CurrentPriceRedisEntity", e);
 			throw new IllegalArgumentException("Deserialization error", e);
 		}
-	}
-
-	private Optional<KisCurrentPrice> fetchAndCachePriceFromKis(String tickerSymbol) {
-		return kisClient.fetchCurrentPrice(tickerSymbol)
-			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
-			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
-			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
-			.retryWhen(Retry.fixedDelay(5, delayManager.fixedDelay())
-				.filter(RequestLimitExceededKisException.class::isInstance))
-			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
-			.blockOptional(delayManager.timeout());
 	}
 
 	@Override
