@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CurrentPriceRedisRepository implements PriceRepository {
 	private static final String CURRENT_PRICE_FORMAT = "cp:%s";
 	private final RedisTemplate<String, String> redisTemplate;
-	private final DelayManager delayManager;
 	private final Clock clock;
 	private final ObjectMapper objectMapper;
 

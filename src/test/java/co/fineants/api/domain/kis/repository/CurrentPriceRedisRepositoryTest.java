@@ -5,22 +5,16 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import reactor.core.publisher.Mono;
 
 class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
-
-	@Autowired
-	private KisClient mockedKisClient;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
@@ -104,13 +98,12 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("price", price);
 	}
 
-	@DisplayName("fetchPriceBy - 저장된 현재가가 있을때 저장된 현재가를 반환")
+	@DisplayName("fetchPriceBy - 저장된 현재가가 있을때 현재가를 반환")
 	@Test
-	void fetchPriceBy_whenNotStorePrice_thenFetchPriceFromKis() {
+	void fetchPriceBy_whenPriceExists_thenReturnCurrentPrice() {
 		// given
 		String ticker = "005930";
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice(ticker))
-			.willReturn(Mono.just(KisCurrentPrice.create(ticker, 50000L)));
+		currentPriceRedisRepository.savePrice(ticker, 50000L);
 		// when
 		CurrentPriceRedisEntity entity = currentPriceRedisRepository.fetchPriceBy(ticker).orElseThrow();
 		// then
@@ -140,8 +133,6 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchPriceBy_whenTickerSymbolDoesNotExist_thenReturnEmptyOptional() {
 		// given
-		BDDMockito.given(mockedKisClient.fetchCurrentPrice("000000"))
-			.willReturn(Mono.empty());
 		String tickerSymbol = "000000";
 		// when
 		Optional<CurrentPriceRedisEntity> result = currentPriceRedisRepository.fetchPriceBy(tickerSymbol);
