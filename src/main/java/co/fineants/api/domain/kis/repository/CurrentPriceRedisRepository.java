@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +54,10 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 
 	@Override
 	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return Optional.empty();
+		}
 		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
 		if (value == null) {
 			Optional<KisCurrentPrice> kisCurrentPrice = fetchAndCachePriceFromKis(tickerSymbol);
@@ -61,6 +66,10 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 		}
 		return Optional.of(
 			CurrentPriceRedisEntity.of(tickerSymbol, Long.parseLong(value), clock.millis()));
+	}
+
+	private boolean isBlankTickerSymbol(String tickerSymbol) {
+		return Strings.isBlank(tickerSymbol);
 	}
 
 	private Optional<KisCurrentPrice> fetchAndCachePriceFromKis(String tickerSymbol) {
