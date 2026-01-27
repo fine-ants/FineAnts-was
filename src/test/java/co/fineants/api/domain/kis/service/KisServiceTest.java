@@ -300,8 +300,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(prices).hasSize(1);
-		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
-			.isEqualTo(CurrentPriceRedisEntity.of("005930", 50000L, System.currentTimeMillis()));
+		CurrentPriceRedisEntity actual = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
+			.hasFieldOrPropertyWithValue("price", 50000L);
 	}
 
 	@DisplayName("종가 갱신시 요청건수 초과로 실패하였다가 다시 시도하여 성공한다")
