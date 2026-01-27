@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
@@ -70,8 +68,8 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
-		if (Strings.isBlank(tickerSymbol)) {
-			log.warn("tickerSymbol is blank");
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
 			return;
 		}
 		if (price < 0) {
@@ -80,6 +78,10 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 		}
 		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
+	}
+
+	private boolean isBlankTickerSymbol(String tickerSymbol) {
+		return Strings.isBlank(tickerSymbol);
 	}
 
 	private String toJson(CurrentPriceRedisEntity entity) {
@@ -92,19 +94,9 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 	}
 
 	@Override
-	public Optional<Money> fetchPriceBy(String tickerSymbol) {
-		return getCachedPrice(tickerSymbol);
-	}
-
-	@Override
-	public Optional<Money> fetchPriceBy(PortfolioHolding holding) {
-		return holding.fetchPrice(this);
-	}
-
-	@Override
-	public Optional<Money> getCachedPrice(String tickerSymbol) {
-		if (Strings.isBlank(tickerSymbol)) {
-			log.warn("tickerSymbol is blank");
+	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
 			return Optional.empty();
 		}
 		Object value = template.opsForHash().get(KEY, tickerSymbol);
@@ -112,11 +104,7 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			return Optional.empty();
 		}
 		CurrentPriceRedisEntity entity = fromJson((String)value);
-		// 신선도가 만족 되지 않는 경우 빈 Optional 반환
-		if (!entity.isFresh(clock.millis(), freshnessThresholdMillis)) {
-			return Optional.empty();
-		}
-		return Optional.of(Money.won(entity.getPrice()));
+		return Optional.of(entity);
 	}
 
 	private CurrentPriceRedisEntity fromJson(String json) {
@@ -126,5 +114,10 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			log.error("Failed to deserialize JSON to CurrentPriceRedisEntity", e);
 			throw new IllegalArgumentException("Deserialization error", e);
 		}
+	}
+
+	@Override
+	public void clear() {
+		template.delete(KEY);
 	}
 }

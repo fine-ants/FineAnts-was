@@ -7,21 +7,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.hibernate.annotations.BatchSize;
 
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
-import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.domain.Stock;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -133,10 +130,6 @@ public class PortfolioHolding extends BaseEntity {
 	//== 계산 메서드 종료 ==//
 
 	//== 위임 메서드 시작 ==//
-	public Optional<Money> fetchPrice(PriceRepository repository) {
-		return stock.fetchPrice(repository);
-	}
-
 	public Expression fetchClosingPrice(ClosingPriceRepository manager) {
 		return stock.getClosingPrice(manager);
 	}

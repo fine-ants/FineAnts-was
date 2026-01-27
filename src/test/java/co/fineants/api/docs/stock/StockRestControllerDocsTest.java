@@ -29,6 +29,7 @@ import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
@@ -331,7 +332,11 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 		Money currentPrice = Money.won(68000L);
 		Money closingPrice = Money.won(80000L);
 		given(currentPriceRedisRepository.fetchPriceBy(stock.getTickerSymbol()))
-			.willReturn(Optional.of(currentPrice));
+			.willReturn(Optional.of(CurrentPriceRedisEntity.of(
+				stock.getTickerSymbol(),
+				68000L,
+				System.currentTimeMillis()
+			)));
 		given(closingPriceRepository.fetchPrice(stock.getTickerSymbol()))
 			.willReturn(Optional.of(closingPrice));
 		StockResponse response = StockResponse.builder()

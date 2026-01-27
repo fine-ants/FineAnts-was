@@ -27,6 +27,7 @@ import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
@@ -50,6 +51,9 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private KisClient kisClient;
+
+	@Autowired
+	private KisService mockedKisService;
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
@@ -174,10 +178,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		Stock saveSamsung = stockRepository.save(samsung);
 
-		given(kisClient.fetchAccessToken())
-			.willReturn(
-				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusDays(1), 3600 * 24)));
-		given(kisClient.fetchCurrentPrice(anyString()))
+		given(mockedKisService.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
 		given(kisClient.fetchClosingPrice(anyString()))
 			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));

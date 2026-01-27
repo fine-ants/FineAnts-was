@@ -1,26 +1,34 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.stock.domain.Stock;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
+import co.fineants.stock.domain.Stock;
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@Slf4j
 public class CurrentPriceMemoryRepository implements PriceRepository {
 
-	private final Map<String, Long> store = new ConcurrentHashMap<>();
+	private final Map<String, CurrentPriceRedisEntity> store;
+	private final Clock clock;
+
+	public CurrentPriceMemoryRepository(Clock clock) {
+		this.store = new ConcurrentHashMap<>();
+		this.clock = clock;
+	}
 
 	@Override
 	public void savePrice(KisCurrentPrice... prices) {
-		Arrays.stream(prices).forEach(this::savePrice);
-	}
-
-	private void savePrice(KisCurrentPrice price) {
-		store.put(price.toMemoryKey(), price.getPrice());
+		Arrays.stream(prices).forEach(price -> savePrice(price.getTickerSymbol(), price.getPrice()));
 	}
 
 	@Override
@@ -30,24 +38,32 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
-		store.put(tickerSymbol, price);
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return;
+		}
+		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, price, clock.millis());
+		store.put(tickerSymbol, entity);
 	}
 
 	@Override
-	public Optional<Money> fetchPriceBy(String tickerSymbol) {
-		return getCachedPrice(tickerSymbol);
-	}
-
-	@Override
-	public Optional<Money> getCachedPrice(String tickerSymbol) {
+	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return Optional.empty();
+		}
 		if (!store.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}
-		return Optional.of(Money.won(store.get(tickerSymbol)));
+		return Optional.of(store.get(tickerSymbol));
+	}
+
+	private boolean isBlankTickerSymbol(String tickerSymbol) {
+		return Strings.isBlank(tickerSymbol);
 	}
 
 	@Override
-	public Optional<Money> fetchPriceBy(PortfolioHolding holding) {
-		return holding.fetchPrice(this);
+	public void clear() {
+		store.clear();
 	}
 }

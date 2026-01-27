@@ -1,8 +1,10 @@
 package co.fineants.api.domain.kis.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import co.fineants.api.domain.common.money.Money;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -21,8 +23,10 @@ public class CurrentPriceRedisEntity {
 	private final long lastUpdatedAt;
 
 	@JsonCreator
-	private CurrentPriceRedisEntity(@JsonProperty("tickerSymbol") String tickerSymbol,
-		@JsonProperty("price") long price, @JsonProperty("lastUpdatedAt") long lastUpdatedAt) {
+	private CurrentPriceRedisEntity(
+		@JsonProperty("tickerSymbol") String tickerSymbol,
+		@JsonProperty("price") long price,
+		@JsonProperty("lastUpdatedAt") long lastUpdatedAt) {
 		this.tickerSymbol = tickerSymbol;
 		this.price = price;
 		this.lastUpdatedAt = lastUpdatedAt;
@@ -41,7 +45,13 @@ public class CurrentPriceRedisEntity {
 	 * @param thresholdMillis   시간 기준으로 신선한지 여부
 	 * @return 신선하면 true, 아니면 false
 	 */
+	@JsonIgnore
 	public boolean isFresh(long currentTimeMillis, long thresholdMillis) {
 		return currentTimeMillis - lastUpdatedAt <= thresholdMillis;
+	}
+
+	@JsonIgnore
+	public Money getPriceMoney() {
+		return Money.won(price);
 	}
 }

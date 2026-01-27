@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,16 +30,16 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 
 class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
-	private PriceRepository currentPriceRepository;
+	@Autowired
+	private CurrentPriceMemoryRepository currentPriceMemoryRepository;
 	private PortfolioCalculator calculator;
 
 	@Autowired
@@ -46,10 +47,14 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
-		currentPriceRepository = new CurrentPriceMemoryRepository();
-		calculator = new PortfolioCalculator(currentPriceRepository, spyLocalDateTimeService);
+		calculator = new PortfolioCalculator(currentPriceMemoryRepository, spyLocalDateTimeService);
 		given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 5, 1));
+	}
+
+	@AfterEach
+	void tearDown() {
+		currentPriceMemoryRepository.clear();
 	}
 
 	@DisplayName("포트폴리오 총 손익을 계산한다")
@@ -64,7 +69,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceMemoryRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 		// when
 		Expression result = calculator.calTotalGainBy(portfolio);
 		// then
@@ -103,7 +108,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		portfolio.addHolding(holding);
 
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		// when
 		Expression result = calculator.calTotalCurrentValuationBy(portfolio);
 		// then
@@ -124,7 +129,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		portfolio.addHolding(holding);
 
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		Expression totalAsset = calculator.calTotalAssetBy(portfolio);
 		// when
 		Expression result = calculator.calCurrentValuationWeightBy(holding, totalAsset);
@@ -164,7 +169,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceMemoryRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 		// when
 		Expression result = calculator.calTotalGainRateBy(portfolio);
 		// then
@@ -258,7 +263,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -283,7 +288,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -308,7 +313,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -333,7 +338,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -358,7 +363,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -383,7 +388,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -409,7 +414,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -513,7 +518,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		currentPriceRepository.savePrice(stock, 50_000);
+		currentPriceMemoryRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40_000),
@@ -533,7 +538,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		currentPriceRepository.savePrice(stock, 50_000);
+		currentPriceMemoryRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40_000),
@@ -553,7 +558,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		currentPriceRepository.savePrice(stock, 50_000);
+		currentPriceMemoryRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
 			Money.won(40_000),
@@ -632,7 +637,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(stock, 50000L);
+		currentPriceMemoryRepository.savePrice(stock, 50000L);
 		// when
 		Expression result = calculator.calCashWeightBy(portfolio);
 		// then
@@ -648,7 +653,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
@@ -696,8 +701,8 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		portfolio.addHolding(holding1);
 		portfolio.addHolding(holding2);
 
-		currentPriceRepository.savePrice(stock, 20_000L);
-		currentPriceRepository.savePrice(stock2, 20_000L);
+		currentPriceMemoryRepository.savePrice(stock, 20_000L);
+		currentPriceMemoryRepository.savePrice(stock2, 20_000L);
 		// when
 		Map<String, List<Expression>> result = calculator.calSectorChartBy(portfolio);
 
@@ -748,8 +753,8 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		portfolio.addHolding(holding1);
 		portfolio.addHolding(holding2);
 
-		currentPriceRepository.savePrice(stock, 20_000);
-		currentPriceRepository.savePrice(stock2, 20_000);
+		currentPriceMemoryRepository.savePrice(stock, 20_000);
+		currentPriceMemoryRepository.savePrice(stock2, 20_000);
 
 		Expression balance = calculator.calBalanceBy(portfolio);
 		// when
@@ -780,7 +785,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000);
+		currentPriceMemoryRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
@@ -806,7 +811,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 150_000);
+		currentPriceMemoryRepository.savePrice(stock, 150_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
@@ -828,7 +833,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 0);
+		currentPriceMemoryRepository.savePrice(stock, 0);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
@@ -850,7 +855,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 50_000);
+		currentPriceMemoryRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
@@ -963,7 +968,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
@@ -991,7 +996,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		portfolio.addHolding(holding);
 
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		// when
 		Percentage actual = calculator.calTotalGainPercentage(holding);
 		// then
@@ -1011,7 +1016,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		Expression closingPrice = Money.won(40_000L);
 		// when
 		Expression actual = calculator.calDailyChange(holding, closingPrice);
@@ -1032,7 +1037,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		Expression closingPrice = Money.won(40_000L);
 		// when
 		Expression actual = calculator.calDailyChangeRate(holding, closingPrice);
@@ -1053,7 +1058,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(stock, 50_000L);
+		currentPriceMemoryRepository.savePrice(stock, 50_000L);
 		// when
 		Expression actual = calculator.fetchCurrentPrice(holding);
 		// then
@@ -1067,7 +1072,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
@@ -1203,7 +1208,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		PurchaseHistory history = createPurchaseHistory(null, LocalDateTime.now(), Count.from(3), Money.won(40000L),
@@ -1223,7 +1228,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
@@ -1259,7 +1264,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
@@ -1302,7 +1307,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
 		long currentPrice = 50_000L;
-		currentPriceRepository.savePrice(stock, currentPrice);
+		currentPriceMemoryRepository.savePrice(stock, currentPrice);
 		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
