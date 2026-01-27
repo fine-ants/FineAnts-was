@@ -1,7 +1,5 @@
 package co.fineants.api.domain.kis.repository;
 
-import java.time.Clock;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,10 +20,7 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Autowired
 	private KisClient mockedKisClient;
 
-	@Autowired
-	private Clock clock;
-
-	@DisplayName("저장소에 종목의 현재가가 없으면 한국투자증권에서 조회한 다음에 저장후 값을 반환한다")
+	@DisplayName("fetchPriceBy - 저장된 현재가가 있을때 저장된 현재가를 반환")
 	@Test
 	void fetchPriceBy_whenNotStorePrice_thenFetchPriceFromKis() {
 		// given
