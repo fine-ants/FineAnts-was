@@ -29,6 +29,7 @@ import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
@@ -92,7 +93,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioPublisher portfolioPublisher;
-	
+
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
 
@@ -169,7 +170,8 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisService.refreshStockCurrentPrice(tickerSymbols);
 
 		// then
-		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow()).isEqualTo(Money.won(10000));
+		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
+			.isEqualTo(CurrentPriceRedisEntity.of("005930", 10000L, System.currentTimeMillis()));
 	}
 
 	@DisplayName("다수의 종목들의 현재가를 갱신한 다음에 레디스에 저장한다")
@@ -234,7 +236,8 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		assertThat(kisAccessTokenRepository.createAuthorization()).isEqualTo(reloadAccessToken.createAuthorization());
 		assertThat(kisAccessTokenRedisService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
 			reloadAccessToken.getAccessToken());
-		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow()).isEqualTo(Money.won(10000));
+		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
+			.isEqualTo(CurrentPriceRedisEntity.of("005930", 10000L, System.currentTimeMillis()));
 	}
 
 	@DisplayName("한국투자증권에 종목 현재가 요청중에 액세스 토큰이 만료되어 실패하게 되면, 해당 요청은 조회하지 않는다")
@@ -294,7 +297,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(prices).hasSize(1);
 		assertThat(currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow())
-			.isEqualTo(Money.won(50000));
+			.isEqualTo(CurrentPriceRedisEntity.of("005930", 50000L, System.currentTimeMillis()));
 	}
 
 	@DisplayName("종가 갱신시 요청건수 초과로 실패하였다가 다시 시도하여 성공한다")
