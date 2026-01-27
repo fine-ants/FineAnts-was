@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.repository;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,11 @@ class CurrentPriceMemoryRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private CurrentPriceMemoryRepository currentPriceMemoryRepository;
+
+	@AfterEach
+	void tearDown() {
+		currentPriceMemoryRepository.clear();
+	}
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
