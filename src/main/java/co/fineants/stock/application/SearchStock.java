@@ -55,7 +55,7 @@ public class SearchStock {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElse(null);
+		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElseGet(Money::zero);
 		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
 			.toPercentage(bank, to);
 		return StockResponse.builder()
