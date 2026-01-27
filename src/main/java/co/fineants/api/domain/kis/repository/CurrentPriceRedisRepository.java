@@ -53,13 +53,14 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 
 	@Override
 	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
-		Optional<CurrentPriceRedisEntity> currentPrice = getCachedPrice(tickerSymbol);
-		if (currentPrice.isEmpty()) {
+		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
+		if (value == null) {
 			Optional<KisCurrentPrice> kisCurrentPrice = fetchAndCachePriceFromKis(tickerSymbol);
 			return kisCurrentPrice
 				.map(price -> CurrentPriceRedisEntity.of(price.getTickerSymbol(), price.getPrice(), clock.millis()));
 		}
-		return currentPrice;
+		return Optional.of(
+			CurrentPriceRedisEntity.of(tickerSymbol, Long.parseLong(value), clock.millis()));
 	}
 
 	private Optional<KisCurrentPrice> fetchAndCachePriceFromKis(String tickerSymbol) {
@@ -72,13 +73,5 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
 			.blockOptional(delayManager.timeout())
 			.map(this::savePrice);
-	}
-
-	private Optional<CurrentPriceRedisEntity> getCachedPrice(String tickerSymbol) {
-		String value = redisTemplate.opsForValue().get(String.format(CURRENT_PRICE_FORMAT, tickerSymbol));
-		if (value == null) {
-			return Optional.empty();
-		}
-		return Optional.of(CurrentPriceRedisEntity.of(tickerSymbol, Long.parseLong(value), clock.millis()));
 	}
 }
