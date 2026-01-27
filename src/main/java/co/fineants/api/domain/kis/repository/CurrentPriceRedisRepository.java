@@ -3,7 +3,6 @@ package co.fineants.api.domain.kis.repository;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -87,10 +86,17 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 
 	@Override
 	public void clear() {
-		Set<String> keys = redisTemplate.keys("cp:*");
-		if (keys == null || keys.isEmpty()) {
-			return;
-		}
-		redisTemplate.delete(keys);
+		redisTemplate.execute((org.springframework.data.redis.core.RedisCallback<Object>)connection -> {
+			org.springframework.data.redis.core.ScanOptions options = org.springframework.data.redis.core.ScanOptions
+				.scanOptions()
+				.match("cp:*")
+				.count(100)
+				.build();
+			org.springframework.data.redis.core.Cursor<byte[]> cursor = connection.scan(options);
+			while (cursor.hasNext()) {
+				connection.del(cursor.next());
+			}
+			return null;
+		});
 	}
 }
