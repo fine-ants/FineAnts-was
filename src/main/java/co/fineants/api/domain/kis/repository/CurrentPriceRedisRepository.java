@@ -38,8 +38,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 	}
 
 	private KisCurrentPrice savePrice(KisCurrentPrice currentPrice) {
-		redisTemplate.opsForValue().set(currentPrice.toRedisKey(CURRENT_PRICE_FORMAT), currentPrice.toRedisValue());
-		return currentPrice;
+		savePrice(currentPrice.getTickerSymbol(), currentPrice.getPrice());
 	}
 
 	@Override
