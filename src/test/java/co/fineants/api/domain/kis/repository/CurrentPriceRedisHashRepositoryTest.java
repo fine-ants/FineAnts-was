@@ -164,7 +164,7 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchPriceBy_whenTickerSymbolIsInvalid_thenReturnEmptyOptional() {
 		// when & then
-		Assertions.assertThat(repository.fetchPriceBy((String)null)).isEmpty();
+		Assertions.assertThat(repository.fetchPriceBy(null)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy(Strings.EMPTY)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy("  ")).isEmpty();
 	}
