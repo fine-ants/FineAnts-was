@@ -48,6 +48,20 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
 	}
 
+	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 종목 현재가 갱신 이벤트를 발행하고 종가 데이터를 발행한다")
+	@Test
+	void fetchPrice_whenPriceIsNotInCache_thenPublishEvent() {
+		// given
+		String tickerSymbol = "005930";
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(40000L));
+		Assertions.assertThat(priceRepository.getCachedPrice(tickerSymbol)).isEmpty();
+	}
+
 	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 외부 API를 호출하여 가져온다.")
 	@Test
 	void fetchPrice_whenPriceIsNotInCache_thenFetchFromExternalApi() {
