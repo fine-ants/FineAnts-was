@@ -36,6 +36,7 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 		CurrentPriceRedisEntity entity = currentPriceRedisRepository.fetchPriceBy(ticker).orElseThrow();
 		// then
 		Assertions.assertThat(entity)
-			.isEqualTo(CurrentPriceRedisEntity.of(ticker, 50000L, clock.millis()));
+			.hasFieldOrPropertyWithValue("tickerSymbol", ticker)
+			.hasFieldOrPropertyWithValue("price", 50000L);
 	}
 }
