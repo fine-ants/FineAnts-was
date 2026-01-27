@@ -48,8 +48,8 @@ public class ReadWatchListResponse {
 		Currency to = Currency.KRW;
 		Stock stock = watchStock.getStock();
 
-		Money currentPrice = priceRepository.fetchPriceBy(stock.getTickerSymbol()).orElse(null).getPriceMoney();
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElse(null);
+		Money currentPrice = priceRepository.fetchPriceBy(stock.getTickerSymbol()).orElseThrow().getPriceMoney();
+		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElseGet(Money::zero);
 		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
 			.toPercentage(bank, to);
 		return ReadWatchListResponse.WatchStockResponse.builder()
