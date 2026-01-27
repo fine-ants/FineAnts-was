@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
@@ -94,11 +93,6 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 	@Override
 	public Optional<Money> fetchPriceBy(String tickerSymbol) {
 		return getCachedPrice(tickerSymbol);
-	}
-
-	@Override
-	public Optional<Money> fetchPriceBy(PortfolioHolding holding) {
-		return holding.fetchPrice(this);
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.stock.domain.Stock;
 
@@ -46,8 +45,4 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 		return Optional.of(Money.won(store.get(tickerSymbol)));
 	}
 
-	@Override
-	public Optional<Money> fetchPriceBy(PortfolioHolding holding) {
-		return holding.fetchPrice(this);
-	}
 }

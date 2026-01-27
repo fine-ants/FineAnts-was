@@ -7,7 +7,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -72,11 +71,6 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
 			.blockOptional(delayManager.timeout())
 			.map(this::savePrice);
-	}
-
-	@Override
-	public Optional<Money> fetchPriceBy(PortfolioHolding holding) {
-		return holding.fetchPrice(this);
 	}
 
 	@Override
