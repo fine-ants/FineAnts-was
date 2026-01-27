@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,11 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		calculator = new PortfolioCalculator(currentPriceMemoryRepository, spyLocalDateTimeService);
 		given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 5, 1));
+	}
+
+	@AfterEach
+	void tearDown() {
+		currentPriceMemoryRepository.clear();
 	}
 
 	@DisplayName("포트폴리오 총 손익을 계산한다")

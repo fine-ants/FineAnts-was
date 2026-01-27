@@ -115,4 +115,9 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 			throw new IllegalArgumentException("Deserialization error", e);
 		}
 	}
+
+	@Override
+	public void clear() {
+		template.delete(KEY);
+	}
 }

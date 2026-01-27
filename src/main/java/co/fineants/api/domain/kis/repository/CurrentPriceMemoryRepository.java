@@ -61,4 +61,9 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 	private boolean isBlankTickerSymbol(String tickerSymbol) {
 		return Strings.isBlank(tickerSymbol);
 	}
+
+	@Override
+	public void clear() {
+		store.clear();
+	}
 }
