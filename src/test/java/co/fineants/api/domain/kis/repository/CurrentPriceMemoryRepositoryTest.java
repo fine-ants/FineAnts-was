@@ -1,5 +1,7 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,5 +47,31 @@ class CurrentPriceMemoryRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(currentPriceMemoryRepository.fetchPriceBy("")).isEmpty();
 		Assertions.assertThat(currentPriceMemoryRepository.fetchPriceBy(" ")).isEmpty();
 		Assertions.assertThat(currentPriceMemoryRepository.fetchPriceBy("  ")).isEmpty();
+	}
+
+	@DisplayName("fetchPriceBy - 존재하지 않는 티커 심볼로 조회 시 빈 Optional 반환")
+	@Test
+	void fetchPriceBy_whenTickerSymbolDoesNotExist_thenReturnEmptyOptional() {
+		// given
+		String tickerSymbol = "000000";
+		// when
+		Optional<CurrentPriceRedisEntity> result = currentPriceMemoryRepository.fetchPriceBy(tickerSymbol);
+		// then
+		Assertions.assertThat(result).isEmpty();
+	}
+
+	@DisplayName("fetchPriceBy - 티커 심볼이 유효하지 않을때 빈 Optional 반환")
+	@Test
+	void fetchPriceBy_whenTickerSymbolIsInvalid_thenReturnEmptyOptional() {
+		// when
+		Optional<CurrentPriceRedisEntity> result1 = currentPriceMemoryRepository.fetchPriceBy(null);
+		Optional<CurrentPriceRedisEntity> result2 = currentPriceMemoryRepository.fetchPriceBy("");
+		Optional<CurrentPriceRedisEntity> result3 = currentPriceMemoryRepository.fetchPriceBy(" ");
+		Optional<CurrentPriceRedisEntity> result4 = currentPriceMemoryRepository.fetchPriceBy("  ");
+		// then
+		Assertions.assertThat(result1).isEmpty();
+		Assertions.assertThat(result2).isEmpty();
+		Assertions.assertThat(result3).isEmpty();
+		Assertions.assertThat(result4).isEmpty();
 	}
 }
