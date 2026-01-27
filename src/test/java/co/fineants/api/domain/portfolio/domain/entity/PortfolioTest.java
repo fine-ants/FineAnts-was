@@ -30,6 +30,7 @@ class PortfolioTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
+		currentPriceMemoryRepository.clear();
 		calculator = new PortfolioCalculator(currentPriceMemoryRepository, new DefaultLocalDateTimeService());
 	}
 
