@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -140,11 +139,14 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		repository.savePrice(tickerSymbol, price);
 
 		// when
-		Optional<Money> currentPrice = repository.fetchPriceBy(tickerSymbol);
+		Optional<CurrentPriceRedisEntity> entity = repository.fetchPriceBy(tickerSymbol);
 
 		// then
-		Assertions.assertThat(currentPrice).isPresent();
-		Assertions.assertThat(currentPrice.orElseThrow()).isEqualTo(Money.won(price));
+		Assertions.assertThat(entity).isPresent();
+		CurrentPriceRedisEntity actual = entity.orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 
 	@DisplayName("fetchPriceBy - 저장되지 않은 티커 심볼로 조회시 빈 Optional 반환")
@@ -154,70 +156,18 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		String tickerSymbol = "005930";
 
 		// when
-		Optional<Money> currentPrice = repository.fetchPriceBy(tickerSymbol);
+		Optional<CurrentPriceRedisEntity> entity = repository.fetchPriceBy(tickerSymbol);
 
 		// then
-		Assertions.assertThat(currentPrice).isEmpty();
+		Assertions.assertThat(entity).isEmpty();
 	}
 
 	@DisplayName("fetchPriceBy - 티커 심볼이 유효하지 않을때 빈 Optional 반환")
 	@Test
 	void fetchPriceBy_whenTickerSymbolIsInvalid_thenReturnEmptyOptional() {
 		// when & then
-		Assertions.assertThat(repository.fetchPriceBy((String)null)).isEmpty();
+		Assertions.assertThat(repository.fetchPriceBy(null)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy(Strings.EMPTY)).isEmpty();
 		Assertions.assertThat(repository.fetchPriceBy("  ")).isEmpty();
-	}
-
-	@DisplayName("getCachedPrice - 티커 심볼로 현재가 조회")
-	@Test
-	void getCachedPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long price = 50000L;
-		repository.savePrice(tickerSymbol, price);
-
-		// when
-		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
-
-		// then
-		Assertions.assertThat(currentPrice).isPresent();
-		Assertions.assertThat(currentPrice.orElseThrow()).isEqualTo(Money.won(price));
-	}
-
-	@DisplayName("getCachedPrice - 신선도가 만족되면 캐시된 현재가 반환")
-	@Test
-	void getCachedPrice_whenFreshness_thenReturnCachedPrice() {
-		// given
-		BDDMockito.given(spyClock.millis())
-			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + freshnessThresholdMillis); // after 5 minutes
-		String tickerSymbol = "005930";
-		long price = 50000L;
-		repository.savePrice(tickerSymbol, price);
-
-		// when
-		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
-
-		// then
-		Assertions.assertThat(currentPrice).contains(Money.won(price));
-	}
-
-	@DisplayName("getCachedPrice - 신선도가 만족하지 않으면 빈 Optional 반환")
-	@Test
-	void getCachedPrice_whenNotFreshness_thenReturnEmptyOptional() {
-		// given
-		BDDMockito.given(spyClock.millis())
-			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + freshnessThresholdMillis + 1L); // after 5 minutes and 1 millisecond
-		String tickerSymbol = "005930";
-		long price = 50000L;
-		repository.savePrice(tickerSymbol, price);
-
-		// when
-		Optional<Money> currentPrice = repository.getCachedPrice(tickerSymbol);
-
-		// then
-		Assertions.assertThat(currentPrice).isEmpty();
 	}
 }
