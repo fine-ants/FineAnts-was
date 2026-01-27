@@ -6,14 +6,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.stock.domain.Stock;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	private final Map<String, CurrentPriceRedisEntity> store;
@@ -49,13 +52,17 @@ public class CurrentPriceMemoryRepository implements PriceRepository {
 
 	@Override
 	public Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return Optional.empty();
+		}
 		if (!store.containsKey(tickerSymbol)) {
 			return Optional.empty();
 		}
-		CurrentPriceRedisEntity entity = store.get(tickerSymbol);
-		if (!entity.isFresh(clock.millis(), freshnessThresholdMillis)) {
-			return Optional.empty();
-		}
-		return Optional.of(entity);
+		return Optional.of(store.get(tickerSymbol));
+	}
+
+	private boolean isBlankTickerSymbol(String tickerSymbol) {
+		return Strings.isBlank(tickerSymbol);
 	}
 }
