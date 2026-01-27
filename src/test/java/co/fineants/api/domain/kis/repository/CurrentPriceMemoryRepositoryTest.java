@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
+import co.fineants.stock.domain.Stock;
 
 class CurrentPriceMemoryRepositoryTest extends AbstractContainerBaseTest {
 
@@ -75,6 +76,22 @@ class CurrentPriceMemoryRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(actual2)
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol2)
 			.hasFieldOrPropertyWithValue("price", price2);
+	}
+
+	@DisplayName("savePrice - Stock 객체로 현재가 저장")
+	@Test
+	void savePrice_withStockObject() {
+		// given
+		Stock stock = createSamsungStock();
+		String tickerSymbol = stock.getTickerSymbol();
+		long price = 50000L;
+		// when
+		currentPriceMemoryRepository.savePrice(stock, price);
+		// then
+		CurrentPriceRedisEntity actual = currentPriceMemoryRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 
 	@DisplayName("fetchPriceBy - 존재하지 않는 티커 심볼로 조회 시 빈 Optional 반환")
