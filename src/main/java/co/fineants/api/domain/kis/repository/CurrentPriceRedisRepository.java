@@ -89,7 +89,7 @@ public class CurrentPriceRedisRepository implements PriceRepository {
 	public void clear() {
 		redisTemplate.execute((RedisCallback<Object>)connection -> {
 			ScanOptions options = ScanOptions.scanOptions()
-				.match(CURRENT_PRICE_FORMAT)
+				.match("cp:*")
 				.count(100)
 				.build();
 			try (Cursor<byte[]> cursor = connection.scan(options)) {

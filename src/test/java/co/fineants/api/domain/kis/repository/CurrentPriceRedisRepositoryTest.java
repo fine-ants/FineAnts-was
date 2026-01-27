@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
@@ -16,6 +17,9 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private CurrentPriceRedisRepository currentPriceRedisRepository;
+
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
@@ -140,5 +144,20 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 		Optional<CurrentPriceRedisEntity> result = currentPriceRedisRepository.fetchPriceBy(tickerSymbol);
 		// then
 		Assertions.assertThat(result).isEmpty();
+	}
+
+	@DisplayName("clear - 저장된 모든 현재가 삭제")
+	@Test
+	void clear() {
+		// given
+		currentPriceRedisRepository.savePrice("005930", 50000L);
+		currentPriceRedisRepository.savePrice("000660", 80000L);
+		Assertions.assertThat(stringRedisTemplate.keys("cp:*")).hasSize(2);
+		// when
+		currentPriceRedisRepository.clear();
+		// then
+		Assertions.assertThat(currentPriceRedisRepository.fetchPriceBy("005930")).isEmpty();
+		Assertions.assertThat(currentPriceRedisRepository.fetchPriceBy("000660")).isEmpty();
+		Assertions.assertThat(stringRedisTemplate.keys("cp:*")).isEmpty();
 	}
 }
