@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
-import co.fineants.api.domain.common.money.Money;
 
 class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
@@ -25,6 +24,7 @@ class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(repository.fetchPrice(tickerSymbol).orElseThrow())
-			.isEqualTo(Money.won(price));
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 }
