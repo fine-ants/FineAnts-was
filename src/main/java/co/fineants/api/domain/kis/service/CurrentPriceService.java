@@ -1,7 +1,6 @@
 package co.fineants.api.domain.kis.service;
 
 import java.time.Clock;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,35 +41,44 @@ public class CurrentPriceService {
 		this.findStock = findStock;
 	}
 
-	// TODO: refactoring needed
-
 	/**
 	 * 특정 종목의 현재가를 조회한다.
 	 *
 	 * @param tickerSymbol 티커 심볼
 	 * @return 종목 현재가
-	 * @throws IllegalStateException 캐시 저장소에 종목의 현재가가 없고 외부(KIS)에서 현재가를 가져오지 못한 경우 발생함
 	 */
-	public Money fetchPrice(String tickerSymbol) throws IllegalStateException {
-		Optional<CurrentPriceRedisEntity> entity = priceRepository.fetchPriceBy(tickerSymbol);
+	public Money fetchPrice(String tickerSymbol) {
+		return priceRepository.fetchPriceBy(tickerSymbol)
+			.map(this::processCachedEntity)
+			.orElseGet(() -> handleCacheMiss(tickerSymbol));
+	}
 
-		if (entity.isEmpty()) {
-			// 종목 현재가 갱신 이벤트 비동기 발행
-			eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
-			// 종목 테이블의 종가 데이터 반환
-			log.warn("Price not found in cache for tickerSymbol={}. Returning closing price instead.", tickerSymbol);
-			return findStock.byTickerSymbol(tickerSymbol)
-				.getClosingPrice(closingPriceRepository)
-				.reduce(Bank.getInstance(), Currency.KRW);
+	private Money processCachedEntity(CurrentPriceRedisEntity entity) {
+		// 신선하지 않다면 비동기 갱신 트리거 (Stale-While-Revalidate)
+		if (isStale(entity)) {
+			log.warn("Stale price detected for {}. Triggering refresh.", entity.getTickerSymbol());
+			triggerRefresh(entity.getTickerSymbol());
 		}
-		// 신선도가 낮은 경우 외부 API에서 다시 가져와 저장
-		if (!entity.get().isFresh(clock.millis(), freshnessThresholdMillis)) {
-			// 종목 현재가 갱신 이벤트 비동기 발행
-			eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
-			// 기존 신선도 낮은 데이터 반환
-			log.warn("Fetched stale price for entity={}", entity.get());
-			return entity.get().getPriceMoney();
-		}
-		return entity.get().getPriceMoney();
+		return entity.getPriceMoney();
+	}
+
+	private boolean isStale(CurrentPriceRedisEntity entity) {
+		return !entity.isFresh(clock.millis(), freshnessThresholdMillis);
+	}
+
+	private void triggerRefresh(String tickerSymbol) {
+		eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
+	}
+
+	private Money handleCacheMiss(String tickerSymbol) {
+		log.warn("Cache miss for {}. Triggering refresh and returning fallback price.", tickerSymbol);
+		triggerRefresh(tickerSymbol);
+		return getFallbackPrice(tickerSymbol);
+	}
+
+	private Money getFallbackPrice(String tickerSymbol) {
+		return findStock.byTickerSymbol(tickerSymbol)
+			.getClosingPrice(closingPriceRepository)
+			.reduce(Bank.getInstance(), Currency.KRW);
 	}
 }
