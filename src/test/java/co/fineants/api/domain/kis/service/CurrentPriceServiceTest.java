@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Duration;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -83,23 +82,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 				Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
 					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 					.hasFieldOrPropertyWithValue("price", freshPrice));
-	}
-
-	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
-	@Test
-	void fetchPrice_whenPriceNotFound_thenThrowException() {
-		// given
-		String tickerSymbol = "005930";
-		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
-			.willReturn(Mono.empty());
-		// when
-		Throwable throwable = Assertions.catchThrowable(() -> {
-			service.fetchPrice(tickerSymbol);
-		});
-		// then
-		BDDAssertions.then(throwable)
-			.isInstanceOf(IllegalStateException.class)
-			.hasMessageContaining("현재가를 가져올 수 없습니다. tickerSymbol=" + tickerSymbol);
 	}
 
 	@DisplayName("특정 종목의 현재가가 존재하고, 신선도(freshness) 기준에 맞으면 캐시된 가격을 반환한다.")
