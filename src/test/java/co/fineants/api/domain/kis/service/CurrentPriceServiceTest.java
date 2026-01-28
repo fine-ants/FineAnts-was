@@ -84,6 +84,34 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 					.hasFieldOrPropertyWithValue("price", freshPrice));
 	}
 
+	@DisplayName("캐시 저장소에 종목 현재가가 있지만 신선도를 만족하지 않아서 이벤트를 발행하고, 기존 현재가 데이터를 반환한다.")
+	@Test
+	void fetchPrice_whenCurrentPriceIsStale_thenPublishStockCurrentPriceRefreshEventAndReturnStaleCurrentPrice() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
+		String tickerSymbol = "005930";
+		long stalePrice = 45000L;
+		priceRepository.savePrice(tickerSymbol, stalePrice);
+		long freshPrice = 50000L;
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(stalePrice));
+		// then : 비동기 캐시 업데이트 검증 (최대 2초 대기)
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(2))
+			.untilAsserted(() ->
+				Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+					.hasFieldOrPropertyWithValue("price", freshPrice));
+	}
+
 	@DisplayName("특정 종목의 현재가가 존재하고, 신선도(freshness) 기준에 맞으면 캐시된 가격을 반환한다.")
 	@Test
 	void fetchPrice_whenPriceIsFresh_thenReturnCachedPrice() {

@@ -62,18 +62,18 @@ public class CurrentPriceService {
 			// 종목 현재가 갱신 이벤트 비동기 발행
 			eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
 			// 종목 테이블의 종가 데이터 반환
+			log.warn("Price not found in cache for tickerSymbol={}. Returning closing price instead.", tickerSymbol);
 			return findStock.byTickerSymbol(tickerSymbol)
 				.getClosingPrice(closingPriceRepository)
 				.reduce(Bank.getInstance(), Currency.KRW);
 		}
 		// 신선도가 낮은 경우 외부 API에서 다시 가져와 저장
 		if (!entity.get().isFresh(clock.millis(), freshnessThresholdMillis)) {
-			Optional<Long> freshPrice = fetchPriceFromKis(tickerSymbol);
-			if (freshPrice.isPresent()) {
-				priceRepository.savePrice(tickerSymbol, freshPrice.get());
-				return Money.won(freshPrice.get());
-			}
-			log.warn("신선한 현재가를 가져올 수 없습니다. tickerSymbol={}", tickerSymbol);
+			// 종목 현재가 갱신 이벤트 비동기 발행
+			eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
+			// 기존 신선도 낮은 데이터 반환
+			log.warn("Fetched stale price for entity={}", entity.get());
+			return entity.get().getPriceMoney();
 		}
 		return entity.get().getPriceMoney();
 	}
