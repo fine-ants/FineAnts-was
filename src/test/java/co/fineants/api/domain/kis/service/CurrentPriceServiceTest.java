@@ -66,7 +66,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		String tickerSymbol = stock.getTickerSymbol();
 		long freshPrice = 50000L;
 		long closingPrice = 40000L;
-		closingPriceRepository.addPrice(tickerSymbol, closingPrice);
+		closingPriceRepository.savePrice(tickerSymbol, closingPrice);
 		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
 		// when

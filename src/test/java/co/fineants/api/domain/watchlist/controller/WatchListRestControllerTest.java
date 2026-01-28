@@ -77,7 +77,7 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		this.stock = stockRepository.save(samsung);
 		priceRepository.savePrice(this.stock, 60000L);
-		closingPriceRepository.addPrice(this.stock.getTickerSymbol(), 50000L);
+		closingPriceRepository.savePrice(this.stock.getTickerSymbol(), 50000L);
 
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2023, 1, 1));

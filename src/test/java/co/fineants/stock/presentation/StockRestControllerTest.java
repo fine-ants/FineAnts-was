@@ -108,7 +108,7 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 		int currentPrice = 68000;
 		priceRepository.savePrice(stock, currentPrice);
 		int closingPrice = 56000;
-		closingPriceRepository.addPrice(stock.getTickerSymbol(), closingPrice);
+		closingPriceRepository.savePrice(stock.getTickerSymbol(), closingPrice);
 
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
 			.willReturn(samsungStockDividend.getDividendDates().getRecordDate().minusDays(1));

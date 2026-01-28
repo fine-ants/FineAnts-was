@@ -103,7 +103,7 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 
-		prices.forEach(closingPriceRepository::addPrice);
+		prices.forEach(closingPriceRepository::savePrice);
 		log.info("종목 종가 {}개중 {}개 갱신", tickerSymbols.size(), prices.size());
 		return prices;
 	}

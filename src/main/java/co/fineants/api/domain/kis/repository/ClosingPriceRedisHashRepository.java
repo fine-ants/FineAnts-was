@@ -30,12 +30,12 @@ public class ClosingPriceRedisHashRepository implements ClosingPriceRepository {
 	private final DelayManager delayManager;
 
 	@Override
-	public void addPrice(String tickerSymbol, long price) {
-		addPrice(KisClosingPrice.create(tickerSymbol, price));
+	public void savePrice(String tickerSymbol, long price) {
+		savePrice(KisClosingPrice.create(tickerSymbol, price));
 	}
 
 	@Override
-	public void addPrice(KisClosingPrice price) {
+	public void savePrice(KisClosingPrice price) {
 		redisTemplate.opsForValue()
 			.set(String.format(CLOSING_PRICE_FORMAT, price.getTickerSymbol()), String.valueOf(price.getPrice()),
 				Duration.ofDays(2));
@@ -46,7 +46,7 @@ public class ClosingPriceRedisHashRepository implements ClosingPriceRepository {
 		Optional<String> cachedPrice = getCachedPrice(tickerSymbol);
 		if (cachedPrice.isEmpty()) {
 			Optional<KisClosingPrice> price = fetchClosingPriceFromKis(tickerSymbol);
-			price.ifPresent(this::addPrice);
+			price.ifPresent(this::savePrice);
 			return price
 				.map(KisClosingPrice::getPrice)
 				.map(Money::won);

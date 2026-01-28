@@ -129,7 +129,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		Stock saveSamsung = stockRepository.save(samsung);
 
 		currentPriceRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
-		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 49000L));
+		closingPriceRepository.savePrice(KisClosingPrice.create("005930", 49000L));
 		given(kisClient.fetchAccessToken())
 			.willReturn(
 				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusSeconds(86400), 86400)));
