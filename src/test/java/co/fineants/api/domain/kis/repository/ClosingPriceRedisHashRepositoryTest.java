@@ -1,5 +1,7 @@
 package co.fineants.api.domain.kis.repository;
 
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 
 class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
@@ -76,5 +79,22 @@ class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(template.opsForHash().size(ClosingPriceRedisHashRepository.KEY)).isZero();
+	}
+
+	@DisplayName("fetchPrice - 저장된 TickerSymbol로 종가를 조회한다.")
+	@Test
+	void fetchPrice_ExistingTickerSymbol_ReturnClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long price = 15000L;
+		repository.savePrice(tickerSymbol, price);
+
+		// when
+		Optional<ClosingPriceRedisEntity> actual = repository.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actual.orElseThrow())
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", price);
 	}
 }
