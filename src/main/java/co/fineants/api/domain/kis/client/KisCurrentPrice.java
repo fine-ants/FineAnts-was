@@ -15,13 +15,11 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-@ToString
 @EqualsAndHashCode(of = {"tickerSymbol"})
 @JsonDeserialize(using = KisCurrentPrice.KisCurrentPriceDeserializer.class)
 public class KisCurrentPrice {
@@ -36,16 +34,9 @@ public class KisCurrentPrice {
 		return new KisCurrentPrice(tickerSymbol, price);
 	}
 
-	public String toRedisKey(String format) {
-		return String.format(format, tickerSymbol);
-	}
-
-	public String toRedisValue() {
-		return String.valueOf(price);
-	}
-
-	public String toMemoryKey() {
-		return tickerSymbol;
+	@Override
+	public String toString() {
+		return "KisCurrentPrice(tickerSymbol=" + tickerSymbol + ", price=" + price + "원)";
 	}
 
 	static class KisCurrentPriceDeserializer extends JsonDeserializer<KisCurrentPrice> {

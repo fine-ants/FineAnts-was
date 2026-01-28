@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -27,9 +26,6 @@ class CurrentPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private Clock spyClock;
-
-	@Value("${stock.current-price.freshness-threshold-millis:300000}")
-	private long freshnessThresholdMillis;
 
 	@DisplayName("savePrice - 티커 심볼로 현재가 저장")
 	@Test
