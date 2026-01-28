@@ -32,6 +32,10 @@ public class ClosingPriceRedisEntity {
 		return new ClosingPriceRedisEntity(tickerSymbol, price, lastUpdatedAt);
 	}
 
+	public boolean isFresh(long currentMillis, long freshnessThresholdMillis) {
+		return (currentMillis - lastUpdatedAt) <= freshnessThresholdMillis;
+	}
+
 	@JsonIgnore
 	public Money getPriceMoney() {
 		return Money.won(price);

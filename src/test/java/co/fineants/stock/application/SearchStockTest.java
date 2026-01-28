@@ -180,6 +180,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 		given(mockedKisService.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
+		// todo: fix closing price fetch, 클라이언트가 ClosingPriceRepository가 아닌 ClosePriceService를 의존하도록 만들어야함
 		given(kisClient.fetchClosingPrice(anyString()))
 			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
 
