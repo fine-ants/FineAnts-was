@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -25,22 +24,18 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 	private final StringRedisTemplate template;
 	private final ObjectMapper objectMapper;
 	private final Clock clock;
-	private final long freshnessThresholdMillis;
 
 	/**
 	 * Constructor
 	 *
-	 * @param template                 RedisTemplate
-	 * @param objectMapper             ObjectMapper
-	 * @param clock                    Clock
-	 * @param freshnessThresholdMillis 신선도 임계값 (밀리초), 기본값 300000ms (5분)
+	 * @param template     RedisTemplate
+	 * @param objectMapper ObjectMapper
+	 * @param clock        Clock
 	 */
-	public CurrentPriceRedisHashRepository(StringRedisTemplate template, ObjectMapper objectMapper, Clock clock,
-		@Value("${stock.current-price.freshness-threshold-millis:5000}") long freshnessThresholdMillis) {
+	public CurrentPriceRedisHashRepository(StringRedisTemplate template, ObjectMapper objectMapper, Clock clock) {
 		this.template = template;
 		this.objectMapper = objectMapper;
 		this.clock = clock;
-		this.freshnessThresholdMillis = freshnessThresholdMillis;
 	}
 
 	@Override
