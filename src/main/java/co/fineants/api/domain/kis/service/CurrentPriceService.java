@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CurrentPriceService {
 	private final PriceRepository priceRepository;
-	private final KisService kisService;
 	private final Clock clock;
 	private final long freshnessThresholdMillis;
 	private final ApplicationEventPublisher eventPublisher;
@@ -31,14 +29,12 @@ public class CurrentPriceService {
 
 	public CurrentPriceService(
 		PriceRepository priceRepository,
-		KisService kisService,
 		Clock clock,
 		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis,
 		ApplicationEventPublisher eventPublisher,
 		ClosingPriceRepository closingPriceRepository,
 		FindStock findStock) {
 		this.priceRepository = priceRepository;
-		this.kisService = kisService;
 		this.clock = clock;
 		this.freshnessThresholdMillis = freshnessThresholdMillis;
 		this.eventPublisher = eventPublisher;
@@ -76,11 +72,5 @@ public class CurrentPriceService {
 			return entity.get().getPriceMoney();
 		}
 		return entity.get().getPriceMoney();
-	}
-
-	private Optional<Long> fetchPriceFromKis(String tickerSymbol) {
-		return kisService.fetchCurrentPrice(tickerSymbol)
-			.map(KisCurrentPrice::getPrice)
-			.blockOptional();
 	}
 }

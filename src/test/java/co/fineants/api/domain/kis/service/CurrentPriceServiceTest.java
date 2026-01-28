@@ -112,7 +112,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 					.hasFieldOrPropertyWithValue("price", freshPrice));
 	}
 
-	@DisplayName("특정 종목의 현재가가 존재하고, 신선도(freshness) 기준에 맞으면 캐시된 가격을 반환한다.")
+	@DisplayName("캐시 저장소의 종목 현재가가 존재하고, 신선도(freshness) 기준에 맞으면 캐시된 가격을 반환한다.")
 	@Test
 	void fetchPrice_whenPriceIsFresh_thenReturnCachedPrice() {
 		// given
@@ -128,9 +128,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
-		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol))
-			.isPresent()
-			.contains(CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000L));
+		Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", freshPrice);
 	}
 
 	@DisplayName("특정 종목의 현재가가 존재하지만 신선도(freshness) 기준에 맞지 않으면 외부 API를 호출하여 최신 가격을 가져온다.")
