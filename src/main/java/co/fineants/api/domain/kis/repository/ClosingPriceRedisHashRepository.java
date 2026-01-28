@@ -37,6 +37,14 @@ public class ClosingPriceRedisHashRepository implements ClosingPriceRepository {
 
 	@Override
 	public void savePrice(String tickerSymbol, long price) {
+		if (isBlankTickerSymbol(tickerSymbol)) {
+			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
+			return;
+		}
+		if (price < 0) {
+			log.warn("price is negative, tickerSymbol: {}, price: {}", tickerSymbol, price);
+			return;
+		}
 		ClosingPriceRedisEntity entity = ClosingPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
 	}
