@@ -31,6 +31,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.dto.response.DividendItem;
+import co.fineants.api.domain.kis.repository.ClosingPriceRedisHashRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -327,7 +328,7 @@ class StockRestControllerDocsTest extends RestDocsSupport {
 		portfolio.addHolding(holding);
 
 		CurrentPriceRedisRepository currentPriceRedisRepository = Mockito.mock(CurrentPriceRedisRepository.class);
-		ClosingPriceRepository closingPriceRepository = Mockito.mock(ClosingPriceRepository.class);
+		ClosingPriceRepository closingPriceRepository = Mockito.mock(ClosingPriceRedisHashRepository.class);
 
 		Money currentPrice = Money.won(68000L);
 		Money closingPrice = Money.won(80000L);
