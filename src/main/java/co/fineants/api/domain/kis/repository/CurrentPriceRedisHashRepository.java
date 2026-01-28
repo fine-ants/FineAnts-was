@@ -29,13 +29,14 @@ public class CurrentPriceRedisHashRepository implements PriceRepository {
 
 	/**
 	 * Constructor
-	 * @param template RedisTemplate
-	 * @param objectMapper ObjectMapper
-	 * @param clock Clock
+	 *
+	 * @param template                 RedisTemplate
+	 * @param objectMapper             ObjectMapper
+	 * @param clock                    Clock
 	 * @param freshnessThresholdMillis 신선도 임계값 (밀리초), 기본값 300000ms (5분)
 	 */
 	public CurrentPriceRedisHashRepository(StringRedisTemplate template, ObjectMapper objectMapper, Clock clock,
-		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis) {
+		@Value("${stock.current-price.freshness-threshold-millis:5000}") long freshnessThresholdMillis) {
 		this.template = template;
 		this.objectMapper = objectMapper;
 		this.clock = clock;

@@ -30,7 +30,7 @@ public class CurrentPriceService {
 	public CurrentPriceService(
 		PriceRepository priceRepository,
 		Clock clock,
-		@Value("${stock.current-price.freshness-threshold-millis:300000}") long freshnessThresholdMillis,
+		@Value("${stock.current-price.freshness-threshold-millis:5000}") long freshnessThresholdMillis,
 		ApplicationEventPublisher eventPublisher,
 		ClosingPriceRepository closingPriceRepository,
 		FindStock findStock) {
