@@ -42,6 +42,8 @@ public class StockEventListener {
 		kisService.fetchCurrentPrice(event.getTickerSymbol())
 			.doOnSuccess(kisCurrentPrice -> log.info("Fetched current price from KIS - {}", kisCurrentPrice))
 			.subscribe(kisCurrentPrice ->
-				priceRepository.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice()));
+					priceRepository.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice()),
+				error -> log.warn("Warning fetching current price for ticker: {}", event.getTickerSymbol(), error)
+			);
 	}
 }
