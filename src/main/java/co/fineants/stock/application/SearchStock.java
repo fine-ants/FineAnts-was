@@ -10,6 +10,7 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
@@ -55,7 +56,9 @@ public class SearchStock {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElseGet(Money::zero);
+		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol())
+			.map(ClosingPriceRedisEntity::getPriceMoney)
+			.orElseGet(Money::zero);
 		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
 			.toPercentage(bank, to);
 		return StockResponse.builder()

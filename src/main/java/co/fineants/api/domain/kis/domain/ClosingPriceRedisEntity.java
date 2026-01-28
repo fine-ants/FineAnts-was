@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import co.fineants.api.domain.common.money.Money;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -28,6 +29,10 @@ public class ClosingPriceRedisEntity {
 
 	public static ClosingPriceRedisEntity of(String tickerSymbol, long price, long lastUpdatedAt) {
 		return new ClosingPriceRedisEntity(tickerSymbol, price, lastUpdatedAt);
+	}
+
+	public Money getPriceMoney() {
+		return Money.won(price);
 	}
 
 	@Override
