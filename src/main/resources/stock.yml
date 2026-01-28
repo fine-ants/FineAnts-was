@@ -1,3 +1,3 @@
 stock:
   current-price:
-    freshness-threshold-millis: 300000 # 5 minutes
+    freshness-threshold-millis: 5000 # 5 seconds

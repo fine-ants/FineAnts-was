@@ -54,4 +54,9 @@ public class CurrentPriceRedisEntity {
 	public Money getPriceMoney() {
 		return Money.won(price);
 	}
+
+	@Override
+	public String toString() {
+		return "종목 현재가 Redis 엔티티(tickerSymbol=" + tickerSymbol + ", price=" + price + "원)";
+	}
 }
