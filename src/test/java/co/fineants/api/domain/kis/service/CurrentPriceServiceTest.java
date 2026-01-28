@@ -4,12 +4,12 @@ import java.time.Clock;
 import java.time.Duration;
 
 import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
