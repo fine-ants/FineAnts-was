@@ -97,4 +97,34 @@ class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", price);
 	}
+
+	@DisplayName("fetchPrice - 저장되지 않은 TickerSymbol로 종가를 조회하면 빈 Optional을 반환한다.")
+	@Test
+	void fetchPrice_NonExistingTickerSymbol_ReturnEmptyOptional() {
+		// given
+		String tickerSymbol = "000660";
+
+		// when
+		Optional<ClosingPriceRedisEntity> actual = repository.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actual).isEmpty();
+	}
+
+	@DisplayName("fetchPrice - 유효하지 않은 TickerSymbol로 종가를 조회하면 빈 Optional을 반환한다.")
+	@Test
+	void fetchPrice_InvalidTickerSymbol_ReturnEmptyOptional() {
+		// when
+		Optional<ClosingPriceRedisEntity> actual1 = repository.fetchPrice(null);
+		Optional<ClosingPriceRedisEntity> actual2 = repository.fetchPrice("");
+		Optional<ClosingPriceRedisEntity> actual3 = repository.fetchPrice(" ");
+		Optional<ClosingPriceRedisEntity> actual4 = repository.fetchPrice("  ");
+
+		// then
+		Assertions.assertThat(actual1).isEmpty();
+		Assertions.assertThat(actual2).isEmpty();
+		Assertions.assertThat(actual3).isEmpty();
+		Assertions.assertThat(actual4).isEmpty();
+	}
 }
+
