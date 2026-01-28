@@ -1,6 +1,7 @@
 package co.fineants.api.domain.kis.service;
 
 import java.time.Clock;
+import java.time.Duration;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.BDDAssertions;
@@ -9,12 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
 class CurrentPriceServiceTest extends AbstractContainerBaseTest {
@@ -34,6 +39,12 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@Value("${stock.current-price.freshness-threshold-millis:300000}")
 	private long freshnessThresholdMillis;
 
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
 	@DisplayName("특정 종목의 현재가를 조회한다.")
 	@Test
 	void fetchPrice() {
@@ -49,24 +60,29 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
 	}
 
-	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 외부 API를 호출하여 가져온다.")
+	@DisplayName("종목의 현재가가 캐시 저장소에 없으면 종목 현재가 갱신 이벤트를 발행하고, 종가 데이터를 반환한다")
 	@Test
-	void fetchPrice_whenPriceIsNotInCache_thenFetchFromExternalApi() {
+	void fetchPrice_whenPriceNotInCache_thenPublishStockCurrentPriceRefreshEventAndReturnClosingPrice() {
 		// given
-		String tickerSymbol = "000660";
-		long price = 50000L;
+		Stock stock = stockRepository.save(createSamsungStock());
+		String tickerSymbol = stock.getTickerSymbol();
+		long freshPrice = 50000L;
+		long closingPrice = 40000L;
+		closingPriceRepository.addPrice(tickerSymbol, closingPrice);
 		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
-			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, price)));
-
+			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
 		// when
 		Money actualPrice = service.fetchPrice(tickerSymbol);
 
 		// then
-		Assertions.assertThat(actualPrice).isEqualTo(Money.won(price));
-		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
-		Assertions.assertThat(actual)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", price);
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(closingPrice));
+		// then : 비동기 캐시 업데이트 검증 (최대 2초 대기)
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(2))
+			.untilAsserted(() ->
+				Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+					.hasFieldOrPropertyWithValue("price", freshPrice));
 	}
 
 	@DisplayName("특정 종목의 현재가가 없고, 외부 API에서도 가져올 수 없으면 예외를 던진다.")
