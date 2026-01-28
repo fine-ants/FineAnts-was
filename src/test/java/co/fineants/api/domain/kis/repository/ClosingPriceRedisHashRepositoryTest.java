@@ -64,4 +64,17 @@ class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 		// then
 		Assertions.assertThat(template.opsForHash().size(ClosingPriceRedisHashRepository.KEY)).isZero();
 	}
+
+	@DisplayName("savePrice - 음수 Price로 종가를 저장하고자 하면 저장되지 않는다.")
+	@Test
+	void savePrice_NegativePrice_DoNotSaveClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+
+		// when
+		repository.savePrice(tickerSymbol, -1000L);
+
+		// then
+		Assertions.assertThat(template.opsForHash().size(ClosingPriceRedisHashRepository.KEY)).isZero();
+	}
 }
