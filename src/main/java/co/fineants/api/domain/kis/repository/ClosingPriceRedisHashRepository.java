@@ -25,6 +25,11 @@ public class ClosingPriceRedisHashRepository implements ClosingPriceRepository {
 	private final Clock clock;
 
 	@Override
+	public void savePrice(KisClosingPrice price) {
+		savePrice(price.getTickerSymbol(), price.getPrice());
+	}
+
+	@Override
 	public void savePrice(String tickerSymbol, long price) {
 		if (isBlankTickerSymbol(tickerSymbol)) {
 			log.warn("tickerSymbol is blank, tickerSymbol: {}", tickerSymbol);
@@ -36,11 +41,6 @@ public class ClosingPriceRedisHashRepository implements ClosingPriceRepository {
 		}
 		ClosingPriceRedisEntity entity = ClosingPriceRedisEntity.of(tickerSymbol, price, clock.millis());
 		template.opsForHash().put(KEY, tickerSymbol, toJson(entity));
-	}
-
-	@Override
-	public void savePrice(KisClosingPrice price) {
-		savePrice(price.getTickerSymbol(), price.getPrice());
 	}
 
 	private String toJson(ClosingPriceRedisEntity entity) {
