@@ -5,12 +5,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.event.StockClosingPriceRefreshEvent;
+import co.fineants.stock.event.StockClosingPriceRequiredEvent;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
 import co.fineants.stock.event.StockCurrentPriceRequiredEvent;
 import co.fineants.stock.event.StockViewedEvent;
@@ -76,9 +78,21 @@ public class StockEventListener {
 		log.info("Handling StockClosingPriceRefreshEvent - tickerSymbol={}", event.getTickerSymbol());
 		kisService.fetchClosingPrice(event.getTickerSymbol())
 			.doOnSuccess(kisClosingPrice -> log.info("Fetched closing price from KIS - {}", kisClosingPrice))
-			.subscribe(kisClosingPrice ->
-					closingPriceRepository.savePrice(kisClosingPrice.getTickerSymbol(), kisClosingPrice.getPrice()),
+			.subscribe(this::saveClosingPrice,
 				error -> log.warn("Warning fetching closing price for ticker: {}", event.getTickerSymbol(), error)
 			);
+	}
+
+	private void saveClosingPrice(KisClosingPrice price) {
+		closingPriceRepository.savePrice(price.getTickerSymbol(), price.getPrice());
+	}
+
+	@EventListener
+	public void handleStockClosingPriceRequiredEvent(StockClosingPriceRequiredEvent event) {
+		log.info("Handling StockClosingPriceRequiredEvent - tickerSymbol={}", event.getTickerSymbol());
+		kisService.fetchClosingPrice(event.getTickerSymbol())
+			.doOnSuccess(kisClosingPrice -> log.info("Fetched closing price from KIS - {}", kisClosingPrice))
+			.blockOptional(delayManager.timeout())
+			.ifPresent(this::saveClosingPrice);
 	}
 }

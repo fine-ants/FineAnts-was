@@ -62,7 +62,7 @@ public class CurrentPriceService {
 	}
 
 	private Money handleCacheMiss(String tickerSymbol) {
-		log.warn("Cache miss for {}. Triggering refresh and returning fallback price.", tickerSymbol);
+		log.info("Cache miss for {}. Triggering refresh and returning fallback price.", tickerSymbol);
 		triggerSyncRefresh(tickerSymbol);
 		return priceRepository.fetchPriceBy(tickerSymbol)
 			.map(this::processCachedEntity)

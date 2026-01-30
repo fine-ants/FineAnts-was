@@ -10,6 +10,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.stock.event.StockClosingPriceRefreshEvent;
+import co.fineants.stock.event.StockClosingPriceRequiredEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -61,12 +62,14 @@ public class ClosingPriceService {
 	}
 
 	private Money handleCacheMiss(String tickerSymbol) {
-		log.warn("Cache miss for {}. Triggering refresh and returning fallback price.", tickerSymbol);
-		triggerRefresh(tickerSymbol);
-		return getFallbackPrice();
+		log.info("Cache miss for {}. Triggering refresh and returning fallback price.", tickerSymbol);
+		triggerSyncRefresh(tickerSymbol);
+		return priceRepository.fetchPrice(tickerSymbol)
+			.map(this::processCachedEntity)
+			.orElseThrow();
 	}
 
-	private Money getFallbackPrice() {
-		return Money.zero();
+	private void triggerSyncRefresh(String tickerSymbol) {
+		eventPublisher.publishEvent(new StockClosingPriceRequiredEvent(tickerSymbol));
 	}
 }
