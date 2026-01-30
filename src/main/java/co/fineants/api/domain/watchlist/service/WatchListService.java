@@ -6,8 +6,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.ClosingPriceService;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -44,10 +44,10 @@ public class WatchListService {
 	private final MemberRepository memberRepository;
 	private final StockRepository stockRepository;
 	private final WatchStockRepository watchStockRepository;
-	private final PriceRepository priceRepository;
-	private final ClosingPriceRepository closingPriceRepository;
 	private final WatchStockEventPublisher watchStockEventPublisher;
 	private final LocalDateTimeService localDateTimeService;
+	private final CurrentPriceService currentPriceService;
+	private final ClosingPriceService closingPriceService;
 
 	@Transactional
 	@Secured("ROLE_USER")
@@ -79,8 +79,10 @@ public class WatchListService {
 		List<WatchStock> watchStocks = watchStockRepository.findWithStockAndDividendsByWatchList(watchList);
 
 		List<ReadWatchListResponse.WatchStockResponse> watchStockResponses = watchStocks.stream()
-			.map(watchStock -> ReadWatchListResponse.from(watchStock, priceRepository,
-				closingPriceRepository, localDateTimeService))
+			.map(watchStock -> ReadWatchListResponse.from(watchStock,
+				localDateTimeService,
+				currentPriceService,
+				closingPriceService))
 			.toList();
 		return new ReadWatchListResponse(watchList.getName(), watchStockResponses);
 	}
