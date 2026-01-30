@@ -66,7 +66,8 @@ public class ClosingPriceService {
 		triggerSyncRefresh(tickerSymbol);
 		return priceRepository.fetchPrice(tickerSymbol)
 			.map(this::processCachedEntity)
-			.orElseThrow();
+			.orElseThrow(() ->
+				new IllegalStateException("Closing price should be available after refresh for " + tickerSymbol));
 	}
 
 	private void triggerSyncRefresh(String tickerSymbol) {

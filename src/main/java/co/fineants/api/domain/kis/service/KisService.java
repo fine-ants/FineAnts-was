@@ -109,7 +109,15 @@ public class KisService {
 	}
 
 	public Mono<KisClosingPrice> fetchClosingPrice(String tickerSymbol) {
-		return Mono.defer(() -> kisClient.fetchClosingPrice(tickerSymbol));
+		return Mono.defer(() -> kisClient.fetchClosingPrice(tickerSymbol)
+			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock current price {}", kisCurrentPrice))
+			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
+			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
+			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
+				.filter(RequestLimitExceededKisException.class::isInstance))
+			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
+			.timeout(delayManager.timeout())
+		);
 	}
 
 	/**

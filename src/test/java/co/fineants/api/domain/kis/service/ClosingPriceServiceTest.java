@@ -53,4 +53,20 @@ class ClosingPriceServiceTest extends AbstractContainerBaseTest {
 		// then
 		Assertions.assertThat(actual).isEqualTo(Money.won(freshPrice));
 	}
+
+	@DisplayName("종목 종가 조회 - 외부 API 호출 실패 시 예외를 던진다")
+	@Test
+	void fetchPrice_whenExternalAPIFails_thenThrowException() {
+		// given
+		String tickerSymbol = "005930";
+		BDDMockito.given(kisService.fetchClosingPrice(tickerSymbol))
+			.willReturn(Mono.empty());
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> closingPriceService.fetchPrice(tickerSymbol));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessage("Closing price should be available after refresh for " + tickerSymbol);
+	}
 }
