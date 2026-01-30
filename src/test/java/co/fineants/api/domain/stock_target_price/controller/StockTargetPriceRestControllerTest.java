@@ -57,7 +57,7 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
-		closingPriceRepository.addPrice("005930", 50000L);
+		closingPriceRepository.savePrice("005930", 50000L);
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림을 추가합니다")

@@ -103,13 +103,21 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 
-		prices.forEach(closingPriceRepository::addPrice);
+		prices.forEach(closingPriceRepository::savePrice);
 		log.info("종목 종가 {}개중 {}개 갱신", tickerSymbols.size(), prices.size());
 		return prices;
 	}
 
 	public Mono<KisClosingPrice> fetchClosingPrice(String tickerSymbol) {
-		return Mono.defer(() -> kisClient.fetchClosingPrice(tickerSymbol));
+		return Mono.defer(() -> kisClient.fetchClosingPrice(tickerSymbol)
+			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock closing price {}", kisCurrentPrice))
+			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
+			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
+			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
+				.filter(RequestLimitExceededKisException.class::isInstance))
+			.onErrorResume(Exceptions::isRetryExhausted, throwable -> Mono.empty())
+			.timeout(delayManager.timeout())
+		);
 	}
 
 	/**

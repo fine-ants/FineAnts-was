@@ -1,3 +1,5 @@
 stock:
   current-price:
     freshness-threshold-millis: 5000 # 5 seconds
+  closing-price:
+    freshness-threshold-millis: 86400000 # 24 hours

@@ -90,7 +90,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
 		currentPriceRepository.savePrice(saveStock, 60_000L);
-		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
@@ -281,7 +281,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
 		currentPriceRepository.savePrice(saveStock, 60_000L);
-		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
@@ -314,7 +314,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createStockDividend(kakaoStock.getTickerSymbol()).forEach(kakaoStock::addStockDividend);
 		Stock saveKakaoStock = stockRepository.save(kakaoStock);
 		currentPriceRepository.savePrice(saveSamsungStock, 60_000L);
-		closingPriceRepository.addPrice(saveSamsungStock.getTickerSymbol(), 59_000L);
+		closingPriceRepository.savePrice(saveSamsungStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding1 = portfolioHoldingRepository.save(
 			TestDataFactory.createPortfolioHolding(portfolio, saveSamsungStock));
@@ -352,7 +352,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
 		currentPriceRepository.savePrice(saveStock, 60_000L);
-		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
@@ -385,7 +385,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
 		currentPriceRepository.savePrice(saveStock, 60_000L);
-		closingPriceRepository.addPrice(saveStock.getTickerSymbol(), 59_000L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
 			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
