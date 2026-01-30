@@ -170,9 +170,9 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 서버로부터 조회하여 가져온다")
+	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 현재가 및 종가는 0원을 기준으로 처리됩니다.")
 	@Test
-	void findDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
+	void findDetailedStock_NoCurrentPriceAndClosingPrice() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
@@ -180,8 +180,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 		given(mockedKisService.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
-		// todo: fix closing price fetch, 클라이언트가 ClosingPriceRepository가 아닌 ClosePriceService를 의존하도록 만들어야함
-		given(kisClient.fetchClosingPrice(anyString()))
+		given(mockedKisService.fetchClosingPrice(anyString()))
 			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
 
 		String tickerSymbol = "005930";

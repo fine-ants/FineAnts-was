@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
+import co.fineants.stock.event.StockClosingPriceRefreshEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -57,7 +57,7 @@ public class ClosingPriceService {
 	}
 
 	private void triggerRefresh(String tickerSymbol) {
-		eventPublisher.publishEvent(new StockCurrentPriceRefreshEvent(tickerSymbol));
+		eventPublisher.publishEvent(new StockClosingPriceRefreshEvent(tickerSymbol));
 	}
 
 	private Money handleCacheMiss(String tickerSymbol) {

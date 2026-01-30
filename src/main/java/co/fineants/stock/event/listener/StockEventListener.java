@@ -4,9 +4,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.event.StockClosingPriceRefreshEvent;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
 import co.fineants.stock.event.StockViewedEvent;
 import co.fineants.stock.event.StocksViewedEvent;
@@ -20,6 +22,7 @@ public class StockEventListener {
 	private final ActiveStockService service;
 	private final KisService kisService;
 	private final PriceRepository priceRepository;
+	private final ClosingPriceRepository closingPriceRepository;
 
 	@EventListener
 	@Async
@@ -44,6 +47,18 @@ public class StockEventListener {
 			.subscribe(kisCurrentPrice ->
 					priceRepository.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice()),
 				error -> log.warn("Warning fetching current price for ticker: {}", event.getTickerSymbol(), error)
+			);
+	}
+
+	@EventListener
+	@Async
+	public void handleStockClosingPriceRefreshEvent(StockClosingPriceRefreshEvent event) {
+		log.info("Handling StockClosingPriceRefreshEvent - tickerSymbol={}", event.getTickerSymbol());
+		kisService.fetchClosingPrice(event.getTickerSymbol())
+			.doOnSuccess(kisClosingPrice -> log.info("Fetched closing price from KIS - {}", kisClosingPrice))
+			.subscribe(kisClosingPrice ->
+					closingPriceRepository.savePrice(kisClosingPrice.getTickerSymbol(), kisClosingPrice.getPrice()),
+				error -> log.warn("Warning fetching closing price for ticker: {}", event.getTickerSymbol(), error)
 			);
 	}
 }
