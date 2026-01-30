@@ -16,7 +16,6 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
@@ -59,8 +58,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchPrice_whenPriceNotInCache_thenPublishStockCurrentPriceRefreshSyncEventAndReturnClosingPrice() {
 		// given
-		Stock stock = stockRepository.save(createSamsungStock());
-		String tickerSymbol = stock.getTickerSymbol();
+		String tickerSymbol = "005930";
 		long freshPrice = 50000L;
 		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
