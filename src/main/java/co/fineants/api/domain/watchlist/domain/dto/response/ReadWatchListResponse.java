@@ -63,21 +63,19 @@ public class ReadWatchListResponse {
 			.currentPrice(currentPrice.reduce(bank, to))
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
-			.annualDividendYield(getAnnualDividendYield(stock, currentPriceService, localDateTimeService))
+			.annualDividendYield(getAnnualDividendYield(stock, currentPrice, localDateTimeService))
 			.sector(stock.getSector())
 			.dateAdded(watchStock.getCreateAt())
 			.build();
 	}
 
-	private static Percentage getAnnualDividendYield(Stock stock, CurrentPriceService currentPriceService,
+	private static Percentage getAnnualDividendYield(Stock stock, Money currentPrice,
 		LocalDateTimeService localDateTimeService) {
 		Expression dividends = stock.getStockDividends().stream()
 			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
 			.map(StockDividend::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
-		Money currentPrice = currentPriceService.fetchPrice(stock.getTickerSymbol())
-			.reduce(Bank.getInstance(), Currency.KRW);
 		return dividends.divide(currentPrice).toPercentage(Bank.getInstance(), Currency.KRW);
 	}
 }
