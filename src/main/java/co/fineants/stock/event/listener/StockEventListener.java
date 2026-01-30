@@ -4,12 +4,15 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.KisService;
+import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.event.StockClosingPriceRefreshEvent;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
+import co.fineants.stock.event.StockCurrentPriceRequiredEvent;
 import co.fineants.stock.event.StockViewedEvent;
 import co.fineants.stock.event.StocksViewedEvent;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class StockEventListener {
 	private final KisService kisService;
 	private final PriceRepository priceRepository;
 	private final ClosingPriceRepository closingPriceRepository;
+	private final DelayManager delayManager;
 
 	@EventListener
 	@Async
@@ -43,11 +47,27 @@ public class StockEventListener {
 	public void handleStockCurrentPriceRefreshEvent(StockCurrentPriceRefreshEvent event) {
 		log.info("Handling StockCurrentPriceRefreshEvent - tickerSymbol={}", event.getTickerSymbol());
 		kisService.fetchCurrentPrice(event.getTickerSymbol())
-			.doOnSuccess(kisCurrentPrice -> log.info("Fetched current price from KIS - {}", kisCurrentPrice))
-			.subscribe(kisCurrentPrice ->
-					priceRepository.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice()),
+			.doOnSuccess(this::logCurrentPrice)
+			.subscribe(this::savePrice,
 				error -> log.warn("Warning fetching current price for ticker: {}", event.getTickerSymbol(), error)
 			);
+	}
+
+	private void logCurrentPrice(KisCurrentPrice kisCurrentPrice) {
+		log.info("Fetched current price from KIS - {}", kisCurrentPrice);
+	}
+
+	@EventListener
+	public void handleStockCurrentPriceRequiredEvent(StockCurrentPriceRequiredEvent event) {
+		log.info("Handling StockCurrentPriceRequiredEvent - tickerSymbol={}", event.getTickerSymbol());
+		kisService.fetchCurrentPrice(event.getTickerSymbol())
+			.doOnSuccess(this::logCurrentPrice)
+			.blockOptional(delayManager.timeout())
+			.ifPresent(this::savePrice);
+	}
+
+	private void savePrice(KisCurrentPrice price) {
+		priceRepository.savePrice(price.getTickerSymbol(), price.getPrice());
 	}
 
 	@EventListener

@@ -170,9 +170,9 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 현재가 및 종가는 0원을 기준으로 처리됩니다.")
+	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 외부 API를 통해서 가져온다")
 	@Test
-	void findDetailedStock_NoCurrentPriceAndClosingPrice() {
+	void findDetailedStock_whenCurrentPriceAndClosingPriceNotExist_thenFetchFromExternalApi() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
