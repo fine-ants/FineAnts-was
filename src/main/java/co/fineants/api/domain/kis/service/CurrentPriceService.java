@@ -66,7 +66,7 @@ public class CurrentPriceService {
 		triggerSyncRefresh(tickerSymbol);
 		return priceRepository.fetchPriceBy(tickerSymbol)
 			.map(this::processCachedEntity)
-			.orElseThrow();
+			.orElseThrow(() -> new IllegalStateException("Failed to fetch current price for " + tickerSymbol));
 	}
 
 	private void triggerSyncRefresh(String tickerSymbol) {

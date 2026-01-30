@@ -103,4 +103,20 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 					.hasFieldOrPropertyWithValue("price", freshPrice));
 	}
+
+	@DisplayName("종목 현재가 조회 - 외부 API 호출 실패 시 예외를 던진다")
+	@Test
+	void fetchPrice_whenExternalAPIFails_thenThrowException() {
+		// given
+		String tickerSymbol = "005930";
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.empty());
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.fetchPrice(tickerSymbol));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessage("Failed to fetch current price for " + tickerSymbol);
+	}
 }
