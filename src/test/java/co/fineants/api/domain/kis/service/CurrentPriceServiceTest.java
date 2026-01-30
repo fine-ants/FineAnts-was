@@ -16,7 +16,6 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
-import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
 class CurrentPriceServiceTest extends AbstractContainerBaseTest {
@@ -35,9 +34,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Value("${stock.current-price.freshness-threshold-millis:5000}")
 	private long freshnessThresholdMillis;
-
-	@Autowired
-	private StockRepository stockRepository;
 
 	@DisplayName("종목 현재가 조회 - 캐시된 종목 현재가를 반환한다")
 	@Test
@@ -77,14 +73,15 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void fetchPrice_whenCurrentPriceIsStale_thenPublishStockCurrentPriceRefreshEventAndReturnStaleCurrentPrice() {
 		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
+
 		String tickerSymbol = "005930";
 		long stalePrice = 45000L;
 		long freshPrice = 50000L;
 
 		priceRepository.savePrice(tickerSymbol, stalePrice);
-		BDDMockito.given(spyClock.millis())
-			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
 		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
 
