@@ -80,7 +80,7 @@ public class WatchListService {
 
 		List<ReadWatchListResponse.WatchStockResponse> watchStockResponses = watchStocks.stream()
 			.map(watchStock -> ReadWatchListResponse.from(watchStock, priceRepository,
-				closingPriceRepository, localDateTimeService))
+				localDateTimeService))
 			.toList();
 		return new ReadWatchListResponse(watchList.getName(), watchStockResponses);
 	}

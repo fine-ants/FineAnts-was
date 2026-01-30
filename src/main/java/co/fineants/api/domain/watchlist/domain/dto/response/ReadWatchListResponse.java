@@ -9,9 +9,9 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.ClosingPriceService;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
@@ -43,16 +43,17 @@ public class ReadWatchListResponse {
 
 	// TODO: priceRepository, closingPriceRepository 주입 방식 개선, 필요한 필드값을 서비스 레이어에서 빌더와 같은 방식으로 넘기기
 	public static ReadWatchListResponse.WatchStockResponse from(WatchStock watchStock,
-		PriceRepository priceRepository, ClosingPriceRepository closingPriceRepository,
-		LocalDateTimeService localDateTimeService) {
+		PriceRepository priceRepository,
+		LocalDateTimeService localDateTimeService,
+		CurrentPriceService currentPriceService,
+		ClosingPriceService closingPriceService) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Stock stock = watchStock.getStock();
 
-		Money currentPrice = priceRepository.fetchPriceBy(stock.getTickerSymbol()).orElseThrow().getPriceMoney();
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol())
-			.map(ClosingPriceRedisEntity::getPriceMoney)
-			.orElseGet(Money::zero);
+		Money currentPrice = currentPriceService.fetchPrice(stock.getTickerSymbol());
+		Money lastDayClosingPrice = closingPriceService.fetchPrice(stock.getTickerSymbol());
+		Money dailyChange = currentPrice.minus(lastDayClosingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
 			.toPercentage(bank, to);
 		return ReadWatchListResponse.WatchStockResponse.builder()
@@ -60,9 +61,7 @@ public class ReadWatchListResponse {
 			.companyName(stock.getCompanyName())
 			.tickerSymbol(stock.getTickerSymbol())
 			.currentPrice(currentPrice.reduce(bank, to))
-			.dailyChange(stock
-				.getDailyChange(priceRepository, closingPriceRepository)
-				.reduce(bank, to))
+			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.annualDividendYield(stock
 				.getAnnualDividendYield(priceRepository, localDateTimeService)
