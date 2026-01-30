@@ -33,10 +33,10 @@ public class ClosingPriceService {
 	}
 
 	/**
-	 * 특정 종목의 현재가를 조회한다.
+	 * 특정 종목의 종가를 조회한다.
 	 *
 	 * @param tickerSymbol 티커 심볼
-	 * @return 종목 현재가
+	 * @return 종목 종가
 	 */
 	public Money fetchPrice(String tickerSymbol) {
 		return priceRepository.fetchPrice(tickerSymbol)
