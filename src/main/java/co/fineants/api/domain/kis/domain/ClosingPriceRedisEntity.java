@@ -8,6 +8,11 @@ import co.fineants.api.domain.common.money.Money;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * Note: {@code lastUpdatedAt} is intentionally excluded from {@link EqualsAndHashCode}
+ * because it represents temporal state (when this price was last updated),
+ * not the identity of the closing price entity.
+ */
 @Getter
 @EqualsAndHashCode(of = {"tickerSymbol", "price"})
 public class ClosingPriceRedisEntity {
