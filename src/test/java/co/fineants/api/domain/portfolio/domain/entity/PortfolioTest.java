@@ -15,23 +15,23 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
+import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.domain.Stock;
 
 class PortfolioTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private CurrentPriceMemoryRepository currentPriceMemoryRepository;
+	private PriceRepository priceRepository;
+
+	@Autowired
 	private PortfolioCalculator calculator;
 
 	@BeforeEach
 	void setUp() {
-		currentPriceMemoryRepository.clear();
-		calculator = new PortfolioCalculator(currentPriceMemoryRepository, new DefaultLocalDateTimeService());
+		priceRepository.clear();
 	}
 
 	@DisplayName("포트폴리오의 총 손익을 계산한다")
@@ -40,7 +40,7 @@ class PortfolioTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceMemoryRepository.savePrice(stock, 20_000L);
+		priceRepository.savePrice(stock, 20_000L);
 		PortfolioHolding portFolioHolding = PortfolioHolding.of(portfolio, stock);
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
@@ -69,7 +69,7 @@ class PortfolioTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceMemoryRepository.savePrice(stock, 20_000L);
+		priceRepository.savePrice(stock, 20_000L);
 		PortfolioHolding portFolioHolding = PortfolioHolding.of(portfolio, stock);
 
 		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);

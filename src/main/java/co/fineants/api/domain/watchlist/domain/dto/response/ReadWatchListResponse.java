@@ -7,14 +7,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
+import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,9 +42,8 @@ public class ReadWatchListResponse {
 		private LocalDateTime dateAdded;
 	}
 
-	// TODO: priceRepository, closingPriceRepository 주입 방식 개선, 필요한 필드값을 서비스 레이어에서 빌더와 같은 방식으로 넘기기
+	// TODO: CurrentPriceService, ClosingPriceService 주입 방식 개선, 필요한 필드값을 서비스 레이어에서 빌더와 같은 방식으로 넘기기
 	public static ReadWatchListResponse.WatchStockResponse from(WatchStock watchStock,
-		PriceRepository priceRepository,
 		LocalDateTimeService localDateTimeService,
 		CurrentPriceService currentPriceService,
 		ClosingPriceService closingPriceService) {
@@ -63,11 +63,21 @@ public class ReadWatchListResponse {
 			.currentPrice(currentPrice.reduce(bank, to))
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
-			.annualDividendYield(stock
-				.getAnnualDividendYield(priceRepository, localDateTimeService)
-				.toPercentage(bank, to))
+			.annualDividendYield(getAnnualDividendYield(stock, currentPriceService, localDateTimeService))
 			.sector(stock.getSector())
 			.dateAdded(watchStock.getCreateAt())
 			.build();
+	}
+
+	private static Percentage getAnnualDividendYield(Stock stock, CurrentPriceService currentPriceService,
+		LocalDateTimeService localDateTimeService) {
+		Expression dividends = stock.getStockDividends().stream()
+			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
+			.map(StockDividend::getDividend)
+			.map(Expression.class::cast)
+			.reduce(Money.zero(), Expression::plus);
+		Money currentPrice = currentPriceService.fetchPrice(stock.getTickerSymbol())
+			.reduce(Bank.getInstance(), Currency.KRW);
+		return dividends.divide(currentPrice).toPercentage(Bank.getInstance(), Currency.KRW);
 	}
 }

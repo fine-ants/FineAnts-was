@@ -21,6 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -52,8 +53,7 @@ import co.fineants.api.domain.holding.service.PortfolioHoldingFacade;
 import co.fineants.api.domain.holding.service.PortfolioHoldingService;
 import co.fineants.api.domain.holding.service.sender.StreamSseMessageSender;
 import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
-import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
@@ -67,7 +67,6 @@ import reactor.core.publisher.Flux;
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
 	private final PortfolioHoldingService service = mock(PortfolioHoldingService.class);
-	private PriceRepository currentPriceRepository;
 	private LocalDateTimeService timeService;
 	private PortfolioCalculator calculator;
 	private PortfolioStreamer portfolioStreamer;
@@ -75,6 +74,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	private PortfolioSseEmitterFactory portfolioSseEmitterFactory;
 	private PortfolioHoldingFacade portfolioHoldingFacade;
 	private PortfolioService portfolioService;
+	private CurrentPriceService currentPriceService;
 
 	@Override
 	protected Object initController() {
@@ -111,9 +111,9 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 	@BeforeEach
 	void setUp() {
 		Clock clock = Clock.systemDefaultZone();
-		currentPriceRepository = new CurrentPriceMemoryRepository(clock);
 		timeService = mock(LocalDateTimeService.class);
-		calculator = new PortfolioCalculator(currentPriceRepository, timeService);
+		currentPriceService = Mockito.mock(CurrentPriceService.class);
+		calculator = new PortfolioCalculator(currentPriceService, timeService);
 
 		given(timeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
@@ -191,7 +191,8 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = createPortfolio(member);
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 60_000L);
+		BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		PortfolioHolding portfolioHolding = createPortfolioHolding(portfolio, stock);
 		portfolioHolding.addPurchaseHistory(

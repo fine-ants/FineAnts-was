@@ -3,7 +3,6 @@ package co.fineants.api.domain.gainhistory.domain.entity;
 import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
-import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.domain.Stock;
 
@@ -24,12 +22,9 @@ class PortfolioGainHistoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PriceRepository currentPriceRepository;
-	private PortfolioCalculator calculator;
 
-	@BeforeEach
-	void setUp() {
-		calculator = new PortfolioCalculator(currentPriceRepository, new DefaultLocalDateTimeService());
-	}
+	@Autowired
+	private PortfolioCalculator calculator;
 
 	@DisplayName("빈 히스토리 상태에서 새로운 손익내역을 생성한다")
 	@Test

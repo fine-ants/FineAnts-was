@@ -8,13 +8,13 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.restdocs.payload.JsonFieldType;
 
@@ -26,8 +26,7 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.repository.CurrentPriceMemoryRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.portfolio.controller.DashboardRestController;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartResponse;
@@ -41,8 +40,8 @@ import co.fineants.stock.domain.Stock;
 class DashboardRestControllerDocsTest extends RestDocsSupport {
 
 	private final DashboardService service = Mockito.mock(DashboardService.class);
-	private PriceRepository currentPriceRepository;
 	private PortfolioCalculator calculator;
+	private CurrentPriceService currentPriceService;
 
 	@Override
 	protected Object initController() {
@@ -51,9 +50,8 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 
 	@BeforeEach
 	void setUp() {
-		Clock clock = Clock.systemDefaultZone();
-		currentPriceRepository = new CurrentPriceMemoryRepository(clock);
-		calculator = new PortfolioCalculator(currentPriceRepository, new DefaultLocalDateTimeService());
+		currentPriceService = Mockito.mock(CurrentPriceService.class);
+		calculator = new PortfolioCalculator(currentPriceService, new DefaultLocalDateTimeService());
 	}
 
 	@DisplayName("오버뷰 조회 API")
@@ -126,7 +124,8 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 		// given
 		Portfolio portfolio = createPortfolio(TestDataFactory.createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 60_000L);
+		BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
 		holding.addPurchaseHistory(createPurchaseHistory(holding, LocalDateTime.now()));
 		portfolio.addHolding(holding);
