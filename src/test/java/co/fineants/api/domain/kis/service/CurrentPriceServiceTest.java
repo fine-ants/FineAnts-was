@@ -15,7 +15,6 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
@@ -37,9 +36,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Value("${stock.current-price.freshness-threshold-millis:5000}")
 	private long freshnessThresholdMillis;
-
-	@Autowired
-	private ClosingPriceRepository closingPriceRepository;
 
 	@Autowired
 	private StockRepository stockRepository;
