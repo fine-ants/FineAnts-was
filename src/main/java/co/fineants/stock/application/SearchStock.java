@@ -10,8 +10,8 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
@@ -29,9 +29,9 @@ public class SearchStock {
 	private final StockQueryDslRepository repository;
 	private final StockRepository stockRepository;
 	private final PriceRepository priceRepository;
-	private final ClosingPriceRepository closingPriceRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final CurrentPriceService currentPriceService;
+	private final ClosingPriceService closingPriceService;
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(String keyword) {
@@ -55,7 +55,8 @@ public class SearchStock {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
-		Money lastDayClosingPrice = closingPriceRepository.fetchPrice(stock.getTickerSymbol()).orElseGet(Money::zero);
+		Money lastDayClosingPrice = closingPriceService.fetchPrice(tickerSymbol);
+		Money dailyChange = currentPrice.minus(lastDayClosingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
 			.toPercentage(bank, to);
 		return StockResponse.builder()
@@ -65,7 +66,7 @@ public class SearchStock {
 			.companyNameEng(stock.getCompanyNameEng())
 			.market(stock.getMarket())
 			.currentPrice(currentPrice.reduce(bank, to))
-			.dailyChange(stock.getDailyChange(priceRepository, closingPriceRepository).reduce(bank, to))
+			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
 			.annualDividend(stock.getAnnualDividend(localDateTimeService).reduce(bank, to))

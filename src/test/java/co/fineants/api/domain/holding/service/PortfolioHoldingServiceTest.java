@@ -107,7 +107,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
 
 		priceRepository.savePrice(KisCurrentPrice.create("005930", 60000L));
-		closingPriceRepository.addPrice("005930", 50000);
+		closingPriceRepository.savePrice("005930", 50000);
 
 		setAuthentication(member);
 		// when
@@ -244,7 +244,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
 
 		priceRepository.savePrice(KisCurrentPrice.create("005930", 60000L));
-		closingPriceRepository.addPrice("005930", 50000);
+		closingPriceRepository.savePrice("005930", 50000);
 
 		setAuthentication(member);
 		// when
@@ -392,8 +392,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		priceRepository.savePrice(KisCurrentPrice.create("005930", 60000L));
 		priceRepository.savePrice(KisCurrentPrice.create("035720", 60000L));
-		closingPriceRepository.addPrice("005930", 50000);
-		closingPriceRepository.addPrice("035720", 50000);
+		closingPriceRepository.savePrice("005930", 50000);
+		closingPriceRepository.savePrice("035720", 50000);
 
 		// when
 		StreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());

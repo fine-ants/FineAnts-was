@@ -144,8 +144,8 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		List<TargetPriceNotification> targetPriceNotifications2 = targetPriceNotificationRepository.saveAll(
 			createTargetPriceNotification(stockTargetPrice2, List.of(60000L, 70000L)));
 
-		manager.addPrice(KisClosingPrice.create(stock.getTickerSymbol(), 50000L));
-		manager.addPrice(KisClosingPrice.create(stock2.getTickerSymbol(), 50000L));
+		manager.savePrice(KisClosingPrice.create(stock.getTickerSymbol(), 50000L));
+		manager.savePrice(KisClosingPrice.create(stock2.getTickerSymbol(), 50000L));
 		// when
 		TargetPriceNotificationSearchResponse response = service.searchStockTargetPrices(member.getId());
 
@@ -190,7 +190,7 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		List<TargetPriceNotification> targetPriceNotifications = targetPriceNotificationRepository.saveAll(
 			createTargetPriceNotification(stockTargetPrice, List.of(60000L, 70000L)));
 
-		manager.addPrice(KisClosingPrice.create(stock.getTickerSymbol(), 50000L));
+		manager.savePrice(KisClosingPrice.create(stock.getTickerSymbol(), 50000L));
 
 		// when
 		TargetPriceNotificationSpecifiedSearchResponse response = service.searchStockTargetPrice(

@@ -13,6 +13,7 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
+import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.PriceRepository;
@@ -198,8 +199,10 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.orElseGet(Money::zero);
 	}
 
-	public Expression getClosingPrice(ClosingPriceRepository manager) {
-		return manager.fetchPrice(tickerSymbol).orElseGet(Money::zero);
+	public Expression getClosingPrice(ClosingPriceRepository repository) {
+		return repository.fetchPrice(tickerSymbol)
+			.map(ClosingPriceRedisEntity::getPriceMoney)
+			.orElseGet(Money::zero);
 	}
 
 	public List<Month> getDividendMonths(LocalDateTimeService localDateTimeService) {

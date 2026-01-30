@@ -129,7 +129,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		Stock saveSamsung = stockRepository.save(samsung);
 
 		currentPriceRepository.savePrice(KisCurrentPrice.create("005930", 50000L));
-		closingPriceRepository.addPrice(KisClosingPrice.create("005930", 49000L));
+		closingPriceRepository.savePrice(KisClosingPrice.create("005930", 49000L));
 		given(kisClient.fetchAccessToken())
 			.willReturn(
 				Mono.just(new KisAccessToken("accessToken", "Bearer", LocalDateTime.now().plusSeconds(86400), 86400)));
@@ -170,9 +170,9 @@ class SearchStockTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 서버로부터 조회하여 가져온다")
+	@DisplayName("사용자가 종목 상세 정보 조회시 종목의 현재가 및 종가가 없는 경우 외부 API를 통해서 가져온다")
 	@Test
-	void findDetailedStock_whenPriceIsNotExist_thenFetchCurrentPrice() {
+	void findDetailedStock_whenCurrentPriceAndClosingPriceNotExist_thenFetchFromExternalApi() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
@@ -180,7 +180,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 
 		given(mockedKisService.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(saveSamsung.getTickerSymbol(), 50000L)));
-		given(kisClient.fetchClosingPrice(anyString()))
+		given(mockedKisService.fetchClosingPrice(anyString()))
 			.willReturn(Mono.just(KisClosingPrice.create(saveSamsung.getTickerSymbol(), 49000L)));
 
 		String tickerSymbol = "005930";
