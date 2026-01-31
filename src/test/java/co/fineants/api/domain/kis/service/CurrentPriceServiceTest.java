@@ -114,4 +114,23 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessage("Failed to fetch current price for " + tickerSymbol);
 	}
+
+	@DisplayName("종목 현재가 조회 - 상장 폐지된 종목을 대상으로 조회시 0원을 반환한다")
+	@Test
+	void fetchPrice_whenDelistedStock_thenReturnZeroWon() {
+		// given
+		String tickerSymbol = "999999"; // 상장 폐지된 종목
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.just(KisCurrentPrice.empty(tickerSymbol)));
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(0L));
+		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", 0L);
+	}
 }

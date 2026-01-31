@@ -432,4 +432,15 @@ public final class TestDataFactory {
 			)
 		);
 	}
+
+	public static Stock createDelistedStock() {
+		return Stock.delisted(
+			"065560",
+			"녹원씨엔아이",
+			"Nokwon Commercials & Industries, Inc.",
+			"KR7065560005",
+			"소프트웨어",
+			Market.KOSDAQ
+		);
+	}
 }
