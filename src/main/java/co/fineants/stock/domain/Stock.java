@@ -85,6 +85,13 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return new Stock(tickerSymbol, companyName, companyNameEng, stockCode, sector, market);
 	}
 
+	public static Stock delisted(String tickerSymbol, String companyName, String companyNameEng, String stockCode,
+		String sector, Market market) {
+		Stock stock = new Stock(tickerSymbol, companyName, companyNameEng, stockCode, sector, market);
+		stock.isDeleted = true;
+		return stock;
+	}
+
 	public void addStockDividend(StockDividend stockDividend) {
 		if (!stockDividends.contains(stockDividend)) {
 			stockDividends.add(stockDividend);
