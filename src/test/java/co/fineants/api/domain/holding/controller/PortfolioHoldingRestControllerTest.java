@@ -152,6 +152,75 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 				.value(equalTo("첫구매")));
 	}
 
+	@DisplayName("포트폴리오 종목 조회 - 상장 폐지된 종목이 포함된 포트폴리오 상세 정보를 가져온다")
+	@Test
+	void readMyPortfolioHoldings_whenDelistedStockIncluded_thenGetPortfolioHoldings() throws Exception {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createDelistedStock();
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock.getTickerSymbol(), 0L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 5000L);
+
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
+
+		// when & then
+		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(OK_READ_PORTFOLIO_HOLDING.getMessage())))
+			.andExpect(jsonPath("data.portfolioDetails.id").value(equalTo(portfolio.getId().intValue())))
+			.andExpect(jsonPath("data.portfolioDetails.securitiesFirm").value(equalTo(portfolio.securitiesFirm())))
+			.andExpect(jsonPath("data.portfolioDetails.name").value(equalTo(portfolio.name())))
+			.andExpect(jsonPath("data.portfolioDetails.budget").value(equalTo(1000000)))
+			.andExpect(jsonPath("data.portfolioDetails.targetGain").value(equalTo(1500000)))
+			.andExpect(jsonPath("data.portfolioDetails.targetReturnRate").value(closeTo(50.00, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.maximumLoss").value(equalTo(900000)))
+			.andExpect(jsonPath("data.portfolioDetails.maximumLossRate").value(closeTo(10.00, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.currentValuation").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioDetails.investedAmount").value(equalTo(50000)))
+			.andExpect(jsonPath("data.portfolioDetails.totalGain").value(equalTo(-50000)))
+			.andExpect(jsonPath("data.portfolioDetails.totalGainRate").value(closeTo(-100.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.dailyGain").value(equalTo(-50000)))
+			.andExpect(jsonPath("data.portfolioDetails.dailyGainRate").value(closeTo(-100.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.balance").value(equalTo(950000)))
+			.andExpect(jsonPath("data.portfolioDetails.annualDividend").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioDetails.annualDividendYield").value(closeTo(0.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.annualInvestmentDividendYield").value(closeTo(0.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioDetails.provisionalLossBalance").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioDetails.targetGainNotify").value(equalTo(true)))
+			.andExpect(jsonPath("data.portfolioDetails.maxLossNotify").value(equalTo(true)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].companyName").value(equalTo("녹원씨엔아이")))
+			.andExpect(jsonPath("data.portfolioHoldings[0].tickerSymbol").value(equalTo("065560")))
+			.andExpect(jsonPath("data.portfolioHoldings[0].id").value(equalTo(portfolioHolding.getId().intValue())))
+			.andExpect(jsonPath("data.portfolioHoldings[0].currentValuation").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].currentPrice").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].averageCostPerShare").value(equalTo(10000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].numShares").value(equalTo(5)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChange").value(equalTo(-5000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dailyChangeRate").value(closeTo(-100.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].totalGain").value(equalTo(-50000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].totalReturnRate").value(closeTo(-100.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividend").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].annualDividendYield").value(closeTo(0.0, 0.1)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].dateAdded").value(notNullValue()))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseHistoryId").value(
+				equalTo(purchaseHistory.getId().intValue())))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchaseDate")
+				.value(notNullValue()))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].numShares").value(equalTo(5)))
+			.andExpect(
+				jsonPath("data.portfolioHoldings[0].purchaseHistory[0].purchasePricePerShare").value(equalTo(10000)))
+			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo").value(equalTo("첫구매")));
+	}
+
 	@DisplayName("존재하지 않는 포트폴리오 번호를 가지고 포트폴리오 상세 정보를 가져올 수 없다")
 	@Test
 	void readPortfolioHoldings_whenNotExistPortfolioId_thenResponseNotFound() throws Exception {
