@@ -122,7 +122,7 @@ public class KisService {
 				}
 				return kisClosingPrice;
 			})
-			.doOnSuccess(kisCurrentPrice -> log.debug("reload stock closing price {}", kisCurrentPrice))
+			.doOnSuccess(kisClosingPrice -> log.debug("reload stock closing price {}", kisClosingPrice))
 			.onErrorResume(ExpiredAccessTokenKisException.class::isInstance, throwable -> Mono.empty())
 			.onErrorResume(CredentialsTypeKisException.class::isInstance, throwable -> Mono.empty())
 			.retryWhen(Retry.fixedDelay(MAX_ATTEMPTS, delayManager.fixedDelay())
