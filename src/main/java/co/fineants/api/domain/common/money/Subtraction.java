@@ -51,9 +51,9 @@ public class Subtraction implements Expression {
 	}
 
 	@Override
-	public int compareTo(@NotNull Expression o) {
+	public int compareTo(@NotNull Expression expression) {
 		Money won1 = Bank.getInstance().toWon(this);
-		Money won2 = Bank.getInstance().toWon(o);
+		Money won2 = Bank.getInstance().toWon(expression);
 		return won1.compareTo(won2);
 	}
 

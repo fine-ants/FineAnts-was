@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import co.fineants.api.domain.common.money.Bank;
+import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 
@@ -31,7 +33,12 @@ class StockPriceCalculatorTest {
 		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
-		Assertions.assertThat(dailyChange).isEqualTo(Money.won(200));
+		Money actual = toWon(dailyChange);
+		Assertions.assertThat(actual).isEqualTo(Money.won(200));
+	}
+
+	private Money toWon(Expression expression) {
+		return expression.reduce(Bank.getInstance(), Currency.KRW);
 	}
 
 	@DisplayName("일일 변동액 계산 - 음수 일일 변동 금액을 올바르게 계산한다.")
@@ -62,5 +69,33 @@ class StockPriceCalculatorTest {
 
 		// then
 		Assertions.assertThat(dailyChange).isEqualTo(Money.won(0));
+	}
+
+	@DisplayName("일일 변동액 계산 - 현재가에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateDailyChange_whenCurrentPriceIsNull_thenThrowException() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(null, closingPrice));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class);
+	}
+
+	@DisplayName("일일 변동액 계산 - 종가에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateDailyChange_whenClosingPriceIsNull_thenThrowException() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1000);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(currentPrice, null));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class);
 	}
 }
