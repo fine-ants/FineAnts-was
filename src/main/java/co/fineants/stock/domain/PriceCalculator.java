@@ -1,7 +1,7 @@
 package co.fineants.stock.domain;
 
-import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Expression;
 
 public interface PriceCalculator {
-	Money calculateDailyChange(Money currentPrice, Money closingPrice);
+	Expression calculateDailyChange(Expression currentPrice, Expression closingPrice);
 }

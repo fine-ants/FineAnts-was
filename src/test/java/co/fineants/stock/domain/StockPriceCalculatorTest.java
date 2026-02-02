@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 
 class StockPriceCalculatorTest {
@@ -27,7 +28,7 @@ class StockPriceCalculatorTest {
 		Money closingPrice = Money.won(1000);
 
 		// when
-		Money dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
+		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
 		Assertions.assertThat(dailyChange).isEqualTo(Money.won(200));
@@ -42,7 +43,7 @@ class StockPriceCalculatorTest {
 		Money closingPrice = Money.won(1000);
 
 		// when
-		Money dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
+		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
 		Assertions.assertThat(dailyChange).isEqualTo(Money.won(-200));
@@ -57,10 +58,9 @@ class StockPriceCalculatorTest {
 		Money closingPrice = Money.won(1000);
 
 		// when
-		Money dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
+		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
 		Assertions.assertThat(dailyChange).isEqualTo(Money.won(0));
 	}
-
 }
