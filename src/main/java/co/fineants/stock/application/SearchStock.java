@@ -67,7 +67,7 @@ public class SearchStock {
 			.companyName(stock.getCompanyName())
 			.companyNameEng(stock.getCompanyNameEng())
 			.market(stock.getMarket())
-			.currentPrice(currentPrice.reduce(bank, to))
+			.currentPrice(currentPrice)
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
