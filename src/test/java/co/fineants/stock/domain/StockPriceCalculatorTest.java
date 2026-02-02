@@ -33,8 +33,7 @@ class StockPriceCalculatorTest {
 		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
-		Money actual = toWon(dailyChange);
-		Assertions.assertThat(actual).isEqualTo(Money.won(200));
+		Assertions.assertThat(toWon(dailyChange)).isEqualTo(Money.won(200));
 	}
 
 	private Money toWon(Expression expression) {
@@ -53,7 +52,7 @@ class StockPriceCalculatorTest {
 		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
-		Assertions.assertThat(dailyChange).isEqualTo(Money.won(-200));
+		Assertions.assertThat(toWon(dailyChange)).isEqualTo(Money.won(-200));
 	}
 
 	@DisplayName("일일 변동액 계산 - 현재가와 종가가 동일한 경우는 0 값으로 계산한다.")
@@ -68,7 +67,7 @@ class StockPriceCalculatorTest {
 		Expression dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
 
 		// then
-		Assertions.assertThat(dailyChange).isEqualTo(Money.won(0));
+		Assertions.assertThat(toWon(dailyChange)).isEqualTo(Money.won(0));
 	}
 
 	@DisplayName("일일 변동액 계산 - 현재가에 null 값이 들어올 경우 예외가 발생한다.")
