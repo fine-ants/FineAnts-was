@@ -1,0 +1,35 @@
+package co.fineants.stock.domain;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import co.fineants.api.domain.common.money.Money;
+
+class StockPriceCalculatorTest {
+
+	@DisplayName("객체 생성 - StockPriceCalculator")
+	@Test
+	void canCreated() {
+		// when
+		PriceCalculator calculator = new StockPriceCalculator();
+
+		// then
+		Assertions.assertThat(calculator).isNotNull();
+	}
+
+	@DisplayName("일간 변동액 계산 - 일일 변동 금액을 올바르게 계산한다.")
+	@Test
+	void canCalculateDailyChange() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1200);
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Money dailyChange = calculator.calculateDailyChange(currentPrice, closingPrice);
+
+		// then
+		Assertions.assertThat(dailyChange).isEqualTo(Money.won(200));
+	}
+}
