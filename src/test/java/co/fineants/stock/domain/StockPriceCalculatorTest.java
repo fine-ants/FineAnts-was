@@ -9,7 +9,7 @@ import co.fineants.api.domain.common.money.Money;
 
 class StockPriceCalculatorTest {
 
-	@DisplayName("객체 생성 - StockPriceCalculator")
+	@DisplayName("객체 생성 - 객체가 정상적으로 생성됩니다.")
 	@Test
 	void canCreated() {
 		// when
