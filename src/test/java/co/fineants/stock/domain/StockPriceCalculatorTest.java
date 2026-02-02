@@ -8,8 +8,17 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Percentage;
 
 class StockPriceCalculatorTest {
+
+	private Money toWon(Expression expression) {
+		return expression.reduce(Bank.getInstance(), Currency.KRW);
+	}
+
+	private Percentage toPercent(Expression dailyChangeRate) {
+		return dailyChangeRate.toPercentage(Bank.getInstance(), Currency.KRW);
+	}
 
 	@DisplayName("객체 생성 - 객체가 정상적으로 생성됩니다.")
 	@Test
@@ -34,10 +43,6 @@ class StockPriceCalculatorTest {
 
 		// then
 		Assertions.assertThat(toWon(dailyChange)).isEqualTo(Money.won(200));
-	}
-
-	private Money toWon(Expression expression) {
-		return expression.reduce(Bank.getInstance(), Currency.KRW);
 	}
 
 	@DisplayName("일일 변동액 계산 - 음수 일일 변동 금액을 올바르게 계산한다.")
@@ -96,5 +101,20 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
+	}
+
+	@DisplayName("일일 변동액 비율 계산 - 일일 변동 금액 비율을 올바르게 계산한다.")
+	@Test
+	void calculateDailyChangeRate_whenCurrentPriceIsGraterThanClosingPrice_thenReturnPositiveDailyChangeRate() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1200);
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Expression dailyChangeRate = calculator.calculateDailyChangeRate(currentPrice, closingPrice);
+
+		// then
+		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(0.20));
 	}
 }

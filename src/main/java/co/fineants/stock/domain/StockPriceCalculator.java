@@ -14,4 +14,12 @@ public class StockPriceCalculator implements PriceCalculator {
 		Objects.requireNonNull(closingPrice, "Closing price must not be null");
 		return currentPrice.minus(closingPrice);
 	}
+
+	@Override
+	public Expression calculateDailyChangeRate(Expression currentPrice, Expression closingPrice) {
+		Objects.requireNonNull(currentPrice, "Current price must not be null");
+		Objects.requireNonNull(closingPrice, "Closing price must not be null");
+		Expression dailyChange = calculateDailyChange(currentPrice, closingPrice);
+		return dailyChange.divide(closingPrice);
+	}
 }

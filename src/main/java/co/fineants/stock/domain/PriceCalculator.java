@@ -4,4 +4,6 @@ import co.fineants.api.domain.common.money.Expression;
 
 public interface PriceCalculator {
 	Expression calculateDailyChange(Expression currentPrice, Expression closingPrice);
+
+	Expression calculateDailyChangeRate(Expression dailyChange, Expression closingPrice);
 }
