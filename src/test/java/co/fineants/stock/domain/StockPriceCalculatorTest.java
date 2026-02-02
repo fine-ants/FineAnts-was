@@ -117,4 +117,62 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(0.20));
 	}
+
+	@DisplayName("일일 변동액 비율 계산 - 음수 일일 변동 금액 비율을 올바르게 계산한다.")
+	@Test
+	void calculateDailyChangeRate_whenCurrentPriceIsLessThanClosingPrice_thenReturnNegativeDailyChangeRate() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(800);
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Expression dailyChangeRate = calculator.calculateDailyChangeRate(currentPrice, closingPrice);
+
+		// then
+		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(-0.20));
+	}
+
+	@DisplayName("일일 변동액 비율 계산 - 현재가와 종가가 동일한 경우는 0 값으로 계산한다.")
+	@Test
+	void calculateDailyChangeRate_whenCurrentPriceIsEqualToClosingPrice_thenReturnZeroDailyChangeRate() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1000);
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Expression dailyChangeRate = calculator.calculateDailyChangeRate(currentPrice, closingPrice);
+
+		// then
+		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(0));
+	}
+
+	@DisplayName("일일 변동액 비율 계산 - 현재가에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateDailyChangeRate_whenCurrentPriceIsNull_thenThrowException() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money closingPrice = Money.won(1000);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(null, closingPrice));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class);
+	}
+
+	@DisplayName("일일 변동액 비율 계산 - 종가에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateDailyChangeRate_whenClosingPriceIsNull_thenThrowException() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1000);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(currentPrice, null));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class);
+	}
 }
