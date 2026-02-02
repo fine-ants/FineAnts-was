@@ -59,7 +59,7 @@ public class SearchStock {
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
 		Money closingPrice = closingPriceService.fetchPrice(tickerSymbol);
 		Money dailyChange = stockPriceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
-		Percentage dailyChangeRate = currentPrice.minus(closingPrice).divide(closingPrice)
+		Percentage dailyChangeRate = stockPriceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
