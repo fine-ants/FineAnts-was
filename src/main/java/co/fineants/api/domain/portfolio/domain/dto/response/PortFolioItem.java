@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
-import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
@@ -41,23 +40,24 @@ public class PortFolioItem {
 		PortfolioCalculator calculator) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
-		Expression totalGain = calculator.calTotalGainBy(portfolio);
-		Expression totalGainRate = calculator.calTotalGainRateBy(portfolio);
-		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(portfolio);
-		Expression dailyGain = calculator.calDailyGain(prevHistory, portfolio);
-		Expression dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio);
-		Expression currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio);
+		Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
+		Percentage totalGainRate = calculator.calTotalGainRateBy(portfolio)
+			.toPercentage(bank, to);
+		Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
+		Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
+		Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
+		Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
 		return PortFolioItem.builder()
 			.id(portfolio.getId())
 			.securitiesFirm(portfolio.securitiesFirm())
 			.name(portfolio.name())
 			.budget(portfolio.getBudget())
-			.totalGain(totalGain.reduce(bank, to))
-			.totalGainRate(totalGainRate.toPercentage(Bank.getInstance(), Currency.KRW))
-			.dailyGain(dailyGain.reduce(bank, to))
-			.dailyGainRate(dailyGainRate.toPercentage(Bank.getInstance(), Currency.KRW))
-			.currentValuation(totalCurrentValuation.reduce(bank, to))
-			.expectedMonthlyDividend(currentMonthDividend.reduce(bank, to))
+			.totalGain(totalGain)
+			.totalGainRate(totalGainRate)
+			.dailyGain(dailyGain)
+			.dailyGainRate(dailyGainRate)
+			.currentValuation(currentValuation)
+			.expectedMonthlyDividend(currentMonthDividend)
 			.numShares(portfolio.numberOfShares())
 			.dateCreated(portfolio.getCreateAt())
 			.build();
