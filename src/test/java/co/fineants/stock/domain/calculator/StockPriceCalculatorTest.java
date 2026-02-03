@@ -400,4 +400,64 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.10));
 	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 여러 개인 경우, 올바른 수익률을 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsHasMultipleElements_thenReturnCorrectYield() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend1, stockDividend2),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.20));
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 지급일이 현재 연도가 아닌 경우 해당 배당금은 수익률에 포함되지 않는다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendPaymentDateIsNotInCurrentYear_thenExcludeFromYield() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2022, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend1, stockDividend2),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.10));
+	}
 }
