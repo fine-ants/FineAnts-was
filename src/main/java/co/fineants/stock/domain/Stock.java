@@ -12,7 +12,6 @@ import java.util.Optional;
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
@@ -175,29 +174,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return result;
 	}
 
-	/**
-	 * 올해 연간 배당금 합계를 반환한다.
-	 * @param localDateTimeService 현지 시간 서비스
-	 * @return 올해 연간 배당금 합계
-	 */
-	public Expression getAnnualDividend(LocalDateTimeService localDateTimeService) {
-		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getDividend)
-			.map(Expression.class::cast)
-			.reduce(Money.zero(), Expression::plus);
-	}
-
-	public RateDivision getAnnualDividendYield(PriceRepository manager,
-		LocalDateTimeService localDateTimeService) {
-		Expression dividends = stockDividends.stream()
-			.filter(dividend -> dividend.isPaymentInCurrentYear(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getDividend)
-			.map(Expression.class::cast)
-			.reduce(Money.zero(), Expression::plus);
-		return dividends.divide(getCurrentPrice(manager));
-	}
-
 	public Expression getCurrentPrice(PriceRepository priceRepository) {
 		return priceRepository.fetchPriceBy(tickerSymbol)
 			.map(CurrentPriceRedisEntity::getPriceMoney)
@@ -210,14 +186,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.orElseGet(Money::zero);
 	}
 
-	public List<Month> getDividendMonths(LocalDateTimeService localDateTimeService) {
-		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
-			.map(StockDividend::getMonthByPaymentDate)
-			.toList();
-	}
 	// ticker 및 recordDate 기준으로 KisDividend가 매치되어 있는지 확인
-
 	public boolean matchByTickerSymbolAndRecordDate(String tickerSymbol, LocalDate recordDate) {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return false;

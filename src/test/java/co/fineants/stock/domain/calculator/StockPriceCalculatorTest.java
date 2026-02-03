@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
@@ -28,14 +28,6 @@ class StockPriceCalculatorTest {
 
 	private Percentage toPercent(Expression dailyChangeRate) {
 		return dailyChangeRate.toPercentage(Bank.getInstance(), Currency.KRW);
-	}
-
-	@NotNull
-	private StockDividend createStockDividend(DividendDates dividendDates) {
-		Money dividend = Money.won(1000);
-		boolean isDeleted = false;
-		String tickerSymbol = "005930";
-		return new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
 	}
 
 	@BeforeEach
@@ -239,7 +231,7 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		StockDividend stockDividend = createStockDividend(dividendDates);
+		StockDividend stockDividend = TestDataFactory.createStockDividend(dividendDates);
 
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
 
@@ -261,13 +253,13 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
-		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+		StockDividend stockDividend1 = TestDataFactory.createStockDividend(dividendDates1);
 
 		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
 		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
 		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
-		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+		StockDividend stockDividend2 = TestDataFactory.createStockDividend(dividendDates2);
 
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
 
@@ -289,13 +281,13 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
 		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
-		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+		StockDividend stockDividend1 = TestDataFactory.createStockDividend(dividendDates1);
 
 		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
 		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
 		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
-		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+		StockDividend stockDividend2 = TestDataFactory.createStockDividend(dividendDates2);
 
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
 
@@ -317,7 +309,7 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		StockDividend stockDividend = createStockDividend(dividendDates);
+		StockDividend stockDividend = TestDataFactory.createStockDividend(dividendDates);
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateAnnualDividend(
@@ -346,7 +338,7 @@ class StockPriceCalculatorTest {
 		);
 
 		// then
-		Assertions.assertThat(annualDividendYield).isEqualTo(RateDivision.zero());
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.0));
 	}
 
 	@DisplayName("연간 배당 수익률 계산 - 매개변수에 null 값이 들어올 경우 예외가 발생한다.")
@@ -357,23 +349,30 @@ class StockPriceCalculatorTest {
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
 
 		// when
-		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
-				null,
-				currentPrice,
-				baseDate
-			)).isInstanceOf(NullPointerException.class)
+		Throwable throwable1 = Assertions.catchThrowable(() -> calculator.calculateAnnualDividendYield(
+			null,
+			currentPrice,
+			baseDate
+		));
+		Throwable throwable2 = Assertions.catchThrowable(() -> calculator.calculateAnnualDividendYield(
+			Collections.emptyList(),
+			null,
+			baseDate
+		));
+		Throwable throwable3 = Assertions.catchThrowable(() -> calculator.calculateAnnualDividendYield(
+			Collections.emptyList(),
+			currentPrice,
+			null
+		));
+		// then
+		Assertions.assertThat(throwable1)
+			.isInstanceOf(NullPointerException.class)
 			.hasMessage("Stock dividends must not be null");
-		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
-				java.util.List.of(),
-				null,
-				baseDate
-			)).isInstanceOf(NullPointerException.class)
+		Assertions.assertThat(throwable2)
+			.isInstanceOf(NullPointerException.class)
 			.hasMessage("Current price must not be null");
-		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
-				java.util.List.of(),
-				currentPrice,
-				null
-			)).isInstanceOf(NullPointerException.class)
+		Assertions.assertThat(throwable3)
+			.isInstanceOf(NullPointerException.class)
 			.hasMessage("Base date must not be null");
 	}
 
@@ -385,7 +384,7 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		StockDividend stockDividend = createStockDividend(dividendDates);
+		StockDividend stockDividend = TestDataFactory.createStockDividend(dividendDates);
 
 		Expression currentPrice = Money.won(10000);
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
@@ -409,13 +408,13 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
-		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+		StockDividend stockDividend1 = TestDataFactory.createStockDividend(dividendDates1);
 
 		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
 		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
 		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
-		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+		StockDividend stockDividend2 = TestDataFactory.createStockDividend(dividendDates2);
 
 		Expression currentPrice = Money.won(10000);
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
@@ -439,13 +438,13 @@ class StockPriceCalculatorTest {
 		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
 		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
-		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+		StockDividend stockDividend1 = TestDataFactory.createStockDividend(dividendDates1);
 
 		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
 		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
 		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
-		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+		StockDividend stockDividend2 = TestDataFactory.createStockDividend(dividendDates2);
 
 		Expression currentPrice = Money.won(10000);
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
