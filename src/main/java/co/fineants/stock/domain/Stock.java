@@ -186,9 +186,9 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.orElseGet(Money::zero);
 	}
 
-	public List<Month> getDividendMonths(LocalDateTimeService localDateTimeService) {
+	public List<Month> getDividendMonths(LocalDate baseDate) {
 		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
+			.filter(dividend -> dividend.isCurrentYearPaymentDate(baseDate))
 			.map(StockDividend::getMonthByPaymentDate)
 			.toList();
 	}

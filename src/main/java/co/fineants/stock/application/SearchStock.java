@@ -66,7 +66,7 @@ public class SearchStock {
 		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
 			currentPrice, baseDate).toPercentage(bank, to);
 		// TODO: 별도의 클래스로 변경
-		List<Integer> dividendMonths = stock.getDividendMonths(localDateTimeService).stream()
+		List<Integer> dividendMonths = stock.getDividendMonths(baseDate).stream()
 			.map(Month::getValue)
 			.toList();
 		return StockResponse.builder()
