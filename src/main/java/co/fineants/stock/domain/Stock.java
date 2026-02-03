@@ -193,13 +193,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return dividends.divide(getCurrentPrice(manager));
 	}
 
-	public Expression getDailyChange(PriceRepository currentPriceRedisRepository,
-		ClosingPriceRepository closingPriceRepository) {
-		Expression currentPrice = getCurrentPrice(currentPriceRedisRepository);
-		Expression closingPrice = getClosingPrice(closingPriceRepository);
-		return currentPrice.minus(closingPrice);
-	}
-
 	public Expression getCurrentPrice(PriceRepository priceRepository) {
 		return priceRepository.fetchPriceBy(tickerSymbol)
 			.map(CurrentPriceRedisEntity::getPriceMoney)

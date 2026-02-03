@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import co.fineants.api.domain.common.count.Count;
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 public final class Money implements Expression {
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###");
@@ -153,7 +153,8 @@ public final class Money implements Expression {
 	 * @return 대소 결과
 	 */
 	@Override
-	public int compareTo(@NotNull Expression expression) {
+	public int compareTo(@Nonnull Expression expression) {
+		Objects.requireNonNull(expression, "Comparison target must not be null");
 		Bank bank = Bank.getInstance();
 		Money m1 = bank.reduce(this, currency);
 		Money m2 = bank.reduce(expression, currency);

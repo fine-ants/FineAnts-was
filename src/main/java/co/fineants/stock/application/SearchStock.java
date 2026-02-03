@@ -17,6 +17,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.domain.calculator.PriceCalculator;
 import co.fineants.stock.infrastructure.StockQueryDslRepository;
 import co.fineants.stock.presentation.dto.response.StockResponse;
 import co.fineants.stock.presentation.dto.response.StockSearchItem;
@@ -32,6 +33,7 @@ public class SearchStock {
 	private final LocalDateTimeService localDateTimeService;
 	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceService closingPriceService;
+	private final PriceCalculator priceCalculator;
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(String keyword) {
@@ -55,9 +57,9 @@ public class SearchStock {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
-		Money lastDayClosingPrice = closingPriceService.fetchPrice(tickerSymbol);
-		Money dailyChange = currentPrice.minus(lastDayClosingPrice).reduce(bank, to);
-		Percentage dailyChangeRate = currentPrice.minus(lastDayClosingPrice).divide(lastDayClosingPrice)
+		Money closingPrice = closingPriceService.fetchPrice(tickerSymbol);
+		Money dailyChange = priceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
+		Percentage dailyChangeRate = priceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
@@ -65,7 +67,7 @@ public class SearchStock {
 			.companyName(stock.getCompanyName())
 			.companyNameEng(stock.getCompanyNameEng())
 			.market(stock.getMarket())
-			.currentPrice(currentPrice.reduce(bank, to))
+			.currentPrice(currentPrice)
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
