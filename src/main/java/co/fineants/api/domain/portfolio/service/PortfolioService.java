@@ -191,7 +191,7 @@ public class PortfolioService {
 						.orElseGet(() -> PortfolioGainHistory.empty(portfolio))
 			));
 
-		return PortfoliosResponse.of(portfolios, portfolioGainHistoryMap, currentPriceRedisRepository, calculator);
+		return PortfoliosResponse.of(portfolios, portfolioGainHistoryMap, calculator);
 	}
 
 	@Transactional(readOnly = true)

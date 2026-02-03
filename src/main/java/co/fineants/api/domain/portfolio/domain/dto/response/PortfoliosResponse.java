@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import lombok.AccessLevel;
@@ -24,12 +23,12 @@ public class PortfoliosResponse {
 
 	public static PortfoliosResponse of(List<Portfolio> portfolios,
 		Map<Portfolio, PortfolioGainHistory> portfolioGainHistoryMap,
-		CurrentPriceRedisRepository manager, PortfolioCalculator calculator) {
-		return new PortfoliosResponse(getContents(portfolios, portfolioGainHistoryMap, manager, calculator));
+		PortfolioCalculator calculator) {
+		return new PortfoliosResponse(getContents(portfolios, portfolioGainHistoryMap, calculator));
 	}
 
 	private static List<PortFolioItem> getContents(List<Portfolio> portfolios,
-		Map<Portfolio, PortfolioGainHistory> portfolioGainHistoryMap, CurrentPriceRedisRepository manager,
+		Map<Portfolio, PortfolioGainHistory> portfolioGainHistoryMap,
 		PortfolioCalculator calculator) {
 		return portfolios.stream()
 			.map(portfolio -> PortFolioItem.of(portfolio, portfolioGainHistoryMap.get(portfolio), calculator))
