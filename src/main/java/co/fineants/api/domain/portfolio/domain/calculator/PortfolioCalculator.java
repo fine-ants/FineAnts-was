@@ -352,18 +352,7 @@ public class PortfolioCalculator {
 		LocalDate baseDate = timeService.getLocalDateWithNow();
 		List<StockDividend> stockDividends = dividendCalculator.calculateCurrentMonthStockDividends(
 			stock.getStockDividends(), baseDate);
-		return calCurrentMonthExpectedDividend(stockDividends, histories);
-	}
-
-	public Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories) {
-		return dividends.stream()
-			.map(stockDividend -> histories.stream()
-				.filter(stockDividend::isPurchaseDateBeforeExDividendDate)
-				.map(PurchaseHistory::getNumShares)
-				.reduce(Count.zero(), Count::add)
-				.multiply(stockDividend.getDividend()))
-			.reduce(Expression::plus)
-			.orElseGet(Money::zero);
+		return dividendCalculator.calCurrentMonthExpectedDividend(stockDividends, histories);
 	}
 
 	/**
