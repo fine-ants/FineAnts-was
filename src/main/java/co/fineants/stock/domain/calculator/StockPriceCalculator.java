@@ -1,10 +1,14 @@
 package co.fineants.stock.domain.calculator;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.common.money.Expression;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.domain.StockDividend;
 
 @Component
 public class StockPriceCalculator implements PriceCalculator {
@@ -21,5 +25,11 @@ public class StockPriceCalculator implements PriceCalculator {
 		Objects.requireNonNull(closingPrice, "Closing price must not be null");
 		Expression dailyChange = calculateDailyChange(currentPrice, closingPrice);
 		return dailyChange.divide(closingPrice);
+	}
+
+	@Override
+	public Expression calculateAnnualDividend(List<StockDividend> dividends,
+		LocalDateTimeService localDateTimeService) {
+		return Money.zero();
 	}
 }
