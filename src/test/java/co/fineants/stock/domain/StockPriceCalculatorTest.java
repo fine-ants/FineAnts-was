@@ -1,6 +1,7 @@
 package co.fineants.stock.domain;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,8 @@ import co.fineants.api.domain.common.money.Percentage;
 
 class StockPriceCalculatorTest {
 
+	private PriceCalculator calculator;
+
 	private Money toWon(Expression expression) {
 		return expression.reduce(Bank.getInstance(), Currency.KRW);
 	}
@@ -20,21 +23,15 @@ class StockPriceCalculatorTest {
 		return dailyChangeRate.toPercentage(Bank.getInstance(), Currency.KRW);
 	}
 
-	@DisplayName("객체 생성 - 객체가 정상적으로 생성됩니다.")
-	@Test
-	void canCreated() {
-		// when
-		PriceCalculator calculator = new StockPriceCalculator();
-
-		// then
-		Assertions.assertThat(calculator).isNotNull();
+	@BeforeEach
+	void setUp() {
+		calculator = new StockPriceCalculator();
 	}
-
+	
 	@DisplayName("일간 변동액 계산 - 일일 변동 금액을 올바르게 계산한다.")
 	@Test
 	void calculateDailyChange_whenCurrentPriceIsGreaterThanClosingPrice_thenReturnPositiveDailyChange() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1200);
 		Money closingPrice = Money.won(1000);
 
@@ -49,7 +46,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChange_whenCurrentPriceIsLessThanClosingPrice_thenReturnNegativeDailyChange() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(800);
 		Money closingPrice = Money.won(1000);
 
@@ -64,7 +60,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChange_whenCurrentPriceIsEqualToClosingPrice_thenReturnZeroDailyChange() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1000);
 		Money closingPrice = Money.won(1000);
 
@@ -79,7 +74,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChange_whenCurrentPriceIsNull_thenThrowException() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money closingPrice = Money.won(1000);
 
 		// when
@@ -93,7 +87,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChange_whenClosingPriceIsNull_thenThrowException() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1000);
 
 		// when
@@ -107,7 +100,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenCurrentPriceIsGraterThanClosingPrice_thenReturnPositiveDailyChangeRate() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1200);
 		Money closingPrice = Money.won(1000);
 
@@ -122,7 +114,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenCurrentPriceIsLessThanClosingPrice_thenReturnNegativeDailyChangeRate() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(800);
 		Money closingPrice = Money.won(1000);
 
@@ -137,7 +128,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenCurrentPriceIsEqualToClosingPrice_thenReturnZeroDailyChangeRate() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1000);
 		Money closingPrice = Money.won(1000);
 
@@ -152,7 +142,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenCurrentPriceIsNull_thenThrowException() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money closingPrice = Money.won(1000);
 
 		// when
@@ -166,7 +155,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenClosingPriceIsNull_thenThrowException() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1000);
 
 		// when
@@ -180,7 +168,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateDailyChangeRate_whenClosingPriceIsZero_thenReturnZero() {
 		// given
-		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1000);
 		Money closingPrice = Money.won(0);
 
