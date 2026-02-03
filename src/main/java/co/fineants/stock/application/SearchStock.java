@@ -57,6 +57,7 @@ public class SearchStock {
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
 		Money closingPrice = closingPriceService.fetchPrice(tickerSymbol);
+
 		Money dailyChange = priceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = priceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
