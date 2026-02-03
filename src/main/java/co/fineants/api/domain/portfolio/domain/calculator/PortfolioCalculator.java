@@ -345,7 +345,8 @@ public class PortfolioCalculator {
 	 * @return 이번달 배당금
 	 */
 	public Expression calCurrentMonthExpectedDividend(Stock stock, List<PurchaseHistory> histories) {
-		return stock.getCurrentMonthDividends(timeService).stream()
+		LocalDate baseDate = timeService.getLocalDateWithNow();
+		return stock.getCurrentMonthDividends(baseDate).stream()
 			.map(stockDividend -> histories.stream()
 				.filter(stockDividend::isPurchaseDateBeforeExDividendDate)
 				.map(PurchaseHistory::getNumShares)
