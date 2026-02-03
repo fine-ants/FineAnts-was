@@ -28,6 +28,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.calculator.DividendCalculator;
 import co.fineants.stock.domain.calculator.StockDividendCalculator;
 import jakarta.validation.constraints.NotNull;
@@ -349,7 +350,13 @@ public class PortfolioCalculator {
 	public Expression calCurrentMonthExpectedDividend(Stock stock, List<PurchaseHistory> histories) {
 		DividendCalculator dividendCalculator = new StockDividendCalculator();
 		LocalDate baseDate = timeService.getLocalDateWithNow();
-		return dividendCalculator.calculateCurrentMonthStockDividends(stock.getStockDividends(), baseDate).stream()
+		List<StockDividend> stockDividends = dividendCalculator.calculateCurrentMonthStockDividends(
+			stock.getStockDividends(), baseDate);
+		return calCurrentMonthExpectedDividend(stockDividends, histories);
+	}
+
+	public Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories) {
+		return dividends.stream()
 			.map(stockDividend -> histories.stream()
 				.filter(stockDividend::isPurchaseDateBeforeExDividendDate)
 				.map(PurchaseHistory::getNumShares)
