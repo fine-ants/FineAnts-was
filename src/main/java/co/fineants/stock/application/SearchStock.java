@@ -1,5 +1,6 @@
 package co.fineants.stock.application;
 
+import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -29,7 +29,6 @@ public class SearchStock {
 
 	private final StockQueryDslRepository repository;
 	private final StockRepository stockRepository;
-	private final PriceRepository priceRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceService closingPriceService;
@@ -49,18 +48,27 @@ public class SearchStock {
 			.toList();
 	}
 
-	// TODO: stock 객체에 priceRepository, closingPriceRepository 주입 방식 개선
 	@Transactional(readOnly = true)
 	public StockResponse findDetailedStock(String tickerSymbol) {
+		LocalDate baseDate = localDateTimeService.getLocalDateWithNow();
 		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
 		Money closingPrice = closingPriceService.fetchPrice(tickerSymbol);
+
 		Money dailyChange = priceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = priceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
+		Money annualDividend = priceCalculator.calculateAnnualDividend(stock.getStockDividends(), baseDate)
+			.reduce(bank, to);
+		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
+			currentPrice, baseDate).toPercentage(bank, to);
+		// TODO: 별도의 클래스로 변경
+		List<Integer> dividendMonths = stock.getDividendMonths(localDateTimeService).stream()
+			.map(Month::getValue)
+			.toList();
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
@@ -71,12 +79,9 @@ public class SearchStock {
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
-			.annualDividend(stock.getAnnualDividend(localDateTimeService).reduce(bank, to))
-			.annualDividendYield(
-				stock.getAnnualDividendYield(priceRepository, localDateTimeService).toPercentage(bank, to))
-			.dividendMonths(stock.getDividendMonths(localDateTimeService).stream()
-				.map(Month::getValue)
-				.toList())
+			.annualDividend(annualDividend)
+			.annualDividendYield(annualDividendYield)
+			.dividendMonths(dividendMonths)
 			.build();
 	}
 }

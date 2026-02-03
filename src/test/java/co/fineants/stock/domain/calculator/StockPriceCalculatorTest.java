@@ -1,6 +1,10 @@
 package co.fineants.stock.domain.calculator;
 
+import java.time.LocalDate;
+import java.util.Collections;
+
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +14,9 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.common.money.RateDivision;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
+import co.fineants.stock.domain.StockDividend;
 
 class StockPriceCalculatorTest {
 
@@ -21,6 +28,14 @@ class StockPriceCalculatorTest {
 
 	private Percentage toPercent(Expression dailyChangeRate) {
 		return dailyChangeRate.toPercentage(Bank.getInstance(), Currency.KRW);
+	}
+
+	@NotNull
+	private StockDividend createStockDividend(DividendDates dividendDates) {
+		Money dividend = Money.won(1000);
+		boolean isDeleted = false;
+		String tickerSymbol = "005930";
+		return new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
 	}
 
 	@BeforeEach
@@ -78,6 +93,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(null, closingPrice));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -91,6 +107,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(currentPrice, null));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -146,6 +163,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(null, closingPrice));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -159,6 +177,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(currentPrice, null));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -176,5 +195,269 @@ class StockPriceCalculatorTest {
 
 		// then
 		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(0.0));
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - 빈 배당금 리스트인 경우 0원을 반환한다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsIsEmpty_thenReturnZero() {
+		// given
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			Collections.emptyList(),
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - null 배당금 리스트인 경우 예외가 발생해야 한다")
+	@Test
+	void calculateAnnualDividend_whenDividendsIsNull_thenReturnZero() {
+		// given
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateAnnualDividend(
+			null,
+			baseDate
+		));
+
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("Stock dividends must not be null");
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - 배당금 리스트의 원소가 1개인 경우 배당급 합계는 원소의 배당금 값과 같다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsHasOneElement_thenReturnThatElementValue() {
+		// given
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			Collections.singletonList(stockDividend),
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - 배당금 리스트의 원소가 여러 개인 경우 올바른 배당금 합계를 반환한다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsHasMultipleElements_thenReturnCorrectSum() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			java.util.List.of(stockDividend1, stockDividend2),
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(2000));
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - 배당금 지급일이 현재 연도가 아닌 경우 해당 배당금은 합계에 포함되지 않는다.")
+	@Test
+	void calculateAnnualDividend_whenDividendPaymentDateIsNotInCurrentYear_thenExcludeFromSum() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2022, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			java.util.List.of(stockDividend1, stockDividend2),
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
+	}
+
+	@DisplayName("연간 배당금 합계 계산 - baseDate가 null인 경우 예외가 발생한다.")
+	@Test
+	void calculateAnnualDividend_whenBaseDateIsNull_thenThrowException() {
+		// given
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateAnnualDividend(
+			java.util.List.of(stockDividend),
+			null
+		));
+
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("Base date must not be null");
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 비어있으면 0%를 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsIsEmpty_thenReturnZeroPercent() {
+		// given
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			Collections.emptyList(),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(annualDividendYield).isEqualTo(RateDivision.zero());
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 매개변수에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateAnnualDividendYield_whenParamIsNull_thenThrowException() {
+		// given
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				null,
+				currentPrice,
+				baseDate
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Stock dividends must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				java.util.List.of(),
+				null,
+				baseDate
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Current price must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				java.util.List.of(),
+				currentPrice,
+				null
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Base date must not be null");
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 하나인 경우, 올바른 수익률을 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsHasOneElement_thenReturnCorrectYield() {
+		// given
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.10));
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 여러 개인 경우, 올바른 수익률을 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsHasMultipleElements_thenReturnCorrectYield() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend1, stockDividend2),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.20));
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 지급일이 현재 연도가 아닌 경우 해당 배당금은 수익률에 포함되지 않는다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendPaymentDateIsNotInCurrentYear_thenExcludeFromYield() {
+		// given
+		LocalDate recordDate1 = LocalDate.of(2022, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend1, stockDividend2),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.10));
 	}
 }
