@@ -48,7 +48,6 @@ public class SearchStock {
 			.toList();
 	}
 
-	// TODO: stock 객체에 priceRepository, closingPriceRepository 주입 방식 개선
 	@Transactional(readOnly = true)
 	public StockResponse findDetailedStock(String tickerSymbol) {
 		LocalDate baseDate = localDateTimeService.getLocalDateWithNow();
@@ -65,6 +64,10 @@ public class SearchStock {
 			.reduce(bank, to);
 		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
 			currentPrice, baseDate).toPercentage(bank, to);
+		// TODO: 별도의 클래스로 변경
+		List<Integer> dividendMonths = stock.getDividendMonths(localDateTimeService).stream()
+			.map(Month::getValue)
+			.toList();
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
@@ -77,9 +80,7 @@ public class SearchStock {
 			.sector(stock.getSector())
 			.annualDividend(annualDividend)
 			.annualDividendYield(annualDividendYield)
-			.dividendMonths(stock.getDividendMonths(localDateTimeService).stream()
-				.map(Month::getValue)
-				.toList())
+			.dividendMonths(dividendMonths)
 			.build();
 	}
 }
