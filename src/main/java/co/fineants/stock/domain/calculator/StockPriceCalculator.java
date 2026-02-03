@@ -45,6 +45,13 @@ public class StockPriceCalculator implements PriceCalculator {
 		Objects.requireNonNull(dividends, "Stock dividends must not be null");
 		Objects.requireNonNull(currentPrice, "Current price must not be null");
 		Objects.requireNonNull(baseDate, "Base date must not be null");
-		return RateDivision.zero();
+
+		Expression sum = dividends.stream()
+			.filter(dividend -> dividend.isPaymentInCurrentYear(baseDate))
+			.map(StockDividend::getDividend)
+			.map(Expression.class::cast)
+			.reduce(Money.zero(), Expression::plus);
+
+		return sum.divide(currentPrice);
 	}
 }

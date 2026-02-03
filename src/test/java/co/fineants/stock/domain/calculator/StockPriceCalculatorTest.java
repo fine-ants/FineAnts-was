@@ -376,4 +376,28 @@ class StockPriceCalculatorTest {
 			)).isInstanceOf(NullPointerException.class)
 			.hasMessage("Base date must not be null");
 	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 하나인 경우, 올바른 수익률을 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsHasOneElement_thenReturnCorrectYield() {
+		// given
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			java.util.List.of(stockDividend),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(toPercent(annualDividendYield)).isEqualTo(Percentage.from(0.10));
+	}
 }
