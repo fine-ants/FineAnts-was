@@ -7,6 +7,9 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.common.money.Expression;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.stock.domain.StockDividend;
 
 @Component
@@ -31,5 +34,10 @@ public class StockDividendCalculator implements DividendCalculator {
 		return dividends.stream()
 			.filter(dividend -> dividend.isCurrentMonthPaymentDate(baseDate))
 			.toList();
+	}
+
+	@Override
+	public Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories) {
+		return Money.zero();
 	}
 }

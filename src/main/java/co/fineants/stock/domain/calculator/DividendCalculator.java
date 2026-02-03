@@ -3,6 +3,8 @@ package co.fineants.stock.domain.calculator;
 import java.time.LocalDate;
 import java.util.List;
 
+import co.fineants.api.domain.common.money.Expression;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.stock.domain.StockDividend;
 
 public interface DividendCalculator {
@@ -28,4 +30,13 @@ public interface DividendCalculator {
 	 * @return 현재 달에 배당금이 지급되는 주식 배당 리스트
 	 */
 	List<StockDividend> calculateCurrentMonthStockDividends(List<StockDividend> dividends, LocalDate baseDate);
+
+	/**
+	 * 매입 이력을 기반으로 현재 달 예상 배당금을 계산한다.
+	 *
+	 * @param dividends 종목 배당금 리스트
+	 * @param histories 매입 이력 리스트
+	 * @return 현재 달 예상 배당금
+	 */
+	Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories);
 }

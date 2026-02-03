@@ -9,10 +9,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Bank;
+import co.fineants.api.domain.common.money.Currency;
+import co.fineants.api.domain.common.money.Expression;
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.stock.domain.StockDividend;
 
 class StockDividendCalculatorTest {
+	private Money toWon(Expression expression) {
+		return expression.reduce(Bank.getInstance(), Currency.KRW);
+	}
 
 	@DisplayName("객체 생성 테스트")
 	@Test
@@ -191,5 +199,18 @@ class StockDividendCalculatorTest {
 		// then
 		List<StockDividend> expected = List.of(dividend1, dividend2);
 		Assertions.assertThat(actual).isEqualTo(expected);
+	}
+
+	@DisplayName("현재 달 예상 배당금 계산 - 종목 배당 리스트가 비어있으면 0을 반환한다")
+	@Test
+	void calCurrentMonthExpectedDividend_ReturnsZero_WhenDividendsIsEmpty() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		List<StockDividend> dividends = Collections.emptyList();
+		List<PurchaseHistory> histories = Collections.emptyList();
+		// when
+		Expression actual = calculator.calCurrentMonthExpectedDividend(dividends, histories);
+		// then
+		Assertions.assertThat(toWon(actual)).isEqualTo(Money.zero());
 	}
 }
