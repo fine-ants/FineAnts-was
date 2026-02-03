@@ -247,4 +247,34 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
 	}
+
+	@DisplayName("연간 배당금 합계 계산 - 배당금 리스트의 원소가 여러 개인 경우 올바른 배당금 합계를 반환한다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsHasMultipleElements_thenReturnCorrectSum() {
+		// given
+		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2023, 6, 1));
+
+		LocalDate recordDate1 = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates1 = DividendDates.of(recordDate1, exDividendDate1, paymentDate1);
+		StockDividend stockDividend1 = createStockDividend(dividendDates1);
+
+		LocalDate recordDate2 = LocalDate.of(2023, 6, 30);
+		LocalDate exDividendDate2 = LocalDate.of(2023, 7, 1);
+		LocalDate paymentDate2 = LocalDate.of(2023, 8, 1);
+		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
+		StockDividend stockDividend2 = createStockDividend(dividendDates2);
+
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			java.util.List.of(stockDividend1, stockDividend2),
+			localDateTimeService
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(2000));
+	}
 }
