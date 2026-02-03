@@ -32,7 +32,7 @@ class StockPriceCalculatorTest {
 
 	@DisplayName("일간 변동액 계산 - 일일 변동 금액을 올바르게 계산한다.")
 	@Test
-	void calculateDailyChange_whenCurrentPriceIsGraterThanClosingPrice_thenReturnPositiveDailyChange() {
+	void calculateDailyChange_whenCurrentPriceIsGreaterThanClosingPrice_thenReturnPositiveDailyChange() {
 		// given
 		PriceCalculator calculator = new StockPriceCalculator();
 		Money currentPrice = Money.won(1200);
