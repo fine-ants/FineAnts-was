@@ -35,8 +35,9 @@ class MoneyTest {
 	@Test
 	void testEquals() {
 		Money fiveBucks = Money.dollar(5);
+		Money target = Money.dollar(5);
 
-		boolean actual = fiveBucks.equals(fiveBucks);
+		boolean actual = fiveBucks.equals(target);
 
 		assertTrue(actual);
 	}
