@@ -38,6 +38,8 @@ public class StockDividendCalculator implements DividendCalculator {
 
 	@Override
 	public Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories) {
+		Objects.requireNonNull(dividends, "dividends must not be null");
+		Objects.requireNonNull(histories, "histories must not be null");
 		return Money.zero();
 	}
 }

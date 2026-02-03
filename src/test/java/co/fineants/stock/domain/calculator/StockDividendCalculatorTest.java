@@ -213,4 +213,20 @@ class StockDividendCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(actual)).isEqualTo(Money.zero());
 	}
+
+	@DisplayName("현재 달 예상 배당금 계산 - 파라미터가 null이면 예외를 던진다")
+	@Test
+	void calCurrentMonthExpectedDividend_ThrowsException_WhenDividendsIsNull() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		List<StockDividend> dividends = Collections.emptyList();
+		List<PurchaseHistory> histories = Collections.emptyList();
+		// when & then
+		Assertions.assertThatThrownBy(() -> calculator.calCurrentMonthExpectedDividend(null, histories))
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("dividends must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calCurrentMonthExpectedDividend(dividends, null))
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("histories must not be null");
+	}
 }
