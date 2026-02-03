@@ -8,6 +8,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import co.fineants.TestDataFactory;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.stock.domain.StockDividend;
 
 class StockDividendCalculatorTest {
@@ -44,8 +46,28 @@ class StockDividendCalculatorTest {
 		List<StockDividend> dividends = Collections.emptyList();
 		LocalDate baseDate = LocalDate.of(2023, 6, 1);
 		// when
-		List<Integer> result = calculator.calculateDividendMonths(dividends, baseDate);
+		List<Integer> actual = calculator.calculateDividendMonths(dividends, baseDate);
 		// then
-		Assertions.assertThat(result).isEmpty();
+		Assertions.assertThat(actual).isEmpty();
+	}
+
+	@DisplayName("배당 월 리스트 계산 - 배당 리스트 원소가 한개 있으면 해당 월 리스트를 반환한다")
+	@Test
+	void calculateDividendMonths_ReturnsMonthList_WhenDividendsHasOneElement() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+
+		StockDividend dividend = TestDataFactory.createStockDividend(dividendDates);
+		List<StockDividend> dividends = List.of(dividend);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<Integer> actual = calculator.calculateDividendMonths(dividends, baseDate);
+		// then
+		List<Integer> expected = List.of(5);
+		Assertions.assertThat(actual).isEqualTo(expected);
 	}
 }
