@@ -186,14 +186,7 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			.orElseGet(Money::zero);
 	}
 
-	public List<Month> getDividendMonths(LocalDate baseDate) {
-		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentYearPaymentDate(baseDate))
-			.map(StockDividend::getMonthByPaymentDate)
-			.toList();
-	}
 	// ticker 및 recordDate 기준으로 KisDividend가 매치되어 있는지 확인
-
 	public boolean matchByTickerSymbolAndRecordDate(String tickerSymbol, LocalDate recordDate) {
 		if (!this.tickerSymbol.equals(tickerSymbol)) {
 			return false;
