@@ -196,4 +196,19 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
 	}
+
+	@DisplayName("연간 배당금 합계 계산 - null 배당금 리스트인 경우 0원을 반환한다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsIsNull_thenReturnZero() {
+		// given
+		LocalDateTimeService service = new DefaultLocalDateTimeService();
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			null,
+			service
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
+	}
 }
