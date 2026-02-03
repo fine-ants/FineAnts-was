@@ -28,8 +28,12 @@ public class StockPriceCalculator implements PriceCalculator {
 	}
 
 	@Override
-	public Expression calculateAnnualDividend(List<StockDividend> dividends,
+	public Expression calculateAnnualDividend(List<StockDividend> stockDividends,
 		LocalDateTimeService localDateTimeService) {
-		return Money.zero();
+		return stockDividends.stream()
+			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
+			.map(StockDividend::getDividend)
+			.map(Expression.class::cast)
+			.reduce(Money.zero(), Expression::plus);
 	}
 }

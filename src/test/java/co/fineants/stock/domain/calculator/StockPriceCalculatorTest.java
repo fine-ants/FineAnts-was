@@ -1,19 +1,24 @@
 package co.fineants.stock.domain.calculator;
 
+import java.time.LocalDate;
 import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.domain.StockDividend;
 
 class StockPriceCalculatorTest {
 
@@ -211,4 +216,30 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
 	}
+
+	@DisplayName("연간 배당금 합계 계산 - 배당금 리스트의 원소가 1개인 경우 배당급 합계는 원소의 배당금 값과 같다.")
+	@Test
+	void calculateAnnualDividend_whenDividendsHasOneElement_thenReturnThatElementValue() {
+		// given
+		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2023, 6, 1));
+		Money dividend = Money.won(1000);
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		boolean isDeleted = false;
+		String tickerSymbol = "005930";
+		StockDividend stockDividend = new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
+		// when
+		Expression annualDividend = calculator.calculateAnnualDividend(
+			Collections.singletonList(stockDividend),
+			localDateTimeService
+		);
+
+		// then
+		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
+	}
+
 }
