@@ -10,7 +10,6 @@ import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -29,7 +28,6 @@ public class SearchStock {
 
 	private final StockQueryDslRepository repository;
 	private final StockRepository stockRepository;
-	private final PriceRepository priceRepository;
 	private final LocalDateTimeService localDateTimeService;
 	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceService closingPriceService;
@@ -63,6 +61,9 @@ public class SearchStock {
 			.toPercentage(bank, to);
 		Money annualDividend = priceCalculator.calculateAnnualDividend(stock.getStockDividends(),
 			localDateTimeService.getLocalDateWithNow()).reduce(bank, to);
+		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
+				currentPrice, localDateTimeService.getLocalDateWithNow())
+			.toPercentage(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
@@ -74,8 +75,7 @@ public class SearchStock {
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
 			.annualDividend(annualDividend)
-			.annualDividendYield(
-				stock.getAnnualDividendYield(priceRepository, localDateTimeService).toPercentage(bank, to))
+			.annualDividendYield(annualDividendYield)
 			.dividendMonths(stock.getDividendMonths(localDateTimeService).stream()
 				.map(Month::getValue)
 				.toList())
