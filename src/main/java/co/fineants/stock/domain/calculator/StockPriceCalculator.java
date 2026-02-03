@@ -1,4 +1,4 @@
-package co.fineants.stock.domain;
+package co.fineants.stock.domain.calculator;
 
 import java.util.Objects;
 

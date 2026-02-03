@@ -1,4 +1,4 @@
-package co.fineants.stock.domain;
+package co.fineants.stock.domain.calculator;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ class StockPriceCalculatorTest {
 	void setUp() {
 		calculator = new StockPriceCalculator();
 	}
-	
+
 	@DisplayName("일간 변동액 계산 - 일일 변동 금액을 올바르게 계산한다.")
 	@Test
 	void calculateDailyChange_whenCurrentPriceIsGreaterThanClosingPrice_thenReturnPositiveDailyChange() {
