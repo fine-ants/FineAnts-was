@@ -8,8 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
@@ -17,8 +15,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
-import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.StockDividend;
 
 class StockPriceCalculatorTest {
@@ -96,6 +92,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(null, closingPrice));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -109,6 +106,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChange(currentPrice, null));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -164,6 +162,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(null, closingPrice));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -177,6 +176,7 @@ class StockPriceCalculatorTest {
 
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateDailyChangeRate(currentPrice, null));
+
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
@@ -200,48 +200,52 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateAnnualDividend_whenDividendsIsEmpty_thenReturnZero() {
 		// given
-		LocalDateTimeService service = new DefaultLocalDateTimeService();
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			Collections.emptyList(),
-			service.getLocalDateWithNow()
+			baseDate
 		);
 
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
 	}
 
-	@DisplayName("연간 배당금 합계 계산 - null 배당금 리스트인 경우 0원을 반환한다.")
+	@DisplayName("연간 배당금 합계 계산 - null 배당금 리스트인 경우 예외가 발생해야 한다")
 	@Test
 	void calculateAnnualDividend_whenDividendsIsNull_thenReturnZero() {
 		// given
-		LocalDateTimeService service = new DefaultLocalDateTimeService();
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
 		// when
-		Expression annualDividend = calculator.calculateAnnualDividend(
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateAnnualDividend(
 			null,
-			service.getLocalDateWithNow()
-		);
+			baseDate
+		));
 
 		// then
-		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.zero());
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("Stock dividends must not be null");
 	}
 
 	@DisplayName("연간 배당금 합계 계산 - 배당금 리스트의 원소가 1개인 경우 배당급 합계는 원소의 배당금 값과 같다.")
 	@Test
 	void calculateAnnualDividend_whenDividendsHasOneElement_thenReturnThatElementValue() {
 		// given
-		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2023, 6, 1));
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);
 		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
 		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			Collections.singletonList(stockDividend),
-			localDateTimeService.getLocalDateWithNow()
+			baseDate
 		);
 
 		// then
@@ -252,10 +256,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateAnnualDividend_whenDividendsHasMultipleElements_thenReturnCorrectSum() {
 		// given
-		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2023, 6, 1));
-
 		LocalDate recordDate1 = LocalDate.of(2023, 3, 31);
 		LocalDate exDividendDate1 = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2023, 5, 1);
@@ -268,10 +268,12 @@ class StockPriceCalculatorTest {
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
 		StockDividend stockDividend2 = createStockDividend(dividendDates2);
 
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			java.util.List.of(stockDividend1, stockDividend2),
-			localDateTimeService.getLocalDateWithNow()
+			baseDate
 		);
 
 		// then
@@ -282,10 +284,6 @@ class StockPriceCalculatorTest {
 	@Test
 	void calculateAnnualDividend_whenDividendPaymentDateIsNotInCurrentYear_thenExcludeFromSum() {
 		// given
-		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
-		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2023, 6, 1));
-
 		LocalDate recordDate1 = LocalDate.of(2022, 3, 31);
 		LocalDate exDividendDate1 = LocalDate.of(2022, 4, 1);
 		LocalDate paymentDate1 = LocalDate.of(2022, 6, 1);
@@ -298,10 +296,12 @@ class StockPriceCalculatorTest {
 		DividendDates dividendDates2 = DividendDates.of(recordDate2, exDividendDate2, paymentDate2);
 		StockDividend stockDividend2 = createStockDividend(dividendDates2);
 
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			java.util.List.of(stockDividend1, stockDividend2),
-			localDateTimeService.getLocalDateWithNow()
+			baseDate
 		);
 
 		// then
