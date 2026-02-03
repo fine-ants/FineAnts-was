@@ -30,6 +30,7 @@ public class StockPriceCalculator implements PriceCalculator {
 	@Override
 	public Expression calculateAnnualDividend(List<StockDividend> stockDividends, LocalDate baseDate) {
 		Objects.requireNonNull(stockDividends, "Stock dividends must not be null");
+		Objects.requireNonNull(baseDate, "Base date must not be null");
 		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(baseDate))
 			.map(StockDividend::getDividend)

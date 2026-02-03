@@ -307,4 +307,26 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
 	}
+
+	@DisplayName("연간 배당금 합계 계산 - baseDate가 null인 경우 예외가 발생한다.")
+	@Test
+	void calculateAnnualDividend_whenBaseDateIsNull_thenThrowException() {
+		// given
+		LocalDate recordDate = LocalDate.of(2023, 3, 31);
+		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
+		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
+		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
+		StockDividend stockDividend = createStockDividend(dividendDates);
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> calculator.calculateAnnualDividend(
+			java.util.List.of(stockDividend),
+			null
+		));
+
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("Base date must not be null");
+	}
 }
