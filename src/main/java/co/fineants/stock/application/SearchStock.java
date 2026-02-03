@@ -1,5 +1,6 @@
 package co.fineants.stock.application;
 
+import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class SearchStock {
 	// TODO: stock 객체에 priceRepository, closingPriceRepository 주입 방식 개선
 	@Transactional(readOnly = true)
 	public StockResponse findDetailedStock(String tickerSymbol) {
+		LocalDate baseDate = localDateTimeService.getLocalDateWithNow();
 		Stock stock = stockRepository.findByTickerSymbolIncludingDeleted(tickerSymbol)
 			.orElseThrow(() -> new StockNotFoundException(tickerSymbol));
 		Bank bank = Bank.getInstance();
@@ -59,11 +61,10 @@ public class SearchStock {
 		Money dailyChange = priceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = priceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
-		Money annualDividend = priceCalculator.calculateAnnualDividend(stock.getStockDividends(),
-			localDateTimeService.getLocalDateWithNow()).reduce(bank, to);
+		Money annualDividend = priceCalculator.calculateAnnualDividend(stock.getStockDividends(), baseDate)
+			.reduce(bank, to);
 		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
-				currentPrice, localDateTimeService.getLocalDateWithNow())
-			.toPercentage(bank, to);
+			currentPrice, baseDate).toPercentage(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
