@@ -14,7 +14,11 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.member.domain.Member;
+import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 
 class StockDividendCalculatorTest {
@@ -229,4 +233,43 @@ class StockDividendCalculatorTest {
 			.isInstanceOf(NullPointerException.class)
 			.hasMessage("histories must not be null");
 	}
+
+	@DisplayName("현재 달 예상 배당금 계산 - 종목 배당 리스트와 매입 이력 리스트에 만족하는 원소가 있으면 합계를 반환한다")
+	@Test
+	void calCurrentMonthExpectedDividend_ReturnsSum_WhenDividendsAndHistoriesHaveMatchingElements() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+
+		DividendDates dividendDates1 = DividendDates.of(
+			LocalDate.of(2023, 3, 31),
+			LocalDate.of(2023, 4, 1),
+			LocalDate.of(2023, 6, 15)
+		);
+		DividendDates dividendDates2 = DividendDates.of(
+			LocalDate.of(2023, 5, 31),
+			LocalDate.of(2023, 6, 1),
+			LocalDate.of(2023, 6, 20)
+		);
+
+		StockDividend dividend1 = TestDataFactory.createStockDividend(dividendDates1);
+		StockDividend dividend2 = TestDataFactory.createStockDividend(dividendDates2);
+
+		List<StockDividend> dividends = List.of(dividend1, dividend2);
+
+		LocalDate purchaseDate = LocalDate.of(2023, 1, 1);
+		Member member = TestDataFactory.createMember();
+		Portfolio portfolio = TestDataFactory.createPortfolio(member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(portfolio, stock);
+		PurchaseHistory history1 = TestDataFactory.createPurchaseHistory(purchaseDate, holding);
+		PurchaseHistory history2 = TestDataFactory.createPurchaseHistory(purchaseDate, holding);
+		List<PurchaseHistory> histories = List.of(history1, history2);
+
+		// when
+		Expression actual = calculator.calCurrentMonthExpectedDividend(dividends, histories);
+
+		// then
+		Assertions.assertThat(toWon(actual)).isEqualTo(Money.won(20_000));
+	}
+
 }

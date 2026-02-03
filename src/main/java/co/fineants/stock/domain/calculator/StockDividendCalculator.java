@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -40,6 +41,13 @@ public class StockDividendCalculator implements DividendCalculator {
 	public Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories) {
 		Objects.requireNonNull(dividends, "dividends must not be null");
 		Objects.requireNonNull(histories, "histories must not be null");
-		return Money.zero();
+		return dividends.stream()
+			.map(stockDividend -> histories.stream()
+				.filter(stockDividend::isPurchaseDateBeforeExDividendDate)
+				.map(PurchaseHistory::getNumShares)
+				.reduce(Count.zero(), Count::add)
+				.multiply(stockDividend.getDividend()))
+			.reduce(Expression::plus)
+			.orElseGet(Money::zero);
 	}
 }
