@@ -175,6 +175,11 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		return result;
 	}
 
+	/**
+	 * 올해 연간 배당금 합계를 반환한다.
+	 * @param localDateTimeService 현지 시간 서비스
+	 * @return 올해 연간 배당금 합계
+	 */
 	public Expression getAnnualDividend(LocalDateTimeService localDateTimeService) {
 		return stockDividends.stream()
 			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
