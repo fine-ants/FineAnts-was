@@ -216,6 +216,13 @@ public final class TestDataFactory {
 		return PortfolioHolding.of(portfolio, stock);
 	}
 
+	public static StockDividend createStockDividend(DividendDates dividendDates) {
+		Money dividend = Money.won(1000);
+		boolean isDeleted = false;
+		String tickerSymbol = "005930";
+		return new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
+	}
+
 	public static List<StockDividend> createStockDividend(String tickerSymbol) {
 		return List.of(
 			createStockDividend(

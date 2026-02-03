@@ -1,7 +1,6 @@
 package co.fineants.stock.application;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.domain.calculator.DividendCalculator;
 import co.fineants.stock.domain.calculator.PriceCalculator;
 import co.fineants.stock.infrastructure.StockQueryDslRepository;
 import co.fineants.stock.presentation.dto.response.StockResponse;
@@ -33,6 +33,7 @@ public class SearchStock {
 	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceService closingPriceService;
 	private final PriceCalculator priceCalculator;
+	private final DividendCalculator dividendCalculator;
 
 	@Transactional(readOnly = true)
 	public List<StockSearchItem> search(String keyword) {
@@ -65,10 +66,8 @@ public class SearchStock {
 			.reduce(bank, to);
 		Percentage annualDividendYield = priceCalculator.calculateAnnualDividendYield(stock.getStockDividends(),
 			currentPrice, baseDate).toPercentage(bank, to);
-		// TODO: 별도의 클래스로 변경
-		List<Integer> dividendMonths = stock.getDividendMonths(localDateTimeService).stream()
-			.map(Month::getValue)
-			.toList();
+		List<Integer> dividendMonths = dividendCalculator.calculateDividendMonths(
+			stock.getStockDividends(), baseDate);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
