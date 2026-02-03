@@ -441,4 +441,32 @@ class MoneyTest {
 		// then
 		Assertions.assertThat(actual).isEqualByComparingTo(Money.zero());
 	}
+
+	@DisplayName("두 Money 객체의 대소 비교")
+	@Test
+	void testMoneyCompareTo() {
+		Money fiveDollars = Money.dollar(5);
+		Money tenDollars = Money.dollar(10);
+		Bank.getInstance().addRate(USD, KRW, 0.001);
+
+		int actual1 = fiveDollars.compareTo(tenDollars);
+		int actual2 = tenDollars.compareTo(fiveDollars);
+		int actual3 = fiveDollars.compareTo(Money.dollar(5));
+
+		assertEquals(-1, actual1);
+		assertEquals(1, actual2);
+		assertEquals(0, actual3);
+	}
+
+	@DisplayName("compareTo 메서드에 null 전달시 예외가 발생해야 한다")
+	@Test
+	void testMoneyCompareTo_whenNullPassed_thenThrowException() {
+		// given
+		Money money = Money.won(1000);
+		Money target = null;
+		// when & then
+		Assertions.assertThatThrownBy(() -> money.compareTo(target))
+			.isInstanceOf(NullPointerException.class)
+			.hasMessageContaining("Comparison target must not be null");
+	}
 }
