@@ -1,9 +1,10 @@
 package co.fineants.api.domain.common.money;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import co.fineants.api.domain.common.count.Count;
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class Sum implements Expression {
 	private final Expression augend;
@@ -51,9 +52,11 @@ public class Sum implements Expression {
 	}
 
 	@Override
-	public int compareTo(@NotNull Expression o) {
-		Money won1 = Bank.getInstance().toWon(this);
-		Money won2 = Bank.getInstance().toWon(o);
+	public int compareTo(@Nonnull Expression expression) {
+		Objects.requireNonNull(expression, "Comparison target must not be null");
+		Bank bank = Bank.getInstance();
+		Money won1 = bank.reduce(this, Currency.KRW);
+		Money won2 = bank.reduce(expression, Currency.KRW);
 		return won1.compareTo(won2);
 	}
 

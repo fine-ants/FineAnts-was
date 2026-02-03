@@ -2,8 +2,10 @@ package co.fineants.api.domain.common.money;
 
 import static co.fineants.api.domain.common.money.Currency.*;
 
+import java.util.Objects;
+
 import co.fineants.api.domain.common.count.Count;
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class AverageDivision implements Expression {
 
@@ -52,12 +54,12 @@ public class AverageDivision implements Expression {
 	}
 
 	@Override
-	public int compareTo(@NotNull Expression expression) {
+	public int compareTo(@Nonnull Expression expression) {
+		Objects.requireNonNull(expression, "Comparison target must not be null");
 		Bank bank = Bank.getInstance();
-		Currency to = KRW;
-		Money won = this.reduce(bank, to);
-		Money won2 = expression.reduce(bank, to);
-		return won.compareTo(won2);
+		Money won1 = bank.reduce(this, Currency.KRW);
+		Money won2 = bank.reduce(expression, Currency.KRW);
+		return won1.compareTo(won2);
 	}
 
 	@Override
