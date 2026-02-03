@@ -17,4 +17,15 @@ public interface DividendCalculator {
 	 * @return 배당 지급 월 리스트
 	 */
 	List<Integer> calculateDividendMonths(List<StockDividend> dividends, LocalDate baseDate);
+
+	/**
+	 * 현재 달에 배당금이 지급되는 주식 배당 리스트를 계산후 반환한다.
+	 * <p>
+	 *     baseDate(기준 날짜)와 같은 달, 같은 연도에 지급되는 배당금들의 주식 배당 리스트를 계산후 반환한다.
+	 *     예를 들어 baseDate가 2023-06-15라면, 6월에 지급되는 배당금들의 주식 배당 리스트를 반환한다.
+	 * </p>
+	 * @param baseDate 기준 날짜
+	 * @return 현재 달에 배당금이 지급되는 주식 배당 리스트
+	 */
+	List<StockDividend> calculateCurrentMonthStockDividends(List<StockDividend> dividends, LocalDate baseDate);
 }

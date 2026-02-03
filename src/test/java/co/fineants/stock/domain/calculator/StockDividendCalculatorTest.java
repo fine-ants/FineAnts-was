@@ -105,4 +105,17 @@ class StockDividendCalculatorTest {
 		List<Integer> expected = List.of(5, 8);
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
+
+	@DisplayName("현재 달 배당 리스트 계산 - 종목 배당 리스트가 비어있으면 빈 리스트를 반환한다")
+	@Test
+	void calculateCurrentMonthStockDividends_ReturnsEmptyList_WhenDividendsIsEmpty() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		List<StockDividend> dividends = Collections.emptyList();
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<StockDividend> actual = calculator.calculateCurrentMonthStockDividends(dividends, baseDate);
+		// then
+		Assertions.assertThat(actual).isEmpty();
+	}
 }
