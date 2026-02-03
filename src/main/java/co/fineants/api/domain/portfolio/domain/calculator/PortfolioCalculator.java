@@ -332,7 +332,7 @@ public class PortfolioCalculator {
 	 * @return 포트폴리오의 당월 예상 배당금 합계
 	 */
 	public Expression calCurrentMonthDividendBy(List<PortfolioHolding> holdings) {
-		return sumExpressions(holdings, holding -> holding.calCurrentMonthDividend(this));
+		return sumExpressions(holdings, holding -> holding.calCurrentMonthExpectedDividend(this));
 	}
 
 	/**
