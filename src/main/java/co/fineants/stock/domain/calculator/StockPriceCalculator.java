@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.stock.domain.StockDividend;
 
 @Component
@@ -36,5 +37,11 @@ public class StockPriceCalculator implements PriceCalculator {
 			.map(StockDividend::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);
+	}
+
+	@Override
+	public RateDivision calculateAnnualDividendYield(List<StockDividend> dividends, Expression currentPrice,
+		LocalDate baseDate) {
+		return RateDivision.zero();
 	}
 }

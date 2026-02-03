@@ -14,6 +14,7 @@ import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
+import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.stock.domain.StockDividend;
 
@@ -328,5 +329,23 @@ class StockPriceCalculatorTest {
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class)
 			.hasMessage("Base date must not be null");
+	}
+
+	@DisplayName("연간 배당 수익률 계산 - 배당금 리스트가 비어있으면 0%를 반환한다.")
+	@Test
+	void calculateAnnualDividendYield_whenDividendsIsEmpty_thenReturnZeroPercent() {
+		// given
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		RateDivision annualDividendYield = calculator.calculateAnnualDividendYield(
+			Collections.emptyList(),
+			currentPrice,
+			baseDate
+		);
+
+		// then
+		Assertions.assertThat(annualDividendYield).isEqualTo(RateDivision.zero());
 	}
 }
