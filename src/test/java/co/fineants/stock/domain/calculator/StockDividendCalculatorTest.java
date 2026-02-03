@@ -35,4 +35,17 @@ class StockDividendCalculatorTest {
 		Assertions.assertThatThrownBy(() -> calculator.calculateDividendMonths(dividends, null))
 			.isInstanceOf(NullPointerException.class);
 	}
+
+	@DisplayName("배당 월 리스트 계산 - 배당금 리스트가 비어있으면 빈 리스트를 반환한다")
+	@Test
+	void calculateDividendMonths_ReturnsEmptyList_WhenDividendsIsEmpty() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		List<StockDividend> dividends = Collections.emptyList();
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<Integer> result = calculator.calculateDividendMonths(dividends, baseDate);
+		// then
+		Assertions.assertThat(result).isEmpty();
+	}
 }
