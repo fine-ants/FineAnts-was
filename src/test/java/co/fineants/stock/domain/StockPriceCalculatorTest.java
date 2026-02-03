@@ -175,4 +175,19 @@ class StockPriceCalculatorTest {
 		Assertions.assertThat(throwable)
 			.isInstanceOf(NullPointerException.class);
 	}
+
+	@DisplayName("일일 변동액 비율 계산 - 종가가 0원인 경우 0.0을 반환한다.")
+	@Test
+	void calculateDailyChangeRate_whenClosingPriceIsZero_thenReturnZero() {
+		// given
+		PriceCalculator calculator = new StockPriceCalculator();
+		Money currentPrice = Money.won(1000);
+		Money closingPrice = Money.won(0);
+
+		// when
+		Expression dailyChangeRate = calculator.calculateDailyChangeRate(currentPrice, closingPrice);
+
+		// then
+		Assertions.assertThat(toPercent(dailyChangeRate)).isEqualTo(Percentage.from(0.0));
+	}
 }
