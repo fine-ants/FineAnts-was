@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,14 @@ class StockPriceCalculatorTest {
 
 	private Percentage toPercent(Expression dailyChangeRate) {
 		return dailyChangeRate.toPercentage(Bank.getInstance(), Currency.KRW);
+	}
+
+	@NotNull
+	private StockDividend createStockDividend(DividendDates dividendDates) {
+		Money dividend = Money.won(1000);
+		boolean isDeleted = false;
+		String tickerSymbol = "005930";
+		return new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
 	}
 
 	@BeforeEach
@@ -224,14 +233,11 @@ class StockPriceCalculatorTest {
 		LocalDateTimeService localDateTimeService = Mockito.mock(LocalDateTimeService.class);
 		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2023, 6, 1));
-		Money dividend = Money.won(1000);
 		LocalDate recordDate = LocalDate.of(2023, 3, 31);
 		LocalDate exDividendDate = LocalDate.of(2023, 4, 1);
 		LocalDate paymentDate = LocalDate.of(2023, 5, 1);
 		DividendDates dividendDates = DividendDates.of(recordDate, exDividendDate, paymentDate);
-		boolean isDeleted = false;
-		String tickerSymbol = "005930";
-		StockDividend stockDividend = new StockDividend(dividend, dividendDates, isDeleted, tickerSymbol);
+		StockDividend stockDividend = createStockDividend(dividendDates);
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			Collections.singletonList(stockDividend),
@@ -241,5 +247,4 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(toWon(annualDividend)).isEqualTo(Money.won(1000));
 	}
-
 }
