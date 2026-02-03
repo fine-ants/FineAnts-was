@@ -19,8 +19,6 @@ import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.stock.domain.calculator.DividendCalculator;
-import co.fineants.stock.domain.calculator.StockDividendCalculator;
 import co.fineants.stock.infrastructure.MarketConverter;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Convert;
@@ -101,11 +99,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 
 	public void removeStockDividend(StockDividend stockDividend) {
 		stockDividends.remove(stockDividend);
-	}
-
-	public List<StockDividend> getCurrentMonthDividends(LocalDate baseDate) {
-		DividendCalculator dividendCalculator = new StockDividendCalculator();
-		return dividendCalculator.calculateCurrentMonthStockDividends(stockDividends, baseDate);
 	}
 
 	public List<StockDividend> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
