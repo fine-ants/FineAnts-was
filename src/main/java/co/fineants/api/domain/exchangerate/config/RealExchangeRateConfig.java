@@ -37,6 +37,6 @@ public class RealExchangeRateConfig {
 	@Bean
 	@Primary
 	public ExchangeRateClient rapidApiExchangeRateClient(ExchangeRateClientHelper webClient) {
-		return new RapidApiExchangeRateClient(webClient, Duration.ofSeconds(10));
+		return new RapidApiExchangeRateClient(webClient, Duration.ofMinutes(30));
 	}
 }
