@@ -118,4 +118,20 @@ class StockDividendCalculatorTest {
 		// then
 		Assertions.assertThat(actual).isEmpty();
 	}
+
+	@DisplayName("현재 달 배당 리스트 계산 - 매개변수가 null이면 예외를 던진다")
+	@Test
+	void calculateCurrentMonthStockDividends_ThrowsException_WhenDividendsIsNull() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+		List<StockDividend> dividends = Collections.emptyList();
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when & then
+		Assertions.assertThatThrownBy(() -> calculator.calculateCurrentMonthStockDividends(null, baseDate))
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("dividends must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calculateCurrentMonthStockDividends(dividends, null))
+			.isInstanceOf(NullPointerException.class)
+			.hasMessage("baseDate must not be null");
+	}
 }
