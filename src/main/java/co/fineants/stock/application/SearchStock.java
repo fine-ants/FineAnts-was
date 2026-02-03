@@ -61,6 +61,8 @@ public class SearchStock {
 		Money dailyChange = priceCalculator.calculateDailyChange(currentPrice, closingPrice).reduce(bank, to);
 		Percentage dailyChangeRate = priceCalculator.calculateDailyChangeRate(currentPrice, closingPrice)
 			.toPercentage(bank, to);
+		Money annualDividend = priceCalculator.calculateAnnualDividend(stock.getStockDividends(),
+			localDateTimeService.getLocalDateWithNow()).reduce(bank, to);
 		return StockResponse.builder()
 			.stockCode(stock.getStockCode())
 			.tickerSymbol(stock.getTickerSymbol())
@@ -71,7 +73,7 @@ public class SearchStock {
 			.dailyChange(dailyChange)
 			.dailyChangeRate(dailyChangeRate)
 			.sector(stock.getSector())
-			.annualDividend(stock.getAnnualDividend(localDateTimeService).reduce(bank, to))
+			.annualDividend(annualDividend)
 			.annualDividendYield(
 				stock.getAnnualDividendYield(priceRepository, localDateTimeService).toPercentage(bank, to))
 			.dividendMonths(stock.getDividendMonths(localDateTimeService).stream()

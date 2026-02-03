@@ -11,5 +11,5 @@ public interface PriceCalculator {
 
 	Expression calculateDailyChangeRate(Expression currentPrice, Expression closingPrice);
 
-	Expression calculateAnnualDividend(List<StockDividend> dividends, LocalDate localDateWithNow);
+	Expression calculateAnnualDividend(List<StockDividend> dividends, LocalDate baseDate);
 }
