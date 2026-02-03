@@ -1,5 +1,6 @@
 package co.fineants.stock.domain.calculator;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.StockDividend;
 
 @Component
@@ -28,10 +28,9 @@ public class StockPriceCalculator implements PriceCalculator {
 	}
 
 	@Override
-	public Expression calculateAnnualDividend(List<StockDividend> stockDividends,
-		LocalDateTimeService localDateTimeService) {
+	public Expression calculateAnnualDividend(List<StockDividend> stockDividends, LocalDate baseDate) {
 		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentYearPaymentDate(localDateTimeService.getLocalDateWithNow()))
+			.filter(dividend -> dividend.isCurrentYearPaymentDate(baseDate))
 			.map(StockDividend::getDividend)
 			.map(Expression.class::cast)
 			.reduce(Money.zero(), Expression::plus);

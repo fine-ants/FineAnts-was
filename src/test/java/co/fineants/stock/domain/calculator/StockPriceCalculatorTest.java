@@ -204,7 +204,7 @@ class StockPriceCalculatorTest {
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			Collections.emptyList(),
-			service
+			service.getLocalDateWithNow()
 		);
 
 		// then
@@ -219,7 +219,7 @@ class StockPriceCalculatorTest {
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			null,
-			service
+			service.getLocalDateWithNow()
 		);
 
 		// then
@@ -241,7 +241,7 @@ class StockPriceCalculatorTest {
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			Collections.singletonList(stockDividend),
-			localDateTimeService
+			localDateTimeService.getLocalDateWithNow()
 		);
 
 		// then
@@ -271,7 +271,7 @@ class StockPriceCalculatorTest {
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			java.util.List.of(stockDividend1, stockDividend2),
-			localDateTimeService
+			localDateTimeService.getLocalDateWithNow()
 		);
 
 		// then
@@ -301,7 +301,7 @@ class StockPriceCalculatorTest {
 		// when
 		Expression annualDividend = calculator.calculateAnnualDividend(
 			java.util.List.of(stockDividend1, stockDividend2),
-			localDateTimeService
+			localDateTimeService.getLocalDateWithNow()
 		);
 
 		// then
