@@ -70,4 +70,39 @@ class StockDividendCalculatorTest {
 		List<Integer> expected = List.of(5);
 		Assertions.assertThat(actual).isEqualTo(expected);
 	}
+
+	@DisplayName("배당 월 리스트 계산 - 배당 리스트 원소가 여러개 있으면 해당 월 리스트를 반환한다")
+	@Test
+	void calculateDividendMonths_ReturnsMonthList_WhenDividendsHasMultipleElements() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+
+		DividendDates dividendDates1 = DividendDates.of(
+			LocalDate.of(2023, 3, 31),
+			LocalDate.of(2023, 4, 1),
+			LocalDate.of(2023, 5, 1)
+		);
+		DividendDates dividendDates2 = DividendDates.of(
+			LocalDate.of(2023, 6, 30),
+			LocalDate.of(2023, 7, 1),
+			LocalDate.of(2023, 8, 1)
+		);
+		DividendDates dividendDates3 = DividendDates.of(
+			LocalDate.of(2022, 9, 30),
+			LocalDate.of(2022, 10, 1),
+			LocalDate.of(2022, 11, 1)
+		);
+
+		StockDividend dividend1 = TestDataFactory.createStockDividend(dividendDates1);
+		StockDividend dividend2 = TestDataFactory.createStockDividend(dividendDates2);
+		StockDividend dividend3 = TestDataFactory.createStockDividend(dividendDates3);
+
+		List<StockDividend> dividends = List.of(dividend1, dividend2, dividend3);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<Integer> actual = calculator.calculateDividendMonths(dividends, baseDate);
+		// then
+		List<Integer> expected = List.of(5, 8);
+		Assertions.assertThat(actual).isEqualTo(expected);
+	}
 }
