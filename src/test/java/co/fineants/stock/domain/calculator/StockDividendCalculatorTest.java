@@ -134,4 +134,62 @@ class StockDividendCalculatorTest {
 			.isInstanceOf(NullPointerException.class)
 			.hasMessage("baseDate must not be null");
 	}
+
+	@DisplayName("현재 달 배당 리스트 계산 - 조건이 맞는 배당 리스트의 원소가 한개 있으면 한개의 종목 배당 데이터를 반환한다")
+	@Test
+	void calculateCurrentMonthStockDividends_ReturnsStockDividendList_WhenDividendsHasOneElementMatchingCondition() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+
+		DividendDates dividendDates1 = DividendDates.of(
+			LocalDate.of(2023, 3, 31),
+			LocalDate.of(2023, 4, 1),
+			LocalDate.of(2023, 6, 15)
+		);
+
+		StockDividend dividend1 = TestDataFactory.createStockDividend(dividendDates1);
+
+		List<StockDividend> dividends = List.of(dividend1);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<StockDividend> actual = calculator.calculateCurrentMonthStockDividends(dividends, baseDate);
+		// then
+		List<StockDividend> expected = List.of(dividend1);
+		Assertions.assertThat(actual).isEqualTo(expected);
+	}
+
+	@DisplayName("현재 달 배당 리스트 계산 - 조건이 맞는 배당 리스트의 원소가 여러개 있으면 여러개의 종목 배당 데이터를 반환한다")
+	@Test
+	void calculateCurrentMonthStockDividends_ReturnsStockDividendList_WhenDividendsHasMultipleElementsMatchingCondition() {
+		// given
+		DividendCalculator calculator = new StockDividendCalculator();
+
+		DividendDates dividendDates1 = DividendDates.of(
+			LocalDate.of(2023, 3, 31),
+			LocalDate.of(2023, 4, 1),
+			LocalDate.of(2023, 6, 15)
+		);
+		DividendDates dividendDates2 = DividendDates.of(
+			LocalDate.of(2023, 5, 31),
+			LocalDate.of(2023, 6, 1),
+			LocalDate.of(2023, 6, 20)
+		);
+		DividendDates dividendDates3 = DividendDates.of(
+			LocalDate.of(2022, 9, 30),
+			LocalDate.of(2022, 10, 1),
+			LocalDate.of(2022, 11, 1)
+		);
+
+		StockDividend dividend1 = TestDataFactory.createStockDividend(dividendDates1);
+		StockDividend dividend2 = TestDataFactory.createStockDividend(dividendDates2);
+		StockDividend dividend3 = TestDataFactory.createStockDividend(dividendDates3);
+
+		List<StockDividend> dividends = List.of(dividend1, dividend2, dividend3);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+		// when
+		List<StockDividend> actual = calculator.calculateCurrentMonthStockDividends(dividends, baseDate);
+		// then
+		List<StockDividend> expected = List.of(dividend1, dividend2);
+		Assertions.assertThat(actual).isEqualTo(expected);
+	}
 }
