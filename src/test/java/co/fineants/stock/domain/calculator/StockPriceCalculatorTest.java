@@ -348,4 +348,32 @@ class StockPriceCalculatorTest {
 		// then
 		Assertions.assertThat(annualDividendYield).isEqualTo(RateDivision.zero());
 	}
+
+	@DisplayName("연간 배당 수익률 계산 - 매개변수에 null 값이 들어올 경우 예외가 발생한다.")
+	@Test
+	void calculateAnnualDividendYield_whenParamIsNull_thenThrowException() {
+		// given
+		Expression currentPrice = Money.won(10000);
+		LocalDate baseDate = LocalDate.of(2023, 6, 1);
+
+		// when
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				null,
+				currentPrice,
+				baseDate
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Stock dividends must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				java.util.List.of(),
+				null,
+				baseDate
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Current price must not be null");
+		Assertions.assertThatThrownBy(() -> calculator.calculateAnnualDividendYield(
+				java.util.List.of(),
+				currentPrice,
+				null
+			)).isInstanceOf(NullPointerException.class)
+			.hasMessage("Base date must not be null");
+	}
 }

@@ -42,6 +42,9 @@ public class StockPriceCalculator implements PriceCalculator {
 	@Override
 	public RateDivision calculateAnnualDividendYield(List<StockDividend> dividends, Expression currentPrice,
 		LocalDate baseDate) {
+		Objects.requireNonNull(dividends, "Stock dividends must not be null");
+		Objects.requireNonNull(currentPrice, "Current price must not be null");
+		Objects.requireNonNull(baseDate, "Base date must not be null");
 		return RateDivision.zero();
 	}
 }
