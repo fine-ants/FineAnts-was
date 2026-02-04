@@ -266,17 +266,6 @@ public class Portfolio extends BaseEntity {
 
 	//== Portfolio 계산 메서드 시작 ==//
 
-	/**
-	 * 포트폴리오의 총 손익을 계산 후 반환.
-	 *
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return 포트폴리오 총 손익
-	 * @throws IllegalStateException 포트폴리오 종목(PortfolioHolding)에 따른 현재가가 저장소에 없으면 예외 발생
-	 */
-	public Expression calTotalGain(PortfolioCalculator calculator) {
-		return calculator.calTotalGainBy(Collections.unmodifiableList(portfolioHoldings));
-	}
-
 	public boolean hasMaxLossSentHistory(NotificationSentRepository manager) {
 		return manager.hasMaxLossSendHistory(id);
 	}
@@ -289,17 +278,6 @@ public class Portfolio extends BaseEntity {
 	 */
 	public Expression calTotalInvestment(PortfolioCalculator calculator) {
 		return calculator.calTotalInvestmentOfHolding(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	/**
-	 * 포트폴리오의 총 손익율을 계산 후 반환.
-	 *
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return 포트폴리오 총 손익율
-	 * @throws java.util.NoSuchElementException 포트폴리오 종목(PortfolioHolding)에 따른 현재가가 저장소에 없으면 예외 발생
-	 */
-	public Expression calTotalGainRate(PortfolioCalculator calculator) {
-		return calculator.calTotalGainRate(Collections.unmodifiableList(portfolioHoldings));
 	}
 
 	public Expression calBalance(PortfolioCalculator calculator) {

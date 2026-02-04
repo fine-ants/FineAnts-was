@@ -64,7 +64,7 @@ public class PortfolioCalculator {
 	 */
 	public Expression calTotalGainBy(Portfolio portfolio) {
 		try {
-			return portfolio.calTotalGain(this);
+			return this.calTotalGainBy(portfolio.getPortfolioHoldings());
 		} catch (IllegalStateException e) {
 			throw new IllegalStateException(
 				String.format("Failed to calculate total gain for portfolio, portfolio:%s", portfolio), e);
@@ -80,7 +80,7 @@ public class PortfolioCalculator {
 	 */
 	public Expression calTotalGainRateBy(Portfolio portfolio) {
 		try {
-			return portfolio.calTotalGainRate(this);
+			return this.calTotalGainRate(portfolio.getPortfolioHoldings());
 		} catch (NoSuchElementException e) {
 			throw new IllegalStateException(
 				String.format("Failed to calculate totalGainRate for portfolio, portfolio:%s", portfolio), e);
