@@ -30,7 +30,6 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.calculator.DividendCalculator;
-import co.fineants.stock.domain.calculator.StockDividendCalculator;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +39,7 @@ public class PortfolioCalculator {
 
 	private final CurrentPriceService currentPriceService;
 	private final LocalDateTimeService timeService;
+	private final DividendCalculator dividendCalculator;
 
 	private static <T> Expression sumExpressions(List<T> data, Function<T, Expression> mapper) {
 		return data.stream()
@@ -323,7 +323,6 @@ public class PortfolioCalculator {
 	 * @return 배당금 합계
 	 */
 	public Expression calCurrentMonthDividendBy(Portfolio portfolio) {
-		DividendCalculator dividendCalculator = new StockDividendCalculator();
 		LocalDate baseDate = timeService.getLocalDateWithNow();
 		return sumExpressions(portfolio.getPortfolioHoldings(), holding -> {
 			List<StockDividend> currentMonthStockDividends = dividendCalculator.calculateCurrentMonthStockDividends(
