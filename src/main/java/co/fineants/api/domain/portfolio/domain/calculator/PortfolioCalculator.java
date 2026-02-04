@@ -323,36 +323,14 @@ public class PortfolioCalculator {
 	 * @return 배당금 합계
 	 */
 	public Expression calCurrentMonthDividendBy(Portfolio portfolio) {
-		return portfolio.calCurrentMonthDividend(this);
-	}
-
-	/**
-	 * 포트폴리오의 당월 예상 배당금 계산후 반환한다.
-	 * <p>
-	 * 당월 예상 배당금 = 각 종목들(holdings)의 해당월의 배당금 합계
-	 * </p>
-	 * @param holdings 포트폴리오 종목 리스트
-	 * @return 포트폴리오의 당월 예상 배당금 합계
-	 */
-	public Expression calCurrentMonthDividendBy(List<PortfolioHolding> holdings) {
-		return sumExpressions(holdings, holding -> holding.calCurrentMonthExpectedDividend(this));
-	}
-
-	/**
-	 * 포트폴리오 종목의 이번달 배당금 계산 후 반환
-	 * <p>
-	 * CurrentMonthDividend = sum(PurchaseHistory.NumShares * StockDividend)
-	 * </p>
-	 * @param stock the stock
-	 * @param histories the histories
-	 * @return 이번달 배당금
-	 */
-	public Expression calCurrentMonthExpectedDividend(Stock stock, List<PurchaseHistory> histories) {
 		DividendCalculator dividendCalculator = new StockDividendCalculator();
 		LocalDate baseDate = timeService.getLocalDateWithNow();
-		List<StockDividend> stockDividends = dividendCalculator.calculateCurrentMonthStockDividends(
-			stock.getStockDividends(), baseDate);
-		return dividendCalculator.calCurrentMonthExpectedDividend(stockDividends, histories);
+		return sumExpressions(portfolio.getPortfolioHoldings(), holding -> {
+			List<StockDividend> currentMonthStockDividends = dividendCalculator.calculateCurrentMonthStockDividends(
+				holding.getStock().getStockDividends(), baseDate);
+			return dividendCalculator.calCurrentMonthExpectedDividend(currentMonthStockDividends,
+				holding.getPurchaseHistories());
+		});
 	}
 
 	/**

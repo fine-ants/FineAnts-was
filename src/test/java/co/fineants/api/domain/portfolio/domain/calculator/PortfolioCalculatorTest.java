@@ -477,27 +477,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calCurrentMonthDividendBy(List.of(holding));
-		// then
-		Expression expected = Money.won(1083);
-		assertThat(actual).isEqualByComparingTo(expected);
-	}
-
-	@DisplayName("종목과 매입이력이 주어질때 이번달 배당금 합계를 계산한다")
-	@Test
-	void givenStockAndPurchaseHistories_whenCalCurrentMonthExpectDividend_thenReturnSumOfDividend() {
-		Portfolio portfolio = createPortfolio(createMember());
-		Stock stock = createSamsungStock();
-		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
-			Money.won(40000L),
-			"메모", holding);
-		holding.addPurchaseHistory(history);
-		portfolio.addHolding(holding);
-
-		// when
-		Expression actual = calculator.calCurrentMonthExpectedDividend(stock, List.of(history));
+		Expression actual = calculator.calCurrentMonthDividendBy(portfolio);
 		// then
 		Expression expected = Money.won(1083);
 		assertThat(actual).isEqualByComparingTo(expected);

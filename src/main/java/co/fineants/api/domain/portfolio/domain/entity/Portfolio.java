@@ -18,13 +18,13 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.domain.MaximumLossNotificationActiveNotChangeException;
 import co.fineants.api.global.errors.exception.domain.TargetGainNotificationActiveNotChangeException;
+import co.fineants.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -322,10 +322,6 @@ public class Portfolio extends BaseEntity {
 		Expression balance = calculator.calBalanceBy(this);
 		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(this);
 		return calculator.calTotalAsset(balance, totalCurrentValuation);
-	}
-
-	public Expression calCurrentMonthDividend(PortfolioCalculator calculator) {
-		return calculator.calCurrentMonthDividendBy(Collections.unmodifiableList(portfolioHoldings));
 	}
 
 	public Expression calAnnualDividend(LocalDateTimeService dateTimeService, PortfolioCalculator calculator) {

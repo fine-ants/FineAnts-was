@@ -110,10 +110,6 @@ public class PortfolioHolding extends BaseEntity {
 		return calculator.calAnnualExpectedDividend(stock, purchaseHistories, timeService);
 	}
 
-	public Expression calCurrentMonthExpectedDividend(PortfolioCalculator calculator) {
-		return calculator.calCurrentMonthExpectedDividend(stock, purchaseHistories);
-	}
-
 	public Map<Month, Expression> calMonthlyDividendMap(PortfolioCalculator calculator, LocalDate currentLocalDate) {
 		return calculator.calMonthlyDividendMap(stock, purchaseHistories, currentLocalDate);
 	}
