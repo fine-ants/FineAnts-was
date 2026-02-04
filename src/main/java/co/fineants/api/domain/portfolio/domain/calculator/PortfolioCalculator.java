@@ -141,7 +141,7 @@ public class PortfolioCalculator {
 	 */
 	public Expression calTotalCurrentValuationBy(Portfolio portfolio) {
 		try {
-			return portfolio.calTotalCurrentValuation(this);
+			return this.calTotalCurrentValuation(portfolio.getPortfolioHoldings());
 		} catch (NoSuchElementException e) {
 			throw new IllegalStateException(
 				String.format("Failed to calculate totalCurrentValuation for portfolio, portfolio:%s", portfolio), e);
@@ -280,14 +280,13 @@ public class PortfolioCalculator {
 	 * @return 포트폴리오 당일 손익
 	 */
 	public Expression calDailyGain(PortfolioGainHistory history, Portfolio portfolio) {
-		Expression previousCurrentValuation = history.getCurrentValuation();
-		Money previousCurrentValuationMoney = Bank.getInstance().toWon(previousCurrentValuation);
+		Money previousCurrentValuationMoney = history.getCurrentValuation().reduce(Bank.getInstance(), Currency.KRW);
 		Expression totalCurrentValuation = calTotalCurrentValuationBy(portfolio);
 		if (previousCurrentValuationMoney.hasZero()) {
 			Expression totalInvestment = calTotalInvestmentBy(portfolio);
 			return totalCurrentValuation.minus(totalInvestment);
 		}
-		return totalCurrentValuation.minus(previousCurrentValuation);
+		return totalCurrentValuation.minus(previousCurrentValuationMoney);
 	}
 
 	/**
