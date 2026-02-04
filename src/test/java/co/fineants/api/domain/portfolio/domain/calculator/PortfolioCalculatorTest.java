@@ -496,7 +496,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendBy(portfolio);
 		// then
 		Expression expected = Money.won(4_332);
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -516,7 +516,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendYieldBy(spyLocalDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendYieldBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(150_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -556,7 +556,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		Expression annualDividend = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
+		Expression annualDividend = calculator.calAnnualDividendBy(portfolio);
 		Expression totalInvestment = calculator.calTotalInvestmentBy(portfolio);
 		// when
 		Expression actual = calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);

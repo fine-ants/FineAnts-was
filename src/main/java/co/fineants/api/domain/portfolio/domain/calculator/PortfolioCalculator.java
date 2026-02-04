@@ -312,29 +312,17 @@ public class PortfolioCalculator {
 	}
 
 	/**
-	 * Cal annual dividend by expression.
-	 *
-	 * @param dateTimeService the date time service
-	 * @param portfolio the portfolio
-	 * @return the expression
-	 */
-	public Expression calAnnualDividendBy(LocalDateTimeService dateTimeService, Portfolio portfolio) {
-		return portfolio.calAnnualDividend(dateTimeService, this);
-	}
-
-	/**
 	 * 포트폴리오의 총 연간 배당금 계산 후 반환한다.
 	 *
 	 * <p>
 	 * AnnualDividend = 각 종목들(holdings)의 연간 배당금 합계
 	 * </p>
-	 * @param dateTimeService 시간 서비스
-	 * @param holdings 포트폴리오의 종목 리스트
+	 * @param portfolio 포트폴리오 객체
 	 * @return 포트폴리오의 총 연간 배당금
 	 */
-	public Expression calAnnualDividend(LocalDateTimeService dateTimeService, List<PortfolioHolding> holdings) {
-		return holdings.stream()
-			.map(holding -> this.calMonthlyDividendMapBy(holding, dateTimeService.getLocalDateWithNow()))
+	public Expression calAnnualDividendBy(Portfolio portfolio) {
+		return portfolio.getPortfolioHoldings().stream()
+			.map(holding -> this.calMonthlyDividendMapBy(holding, timeService.getLocalDateWithNow()))
 			.map(map -> map.values().stream()
 				.reduce(Expression::plus)
 				.orElseGet(Money::zero))
@@ -348,12 +336,11 @@ public class PortfolioCalculator {
 	 * <p>
 	 * AnnualDividendYield = (TotalAnnualDividend / TotalCurrentValuation)
 	 * </p>
-	 * @param localDateTimeService 시간 서비스
 	 * @param portfolio 포트폴리오 객체
 	 * @return 포트폴리오의 총 연간 배당율
 	 */
-	public Expression calAnnualDividendYieldBy(LocalDateTimeService localDateTimeService, Portfolio portfolio) {
-		Expression totalAnnualDividend = calAnnualDividendBy(localDateTimeService, portfolio);
+	public Expression calAnnualDividendYieldBy(Portfolio portfolio) {
+		Expression totalAnnualDividend = calAnnualDividendBy(portfolio);
 		Expression totalCurrentValuation = calTotalCurrentValuationBy(portfolio);
 		return totalAnnualDividend.divide(totalCurrentValuation);
 	}
@@ -367,7 +354,7 @@ public class PortfolioCalculator {
 	 */
 	public Expression calAnnualInvestmentDividendYieldBy(LocalDateTimeService localDateTimeService,
 		Portfolio portfolio) {
-		return portfolio.calAnnualInvestmentDividendYield(localDateTimeService, this);
+		return portfolio.calAnnualInvestmentDividendYield(this);
 	}
 
 	/**

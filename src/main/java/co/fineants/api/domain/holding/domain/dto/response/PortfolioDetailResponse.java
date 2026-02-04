@@ -55,8 +55,8 @@ public class PortfolioDetailResponse {
 		Expression balance = calculator.calBalanceBy(portfolio);
 		Expression dailyGain = calculator.calDailyGain(history, portfolio);
 		Expression dailyGainRate = calculator.calDailyGainRateBy(history, portfolio);
-		Expression annualDividend = calculator.calAnnualDividendBy(localDateTimeService, portfolio);
-		Expression annualDividendYield = calculator.calAnnualDividendYieldBy(localDateTimeService, portfolio);
+		Expression annualDividend = calculator.calAnnualDividendBy(portfolio);
+		Expression annualDividendYield = calculator.calAnnualDividendYieldBy(portfolio);
 		Expression annualInvestmentDividendYield = calculator.calAnnualInvestmentDividendYieldBy(localDateTimeService,
 			portfolio);
 		Expression targetGainRate = calculator.calTargetGainRateBy(portfolio);

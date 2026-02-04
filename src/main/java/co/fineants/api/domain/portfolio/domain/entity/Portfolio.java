@@ -269,13 +269,8 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 
-	public Expression calAnnualDividend(LocalDateTimeService dateTimeService, PortfolioCalculator calculator) {
-		return calculator.calAnnualDividend(dateTimeService, Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public Expression calAnnualInvestmentDividendYield(LocalDateTimeService localDateTimeService,
-		PortfolioCalculator calculator) {
-		Expression annualDividend = calculator.calAnnualDividendBy(localDateTimeService, this);
+	public Expression calAnnualInvestmentDividendYield(PortfolioCalculator calculator) {
+		Expression annualDividend = calculator.calAnnualDividendBy(this);
 		Expression totalInvestment = calculator.calTotalInvestmentBy(this);
 		return calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);
 	}
