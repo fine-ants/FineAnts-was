@@ -5,8 +5,6 @@ import java.util.List;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
-import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.errors.exception.domain.MaximumLossGreaterThanBudgetException;
 import co.fineants.api.global.errors.exception.domain.MoneyNegativeException;
 import co.fineants.api.global.errors.exception.domain.TargetGainLessThanBudgetException;
@@ -91,10 +89,6 @@ public class PortfolioFinancial {
 		this.budget = financial.budget;
 		this.targetGain = financial.targetGain;
 		this.maximumLoss = financial.maximumLoss;
-	}
-
-	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
-		return calculator.calTargetGainRate(budget, targetGain);
 	}
 
 	@Override

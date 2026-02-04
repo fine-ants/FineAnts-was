@@ -605,12 +605,15 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@DisplayName("예산과 목표수익금액이 주어지고 목표수익율을 계산한다")
 	@Test
-	void calTargetGainRate_givenBudgetAndTargetGain_whenCalTargetGainRate_thenReturnPercentageOfTargetGain() {
+	void calTargetGainRateBy_givenBudgetAndTargetGain_whenCalTargetGainRate_thenReturnPercentageOfTargetGain() {
 		// given
-		Expression budget = Money.won(1_000_000);
-		Expression targetGain = Money.won(1_500_000);
+		Money budget = Money.won(1_000_000);
+		Money targetGain = Money.won(1_500_000);
+		Money maximumLoss = Money.won(900_000);
+		Portfolio portfolio = createPortfolio(createMember(), "포트폴리오1", budget,
+			targetGain, maximumLoss);
 		// when
-		Expression actual = calculator.calTargetGainRate(budget, targetGain);
+		Expression actual = calculator.calTargetGainRateBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(500_000), Money.won(1_000_000));
 		assertThat(actual).isEqualByComparingTo(expected);

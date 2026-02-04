@@ -14,7 +14,6 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
@@ -267,10 +266,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 	//== Portfolio 계산 메서드 시작 ==//
-	
-	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
-		return this.financial.calTargetGainRate(calculator);
-	}
 
 	public Map<String, List<Expression>> createSectorChart(PortfolioCalculator calculator) {
 		Expression balance = calculator.calBalanceBy(this);

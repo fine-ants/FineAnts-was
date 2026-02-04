@@ -375,23 +375,15 @@ public class PortfolioCalculator {
 
 	/**
 	 * 포트폴리오의 목표수익금액율 계산 후 반환.
+	 * <p>
+	 * TargetGainRate = ((TargetGain - Budget) / Budget)
+	 * </p>
 	 * @param portfolio 포트폴리오 객체
 	 * @return 포트폴리오의 목표수익금액율
 	 */
 	public Expression calTargetGainRateBy(Portfolio portfolio) {
-		return portfolio.calTargetGainRate(this);
-	}
-
-	/**
-	 * 포트폴리오의 목표수익금액율 계산 후 반환.
-	 * <p>
-	 * TargetGainRate = ((TargetGain - Budget) / Budget)
-	 * </p>
-	 * @param budget 예산
-	 * @param targetGain 목표수익금액
-	 * @return 포트폴리오의 목표수익금액율
-	 */
-	public RateDivision calTargetGainRate(Expression budget, Expression targetGain) {
+		Expression budget = portfolio.getBudget();
+		Expression targetGain = portfolio.getTargetGain();
 		return targetGain.minus(budget).divide(budget);
 	}
 
