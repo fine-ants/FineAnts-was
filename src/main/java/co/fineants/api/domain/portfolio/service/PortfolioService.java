@@ -1,6 +1,7 @@
 package co.fineants.api.domain.portfolio.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.fineants.api.domain.common.money.Bank;
+import co.fineants.api.domain.common.money.Currency;
+import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -23,6 +28,7 @@ import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioCreateResponse;
+import co.fineants.api.domain.portfolio.domain.dto.response.PortFolioItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioModifyResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameItem;
 import co.fineants.api.domain.portfolio.domain.dto.response.PortfolioNameResponse;
@@ -191,7 +197,37 @@ public class PortfolioService {
 						.orElseGet(() -> PortfolioGainHistory.empty(portfolio))
 			));
 
-		return PortfoliosResponse.of(portfolios, portfolioGainHistoryMap, calculator);
+		Bank bank = Bank.getInstance();
+		Currency to = Currency.KRW;
+		List<PortFolioItem> items = new ArrayList<>();
+		for (Portfolio portfolio : portfolios) {
+			PortfolioGainHistory prevHistory = portfolioGainHistoryMap.get(portfolio);
+			Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
+			Percentage totalGainRate = calculator.calTotalGainRateBy(portfolio)
+				.toPercentage(bank, to);
+			Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
+			Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
+			Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
+			Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
+
+			PortFolioItem item = PortFolioItem.builder()
+				.id(portfolio.getId())
+				.securitiesFirm(portfolio.securitiesFirm())
+				.name(portfolio.name())
+				.budget(portfolio.getBudget())
+				.totalGain(totalGain)
+				.totalGainRate(totalGainRate)
+				.dailyGain(dailyGain)
+				.dailyGainRate(dailyGainRate)
+				.currentValuation(currentValuation)
+				.expectedMonthlyDividend(currentMonthDividend)
+				.numShares(portfolio.numberOfShares())
+				.dateCreated(portfolio.getCreateAt())
+				.build();
+			items.add(item);
+		}
+
+		return new PortfoliosResponse(items);
 	}
 
 	@Transactional(readOnly = true)
