@@ -36,6 +36,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.DashboardService;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.calculator.DividendCalculator;
 
 class DashboardRestControllerDocsTest extends RestDocsSupport {
 
@@ -51,7 +52,9 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 	@BeforeEach
 	void setUp() {
 		currentPriceService = Mockito.mock(CurrentPriceService.class);
-		calculator = new PortfolioCalculator(currentPriceService, new DefaultLocalDateTimeService());
+		DividendCalculator dividendCalculator = Mockito.mock(DividendCalculator.class);
+		calculator = new PortfolioCalculator(currentPriceService, new DefaultLocalDateTimeService(),
+			dividendCalculator);
 	}
 
 	@DisplayName("오버뷰 조회 API")

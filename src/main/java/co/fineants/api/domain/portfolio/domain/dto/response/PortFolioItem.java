@@ -37,7 +37,7 @@ public class PortFolioItem {
 	private LocalDateTime dateCreated;
 
 	public static PortFolioItem of(Portfolio portfolio, PortfolioGainHistory prevHistory,
-		PortfolioCalculator calculator) {
+		PortfolioCalculator calculator, Money currentMonthDividend) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
 		Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
@@ -46,7 +46,6 @@ public class PortFolioItem {
 		Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
 		Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
 		Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
-		Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
 		return PortFolioItem.builder()
 			.id(portfolio.getId())
 			.securitiesFirm(portfolio.securitiesFirm())
