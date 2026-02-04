@@ -361,23 +361,15 @@ public class PortfolioCalculator {
 
 	/**
 	 * 포트폴리오의 최대손실율 계산 후 반환.
+	 * <p>
+	 * MaximumLossRate = ((Budget - MaximumLoss) / Budget)
+	 * </p>
 	 * @param portfolio 포트폴리오 객체
 	 * @return 포트폴리오의 최대손실율
 	 */
 	public Expression calMaximumLossRateBy(Portfolio portfolio) {
-		return portfolio.calMaximumLossRate(this);
-	}
-
-	/**
-	 * 포트폴리오의 최대손실율 계산 후 반환.
-	 * <p>
-	 * MaximumLossRate = ((Budget - MaximumLoss) / Budget)
-	 * </p>
-	 * @param budget 예산
-	 * @param maximumLoss 최대손실금액
-	 * @return 포트폴리오의 최대손실율
-	 */
-	public RateDivision calMaximumLossRate(Money budget, Money maximumLoss) {
+		Money budget = portfolio.getBudget();
+		Money maximumLoss = portfolio.getMaximumLoss();
 		return budget.minus(maximumLoss).divide(budget);
 	}
 

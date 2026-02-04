@@ -558,7 +558,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 		// when
 		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(portfolio);
-		
+
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(120_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -578,12 +578,14 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@DisplayName("예산과 최대손실금액이 주어지고 최대 손실비율을 계산한다")
 	@Test
-	void calMaximumLossRate_givenBudgetAndMaximumLoss_whenCalMaximumLossRate_thenReturnPercentageOfMaximumLoss() {
+	void calMaximumLossRateBy_givenBudgetAndMaximumLoss_whenCalMaximumLossRate_thenReturnPercentageOfMaximumLoss() {
 		// given
 		Money budget = Money.won(1_000_000);
+		Money targetGain = Money.won(1_500_000);
 		Money maximumLoss = Money.won(900_000);
+		Portfolio portfolio = createPortfolio(createMember(), "포트폴리오1", budget, targetGain, maximumLoss);
 		// when
-		Expression actual = calculator.calMaximumLossRate(budget, maximumLoss);
+		Expression actual = calculator.calMaximumLossRateBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(100_000), Money.won(1_000_000));
 		assertThat(actual).isEqualByComparingTo(expected);

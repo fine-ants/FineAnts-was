@@ -269,10 +269,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 
-	public RateDivision calMaximumLossRate(PortfolioCalculator calculator) {
-		return this.financial.calMaximumLossRate(calculator);
-	}
-
 	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
 		return this.financial.calTargetGainRate(calculator);
 	}

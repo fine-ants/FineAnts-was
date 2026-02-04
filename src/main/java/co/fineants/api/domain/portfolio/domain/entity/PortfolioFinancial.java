@@ -93,10 +93,6 @@ public class PortfolioFinancial {
 		this.maximumLoss = financial.maximumLoss;
 	}
 
-	public RateDivision calMaximumLossRate(PortfolioCalculator calculator) {
-		return calculator.calMaximumLossRate(budget, maximumLoss);
-	}
-
 	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
 		return calculator.calTargetGainRate(budget, targetGain);
 	}
