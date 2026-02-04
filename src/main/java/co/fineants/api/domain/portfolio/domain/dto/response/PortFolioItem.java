@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,25 +30,4 @@ public class PortFolioItem {
 	private Money expectedMonthlyDividend;
 	private Count numShares;
 	private LocalDateTime dateCreated;
-
-	public static PortFolioItem of(Portfolio portfolio,
-		Money totalGain, Percentage totalGainRate, Money dailyGain,
-		Percentage dailyGainRate,
-		Money currentValuation,
-		Money currentMonthDividend) {
-		return PortFolioItem.builder()
-			.id(portfolio.getId())
-			.securitiesFirm(portfolio.securitiesFirm())
-			.name(portfolio.name())
-			.budget(portfolio.getBudget())
-			.totalGain(totalGain)
-			.totalGainRate(totalGainRate)
-			.dailyGain(dailyGain)
-			.dailyGainRate(dailyGainRate)
-			.currentValuation(currentValuation)
-			.expectedMonthlyDividend(currentMonthDividend)
-			.numShares(portfolio.numberOfShares())
-			.dateCreated(portfolio.getCreateAt())
-			.build();
-	}
 }

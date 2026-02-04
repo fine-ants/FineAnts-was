@@ -1,5 +1,6 @@
 package co.fineants.api.domain.portfolio.domain.dto.response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,27 +29,35 @@ public class PortfoliosResponse {
 	public static PortfoliosResponse of(List<Portfolio> portfolios,
 		Map<Portfolio, PortfolioGainHistory> portfolioGainHistoryMap,
 		PortfolioCalculator calculator) {
-		return new PortfoliosResponse(getContents(portfolios, portfolioGainHistoryMap, calculator));
-	}
-
-	private static List<PortFolioItem> getContents(List<Portfolio> portfolios,
-		Map<Portfolio, PortfolioGainHistory> portfolioGainHistoryMap,
-		PortfolioCalculator calculator) {
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;
-		return portfolios.stream()
-			.map(portfolio -> {
-				PortfolioGainHistory prevHistory = portfolioGainHistoryMap.get(portfolio);
-				Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
-				Percentage totalGainRate = calculator.calTotalGainRateBy(portfolio)
-					.toPercentage(bank, to);
-				Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
-				Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
-				Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
-				Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
-				return PortFolioItem.of(portfolio, totalGain, totalGainRate, dailyGain, dailyGainRate, currentValuation,
-					currentMonthDividend);
-			})
-			.toList();
+		List<PortFolioItem> items = new ArrayList<>();
+		for (Portfolio portfolio : portfolios) {
+			PortfolioGainHistory prevHistory = portfolioGainHistoryMap.get(portfolio);
+			Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
+			Percentage totalGainRate = calculator.calTotalGainRateBy(portfolio)
+				.toPercentage(bank, to);
+			Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
+			Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
+			Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
+			Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
+
+			PortFolioItem item = PortFolioItem.builder()
+				.id(portfolio.getId())
+				.securitiesFirm(portfolio.securitiesFirm())
+				.name(portfolio.name())
+				.budget(portfolio.getBudget())
+				.totalGain(totalGain)
+				.totalGainRate(totalGainRate)
+				.dailyGain(dailyGain)
+				.dailyGainRate(dailyGainRate)
+				.currentValuation(currentValuation)
+				.expectedMonthlyDividend(currentMonthDividend)
+				.numShares(portfolio.numberOfShares())
+				.dateCreated(portfolio.getCreateAt())
+				.build();
+			items.add(item);
+		}
+		return new PortfoliosResponse(items);
 	}
 }
