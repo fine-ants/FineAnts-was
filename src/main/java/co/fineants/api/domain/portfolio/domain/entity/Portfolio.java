@@ -263,12 +263,11 @@ public class Portfolio extends BaseEntity {
 		return manager.hasTargetGainSendHistory(id);
 	}
 
-	//== Portfolio 계산 메서드 시작 ==//
-
 	public boolean hasMaxLossSentHistory(NotificationSentRepository manager) {
 		return manager.hasMaxLossSendHistory(id);
 	}
-
+	//== Portfolio 계산 메서드 시작 ==//
+	
 	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
 		return this.financial.calTargetGainRate(calculator);
 	}
