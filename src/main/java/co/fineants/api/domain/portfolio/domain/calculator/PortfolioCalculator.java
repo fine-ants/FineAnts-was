@@ -346,27 +346,16 @@ public class PortfolioCalculator {
 	}
 
 	/**
-	 * 포트폴리오의 투자 대비 연간 배당금
-	 *
-	 * @param localDateTimeService 시간 서비스
-	 * @param portfolio 포트폴리오
-	 * @return 투자 대비 연간 배당금
-	 */
-	public Expression calAnnualInvestmentDividendYieldBy(LocalDateTimeService localDateTimeService,
-		Portfolio portfolio) {
-		return portfolio.calAnnualInvestmentDividendYield(this);
-	}
-
-	/**
 	 * 포트폴리오의 투자 대비 연간 배당율 계산 후 반환한다.
 	 * <p>
 	 * AnnualInvestmentDividendYield = AnnualDividend / TotalInvestment
 	 * </p>
-	 * @param annualDividend 포트폴리오 연간 배당금
-	 * @param totalInvestment 포트폴리오 총 투자 금액
+	 * @param portfolio 포트폴리오 객체
 	 * @return 포트폴리오의 투자 대비 연간 배당율
 	 */
-	public Expression calAnnualInvestmentDividendYield(Expression annualDividend, Expression totalInvestment) {
+	public Expression calAnnualInvestmentDividendYieldBy(Portfolio portfolio) {
+		Expression annualDividend = this.calAnnualDividendBy(portfolio);
+		Expression totalInvestment = this.calTotalInvestmentBy(portfolio);
 		return annualDividend.divide(totalInvestment);
 	}
 

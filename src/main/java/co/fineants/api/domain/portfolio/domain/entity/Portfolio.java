@@ -269,12 +269,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 
-	public Expression calAnnualInvestmentDividendYield(PortfolioCalculator calculator) {
-		Expression annualDividend = calculator.calAnnualDividendBy(this);
-		Expression totalInvestment = calculator.calTotalInvestmentBy(this);
-		return calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);
-	}
-
 	public RateDivision calMaximumLossRate(PortfolioCalculator calculator) {
 		return this.financial.calMaximumLossRate(calculator);
 	}
