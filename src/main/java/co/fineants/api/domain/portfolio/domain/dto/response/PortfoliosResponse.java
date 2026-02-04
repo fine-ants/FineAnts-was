@@ -6,6 +6,7 @@ import java.util.Map;
 import co.fineants.api.domain.common.money.Bank;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -37,8 +38,15 @@ public class PortfoliosResponse {
 		Currency to = Currency.KRW;
 		return portfolios.stream()
 			.map(portfolio -> {
+				PortfolioGainHistory prevHistory = portfolioGainHistoryMap.get(portfolio);
+				Money totalGain = calculator.calTotalGainBy(portfolio).reduce(bank, to);
+				Percentage totalGainRate = calculator.calTotalGainRateBy(portfolio)
+					.toPercentage(bank, to);
+				Money dailyGain = calculator.calDailyGain(prevHistory, portfolio).reduce(bank, to);
+				Percentage dailyGainRate = calculator.calDailyGainRateBy(prevHistory, portfolio).toPercentage(bank, to);
+				Money currentValuation = calculator.calTotalCurrentValuationBy(portfolio).reduce(bank, to);
 				Money currentMonthDividend = calculator.calCurrentMonthDividendBy(portfolio).reduce(bank, to);
-				return PortFolioItem.of(portfolio, portfolioGainHistoryMap.get(portfolio), calculator,
+				return PortFolioItem.of(portfolio, totalGain, totalGainRate, dailyGain, dailyGainRate, currentValuation,
 					currentMonthDividend);
 			})
 			.toList();
