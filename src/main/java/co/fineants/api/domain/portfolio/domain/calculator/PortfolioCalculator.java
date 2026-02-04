@@ -243,17 +243,8 @@ public class PortfolioCalculator {
 	 * @return 포트폴리오 총 자산
 	 */
 	public Expression calTotalAssetBy(Portfolio portfolio) {
-		return portfolio.calTotalAsset(this);
-	}
-
-	/**
-	 * 총 자산을 계산 후 반환
-	 *
-	 * @param balance 잔고
-	 * @param totalCurrentValuation 총 평가 금액
-	 * @return 총 자산
-	 */
-	public Expression calTotalAsset(Expression balance, Expression totalCurrentValuation) {
+		Expression balance = this.calBalanceBy(portfolio);
+		Expression totalCurrentValuation = this.calTotalCurrentValuationBy(portfolio);
 		return balance.plus(totalCurrentValuation);
 	}
 

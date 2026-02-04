@@ -269,12 +269,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 
-	public Expression calTotalAsset(PortfolioCalculator calculator) {
-		Expression balance = calculator.calBalanceBy(this);
-		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(this);
-		return calculator.calTotalAsset(balance, totalCurrentValuation);
-	}
-
 	public Expression calAnnualDividend(LocalDateTimeService dateTimeService, PortfolioCalculator calculator) {
 		return calculator.calAnnualDividend(dateTimeService, Collections.unmodifiableList(portfolioHoldings));
 	}
