@@ -94,7 +94,7 @@ public class PortfolioCalculator {
 	 * @return 포트폴리오의 총 투자 금액
 	 */
 	public Expression calTotalInvestmentBy(Portfolio portfolio) {
-		return portfolio.calTotalInvestment(this);
+		return this.calTotalInvestmentOfHolding(portfolio.getPortfolioHoldings());
 	}
 
 	/**

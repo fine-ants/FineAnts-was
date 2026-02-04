@@ -269,16 +269,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 
-	/**
-	 * 포트폴리오 총 투자 금액 계산 후 반환.
-	 *
-	 * @param calculator 계산기 객체
-	 * @return 포트폴리오의 총 투자 금액
-	 */
-	public Expression calTotalInvestment(PortfolioCalculator calculator) {
-		return calculator.calTotalInvestmentOfHolding(Collections.unmodifiableList(portfolioHoldings));
-	}
-
 	public Expression calBalance(PortfolioCalculator calculator) {
 		Expression totalInvestment = calculator.calTotalInvestmentBy(this);
 		return this.financial.calBalance(calculator, totalInvestment);
