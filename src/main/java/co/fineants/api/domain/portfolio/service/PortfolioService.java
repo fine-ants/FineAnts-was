@@ -38,6 +38,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioPropertiesRepository
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.authorized.Authorized;
+import co.fineants.api.global.common.authorized.service.MemberAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
@@ -258,7 +259,8 @@ public class PortfolioService {
 	 */
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
-	public Set<String> getAllPortfolioTickers(Long memberId) {
+	@Authorized(serviceClass = MemberAuthorizedService.class)
+	public Set<String> getAllPortfolioTickers(@ResourceId Long memberId) {
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberIdOrderByIdDesc(memberId);
 		return portfolios.stream()
 			.flatMap(portfolio -> portfolio.getPortfolioHoldings().stream())

@@ -649,4 +649,24 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		assertThat(tickerSymbols)
 			.containsExactlyInAnyOrder(stock1.getTickerSymbol(), stock2.getTickerSymbol());
 	}
+
+	@DisplayName("회원의 모든 포트폴리오 티커 심볼 집합 조회 - 다른 회원이 조회할 수 없다")
+	@Test
+	void getAllPortfolioTickers_whenAccessOtherMemberPortfolio_thenThrowException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		Stock stock1 = stockRepository.save(createSamsungStock());
+		Portfolio portfolio1 = portfolioRepository.save(createPortfolio(member, "portfolio1"));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio1, stock1));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> service.getAllPortfolioTickers(member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(member.toString());
+	}
 }
