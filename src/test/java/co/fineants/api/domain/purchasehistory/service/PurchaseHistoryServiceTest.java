@@ -26,7 +26,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -70,7 +70,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 	private NotificationRepository notificationRepository;
 
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private FcmRepository fcmRepository;
@@ -100,7 +100,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			.purchasePricePerShare(money)
 			.memo("첫구매")
 			.build();
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		setAuthentication(member);
 		// when
@@ -164,7 +164,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			.purchasePricePerShare(Money.won(100))
 			.memo("첫구매")
 			.build();
-		priceRepository.savePrice(stock, 50000L);
+		currentPriceRepository.savePrice(stock, 50000L);
 
 		setAuthentication(member);
 		// when
@@ -268,7 +268,7 @@ class PurchaseHistoryServiceTest extends AbstractContainerBaseTest {
 			.memo("첫구매")
 			.build();
 
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		setAuthentication(member);
 		// when

@@ -20,7 +20,7 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
@@ -53,7 +53,7 @@ class PortfolioGainHistoryServiceTest extends AbstractContainerBaseTest {
 	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private CacheManager cacheManager;
@@ -73,7 +73,7 @@ class PortfolioGainHistoryServiceTest extends AbstractContainerBaseTest {
 		String memo = "첫구매";
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-		priceRepository.savePrice(stock, 60_000);
+		currentPriceRepository.savePrice(stock, 60_000);
 
 		// when
 		PortfolioGainHistoryCreateResponse response = service.addPortfolioGainHistory();
@@ -106,7 +106,7 @@ class PortfolioGainHistoryServiceTest extends AbstractContainerBaseTest {
 		String memo = "첫구매";
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-		priceRepository.savePrice(stock, 60_000);
+		currentPriceRepository.savePrice(stock, 60_000);
 
 		// when
 		PortfolioGainHistoryCreateResponse response = service.addPortfolioGainHistory();

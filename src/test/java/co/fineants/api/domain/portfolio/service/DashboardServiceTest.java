@@ -21,7 +21,7 @@ import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryReposit
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
@@ -52,7 +52,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockRepository stockRepository;
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
 
@@ -106,7 +106,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 		purchaseHistoryRepository.save(
 			createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
 
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 72900L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 72900L));
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow()).willReturn(purchaseDate.toLocalDate());
 		// when
 		OverviewResponse response = dashboardService.getOverview(member.getId());
@@ -146,7 +146,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 		Stock stock = stockRepository.save(createSamsungStock());
 		portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
 
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 		// when
 		OverviewResponse response = dashboardService.getOverview(member.getId());
 
@@ -218,7 +218,7 @@ class DashboardServiceTest extends AbstractContainerBaseTest {
 				"첫구매"
 			)
 		));
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
 		// when
 		List<DashboardPieChartResponse> responses = dashboardService.getPieChart(member.getId());
 

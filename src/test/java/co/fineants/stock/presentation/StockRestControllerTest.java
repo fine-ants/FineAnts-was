@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -32,7 +32,7 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private StockRepository stockRepository;
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;
@@ -106,7 +106,7 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 		stockRepository.save(stock);
 
 		int currentPrice = 68000;
-		priceRepository.savePrice(stock, currentPrice);
+		currentPriceRepository.savePrice(stock, currentPrice);
 		int closingPrice = 56000;
 		closingPriceRepository.savePrice(stock.getTickerSymbol(), closingPrice);
 

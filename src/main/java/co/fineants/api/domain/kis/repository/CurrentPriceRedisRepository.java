@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class CurrentPriceRedisRepository implements PriceRepository {
+public class CurrentPriceRedisRepository implements CurrentPriceRepository {
 	private static final String CURRENT_PRICE_FORMAT = "cp:%s";
 	private final RedisTemplate<String, String> redisTemplate;
 	private final Clock clock;

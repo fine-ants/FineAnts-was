@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class CurrentPriceMemoryRepository implements PriceRepository {
+public class CurrentPriceMemoryRepository implements CurrentPriceRepository {
 
 	private final Map<String, CurrentPriceRedisEntity> store;
 	private final Clock clock;

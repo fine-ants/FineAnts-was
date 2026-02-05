@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Primary
 @Component
 @Slf4j
-public class CurrentPriceRedisHashRepository implements PriceRepository {
+public class CurrentPriceRedisHashRepository implements CurrentPriceRepository {
 
 	public static final String KEY = "current_prices";
 	private final StringRedisTemplate template;

@@ -111,4 +111,69 @@ class ClosingPriceServiceTest extends AbstractContainerBaseTest {
 					.hasFieldOrPropertyWithValue("price", freshPrice);
 			});
 	}
+
+	@DisplayName("종목 종가 저장 - 종목 종가 데이터를 저장한다")
+	@Test
+	void savePrice_thenStoreClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long closingPrice = 60000L;
+
+		// when
+		closingPriceService.savePrice(tickerSymbol, closingPrice);
+
+		// then
+		ClosingPriceRedisEntity entity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
+		Assertions.assertThat(entity)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", closingPrice);
+	}
+
+	@DisplayName("종목 종가 저장 - 종가가 음수이면 저장되지 않는다")
+	@Test
+	void savePrice_whenNegativePrice_thenDoNotStoreClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long closingPrice = -100L;
+
+		// when
+		closingPriceService.savePrice(tickerSymbol, closingPrice);
+
+		// then
+		Assertions.assertThat(closingPriceRepository.fetchPrice(tickerSymbol)).isEmpty();
+	}
+
+	@DisplayName("종목 종가 저장 - 종가가 0이어도 저장된다")
+	@Test
+	void savePrice_whenZeroPrice_thenStoreClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long closingPrice = 0L;
+
+		// when
+		closingPriceService.savePrice(tickerSymbol, closingPrice);
+
+		// then
+		ClosingPriceRedisEntity entity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
+		Assertions.assertThat(entity)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", closingPrice);
+	}
+
+	@DisplayName("종목 종가 저장 - 티커가 유효하지 않으면 저장되지 않는다")
+	@Test
+	void savePrice_whenInvalidTicker_thenDoNotStoreClosingPrice() {
+		// given
+		long closingPrice = 60000L;
+
+		// when
+		closingPriceService.savePrice("", closingPrice);
+		closingPriceService.savePrice(" ", closingPrice);
+		closingPriceService.savePrice(null, closingPrice);
+
+		// then
+		Assertions.assertThat(closingPriceRepository.fetchPrice("")).isEmpty();
+		Assertions.assertThat(closingPriceRepository.fetchPrice(" ")).isEmpty();
+		Assertions.assertThat(closingPriceRepository.fetchPrice(null)).isEmpty();
+	}
 }

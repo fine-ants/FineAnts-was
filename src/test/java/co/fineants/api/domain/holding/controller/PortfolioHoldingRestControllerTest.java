@@ -29,7 +29,7 @@ import co.fineants.api.domain.holding.domain.dto.request.PortfolioStocksDeleteRe
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
@@ -45,7 +45,7 @@ import co.fineants.stock.domain.StockRepository;
 
 class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
-	private PriceRepository currentPriceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private PortfolioHoldingRestController controller;
