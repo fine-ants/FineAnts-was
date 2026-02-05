@@ -32,6 +32,10 @@ public class CurrentPriceService {
 		this.eventPublisher = eventPublisher;
 	}
 
+	public void savePrice(String tickerSymbol, long price) {
+		priceRepository.savePrice(tickerSymbol, price);
+	}
+
 	/**
 	 * 특정 종목의 현재가를 조회한다.
 	 *

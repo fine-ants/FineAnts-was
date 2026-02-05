@@ -133,4 +133,36 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", 0L);
 	}
+
+	@DisplayName("종목 현재가 저장 - 정상 저장된다")
+	@Test
+	void savePrice_thenSaveToRepository() {
+		// given
+		String tickerSymbol = "005930";
+		long priceToSave = 60000L;
+
+		// when
+		service.savePrice(tickerSymbol, priceToSave);
+
+		// then
+		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", priceToSave);
+	}
+
+	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenNegativePrice_thenNotSavedPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long negativePrice = -1000L;
+
+		// when
+		service.savePrice(tickerSymbol, negativePrice);
+
+		// then
+		boolean actual = priceRepository.fetchPriceBy(tickerSymbol).isEmpty();
+		Assertions.assertThat(actual).isTrue();
+	}
 }
