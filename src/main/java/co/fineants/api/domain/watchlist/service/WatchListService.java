@@ -1,6 +1,8 @@
 package co.fineants.api.domain.watchlist.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -187,5 +189,12 @@ public class WatchListService {
 		if (!watchList.hasAuthorization(memberId)) {
 			throw new WatchListForbiddenException(memberId.toString());
 		}
+	}
+
+	@Transactional(readOnly = true)
+	@Authorized(serviceClass = WatchListAuthorizedService.class)
+	@Secured("ROLE_USER")
+	public Set<String> getAllWatchListTickers(@ResourceId Long watchListId) {
+		return Collections.emptySet();
 	}
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -494,5 +495,19 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 		assertThat(hasStockForWatchList1).isTrue();
 		assertThat(hasStockForWatchList2).isFalse();
+	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 비어있는 관심 종목 리스트인 경우 빈 집합 반환")
+	@Test
+	void getWatchListTickerSymbols_whenEmptyWatchList_thenReturnEmptySet() {
+		// given
+		Member member = memberRepository.save(createMember());
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		// when
+		Set<String> tickerSymbols = watchListService.getAllWatchListTickers(watchList.getId());
+
+		// then
+		assertThat(tickerSymbols).isEmpty();
 	}
 }

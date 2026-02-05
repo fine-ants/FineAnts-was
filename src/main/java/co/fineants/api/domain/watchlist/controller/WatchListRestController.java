@@ -1,7 +1,9 @@
 package co.fineants.api.domain.watchlist.controller;
 
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.WatchListSuccessCode;
+import co.fineants.stock.event.StocksViewedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class WatchListRestController {
 
 	private final WatchListService watchListService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@PostMapping
 	public ApiResponse<CreateWatchListResponse> createWatchList(
@@ -54,6 +58,10 @@ public class WatchListRestController {
 	public ApiResponse<ReadWatchListResponse> readWatchList(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
 		@PathVariable Long watchlistId) {
+		// 활성 종목 등록
+		Set<String> tickers = watchListService.getAllWatchListTickers(watchlistId);
+		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+
 		return ApiResponse.success(WatchListSuccessCode.READ_WATCH_LIST,
 			watchListService.readWatchList(authentication.getId(), watchlistId));
 	}

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -25,7 +26,6 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.watchlist.controller.WatchListRestController;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.response.CreateWatchListResponse;
@@ -34,6 +34,7 @@ import co.fineants.api.domain.watchlist.domain.dto.response.ReadWatchListsRespon
 import co.fineants.api.domain.watchlist.domain.dto.response.WatchListHasStockResponse;
 import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
 
 class WatchListRestControllerDocsTest extends RestDocsSupport {
 
@@ -41,7 +42,8 @@ class WatchListRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		return new WatchListRestController(service);
+		ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
+		return new WatchListRestController(service, publisher);
 	}
 
 	@DisplayName("Watchlist 추가 API")
