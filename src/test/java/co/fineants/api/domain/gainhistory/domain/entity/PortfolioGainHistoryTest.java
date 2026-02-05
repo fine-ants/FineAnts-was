@@ -11,7 +11,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -21,7 +21,7 @@ import co.fineants.stock.domain.Stock;
 class PortfolioGainHistoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private PriceRepository currentPriceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private PortfolioCalculator calculator;

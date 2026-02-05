@@ -37,7 +37,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRedisHashRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -83,7 +83,10 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private KisAccessTokenRedisService kisAccessTokenRedisService;
 
 	@Autowired
-	private CurrentPriceRedisRepository currentPriceRedisRepository;
+	private CurrentPriceRepository currentPriceRepository;
+
+	@Autowired
+	private CurrentPriceService currentPriceService;
 
 	@Autowired
 	private ClosingPriceRedisHashRepository closingPriceRepository;
@@ -110,7 +113,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void setUp() {
 		kisService = new KisService(
 			mockedKisClient,
-			currentPriceRedisRepository,
+			currentPriceService,
 			closingPriceRepository,
 			stockTargetPricePublisher,
 			portfolioPublisher,
@@ -170,7 +173,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisService.refreshStockCurrentPrice(tickerSymbols);
 
 		// then
-		CurrentPriceRedisEntity entity = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		CurrentPriceRedisEntity entity = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
 		assertThat(entity)
 			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
 			.hasFieldOrPropertyWithValue("price", 10000L);
@@ -238,7 +241,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		assertThat(kisAccessTokenRepository.createAuthorization()).isEqualTo(reloadAccessToken.createAuthorization());
 		assertThat(kisAccessTokenRedisService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
 			reloadAccessToken.getAccessToken());
-		CurrentPriceRedisEntity actual = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
 		assertThat(actual)
 			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
 			.hasFieldOrPropertyWithValue("price", 10000L);
@@ -300,7 +303,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		assertThat(prices).hasSize(1);
-		CurrentPriceRedisEntity actual = currentPriceRedisRepository.fetchPriceBy("005930").orElseThrow();
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
 		assertThat(actual)
 			.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
 			.hasFieldOrPropertyWithValue("price", 50000L);
