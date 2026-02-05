@@ -453,7 +453,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 				Percentage.from(0.4545))
 		);
 
-		given(service.readPortfolioCharts(anyLong(), ArgumentMatchers.any(LocalDate.class)))
+		given(service.readPortfolioCharts(anyLong()))
 			.willReturn(PortfolioChartResponse.create(portfolioDetails, pieChartItems, dividendChartItems,
 				sectorChartItems));
 

@@ -248,7 +248,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15));
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
 
 		// then
 		assertAll(
@@ -309,7 +309,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15));
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
 
 		// then
 		assertAll(
@@ -357,7 +357,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		setAuthentication(hacker);
 		// when
 		Throwable throwable = catchThrowable(
-			() -> service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15)));
+			() -> service.readPortfolioCharts(portfolio.getId()));
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)

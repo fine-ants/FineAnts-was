@@ -1,12 +1,9 @@
 package co.fineants.api.domain.portfolio.domain.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -15,7 +12,6 @@ import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -239,15 +235,6 @@ public class Portfolio extends BaseEntity {
 	}
 	//== PortfolioFinancial 위임 메소드 종료 ==//
 
-	//== PortfolioNotificationPreference 위임 메서드 시작 ==//
-	public boolean isSameTargetGainActive(boolean active) {
-		return this.preference.isSameTargetGain(active);
-	}
-
-	public boolean isSameMaxLossActive(boolean active) {
-		return this.preference.isSameMaxLoss(active);
-	}
-
 	public Boolean targetGainIsActive() {
 		return preference.targetGainIsActive();
 	}
@@ -256,20 +243,6 @@ public class Portfolio extends BaseEntity {
 		return preference.maximumLossIsActive();
 	}
 	//== PortfolioNotificationPreference 위임 메서드 종료 ==//
-
-	public boolean hasTargetGainSentHistory(NotificationSentRepository manager) {
-		return manager.hasTargetGainSendHistory(id);
-	}
-
-	public boolean hasMaxLossSentHistory(NotificationSentRepository manager) {
-		return manager.hasMaxLossSendHistory(id);
-	}
-	//== Portfolio 계산 메서드 시작 ==//
-
-	public Map<Month, Expression> calTotalDividend(PortfolioCalculator calculator, LocalDate currentLocalDate) {
-		return calculator.calTotalDividend(Collections.unmodifiableList(portfolioHoldings), currentLocalDate);
-	}
-	//== Portfolio 계산 메서드 시작 ==//
 
 	public String getReferenceId() {
 		return id.toString();

@@ -511,11 +511,10 @@ public class PortfolioCalculator {
 	 * 포트폴리오의 월별 배당금액 합계 계산 후 반환.
 	 *
 	 * @param portfolio 포트폴리오
-	 * @param currentLocalDate 기준이 될 현재 일자
 	 * @return 월별 배당금액 합계 맵
 	 */
-	public Map<Month, Expression> calTotalDividendBy(Portfolio portfolio, LocalDate currentLocalDate) {
-		return portfolio.calTotalDividend(this, currentLocalDate);
+	public Map<Month, Expression> calTotalDividendBy(Portfolio portfolio) {
+		return this.calTotalDividend(portfolio.getPortfolioHoldings(), timeService.getLocalDateWithNow());
 	}
 
 	/**

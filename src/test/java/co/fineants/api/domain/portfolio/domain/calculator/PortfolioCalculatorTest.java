@@ -899,7 +899,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 		LocalDate currentLocalDate = LocalDate.of(2024, 1, 16);
 		// when
-		Map<Month, Expression> actual = calculator.calTotalDividendBy(portfolio, currentLocalDate);
+		Map<Month, Expression> actual = calculator.calTotalDividendBy(portfolio);
 		// then
 		Map<Month, Expression> expected = new EnumMap<>(Month.class);
 		for (Month month : Month.values()) {
