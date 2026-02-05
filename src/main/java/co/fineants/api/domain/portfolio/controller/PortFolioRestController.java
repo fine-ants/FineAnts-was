@@ -1,5 +1,7 @@
 package co.fineants.api.domain.portfolio.controller;
 
+import java.util.Set;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioSuccessCode;
+import co.fineants.stock.application.ActiveStockService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PortFolioRestController {
 
 	private final PortfolioService portFolioService;
+	private final ActiveStockService activeStockService;
 
 	// 포트폴리오 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -48,6 +52,10 @@ public class PortFolioRestController {
 	@GetMapping
 	public ApiResponse<PortfoliosResponse> searchMyAllPortfolios(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		// 활성 종목 등록
+		Set<String> tickers = portFolioService.getAllPortfolioTickers(authentication.getId());
+		activeStockService.markStocksAsActive(tickers);
+
 		return ApiResponse.success(PortfolioSuccessCode.OK_SEARCH_PORTFOLIOS,
 			portFolioService.readMyAllPortfolio(authentication.getId()));
 	}

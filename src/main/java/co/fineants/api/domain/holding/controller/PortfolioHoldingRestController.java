@@ -80,8 +80,8 @@ public class PortfolioHoldingRestController {
 	@GetMapping("/holdings")
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
 		// 활성 종목 등록
-		Set<String> tickerSymbols = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		eventPublisher.publishEvent(new StocksViewedEvent(tickerSymbols));
+		Set<String> tickers = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
+		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
 
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
