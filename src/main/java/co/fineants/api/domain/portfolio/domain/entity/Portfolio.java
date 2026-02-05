@@ -14,7 +14,6 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
@@ -266,13 +265,6 @@ public class Portfolio extends BaseEntity {
 		return manager.hasMaxLossSendHistory(id);
 	}
 	//== Portfolio 계산 메서드 시작 ==//
-
-	public List<PortfolioPieChartItem> calCurrentValuationWeights(PortfolioCalculator calculator) {
-		Expression totalAsset = calculator.calTotalAssetBy(this);
-		return portfolioHoldings.stream()
-			.map(holding -> calculator.calPortfolioPieChartItemBy(holding, totalAsset))
-			.toList();
-	}
 
 	public Map<Month, Expression> calTotalDividend(PortfolioCalculator calculator, LocalDate currentLocalDate) {
 		return calculator.calTotalDividend(Collections.unmodifiableList(portfolioHoldings), currentLocalDate);

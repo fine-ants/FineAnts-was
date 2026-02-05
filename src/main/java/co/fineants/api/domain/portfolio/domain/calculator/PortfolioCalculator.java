@@ -489,13 +489,21 @@ public class PortfolioCalculator {
 	 */
 	public List<PortfolioPieChartItem> calPieChartItemBy(Portfolio portfolio) {
 		Bank bank = Bank.getInstance();
-		Money balance = bank.toWon(calBalanceBy(portfolio));
-		Percentage weight = calCashWeightBy(portfolio).toPercentage(bank, Currency.KRW);
+		Currency to = Currency.KRW;
+		Money balance = this.calBalanceBy(portfolio).reduce(bank, to);
+		Percentage weight = this.calCashWeightBy(portfolio).toPercentage(bank, to);
 		PortfolioPieChartItem cash = PortfolioPieChartItem.cash(weight, balance);
 
-		return Stream.concat(portfolio.calCurrentValuationWeights(this).stream(), Stream.of(cash))
+		return Stream.concat(this.calCurrentValuationWeights(portfolio).stream(), Stream.of(cash))
 			.sorted(Comparator.comparing(PortfolioPieChartItem::getValuation, Comparator.reverseOrder())
 				.thenComparing(PortfolioPieChartItem::getTotalGain, Comparator.reverseOrder()))
+			.toList();
+	}
+
+	private List<PortfolioPieChartItem> calCurrentValuationWeights(Portfolio portfolio) {
+		Expression totalAsset = this.calTotalAssetBy(portfolio);
+		return portfolio.getPortfolioHoldings().stream()
+			.map(holding -> this.calPortfolioPieChartItemBy(holding, totalAsset))
 			.toList();
 	}
 
