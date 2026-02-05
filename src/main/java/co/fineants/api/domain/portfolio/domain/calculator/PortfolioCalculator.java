@@ -421,7 +421,8 @@ public class PortfolioCalculator {
 	 * @return 섹터 맵
 	 */
 	public Map<String, List<Expression>> calSectorChartBy(Portfolio portfolio) {
-		return portfolio.createSectorChart(this);
+		Expression balance = this.calBalanceBy(portfolio);
+		return this.calSectorChart(portfolio.getPortfolioHoldings(), balance);
 	}
 
 	/**

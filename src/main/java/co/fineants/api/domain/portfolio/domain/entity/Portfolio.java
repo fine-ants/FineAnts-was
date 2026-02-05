@@ -267,11 +267,6 @@ public class Portfolio extends BaseEntity {
 	}
 	//== Portfolio 계산 메서드 시작 ==//
 
-	public Map<String, List<Expression>> createSectorChart(PortfolioCalculator calculator) {
-		Expression balance = calculator.calBalanceBy(this);
-		return calculator.calSectorChart(Collections.unmodifiableList(portfolioHoldings), balance);
-	}
-
 	/**
 	 * 포트폴리오가 목표수익금액에 도달했는지 여부 검사.
 	 * @param calculator 포트폴리오 계산기 객체
