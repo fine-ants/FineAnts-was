@@ -632,7 +632,7 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("회원의 모든 포트폴리오 티커 심볼 집합 조회 - 모든 포트폴리오에 등록된 종목의 티커 심볼을 중복 없이 반환한다")
 	@Test
-	void getAllTickerSymbolsBy() {
+	void getAllPortfolioTickers() {
 		// given
 		Member member = memberRepository.save(createMember());
 		Stock stock1 = stockRepository.save(createSamsungStock());
@@ -643,7 +643,7 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio2, stock2));
 
 		// when
-		Set<String> tickerSymbols = service.getAllTickerSymbolsBy(member.getId());
+		Set<String> tickerSymbols = service.getAllPortfolioTickers(member.getId());
 
 		// then
 		assertThat(tickerSymbols)
