@@ -33,7 +33,6 @@ import co.fineants.api.domain.holding.service.streamer.PortfolioStreamer;
 import co.fineants.api.domain.portfolio.service.PortfolioCacheService;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.api.ApiResponse;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
@@ -56,7 +55,6 @@ public class PortfolioHoldingRestController {
 	private final PortfolioCacheService portfolioCacheService;
 	private final PortfolioHoldingEventPublisher publisher;
 	private final PortfolioHoldingFacade portfolioHoldingFacade;
-	private final LocalDateTimeService localDateTimeService;
 	private final PortfolioService portfolioService;
 	private final ApplicationEventPublisher eventPublisher;
 
