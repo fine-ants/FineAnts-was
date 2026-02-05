@@ -13,7 +13,6 @@ import org.hibernate.annotations.BatchSize;
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
@@ -110,10 +109,6 @@ public class PortfolioHolding extends BaseEntity {
 		return calculator.calAnnualExpectedDividend(stock, purchaseHistories, timeService);
 	}
 
-	public Expression calCurrentMonthDividend(PortfolioCalculator calculator) {
-		return calculator.calCurrentMonthExpectedDividend(stock, purchaseHistories);
-	}
-
 	public Map<Month, Expression> calMonthlyDividendMap(PortfolioCalculator calculator, LocalDate currentLocalDate) {
 		return calculator.calMonthlyDividendMap(stock, purchaseHistories, currentLocalDate);
 	}
@@ -130,10 +125,6 @@ public class PortfolioHolding extends BaseEntity {
 	//== 계산 메서드 종료 ==//
 
 	//== 위임 메서드 시작 ==//
-	public Expression fetchClosingPrice(ClosingPriceRepository manager) {
-		return stock.getClosingPrice(manager);
-	}
-
 	public boolean hasAuthorization(Long memberId) {
 		return portfolio.hasAuthorization(memberId);
 	}
@@ -141,11 +132,11 @@ public class PortfolioHolding extends BaseEntity {
 	public String getCompanyName() {
 		return stock.getCompanyName();
 	}
-	//== 위임 메서드 시작 ==//
 
 	public List<PurchaseHistory> getPurchaseHistories() {
 		return Collections.unmodifiableList(purchaseHistories);
 	}
+	//== 위임 메서드 종료 ==//
 
 	@Override
 	public String toString() {

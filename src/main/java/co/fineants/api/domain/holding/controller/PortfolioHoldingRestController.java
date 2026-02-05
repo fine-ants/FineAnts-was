@@ -111,8 +111,7 @@ public class PortfolioHoldingRestController {
 		Set<String> tickerSymbolsInPortfolio = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
 		eventPublisher.publishEvent(new StocksViewedEvent(tickerSymbolsInPortfolio));
 
-		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId,
-			localDateTimeService.getLocalDateWithNow());
+		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId);
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
 	}
 

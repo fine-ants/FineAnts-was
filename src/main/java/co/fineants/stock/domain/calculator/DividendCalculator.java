@@ -3,6 +3,8 @@ package co.fineants.stock.domain.calculator;
 import java.time.LocalDate;
 import java.util.List;
 
+import co.fineants.api.domain.common.money.Expression;
+import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.stock.domain.StockDividend;
 
 public interface DividendCalculator {
@@ -17,4 +19,24 @@ public interface DividendCalculator {
 	 * @return 배당 지급 월 리스트
 	 */
 	List<Integer> calculateDividendMonths(List<StockDividend> dividends, LocalDate baseDate);
+
+	/**
+	 * 현재 달에 배당금이 지급되는 주식 배당 리스트를 계산후 반환한다.
+	 * <p>
+	 *     baseDate(기준 날짜)와 같은 달, 같은 연도에 지급되는 배당금들의 주식 배당 리스트를 계산후 반환한다.
+	 *     예를 들어 baseDate가 2023-06-15라면, 6월에 지급되는 배당금들의 주식 배당 리스트를 반환한다.
+	 * </p>
+	 * @param baseDate 기준 날짜
+	 * @return 현재 달에 배당금이 지급되는 주식 배당 리스트
+	 */
+	List<StockDividend> calculateCurrentMonthStockDividends(List<StockDividend> dividends, LocalDate baseDate);
+
+	/**
+	 * 매입 이력을 기반으로 현재 달 예상 배당금을 계산한다.
+	 *
+	 * @param dividends 종목 배당금 리스트
+	 * @param histories 매입 이력 리스트
+	 * @return 현재 달 예상 배당금
+	 */
+	Expression calCurrentMonthExpectedDividend(List<StockDividend> dividends, List<PurchaseHistory> histories);
 }

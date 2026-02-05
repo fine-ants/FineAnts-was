@@ -1,6 +1,5 @@
 package co.fineants.api.domain.holding.domain.chart;
 
-import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class DividendChart {
 	private final PortfolioCalculator calculator;
 
-	public List<PortfolioDividendChartItem> createItemsBy(Portfolio portfolio, LocalDate currentLocalDate) {
-		Map<Month, Expression> totalDividendMap = calculator.calTotalDividendBy(portfolio, currentLocalDate);
+	public List<PortfolioDividendChartItem> createItemsBy(Portfolio portfolio) {
+		Map<Month, Expression> totalDividendMap = calculator.calTotalDividendBy(portfolio);
 
 		Bank bank = Bank.getInstance();
 		Currency to = Currency.KRW;

@@ -1,6 +1,5 @@
 package co.fineants.api.domain.holding.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -137,11 +136,11 @@ public class PortfolioHoldingService {
 
 	@Transactional(readOnly = true)
 	@Authorized(serviceClass = PortfolioAuthorizedService.class)
-	public PortfolioChartResponse readPortfolioCharts(@ResourceId Long portfolioId, LocalDate currentLocalDate) {
+	public PortfolioChartResponse readPortfolioCharts(@ResourceId Long portfolioId) {
 		Portfolio portfolio = findPortfolio(portfolioId);
 		PortfolioDetails portfolioDetails = PortfolioDetails.from(portfolio);
 		List<PortfolioPieChartItem> pieChartItems = pieChart.createItemsBy(portfolio);
-		List<PortfolioDividendChartItem> dividendChartItems = dividendChart.createItemsBy(portfolio, currentLocalDate);
+		List<PortfolioDividendChartItem> dividendChartItems = dividendChart.createItemsBy(portfolio);
 		List<PortfolioSectorChartItem> sectorChartItems = sectorChart.createBy(portfolio);
 		return PortfolioChartResponse.create(portfolioDetails, pieChartItems, dividendChartItems, sectorChartItems);
 	}
