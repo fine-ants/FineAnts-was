@@ -3,9 +3,9 @@ package co.fineants.api.domain.stock_target_price.domain.entity;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -67,7 +67,9 @@ public class TargetPriceNotification extends BaseEntity {
 	}
 
 	public boolean isSameTargetPrice(PriceRepository priceRepository) {
-		Expression currentPrice = stockTargetPrice.getCurrentPrice(priceRepository);
+		Money currentPrice = priceRepository.fetchPriceBy(stockTargetPrice.getStock().getTickerSymbol())
+			.map(CurrentPriceRedisEntity::getPriceMoney)
+			.orElseGet(Money::zero);
 		return targetPrice.compareTo(currentPrice) == 0;
 	}
 
