@@ -8,9 +8,11 @@ import java.util.function.Predicate;
 
 import org.springframework.stereotype.Component;
 
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.Notifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
+import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -56,11 +58,19 @@ public class NotifiableFactory {
 			.flatMap(Collection::stream)
 			.sorted(Comparator.comparingLong(TargetPriceNotification::getId))
 			.map(targetPriceNotification -> {
-				boolean isReached = targetPriceNotification.isSameTargetPrice(priceRepository);
+				boolean isReached = isReached(targetPriceNotification);
 				return TargetPriceNotificationNotifiable.from(targetPriceNotification, isReached);
 			})
 			.map(Notifiable.class::cast)
 			.toList();
+	}
+
+	private boolean isReached(TargetPriceNotification targetPriceNotification) {
+		String tickerSymbol = targetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol();
+		Money currentPrice = priceRepository.fetchPriceBy(tickerSymbol)
+			.map(CurrentPriceRedisEntity::getPriceMoney)
+			.orElseGet(Money::zero);
+		return targetPriceNotification.getTargetPrice().compareTo(currentPrice) == 0;
 	}
 
 	public List<Notifiable> getAllTargetPriceNotificationsBy(List<String> tickerSymbols) {
@@ -70,7 +80,7 @@ public class NotifiableFactory {
 			.map(StockTargetPrice::getTargetPriceNotifications)
 			.flatMap(Collection::stream)
 			.map(targetPriceNotification -> {
-				boolean isReached = targetPriceNotification.isSameTargetPrice(priceRepository);
+				boolean isReached = isReached(targetPriceNotification);
 				return TargetPriceNotificationNotifiable.from(targetPriceNotification, isReached);
 			})
 			.map(Notifiable.class::cast)
