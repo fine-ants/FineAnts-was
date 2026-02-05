@@ -266,6 +266,6 @@ public class PortfolioService {
 			.flatMap(portfolio -> portfolio.getPortfolioHoldings().stream())
 			.map(PortfolioHolding::getStock)
 			.map(Stock::getTickerSymbol)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }
