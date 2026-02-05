@@ -92,6 +92,9 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private ClosingPriceRedisHashRepository closingPriceRepository;
 
 	@Autowired
+	private ClosingPriceService closingPriceService;
+
+	@Autowired
 	private StockTargetPricePublisher stockTargetPricePublisher;
 
 	@Autowired
@@ -114,7 +117,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		kisService = new KisService(
 			mockedKisClient,
 			currentPriceService,
-			closingPriceRepository,
+			closingPriceService,
 			stockTargetPricePublisher,
 			portfolioPublisher,
 			spyDelayManager,

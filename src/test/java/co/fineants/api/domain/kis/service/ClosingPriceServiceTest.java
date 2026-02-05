@@ -111,4 +111,21 @@ class ClosingPriceServiceTest extends AbstractContainerBaseTest {
 					.hasFieldOrPropertyWithValue("price", freshPrice);
 			});
 	}
+
+	@DisplayName("종목 종가 저장 - 종목 종가 데이터를 저장한다")
+	@Test
+	void savePrice_thenStoreClosingPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long closingPrice = 60000L;
+
+		// when
+		closingPriceService.savePrice(tickerSymbol, closingPrice);
+
+		// then
+		ClosingPriceRedisEntity entity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
+		Assertions.assertThat(entity)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", closingPrice);
+	}
 }

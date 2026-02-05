@@ -16,7 +16,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
@@ -44,7 +43,7 @@ public class KisService {
 
 	private final KisClient kisClient;
 	private final CurrentPriceService currentPriceService;
-	private final ClosingPriceRepository closingPriceRepository;
+	private final ClosingPriceService closingPriceService;
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
 	private final DelayManager delayManager;
@@ -106,7 +105,9 @@ public class KisService {
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
 
-		prices.forEach(closingPriceRepository::savePrice);
+		prices.forEach(price ->
+			closingPriceService.savePrice(price.getTickerSymbol(), price.getPrice())
+		);
 		log.info("종목 종가 {}개중 {}개 갱신", tickerSymbols.size(), prices.size());
 		return prices;
 	}
