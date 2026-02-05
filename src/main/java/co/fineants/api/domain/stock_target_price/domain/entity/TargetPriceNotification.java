@@ -3,10 +3,8 @@ package co.fineants.api.domain.stock_target_price.domain.entity;
 import java.time.LocalDateTime;
 
 import co.fineants.api.domain.BaseEntity;
-import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -64,11 +62,6 @@ public class TargetPriceNotification extends BaseEntity {
 
 	public boolean isActive() {
 		return stockTargetPrice.getIsActive();
-	}
-
-	public boolean isSameTargetPrice(PriceRepository priceRepository) {
-		Expression currentPrice = stockTargetPrice.getCurrentPrice(priceRepository);
-		return targetPrice.compareTo(currentPrice) == 0;
 	}
 
 	public boolean hasAuthorization(Long memberId) {

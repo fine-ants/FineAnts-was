@@ -10,7 +10,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,6 +61,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.calculator.DividendCalculator;
 import reactor.core.publisher.Flux;
 
 class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
@@ -110,10 +110,10 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 
 	@BeforeEach
 	void setUp() {
-		Clock clock = Clock.systemDefaultZone();
 		timeService = mock(LocalDateTimeService.class);
 		currentPriceService = Mockito.mock(CurrentPriceService.class);
-		calculator = new PortfolioCalculator(currentPriceService, timeService);
+		DividendCalculator dividendCalculator = Mockito.mock(DividendCalculator.class);
+		calculator = new PortfolioCalculator(currentPriceService, timeService, dividendCalculator);
 
 		given(timeService.getLocalDateWithNow())
 			.willReturn(LocalDate.of(2024, 1, 1));
@@ -453,7 +453,7 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 				Percentage.from(0.4545))
 		);
 
-		given(service.readPortfolioCharts(anyLong(), ArgumentMatchers.any(LocalDate.class)))
+		given(service.readPortfolioCharts(anyLong()))
 			.willReturn(PortfolioChartResponse.create(portfolioDetails, pieChartItems, dividendChartItems,
 				sectorChartItems));
 

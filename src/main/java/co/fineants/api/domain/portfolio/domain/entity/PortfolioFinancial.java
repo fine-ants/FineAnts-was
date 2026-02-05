@@ -5,8 +5,6 @@ import java.util.List;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.MoneyConverter;
-import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.errors.exception.domain.MaximumLossGreaterThanBudgetException;
 import co.fineants.api.global.errors.exception.domain.MoneyNegativeException;
 import co.fineants.api.global.errors.exception.domain.TargetGainLessThanBudgetException;
@@ -93,23 +91,6 @@ public class PortfolioFinancial {
 		this.maximumLoss = financial.maximumLoss;
 	}
 
-	public Expression calBalance(PortfolioCalculator calculator, Expression totalInvestment) {
-		return calculator.calBalance(budget, totalInvestment);
-	}
-
-	public RateDivision calMaximumLossRate(PortfolioCalculator calculator) {
-		return calculator.calMaximumLossRate(budget, maximumLoss);
-	}
-
-	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
-		return calculator.calTargetGainRate(budget, targetGain);
-	}
-
-	@Override
-	public String toString() {
-		return String.format("(budget=%s, targetGain=%s, maximumLoss=%s)", budget, targetGain, maximumLoss);
-	}
-
 	/**
 	 * 총 평가금액이 목표수익금액에 도달했는지 검사.
 	 *
@@ -136,5 +117,10 @@ public class PortfolioFinancial {
 
 	public boolean isMaximumLossZero() {
 		return maximumLoss.hasZero();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("(budget=%s, targetGain=%s, maximumLoss=%s)", budget, targetGain, maximumLoss);
 	}
 }

@@ -13,6 +13,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -229,6 +230,8 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void readMyPortfolioCharts() {
 		// given
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
+			.willReturn(LocalDate.of(2023, 12, 15));
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		Stock samsung = createSamsungStock();
@@ -248,7 +251,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15));
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
 
 		// then
 		assertAll(
@@ -309,7 +312,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 
 		setAuthentication(member);
 		// when
-		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15));
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
 
 		// then
 		assertAll(
@@ -357,7 +360,7 @@ class PortfolioHoldingServiceTest extends AbstractContainerBaseTest {
 		setAuthentication(hacker);
 		// when
 		Throwable throwable = catchThrowable(
-			() -> service.readPortfolioCharts(portfolio.getId(), LocalDate.of(2023, 12, 15)));
+			() -> service.readPortfolioCharts(portfolio.getId()));
 		// then
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)

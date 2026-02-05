@@ -477,27 +477,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calCurrentMonthDividendBy(List.of(holding));
-		// then
-		Expression expected = Money.won(1083);
-		assertThat(actual).isEqualByComparingTo(expected);
-	}
-
-	@DisplayName("종목과 매입이력이 주어질때 이번달 배당금 합계를 계산한다")
-	@Test
-	void givenStockAndPurchaseHistories_whenCalCurrentMonthExpectDividend_thenReturnSumOfDividend() {
-		Portfolio portfolio = createPortfolio(createMember());
-		Stock stock = createSamsungStock();
-		createStockDividendWith(stock.getTickerSymbol()).forEach(stock::addStockDividend);
-		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		PurchaseHistory history = createPurchaseHistory(null, LocalDate.of(2024, 3, 28).atStartOfDay(), Count.from(3),
-			Money.won(40000L),
-			"메모", holding);
-		holding.addPurchaseHistory(history);
-		portfolio.addHolding(holding);
-
-		// when
-		Expression actual = calculator.calCurrentMonthExpectedDividend(stock, List.of(history));
+		Expression actual = calculator.calCurrentMonthDividendBy(portfolio);
 		// then
 		Expression expected = Money.won(1083);
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -516,7 +496,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendBy(portfolio);
 		// then
 		Expression expected = Money.won(4_332);
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -536,7 +516,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualDividendYieldBy(spyLocalDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualDividendYieldBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(150_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -556,7 +536,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 		// when
-		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(spyLocalDateTimeService, portfolio);
+		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(120_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -576,10 +556,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		Expression annualDividend = calculator.calAnnualDividendBy(spyLocalDateTimeService, portfolio);
-		Expression totalInvestment = calculator.calTotalInvestmentBy(portfolio);
 		// when
-		Expression actual = calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);
+		Expression actual = calculator.calAnnualInvestmentDividendYieldBy(portfolio);
+
 		// then
 		Expression expected = RateDivision.of(Money.won(4_332), Money.won(120_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -599,12 +578,14 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@DisplayName("예산과 최대손실금액이 주어지고 최대 손실비율을 계산한다")
 	@Test
-	void calMaximumLossRate_givenBudgetAndMaximumLoss_whenCalMaximumLossRate_thenReturnPercentageOfMaximumLoss() {
+	void calMaximumLossRateBy_givenBudgetAndMaximumLoss_whenCalMaximumLossRate_thenReturnPercentageOfMaximumLoss() {
 		// given
 		Money budget = Money.won(1_000_000);
+		Money targetGain = Money.won(1_500_000);
 		Money maximumLoss = Money.won(900_000);
+		Portfolio portfolio = createPortfolio(createMember(), "포트폴리오1", budget, targetGain, maximumLoss);
 		// when
-		Expression actual = calculator.calMaximumLossRate(budget, maximumLoss);
+		Expression actual = calculator.calMaximumLossRateBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(100_000), Money.won(1_000_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -624,12 +605,15 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@DisplayName("예산과 목표수익금액이 주어지고 목표수익율을 계산한다")
 	@Test
-	void calTargetGainRate_givenBudgetAndTargetGain_whenCalTargetGainRate_thenReturnPercentageOfTargetGain() {
+	void calTargetGainRateBy_givenBudgetAndTargetGain_whenCalTargetGainRate_thenReturnPercentageOfTargetGain() {
 		// given
-		Expression budget = Money.won(1_000_000);
-		Expression targetGain = Money.won(1_500_000);
+		Money budget = Money.won(1_000_000);
+		Money targetGain = Money.won(1_500_000);
+		Money maximumLoss = Money.won(900_000);
+		Portfolio portfolio = createPortfolio(createMember(), "포트폴리오1", budget,
+			targetGain, maximumLoss);
 		// when
-		Expression actual = calculator.calTargetGainRate(budget, targetGain);
+		Expression actual = calculator.calTargetGainRateBy(portfolio);
 		// then
 		Expression expected = RateDivision.of(Money.won(500_000), Money.won(1_000_000));
 		assertThat(actual).isEqualByComparingTo(expected);
@@ -915,7 +899,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 		LocalDate currentLocalDate = LocalDate.of(2024, 1, 16);
 		// when
-		Map<Month, Expression> actual = calculator.calTotalDividendBy(portfolio, currentLocalDate);
+		Map<Month, Expression> actual = calculator.calTotalDividendBy(portfolio);
 		// then
 		Map<Month, Expression> expected = new EnumMap<>(Month.class);
 		for (Month month : Month.values()) {

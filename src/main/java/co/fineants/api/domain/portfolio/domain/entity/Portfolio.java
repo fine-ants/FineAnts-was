@@ -1,13 +1,9 @@
 package co.fineants.api.domain.portfolio.domain.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -15,16 +11,13 @@ import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
-import co.fineants.member.domain.Member;
-import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.domain.MaximumLossNotificationActiveNotChangeException;
 import co.fineants.api.global.errors.exception.domain.TargetGainNotificationActiveNotChangeException;
+import co.fineants.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -242,15 +235,6 @@ public class Portfolio extends BaseEntity {
 	}
 	//== PortfolioFinancial 위임 메소드 종료 ==//
 
-	//== PortfolioNotificationPreference 위임 메서드 시작 ==//
-	public boolean isSameTargetGainActive(boolean active) {
-		return this.preference.isSameTargetGain(active);
-	}
-
-	public boolean isSameMaxLossActive(boolean active) {
-		return this.preference.isSameMaxLoss(active);
-	}
-
 	public Boolean targetGainIsActive() {
 		return preference.targetGainIsActive();
 	}
@@ -259,130 +243,6 @@ public class Portfolio extends BaseEntity {
 		return preference.maximumLossIsActive();
 	}
 	//== PortfolioNotificationPreference 위임 메서드 종료 ==//
-
-	public boolean hasTargetGainSentHistory(NotificationSentRepository manager) {
-		return manager.hasTargetGainSendHistory(id);
-	}
-
-	//== Portfolio 계산 메서드 시작 ==//
-
-	/**
-	 * 포트폴리오의 총 손익을 계산 후 반환.
-	 *
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return 포트폴리오 총 손익
-	 * @throws IllegalStateException 포트폴리오 종목(PortfolioHolding)에 따른 현재가가 저장소에 없으면 예외 발생
-	 */
-	public Expression calTotalGain(PortfolioCalculator calculator) {
-		return calculator.calTotalGainBy(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public boolean hasMaxLossSentHistory(NotificationSentRepository manager) {
-		return manager.hasMaxLossSendHistory(id);
-	}
-
-	/**
-	 * 포트폴리오 총 투자 금액 계산 후 반환.
-	 *
-	 * @param calculator 계산기 객체
-	 * @return 포트폴리오의 총 투자 금액
-	 */
-	public Expression calTotalInvestment(PortfolioCalculator calculator) {
-		return calculator.calTotalInvestmentOfHolding(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	/**
-	 * 포트폴리오의 총 손익율을 계산 후 반환.
-	 *
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return 포트폴리오 총 손익율
-	 * @throws java.util.NoSuchElementException 포트폴리오 종목(PortfolioHolding)에 따른 현재가가 저장소에 없으면 예외 발생
-	 */
-	public Expression calTotalGainRate(PortfolioCalculator calculator) {
-		return calculator.calTotalGainRate(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public Expression calBalance(PortfolioCalculator calculator) {
-		Expression totalInvestment = calculator.calTotalInvestmentBy(this);
-		return this.financial.calBalance(calculator, totalInvestment);
-	}
-
-	/**
-	 * 포트폴리오 총 평가금액 계산 후 반환.
-	 *
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return 포트폴리오의 총 평가금액
-	 * @throws NoSuchElementException 포트폴리오 종목(PortfolioHolding)에 따른 현재가가 저장소에 없으면 예외 발생
-	 */
-	public Expression calTotalCurrentValuation(PortfolioCalculator calculator) {
-		return calculator.calTotalCurrentValuation(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public Expression calTotalAsset(PortfolioCalculator calculator) {
-		Expression balance = calculator.calBalanceBy(this);
-		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(this);
-		return calculator.calTotalAsset(balance, totalCurrentValuation);
-	}
-
-	public Expression calCurrentMonthDividend(PortfolioCalculator calculator) {
-		return calculator.calCurrentMonthDividendBy(Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public Expression calAnnualDividend(LocalDateTimeService dateTimeService, PortfolioCalculator calculator) {
-		return calculator.calAnnualDividend(dateTimeService, Collections.unmodifiableList(portfolioHoldings));
-	}
-
-	public Expression calAnnualInvestmentDividendYield(LocalDateTimeService localDateTimeService,
-		PortfolioCalculator calculator) {
-		Expression annualDividend = calculator.calAnnualDividendBy(localDateTimeService, this);
-		Expression totalInvestment = calculator.calTotalInvestmentBy(this);
-		return calculator.calAnnualInvestmentDividendYield(annualDividend, totalInvestment);
-	}
-
-	public RateDivision calMaximumLossRate(PortfolioCalculator calculator) {
-		return this.financial.calMaximumLossRate(calculator);
-	}
-
-	public RateDivision calTargetGainRate(PortfolioCalculator calculator) {
-		return this.financial.calTargetGainRate(calculator);
-	}
-
-	public Map<String, List<Expression>> createSectorChart(PortfolioCalculator calculator) {
-		Expression balance = calculator.calBalanceBy(this);
-		return calculator.calSectorChart(Collections.unmodifiableList(portfolioHoldings), balance);
-	}
-
-	/**
-	 * 포트폴리오가 목표수익금액에 도달했는지 여부 검사.
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return true: 평가금액이 목표수익금액보다 같거나 큰 경우, false: 평가금액이 목표수익금액보다 작은 경우
-	 */
-	public boolean reachedTargetGain(PortfolioCalculator calculator) {
-		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(this);
-		return this.financial.reachedTargetGain(totalCurrentValuation);
-	}
-
-	/**
-	 * 포트폴리오가 최대손실금액에 도달했는지 여부 검사.
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return true: 총 손익이 최대손실금액보다 같거나 작은 경우, false: 총 손익이 최대손실금액보다 큰 경우
-	 */
-	public boolean reachedMaximumLoss(PortfolioCalculator calculator) {
-		Expression totalGain = calculator.calTotalGainBy(this);
-		return this.financial.reachedMaximumLoss(totalGain);
-	}
-
-	public List<PortfolioPieChartItem> calCurrentValuationWeights(PortfolioCalculator calculator) {
-		Expression totalAsset = calculator.calTotalAssetBy(this);
-		return portfolioHoldings.stream()
-			.map(holding -> calculator.calPortfolioPieChartItemBy(holding, totalAsset))
-			.toList();
-	}
-
-	public Map<Month, Expression> calTotalDividend(PortfolioCalculator calculator, LocalDate currentLocalDate) {
-		return calculator.calTotalDividend(Collections.unmodifiableList(portfolioHoldings), currentLocalDate);
-	}
-	//== Portfolio 계산 메서드 시작 ==//
 
 	public String getReferenceId() {
 		return id.toString();

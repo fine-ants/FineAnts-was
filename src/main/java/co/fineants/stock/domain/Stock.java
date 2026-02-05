@@ -12,10 +12,6 @@ import java.util.Optional;
 import co.fineants.api.domain.BaseEntity;
 import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
-import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.global.common.csv.CsvLineConvertible;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -101,13 +97,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 		stockDividends.remove(stockDividend);
 	}
 
-	public List<StockDividend> getCurrentMonthDividends(LocalDateTimeService localDateTimeService) {
-		LocalDate today = localDateTimeService.getLocalDateWithNow();
-		return stockDividends.stream()
-			.filter(dividend -> dividend.isCurrentMonthPaymentDate(today))
-			.toList();
-	}
-
 	public List<StockDividend> getCurrentYearDividends(LocalDateTimeService localDateTimeService) {
 		LocalDate today = localDateTimeService.getLocalDateWithNow();
 		return stockDividends.stream()
@@ -172,18 +161,6 @@ public class Stock extends BaseEntity implements CsvLineConvertible {
 			result.put(month, Money.zero());
 		}
 		return result;
-	}
-
-	public Expression getCurrentPrice(PriceRepository priceRepository) {
-		return priceRepository.fetchPriceBy(tickerSymbol)
-			.map(CurrentPriceRedisEntity::getPriceMoney)
-			.orElseGet(Money::zero);
-	}
-
-	public Expression getClosingPrice(ClosingPriceRepository repository) {
-		return repository.fetchPrice(tickerSymbol)
-			.map(ClosingPriceRedisEntity::getPriceMoney)
-			.orElseGet(Money::zero);
 	}
 
 	// ticker 및 recordDate 기준으로 KisDividend가 매치되어 있는지 확인
