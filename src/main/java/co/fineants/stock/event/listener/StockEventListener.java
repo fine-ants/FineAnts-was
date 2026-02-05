@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -27,7 +27,7 @@ public class StockEventListener {
 	private final ActiveStockService service;
 	private final KisService kisService;
 	private final CurrentPriceService currentPriceService;
-	private final ClosingPriceRepository closingPriceRepository;
+	private final ClosingPriceService closingPriceService;
 	private final DelayManager delayManager;
 
 	@EventListener
@@ -84,7 +84,7 @@ public class StockEventListener {
 	}
 
 	private void saveClosingPrice(KisClosingPrice price) {
-		closingPriceRepository.savePrice(price.getTickerSymbol(), price.getPrice());
+		closingPriceService.savePrice(price.getTickerSymbol(), price.getPrice());
 	}
 
 	@EventListener
