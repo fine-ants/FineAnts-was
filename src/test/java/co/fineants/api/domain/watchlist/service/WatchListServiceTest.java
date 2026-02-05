@@ -530,4 +530,27 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(tickerSymbols).containsExactlyInAnyOrder(samsung.getTickerSymbol(), kakao.getTickerSymbol());
 	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 다른 회원이 조회할 수 없다")
+	@Test
+	void getWatchListTickerSymbols_whenOtherMemberRead_thenThrowError() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		Stock stock = createSamsungStock();
+		stock.addStockDividend(TestDataFactory.createSamsungStockDividend());
+		stock = stockRepository.save(stock);
+
+		watchStockRepository.save(createWatchStock(watchList, stock));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> watchListService.getAllWatchListTickers(watchList.getId()));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(watchList.toString());
+	}
 }
