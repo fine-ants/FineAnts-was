@@ -136,7 +136,7 @@ public class PortfolioHolding extends BaseEntity {
 	public List<PurchaseHistory> getPurchaseHistories() {
 		return Collections.unmodifiableList(purchaseHistories);
 	}
-	// == 위임 메서드 종료 ==//
+	//== 위임 메서드 종료 ==//
 
 	@Override
 	public String toString() {
