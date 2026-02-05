@@ -19,6 +19,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -33,7 +34,6 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
-import co.fineants.member.domain.Member;
 import co.fineants.api.domain.portfolio.controller.PortFolioRestController;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
@@ -47,6 +47,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.member.domain.Member;
 
 class PortfolioRestControllerDocsTest extends RestDocsSupport {
 
@@ -54,7 +55,8 @@ class PortfolioRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		return new PortFolioRestController(portFolioService);
+		ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+		return new PortFolioRestController(portFolioService, eventPublisher);
 	}
 
 	@DisplayName("포트폴리오 생성 API")
