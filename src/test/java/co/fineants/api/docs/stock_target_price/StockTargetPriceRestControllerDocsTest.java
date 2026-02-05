@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -29,7 +30,6 @@ import org.springframework.restdocs.snippet.Attributes;
 import co.fineants.TestDataFactory;
 import co.fineants.api.docs.RestDocsSupport;
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.stock.domain.Stock;
 import co.fineants.api.domain.stock_target_price.controller.StockTargetPriceRestController;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
@@ -44,6 +44,7 @@ import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
+import co.fineants.stock.domain.Stock;
 
 class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 
@@ -51,7 +52,8 @@ class StockTargetPriceRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		return new StockTargetPriceRestController(service);
+		ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+		return new StockTargetPriceRestController(service, eventPublisher);
 	}
 
 	@DisplayName("종목 지정가 추가 API")

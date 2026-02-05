@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -494,5 +495,62 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 
 		assertThat(hasStockForWatchList1).isTrue();
 		assertThat(hasStockForWatchList2).isFalse();
+	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 비어있는 관심 종목 리스트인 경우 빈 집합 반환")
+	@Test
+	void getWatchListTickerSymbols_whenEmptyWatchList_thenReturnEmptySet() {
+		// given
+		Member member = memberRepository.save(createMember());
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		// when
+		Set<String> tickerSymbols = watchListService.getAllWatchListTickers(watchList.getId());
+
+		// then
+		assertThat(tickerSymbols).isEmpty();
+	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 종목이 여러개인 경우 모든 티커 반환")
+	@Test
+	void getWatchListTickerSymbols_whenMultipleStocks_thenReturnAllTickers() {
+		// given
+		Member member = memberRepository.save(createMember());
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		Stock samsung = stockRepository.save(createSamsungStock());
+		Stock kakao = stockRepository.save(createKakaoStock());
+
+		watchStockRepository.save(createWatchStock(watchList, samsung));
+		watchStockRepository.save(createWatchStock(watchList, kakao));
+
+		// when
+		Set<String> tickerSymbols = watchListService.getAllWatchListTickers(watchList.getId());
+
+		// then
+		assertThat(tickerSymbols).containsExactlyInAnyOrder(samsung.getTickerSymbol(), kakao.getTickerSymbol());
+	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 다른 회원이 조회할 수 없다")
+	@Test
+	void getWatchListTickerSymbols_whenOtherMemberRead_thenThrowError() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		Stock stock = createSamsungStock();
+		stock.addStockDividend(TestDataFactory.createSamsungStockDividend());
+		stock = stockRepository.save(stock);
+
+		watchStockRepository.save(createWatchStock(watchList, stock));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> watchListService.getAllWatchListTickers(watchList.getId()));
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(watchList.toString());
 	}
 }

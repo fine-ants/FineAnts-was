@@ -23,7 +23,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
@@ -39,6 +38,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioPropertiesRepository
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.authorized.Authorized;
+import co.fineants.api.global.common.authorized.service.MemberAuthorizedService;
 import co.fineants.api.global.common.authorized.service.PortfolioAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.common.resource.ResourceIds;
@@ -66,7 +66,6 @@ public class PortfolioService {
 	private final PortfolioHoldingRepository portfolioHoldingRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final PortfolioPropertiesRepository portfolioPropertiesRepository;
 	private final PortfolioProperties properties;
 	private final PortfolioCalculator calculator;
@@ -251,5 +250,22 @@ public class PortfolioService {
 			.map(PortfolioHolding::getStock)
 			.map(Stock::getTickerSymbol)
 			.collect(Collectors.toSet());
+	}
+
+	/**
+	 * 회원이 가지고 있는 모든 포트폴리오에 대한 티커 심볼 집합을 반환하는 서비스
+	 * @param memberId 회원 ID
+	 * @return 회원이 가지고 있는 모든 포트폴리오에 포함된 티커 심볼의 집합
+	 */
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	@Authorized(serviceClass = MemberAuthorizedService.class)
+	public Set<String> getAllPortfolioTickers(@ResourceId Long memberId) {
+		List<Portfolio> portfolios = portfolioRepository.findAllByMemberIdOrderByIdDesc(memberId);
+		return portfolios.stream()
+			.flatMap(portfolio -> portfolio.getPortfolioHoldings().stream())
+			.map(PortfolioHolding::getStock)
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }

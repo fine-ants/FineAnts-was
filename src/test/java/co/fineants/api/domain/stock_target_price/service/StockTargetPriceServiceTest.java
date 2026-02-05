@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Set;
 
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
@@ -323,5 +324,58 @@ class StockTargetPriceServiceTest extends AbstractContainerBaseTest {
 		assertThat(throwable)
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(stockTargetPrice.toString());
+	}
+
+	@DisplayName("회원이 가진 종목 지정가들의 티커 심볼 집합 조회 - 종목 지정가가 없는 경우 빈 집합 반환")
+	@Test
+	void findTickerSymbolsByMemberId_whenNoTargetPrices_thenReturnEmptySet() {
+		// given
+		Member member = memberRepository.save(createMember());
+
+		// when
+		Set<String> tickerSymbols = service.getAllStockTargetPriceTickers(member.getId());
+
+		// then
+		assertThat(tickerSymbols).isEmpty();
+	}
+
+	@DisplayName("회원이 가진 종목 지정가들의 티커 심볼 집합 조회 - 종목 지정가가 있는 경우 티커 심볼 반환")
+	@Test
+	void findTickerSymbolsByMemberId_whenExistTargetPrices_thenReturnTickerSymbols() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Stock stock1 = stockRepository.save(createSamsungStock());
+		Stock stock2 = stockRepository.save(createDongwhaPharmStock());
+		StockTargetPrice stockTargetPrice1 = repository.save(createStockTargetPrice(member, stock1));
+		StockTargetPrice stockTargetPrice2 = repository.save(createStockTargetPrice(member, stock2));
+		targetPriceNotificationRepository.save(createTargetPriceNotification(stockTargetPrice1));
+		targetPriceNotificationRepository.save(createTargetPriceNotification(stockTargetPrice2));
+
+		// when
+		Set<String> tickerSymbols = service.getAllStockTargetPriceTickers(member.getId());
+
+		// then
+		assertThat(tickerSymbols)
+			.containsExactlyInAnyOrder(stock1.getTickerSymbol(), stock2.getTickerSymbol());
+	}
+
+	@DisplayName("회원이 가진 종목 지정가들의 티커 심볼 집합 조회 - 다른 회원이 조회할 수 없다")
+	@Test
+	void findTickerSymbolsByMemberId_whenOtherMemberRequest_thenThrowException() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Member hacker = memberRepository.save(createMember("hacker"));
+		Stock stock1 = stockRepository.save(createSamsungStock());
+		StockTargetPrice stockTargetPrice1 = repository.save(createStockTargetPrice(member, stock1));
+		targetPriceNotificationRepository.save(createTargetPriceNotification(stockTargetPrice1));
+
+		setAuthentication(hacker);
+		// when
+		Throwable throwable = catchThrowable(() -> service.getAllStockTargetPriceTickers(member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(ForbiddenException.class)
+			.hasMessage(member.toString());
 	}
 }

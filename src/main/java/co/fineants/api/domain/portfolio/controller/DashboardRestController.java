@@ -1,7 +1,9 @@
 package co.fineants.api.domain.portfolio.controller;
 
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,10 +12,12 @@ import co.fineants.api.domain.portfolio.domain.dto.response.DashboardLineChartRe
 import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartResponse;
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.service.DashboardService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.DashboardSuccessCode;
+import co.fineants.stock.event.StocksViewedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,10 +27,16 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class DashboardRestController {
 	private final DashboardService dashboardService;
+	private final PortfolioService portfolioService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@GetMapping("/overview")
 	public ApiResponse<OverviewResponse> readOverview(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		// 활성 종목 등록
+		Set<String> tickers = portfolioService.getAllPortfolioTickers(authentication.getId());
+		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+
 		return ApiResponse.success(DashboardSuccessCode.OK_OVERVIEW,
 			dashboardService.getOverview(authentication.getId()));
 	}
