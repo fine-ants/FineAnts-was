@@ -21,7 +21,7 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -59,7 +59,7 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 	private NotificationRepository notificationRepository;
 
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private FcmRepository fcmRepository;
@@ -82,7 +82,7 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 			createPurchaseHistory(null, LocalDateTime.now(), Count.from(100), Money.won(10000), "memo",
 				portfolioHolding));
 		fcmRepository.save(createFcmToken("token", member));
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		PushNotificationEvent event = new PushNotificationEvent(
 			PurchaseHistoryEventSendableParameter.create(portfolio.getId(), member.getId()));
@@ -108,7 +108,7 @@ class PurchaseHistoryEventListenerTest extends AbstractContainerBaseTest {
 			createPurchaseHistory(null, LocalDateTime.now(), Count.from(1), Money.won(1000000), "memo",
 				portfolioHolding));
 		fcmRepository.save(createFcmToken("token", member));
-		priceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
 
 		PushNotificationEvent event = new PushNotificationEvent(
 			PurchaseHistoryEventSendableParameter.create(portfolio.getId(), member.getId()));

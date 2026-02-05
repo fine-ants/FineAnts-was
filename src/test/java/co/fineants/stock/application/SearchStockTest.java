@@ -26,7 +26,7 @@ import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.domain.Stock;
@@ -44,7 +44,7 @@ class SearchStockTest extends AbstractContainerBaseTest {
 	private SearchStock searchStock;
 
 	@Autowired
-	private PriceRepository currentPriceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;

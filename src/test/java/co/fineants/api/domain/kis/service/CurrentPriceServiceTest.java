@@ -15,7 +15,7 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import reactor.core.publisher.Mono;
 
 class CurrentPriceServiceTest extends AbstractContainerBaseTest {
@@ -24,7 +24,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	private CurrentPriceService service;
 
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private KisService kisService;
@@ -41,7 +41,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol = "005930";
 		long expectedPrice = 50000L;
-		priceRepository.savePrice(tickerSymbol, expectedPrice);
+		currentPriceRepository.savePrice(tickerSymbol, expectedPrice);
 
 		// when
 		Money price = service.fetchPrice(tickerSymbol);
@@ -63,7 +63,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
-		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
 		Assertions.assertThat(actual)
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", freshPrice);
@@ -81,7 +81,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		long stalePrice = 45000L;
 		long freshPrice = 50000L;
 
-		priceRepository.savePrice(tickerSymbol, stalePrice);
+		currentPriceRepository.savePrice(tickerSymbol, stalePrice);
 		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
 
@@ -94,7 +94,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Awaitility.await()
 			.atMost(Duration.ofSeconds(2))
 			.untilAsserted(() ->
-				Assertions.assertThat(priceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+				Assertions.assertThat(currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
 					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 					.hasFieldOrPropertyWithValue("price", freshPrice));
 	}
@@ -128,9 +128,60 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(0L));
-		CurrentPriceRedisEntity actual = priceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
 		Assertions.assertThat(actual)
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", 0L);
+	}
+
+	@DisplayName("종목 현재가 저장 - 정상 저장된다")
+	@Test
+	void savePrice_thenSaveToRepository() {
+		// given
+		String tickerSymbol = "005930";
+		long priceToSave = 60000L;
+
+		// when
+		service.savePrice(tickerSymbol, priceToSave);
+
+		// then
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", priceToSave);
+	}
+
+	@DisplayName("종목 현재가 저장 - 빈 티커 심볼을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenBlankTickerSymbol_thenNotSavedPrice() {
+		// given
+		long price = 1000L;
+
+		// when
+		service.savePrice("", price);
+		service.savePrice("   ", price);
+		service.savePrice(null, price);
+		// then
+		boolean actual1 = currentPriceRepository.fetchPriceBy("").isEmpty();
+		boolean actual2 = currentPriceRepository.fetchPriceBy("   ").isEmpty();
+		boolean actual3 = currentPriceRepository.fetchPriceBy(null).isEmpty();
+		Assertions.assertThat(actual1).isTrue();
+		Assertions.assertThat(actual2).isTrue();
+		Assertions.assertThat(actual3).isTrue();
+	}
+
+	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenNegativePrice_thenNotSavedPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long negativePrice = -1000L;
+
+		// when
+		service.savePrice(tickerSymbol, negativePrice);
+
+		// then
+		boolean actual = currentPriceRepository.fetchPriceBy(tickerSymbol).isEmpty();
+		Assertions.assertThat(actual).isTrue();
 	}
 }

@@ -12,8 +12,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.Notifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
-import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
@@ -28,7 +27,7 @@ public class NotifiableFactory {
 
 	private final PortfolioRepository portfolioRepository;
 	private final StockTargetPriceRepository stockTargetPriceRepository;
-	private final PriceRepository priceRepository;
+	private final CurrentPriceService currentPriceService;
 
 	public List<Notifiable> getAllPortfolios(Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findAllWithAll().stream()
@@ -67,9 +66,7 @@ public class NotifiableFactory {
 
 	private boolean isReached(TargetPriceNotification targetPriceNotification) {
 		String tickerSymbol = targetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol();
-		Money currentPrice = priceRepository.fetchPriceBy(tickerSymbol)
-			.map(CurrentPriceRedisEntity::getPriceMoney)
-			.orElseGet(Money::zero);
+		Money currentPrice = currentPriceService.fetchPrice(tickerSymbol);
 		return targetPriceNotification.getTargetPrice().compareTo(currentPrice) == 0;
 	}
 

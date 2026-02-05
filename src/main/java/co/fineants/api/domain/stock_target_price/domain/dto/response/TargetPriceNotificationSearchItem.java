@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,7 +26,7 @@ public class TargetPriceNotificationSearchItem {
 	private LocalDateTime lastUpdated;
 
 	public static TargetPriceNotificationSearchItem from(StockTargetPrice stockTargetPrice,
-		ClosingPriceRepository repository) {
+		Money closingPrice) {
 
 		List<TargetPriceItem> targetPrices = stockTargetPrice.getTargetPriceNotifications().stream()
 			.map(TargetPriceItem::from)
@@ -37,9 +35,7 @@ public class TargetPriceNotificationSearchItem {
 		return TargetPriceNotificationSearchItem.builder()
 			.companyName(stockTargetPrice.getStock().getCompanyName())
 			.tickerSymbol(stockTargetPrice.getStock().getTickerSymbol())
-			.lastPrice(repository.fetchPrice(stockTargetPrice.getStock().getTickerSymbol())
-				.map(ClosingPriceRedisEntity::getPriceMoney)
-				.orElse(Money.zero()))
+			.lastPrice(closingPrice)
 			.targetPrices(targetPrices)
 			.isActive(stockTargetPrice.getIsActive())
 			.lastUpdated(stockTargetPrice.getModifiedAt())

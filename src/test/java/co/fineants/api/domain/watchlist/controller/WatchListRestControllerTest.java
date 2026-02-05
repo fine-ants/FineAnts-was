@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.watchlist.domain.dto.request.ChangeWatchListNameRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchListRequest;
 import co.fineants.api.domain.watchlist.domain.dto.request.CreateWatchStockRequest;
@@ -57,7 +57,7 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 	private StockRepository stockRepository;
 
 	@Autowired
-	private PriceRepository priceRepository;
+	private CurrentPriceRepository currentPriceRepository;
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;
@@ -76,7 +76,7 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
 		this.stock = stockRepository.save(samsung);
-		priceRepository.savePrice(this.stock, 60000L);
+		currentPriceRepository.savePrice(this.stock, 60000L);
 		closingPriceRepository.savePrice(this.stock.getTickerSymbol(), 50000L);
 
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
-import co.fineants.api.domain.kis.repository.PriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
 import co.fineants.stock.event.StockCurrentPriceRequiredEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -16,20 +16,24 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class CurrentPriceService {
-	private final PriceRepository priceRepository;
+	private final CurrentPriceRepository currentPriceRepository;
 	private final Clock clock;
 	private final long freshnessThresholdMillis;
 	private final ApplicationEventPublisher eventPublisher;
 
 	public CurrentPriceService(
-		PriceRepository priceRepository,
+		CurrentPriceRepository currentPriceRepository,
 		Clock clock,
 		@Value("${stock.current-price.freshness-threshold-millis:5000}") long freshnessThresholdMillis,
 		ApplicationEventPublisher eventPublisher) {
-		this.priceRepository = priceRepository;
+		this.currentPriceRepository = currentPriceRepository;
 		this.clock = clock;
 		this.freshnessThresholdMillis = freshnessThresholdMillis;
 		this.eventPublisher = eventPublisher;
+	}
+
+	public void savePrice(String tickerSymbol, long price) {
+		currentPriceRepository.savePrice(tickerSymbol, price);
 	}
 
 	/**
@@ -39,7 +43,7 @@ public class CurrentPriceService {
 	 * @return 종목 현재가
 	 */
 	public Money fetchPrice(String tickerSymbol) {
-		return priceRepository.fetchPriceBy(tickerSymbol)
+		return currentPriceRepository.fetchPriceBy(tickerSymbol)
 			.map(this::processCachedEntity)
 			.orElseGet(() -> handleCacheMiss(tickerSymbol));
 	}
@@ -64,7 +68,7 @@ public class CurrentPriceService {
 	private Money handleCacheMiss(String tickerSymbol) {
 		log.info("Cache miss for {}. Triggering refresh and returning current price.", tickerSymbol);
 		triggerSyncRefresh(tickerSymbol);
-		return priceRepository.fetchPriceBy(tickerSymbol)
+		return currentPriceRepository.fetchPriceBy(tickerSymbol)
 			.map(this::processCachedEntity)
 			.orElseThrow(() -> new IllegalStateException("Failed to fetch current price for " + tickerSymbol));
 	}
