@@ -1,8 +1,8 @@
 package co.fineants.api.domain.watchlist.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,7 @@ import co.fineants.api.global.errors.exception.business.WatchListNotFoundExcepti
 import co.fineants.api.global.errors.exception.business.WatchStockDuplicateException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -195,6 +196,11 @@ public class WatchListService {
 	@Authorized(serviceClass = WatchListAuthorizedService.class)
 	@Secured("ROLE_USER")
 	public Set<String> getAllWatchListTickers(@ResourceId Long watchListId) {
-		return Collections.emptySet();
+		WatchList watchList = watchListRepository.findById(watchListId)
+			.orElseThrow(() -> new WatchListNotFoundException(watchListId.toString()));
+		return watchList.getWatchStocks().stream()
+			.map(WatchStock::getStock)
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }

@@ -510,4 +510,24 @@ class WatchListServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(tickerSymbols).isEmpty();
 	}
+
+	@DisplayName("관심 종목 리스트가 가진 종목 티커 집합 조회 - 종목이 여러개인 경우 모든 티커 반환")
+	@Test
+	void getWatchListTickerSymbols_whenMultipleStocks_thenReturnAllTickers() {
+		// given
+		Member member = memberRepository.save(createMember());
+		WatchList watchList = watchListRepository.save(createWatchList(member));
+
+		Stock samsung = stockRepository.save(createSamsungStock());
+		Stock kakao = stockRepository.save(createKakaoStock());
+
+		watchStockRepository.save(createWatchStock(watchList, samsung));
+		watchStockRepository.save(createWatchStock(watchList, kakao));
+
+		// when
+		Set<String> tickerSymbols = watchListService.getAllWatchListTickers(watchList.getId());
+
+		// then
+		assertThat(tickerSymbols).containsExactlyInAnyOrder(samsung.getTickerSymbol(), kakao.getTickerSymbol());
+	}
 }
