@@ -258,7 +258,7 @@ public class PortfolioService {
 	 */
 	@Transactional(readOnly = true)
 	@Secured("ROLE_USER")
-	public Set<String> getAllTickerSymbolsByMemberId(Long memberId) {
+	public Set<String> getAllTickerSymbolsBy(Long memberId) {
 		List<Portfolio> portfolios = portfolioRepository.findAllByMemberIdOrderByIdDesc(memberId);
 		return portfolios.stream()
 			.flatMap(portfolio -> portfolio.getPortfolioHoldings().stream())
