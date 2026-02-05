@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import co.fineants.TestDataFactory;
@@ -34,6 +35,7 @@ import co.fineants.api.domain.portfolio.domain.dto.response.DashboardPieChartRes
 import co.fineants.api.domain.portfolio.domain.dto.response.OverviewResponse;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.service.DashboardService;
+import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.global.common.time.DefaultLocalDateTimeService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.calculator.DividendCalculator;
@@ -46,7 +48,9 @@ class DashboardRestControllerDocsTest extends RestDocsSupport {
 
 	@Override
 	protected Object initController() {
-		return new DashboardRestController(service);
+		PortfolioService portfolioService = Mockito.mock(PortfolioService.class);
+		ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+		return new DashboardRestController(service, portfolioService, eventPublisher);
 	}
 
 	@BeforeEach
