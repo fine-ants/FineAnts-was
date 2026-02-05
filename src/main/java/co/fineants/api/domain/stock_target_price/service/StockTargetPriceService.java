@@ -1,6 +1,8 @@
 package co.fineants.api.domain.stock_target_price.service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotifi
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import co.fineants.api.global.common.authorized.Authorized;
+import co.fineants.api.global.common.authorized.service.MemberAuthorizedService;
 import co.fineants.api.global.common.authorized.service.StockTargetPriceAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -155,5 +158,18 @@ public class StockTargetPriceService {
 			.orElseThrow(() -> new StockTargetPriceNotFoundException(stockTargetPriceId.toString()));
 		targetPriceNotificationRepository.deleteAllByStockTargetPrices(List.of(stockTargetPrice));
 		repository.deleteById(stockTargetPriceId);
+	}
+
+	/**
+	 * 회원이 가진 종목 지정가들의 티커 심볼 집합을 반환합니다.
+	 */
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	@Authorized(serviceClass = MemberAuthorizedService.class)
+	public Set<String> getAllStockTargetPriceTickers(@ResourceId Long memberId) {
+		return repository.findAllByMemberId(memberId)
+			.stream()
+			.map(stockTargetPrice -> stockTargetPrice.getStock().getTickerSymbol())
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }

@@ -1,5 +1,8 @@
 package co.fineants.api.domain.stock_target_price.controller;
 
+import java.util.Set;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,8 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.StockSuccessCode;
+import co.fineants.stock.event.StockViewedEvent;
+import co.fineants.stock.event.StocksViewedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StockTargetPriceRestController {
 
 	private final StockTargetPriceService service;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 종목 지정가 알림 데이터 생성
 	@ResponseStatus(HttpStatus.CREATED)
@@ -49,6 +55,10 @@ public class StockTargetPriceRestController {
 	public ApiResponse<TargetPriceNotificationSearchResponse> searchStockTargetPriceNotification(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
+		// 활성 종목 등록
+		Set<String> tickers = service.getAllStockTargetPriceTickers(authentication.getId());
+		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+
 		TargetPriceNotificationSearchResponse response = service.searchStockTargetPrices(
 			authentication.getId());
 		log.info("종목 지정가 알림 검색 결과 : {}", response);
@@ -61,6 +71,9 @@ public class StockTargetPriceRestController {
 		@PathVariable String tickerSymbol,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
+		// 활성 종목 등록
+		eventPublisher.publishEvent(new StockViewedEvent(tickerSymbol));
+
 		TargetPriceNotificationSpecifiedSearchResponse response = service.searchStockTargetPrice(tickerSymbol,
 			authentication.getId());
 		log.info("특정 종목 지정가 알림 리스트 조회 결과 : {}", response);

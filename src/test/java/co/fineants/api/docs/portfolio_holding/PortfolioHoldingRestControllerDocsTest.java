@@ -102,7 +102,6 @@ class PortfolioHoldingRestControllerDocsTest extends RestDocsSupport {
 			portfolioCacheService,
 			portfolioHoldingEventPublisher,
 			portfolioHoldingFacade,
-			localDateTimeService,
 			portfolioService,
 			eventPublisher
 		);
