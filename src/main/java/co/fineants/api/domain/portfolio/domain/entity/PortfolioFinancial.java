@@ -91,11 +91,6 @@ public class PortfolioFinancial {
 		this.maximumLoss = financial.maximumLoss;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("(budget=%s, targetGain=%s, maximumLoss=%s)", budget, targetGain, maximumLoss);
-	}
-
 	/**
 	 * 총 평가금액이 목표수익금액에 도달했는지 검사.
 	 *
@@ -122,5 +117,10 @@ public class PortfolioFinancial {
 
 	public boolean isMaximumLossZero() {
 		return maximumLoss.hasZero();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("(budget=%s, targetGain=%s, maximumLoss=%s)", budget, targetGain, maximumLoss);
 	}
 }

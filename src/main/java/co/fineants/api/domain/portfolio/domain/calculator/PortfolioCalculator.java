@@ -462,7 +462,8 @@ public class PortfolioCalculator {
 	 * @return 도달 여부
 	 */
 	public boolean reachedTargetGainBy(Portfolio portfolio) {
-		return portfolio.reachedTargetGain(this);
+		Expression totalCurrentValuation = this.calTotalCurrentValuationBy(portfolio);
+		return portfolio.getFinancial().reachedTargetGain(totalCurrentValuation);
 	}
 
 	/**
@@ -472,7 +473,8 @@ public class PortfolioCalculator {
 	 * @return 도달 여부
 	 */
 	public boolean reachedMaximumLossBy(Portfolio portfolio) {
-		return portfolio.reachedMaximumLoss(this);
+		Expression totalGain = this.calTotalGainBy(portfolio);
+		return portfolio.getFinancial().reachedMaximumLoss(totalGain);
 	}
 
 	/**

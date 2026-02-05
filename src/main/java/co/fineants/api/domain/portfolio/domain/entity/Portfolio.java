@@ -267,26 +267,6 @@ public class Portfolio extends BaseEntity {
 	}
 	//== Portfolio 계산 메서드 시작 ==//
 
-	/**
-	 * 포트폴리오가 목표수익금액에 도달했는지 여부 검사.
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return true: 평가금액이 목표수익금액보다 같거나 큰 경우, false: 평가금액이 목표수익금액보다 작은 경우
-	 */
-	public boolean reachedTargetGain(PortfolioCalculator calculator) {
-		Expression totalCurrentValuation = calculator.calTotalCurrentValuationBy(this);
-		return this.financial.reachedTargetGain(totalCurrentValuation);
-	}
-
-	/**
-	 * 포트폴리오가 최대손실금액에 도달했는지 여부 검사.
-	 * @param calculator 포트폴리오 계산기 객체
-	 * @return true: 총 손익이 최대손실금액보다 같거나 작은 경우, false: 총 손익이 최대손실금액보다 큰 경우
-	 */
-	public boolean reachedMaximumLoss(PortfolioCalculator calculator) {
-		Expression totalGain = calculator.calTotalGainBy(this);
-		return this.financial.reachedMaximumLoss(totalGain);
-	}
-
 	public List<PortfolioPieChartItem> calCurrentValuationWeights(PortfolioCalculator calculator) {
 		Expression totalAsset = calculator.calTotalAssetBy(this);
 		return portfolioHoldings.stream()
