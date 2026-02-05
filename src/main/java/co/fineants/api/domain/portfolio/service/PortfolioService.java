@@ -250,4 +250,20 @@ public class PortfolioService {
 			.map(Stock::getTickerSymbol)
 			.collect(Collectors.toSet());
 	}
+
+	/**
+	 * 회원이 가지고 있는 모든 포트폴리오에 대한 티커 심볼 집합을 반환하는 서비스
+	 * @param memberId 회원 ID
+	 * @return 회원이 가지고 있는 모든 포트폴리오에 포함된 티커 심볼의 집합
+	 */
+	@Transactional(readOnly = true)
+	@Secured("ROLE_USER")
+	public Set<String> getAllTickerSymbolsByMemberId(Long memberId) {
+		List<Portfolio> portfolios = portfolioRepository.findAllByMemberIdOrderByIdDesc(memberId);
+		return portfolios.stream()
+			.flatMap(portfolio -> portfolio.getPortfolioHoldings().stream())
+			.map(PortfolioHolding::getStock)
+			.map(Stock::getTickerSymbol)
+			.collect(Collectors.toSet());
+	}
 }

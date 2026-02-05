@@ -629,4 +629,24 @@ class PortfolioServiceTest extends AbstractContainerBaseTest {
 			.isInstanceOf(ForbiddenException.class)
 			.hasMessage(portfolio.toString());
 	}
+
+	@DisplayName("회원의 모든 포트폴리오 티커 심볼 집합 조회 - 모든 포트폴리오에 등록된 종목의 티커 심볼을 중복 없이 반환한다")
+	@Test
+	void getAllTickerSymbolsByMemberId() {
+		// given
+		Member member = memberRepository.save(createMember());
+		Stock stock1 = stockRepository.save(createSamsungStock());
+		Stock stock2 = stockRepository.save(createKakaoStock());
+		Portfolio portfolio1 = portfolioRepository.save(createPortfolio(member, "portfolio1"));
+		Portfolio portfolio2 = portfolioRepository.save(createPortfolio(member, "portfolio2"));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio1, stock1));
+		portFolioHoldingRepository.save(PortfolioHolding.of(portfolio2, stock2));
+
+		// when
+		Set<String> tickerSymbols = service.getAllTickerSymbolsByMemberId(member.getId());
+
+		// then
+		assertThat(tickerSymbols)
+			.containsExactlyInAnyOrder(stock1.getTickerSymbol(), stock2.getTickerSymbol());
+	}
 }
