@@ -18,7 +18,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
-import co.fineants.api.domain.kis.repository.PriceRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -44,7 +43,7 @@ public class KisService {
 	private static final int CONCURRENCY = 20;
 
 	private final KisClient kisClient;
-	private final PriceRepository priceRepository;
+	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceRepository closingPriceRepository;
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
@@ -62,14 +61,12 @@ public class KisService {
 			.collectList()
 			.blockOptional(delayManager.timeout())
 			.orElseGet(Collections::emptyList);
-		priceRepository.savePrice(toArray(prices));
+		prices.forEach(price ->
+			currentPriceService.savePrice(price.getTickerSymbol(), price.getPrice())
+		);
 		stockTargetPricePublisher.publishEvent(tickerSymbols);
 		portfolioPublisher.publishCurrentPriceEvent();
 		return prices;
-	}
-
-	private KisCurrentPrice[] toArray(List<KisCurrentPrice> prices) {
-		return prices.toArray(KisCurrentPrice[]::new);
 	}
 
 	public Mono<KisCurrentPrice> fetchCurrentPrice(String tickerSymbol) {
