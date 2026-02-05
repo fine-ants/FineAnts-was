@@ -23,7 +23,6 @@ import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRedisRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
@@ -66,7 +65,6 @@ public class PortfolioService {
 	private final PortfolioHoldingRepository portfolioHoldingRepository;
 	private final PurchaseHistoryRepository purchaseHistoryRepository;
 	private final PortfolioGainHistoryRepository portfolioGainHistoryRepository;
-	private final CurrentPriceRedisRepository currentPriceRedisRepository;
 	private final PortfolioPropertiesRepository portfolioPropertiesRepository;
 	private final PortfolioProperties properties;
 	private final PortfolioCalculator calculator;
