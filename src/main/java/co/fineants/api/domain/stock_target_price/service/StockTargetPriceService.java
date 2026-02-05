@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationCreateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.request.TargetPriceNotificationUpdateRequest;
 import co.fineants.api.domain.stock_target_price.domain.dto.response.TargetPriceNotificationCreateResponse;
@@ -46,7 +46,7 @@ public class StockTargetPriceService {
 	private final TargetPriceNotificationRepository targetPriceNotificationRepository;
 	private final MemberRepository memberRepository;
 	private final StockRepository stockRepository;
-	private final ClosingPriceRepository manager;
+	private final ClosingPriceService closingPriceService;
 
 	// 종목 지정가 및 지정가 알림 생성
 	@Transactional
@@ -111,7 +111,10 @@ public class StockTargetPriceService {
 	public TargetPriceNotificationSearchResponse searchStockTargetPrices(Long memberId) {
 		List<StockTargetPrice> stockTargetPrices = repository.findAllByMemberId(memberId);
 		List<TargetPriceNotificationSearchItem> stocks = stockTargetPrices.stream()
-			.map(stockTargetPrice -> TargetPriceNotificationSearchItem.from(stockTargetPrice, manager))
+			.map(stockTargetPrice -> {
+				Money closingPrice = closingPriceService.fetchPrice(stockTargetPrice.getStock().getTickerSymbol());
+				return TargetPriceNotificationSearchItem.from(stockTargetPrice, closingPrice);
+			})
 			.toList();
 		return TargetPriceNotificationSearchResponse.from(stocks);
 	}
