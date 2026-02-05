@@ -16,4 +16,5 @@ public interface PriceRepository {
 	Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol);
 
 	void clear();
+
 }

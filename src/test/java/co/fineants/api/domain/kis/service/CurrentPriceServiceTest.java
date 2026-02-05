@@ -151,6 +151,25 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("price", priceToSave);
 	}
 
+	@DisplayName("종목 현재가 저장 - 빈 티커 심볼을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenBlankTickerSymbol_thenNotSavedPrice() {
+		// given
+		long price = 1000L;
+
+		// when
+		service.savePrice("", price);
+		service.savePrice("   ", price);
+		service.savePrice(null, price);
+		// then
+		boolean actual1 = priceRepository.fetchPriceBy("").isEmpty();
+		boolean actual2 = priceRepository.fetchPriceBy("   ").isEmpty();
+		boolean actual3 = priceRepository.fetchPriceBy(null).isEmpty();
+		Assertions.assertThat(actual1).isTrue();
+		Assertions.assertThat(actual2).isTrue();
+		Assertions.assertThat(actual3).isTrue();
+	}
+
 	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
 	@Test
 	void savePrice_whenNegativePrice_thenNotSavedPrice() {
