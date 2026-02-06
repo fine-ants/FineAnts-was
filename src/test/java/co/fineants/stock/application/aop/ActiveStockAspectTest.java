@@ -96,7 +96,7 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 		MockitoAnnotations.openMocks(this);
 		// JoinPoint 설정 : 메서드 인자와 파라미터 설정
 		Method method = TestTarget.class.getMethod("sampleMethod", MemberAuthentication.class, Long.class,
-			String.class);
+			String.class, Long.class);
 		BDDMockito.given(joinPoint.getSignature())
 			.willReturn(methodSignature);
 		BDDMockito.given(methodSignature.getMethod())
@@ -178,7 +178,8 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
 	@Slf4j
 	private static class TestTarget {
-		public void sampleMethod(MemberAuthentication authentication, Long portfolioId, String tickerSymbol) {
+		public void sampleMethod(MemberAuthentication authentication, Long portfolioId, String tickerSymbol,
+			Long watchlistId) {
 			log.debug("sampleMethod called");
 		}
 	}
