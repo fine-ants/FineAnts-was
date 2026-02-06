@@ -31,8 +31,8 @@ import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.stock.application.ActiveStockRedisRepository;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.infrastructure.ActiveStockRedisRepository;
 import reactor.core.publisher.Mono;
 
 class KisRestControllerDocsTest extends RestDocsSupport {

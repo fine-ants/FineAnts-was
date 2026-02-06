@@ -14,7 +14,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.stock.application.ActiveStockRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package co.fineants.stock.application;
+package co.fineants.stock.domain;
 
 import java.util.Collection;
 import java.util.Set;

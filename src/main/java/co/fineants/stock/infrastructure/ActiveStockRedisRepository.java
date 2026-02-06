@@ -1,4 +1,4 @@
-package co.fineants.stock.application;
+package co.fineants.stock.infrastructure;
 
 import java.time.Clock;
 import java.util.Collection;
@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import co.fineants.stock.domain.ActiveStockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

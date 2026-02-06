@@ -22,7 +22,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.KisSuccessCode;
-import co.fineants.stock.application.ActiveStockRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.presentation.dto.response.StockDataResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;

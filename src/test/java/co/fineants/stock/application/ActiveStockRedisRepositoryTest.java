@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.stock.domain.ActiveStockRepository;
 
 class ActiveStockRedisRepositoryTest extends AbstractContainerBaseTest {
 

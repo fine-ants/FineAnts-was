@@ -10,7 +10,7 @@ import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.stock.application.ActiveStockRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.event.StockClosingPriceRefreshEvent;
 import co.fineants.stock.event.StockClosingPriceRequiredEvent;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
