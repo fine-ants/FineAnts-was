@@ -44,6 +44,10 @@ public class DashboardRestController {
 	@GetMapping("/pieChart")
 	public ApiResponse<List<DashboardPieChartResponse>> readPieChart(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
+		// 활성 종목 등록
+		Set<String> tickers = portfolioService.getAllPortfolioTickers(authentication.getId());
+		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+		
 		return ApiResponse.success(DashboardSuccessCode.OK_PORTFOLIO_PIE_CHART,
 			dashboardService.getPieChart(authentication.getId()));
 	}
