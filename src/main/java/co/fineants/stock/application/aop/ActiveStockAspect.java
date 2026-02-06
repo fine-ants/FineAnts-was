@@ -14,6 +14,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import co.fineants.api.domain.portfolio.service.PortfolioService;
+import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.domain.watchlist.service.WatchListService;
 import co.fineants.stock.annotation.ActiveStockMarker;
 import co.fineants.stock.event.StocksViewedEvent;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ActiveStockAspect {
 	private final PortfolioService portfolioService;
 	private final WatchListService watchListService;
+	private final StockTargetPriceService stockTargetPriceService;
 	private final ApplicationEventPublisher eventPublisher;
 
 	private final SpelExpressionParser parser = new SpelExpressionParser();
@@ -45,6 +47,7 @@ public class ActiveStockAspect {
 				case MEMBER -> portfolioService.getAllPortfolioTickers((Long)evaluatedValue);
 				case PORTFOLIO -> portfolioService.getTickerSymbolsInPortfolio((Long)evaluatedValue);
 				case STOCK -> Set.of((String)evaluatedValue);
+				case STOCK_TARGET_PRICE -> stockTargetPriceService.getAllStockTargetPriceTickers((Long)evaluatedValue);
 				case WATCHLIST -> watchListService.getAllWatchListTickers((Long)evaluatedValue);
 			};
 			if (tickers.isEmpty()) {
