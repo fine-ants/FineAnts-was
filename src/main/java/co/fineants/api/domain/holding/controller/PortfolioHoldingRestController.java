@@ -35,6 +35,7 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
 import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +75,7 @@ public class PortfolioHoldingRestController {
 
 	// 포트폴리오 종목 조회
 	@GetMapping("/holdings")
-	@ActiveStockMarker(resourceId = "#portfolioId", type = co.fineants.stock.annotation.ResourceType.PORTFOLIO)
+	@ActiveStockMarker(resourceId = "#portfolioId", type = ResourceType.PORTFOLIO)
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
@@ -99,7 +100,7 @@ public class PortfolioHoldingRestController {
 
 	// 포트폴리오 차트 조회
 	@GetMapping("/charts")
-	@ActiveStockMarker(resourceId = "#portfolioId", type = co.fineants.stock.annotation.ResourceType.PORTFOLIO)
+	@ActiveStockMarker(resourceId = "#portfolioId", type = ResourceType.PORTFOLIO)
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId);
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
