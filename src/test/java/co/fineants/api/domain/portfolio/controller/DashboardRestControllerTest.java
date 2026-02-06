@@ -4,6 +4,10 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
+
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,11 +20,17 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryRepository;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
+import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.global.success.DashboardSuccessCode;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
 
 class DashboardRestControllerTest extends AbstractContainerBaseTest {
 
@@ -36,13 +46,29 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioGainHistoryRepository portfolioGainHistoryRepository;
 
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private PortfolioHoldingRepository portfolioHoldingRepository;
+
+	@Autowired
+	private CurrentPriceRepository currentPriceRepository;
+
+	@Autowired
+	private ClosingPriceRepository closingPriceRepository;
+
 	private MockMvc mockMvc;
 	private Portfolio portfolio;
+	private Member member;
 
 	@BeforeEach
 	void setUp() {
 		mockMvc = createMockMvc(controller);
-		Member member = memberRepository.save(TestDataFactory.createMember());
+		member = memberRepository.save(TestDataFactory.createMember());
 		portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
 		PortfolioGainHistory history = PortfolioGainHistory.create(
 			Money.won(1_000_000),
@@ -72,6 +98,26 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.totalGainRate").value(equalTo(0.0)))
 			.andExpect(jsonPath("data.totalAnnualDividend").value(equalTo(0)))
 			.andExpect(jsonPath("data.totalAnnualDividendYield").value(equalTo(0.0)));
+	}
+
+	@DisplayName("오버뷰 조회 - 활성 종목이 등록되어 있어야 한다")
+	@Test
+	void readOverview_ActiveStocks() throws Exception {
+		// given
+		Stock stock = stockRepository.save(createSamsungStock());
+		portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+
+		currentPriceRepository.savePrice(stock.getTickerSymbol(), 50000L);
+		closingPriceRepository.savePrice(stock.getTickerSymbol(), 48000L);
+
+		// when
+		mockMvc.perform(get("/api/dashboard/overview"))
+			.andExpect(status().isOk());
+
+		// then - 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("사용자는 파이차트를 조회한다")
