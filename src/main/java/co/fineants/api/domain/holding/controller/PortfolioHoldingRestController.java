@@ -1,7 +1,5 @@
 package co.fineants.api.domain.holding.controller;
 
-import java.util.Set;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +34,8 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
-import co.fineants.stock.event.StocksViewedEvent;
+import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,11 +75,8 @@ public class PortfolioHoldingRestController {
 
 	// 포트폴리오 종목 조회
 	@GetMapping("/holdings")
+	@ActiveStockMarker(resourceId = "#portfolioId", type = ResourceType.PORTFOLIO)
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
-		// 활성 종목 등록
-		Set<String> tickers = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
-
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
 	}
@@ -104,11 +100,8 @@ public class PortfolioHoldingRestController {
 
 	// 포트폴리오 차트 조회
 	@GetMapping("/charts")
+	@ActiveStockMarker(resourceId = "#portfolioId", type = ResourceType.PORTFOLIO)
 	public ApiResponse<PortfolioChartResponse> readPortfolioCharts(@PathVariable Long portfolioId) {
-		// 활성 종목 등록
-		Set<String> tickers = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
-
 		PortfolioChartResponse response = portfolioHoldingService.readPortfolioCharts(portfolioId);
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_CHARTS, response);
 	}

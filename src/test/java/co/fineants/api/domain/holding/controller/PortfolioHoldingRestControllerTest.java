@@ -5,10 +5,13 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,7 @@ import co.fineants.api.global.errors.errorcode.ErrorCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 
@@ -70,6 +74,9 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
 
 	private MockMvc mockMvc;
 
@@ -150,6 +157,35 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 				.value(equalTo(10000)))
 			.andExpect(jsonPath("data.portfolioHoldings[0].purchaseHistory[0].memo")
 				.value(equalTo("첫구매")));
+	}
+
+	@DisplayName("포트폴리오 종목 조회 - 활성 종목이 등록되어야 한다")
+	@Test
+	void readMyPortfolioHoldings_whenPortfolioHasHoldings_thenRegisteredActiveStock() throws Exception {
+		// given
+		Member member = memberRepository.save(TestDataFactory.createMember());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
+		Stock saveStock = stockRepository.save(stock);
+		currentPriceRepository.savePrice(saveStock.getTickerSymbol(), 60_000L);
+		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
+
+		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
+			TestDataFactory.createPortfolioHolding(portfolio, saveStock));
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 11, 1, 9, 30, 0);
+		purchaseHistoryRepository.save(
+			TestDataFactory.createPurchaseHistory(purchaseDate.toLocalDate(), portfolioHolding));
+
+		// when & then
+		mockMvc.perform(get("/api/portfolio/{portfolioId}/holdings", portfolio.getId()))
+			.andExpect(status().isOk());
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("포트폴리오 종목 조회 - 상장 폐지된 종목이 포함된 포트폴리오 상세 정보를 가져온다")
@@ -453,7 +489,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		Stock stock = TestDataFactory.createSamsungStock();
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
-		currentPriceRepository.savePrice(saveStock, 60_000L);
+		currentPriceRepository.savePrice(saveStock.getTickerSymbol(), 60_000L);
 		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
@@ -510,5 +546,10 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.sectorChart[0].sectorWeight").value(equalTo(76.0)))
 			.andExpect(jsonPath("data.sectorChart[1].sector").value(equalTo("전기,전자")))
 			.andExpect(jsonPath("data.sectorChart[1].sectorWeight").value(equalTo(24.0)));
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 }

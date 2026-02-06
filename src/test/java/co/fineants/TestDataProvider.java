@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.stock.annotation.ResourceType;
 
 public class TestDataProvider {
 
@@ -266,6 +267,38 @@ public class TestDataProvider {
 			Arguments.of("삼성"),
 			Arguments.of("005930"),
 			Arguments.of("samsung")
+		);
+	}
+
+	public static Stream<Arguments> invalidResourceIds() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of(" "),
+			Arguments.of("#invalidParam"),
+			Arguments.of("#123invalid"),
+			Arguments.of("invalidExpression")
+		);
+	}
+
+	public static Stream<Arguments> validResourceIdAndTypes() {
+		return Stream.of(
+			Arguments.of("#authentication.id", ResourceType.MEMBER),
+			Arguments.of("#authentication.id", ResourceType.STOCK_TARGET_PRICE),
+			Arguments.of("#watchlistId", ResourceType.WATCHLIST),
+			Arguments.of("#portfolioId", ResourceType.PORTFOLIO),
+			Arguments.of("#tickerSymbol", ResourceType.STOCK)
+		);
+	}
+
+	public static Stream<Arguments> invalidArgsForMemberResourceType() {
+		return Stream.of(
+			Arguments.of("#authentication.id", ResourceType.MEMBER, new Object[] {"invalidString", 1L, "005930", 1L}),
+			Arguments.of("#authentication.id", ResourceType.STOCK_TARGET_PRICE,
+				new Object[] {"invalidString", 1L, "005930", 1L}),
+			Arguments.of("#watchlistId", ResourceType.WATCHLIST, new Object[] {1L, 1L, "005930", "invalidString"}),
+			Arguments.of("#portfolioId", ResourceType.PORTFOLIO, new Object[] {1L, "invalidString", "005930", 1L}),
+			Arguments.of("#tickerSymbol", ResourceType.STOCK, new Object[] {1L, 1L, 12345, 1L})
 		);
 	}
 }

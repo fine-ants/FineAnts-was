@@ -14,7 +14,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.service.KisService;
-import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.domain.ActiveStockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +26,7 @@ public class KisProductionScheduler {
 
 	private final HolidayService holidayService;
 	private final KisService kisService;
-	private final ActiveStockService activeStockService;
+	private final ActiveStockRepository activeStockRepository;
 
 	/**
 	 * 평일 09:00~16:00 시간 동안 5초 간격으로 KIS에서 주식 현재가를 업데이트합니다.
@@ -41,7 +41,7 @@ public class KisProductionScheduler {
 		if (holidayService.isHoliday(LocalDate.now())) {
 			return;
 		}
-		Set<String> activeTickerSymbols = activeStockService.getActiveStockTickerSymbols(5);
+		Set<String> activeTickerSymbols = activeStockRepository.getActiveStockTickerSymbols(5);
 		if (activeTickerSymbols.isEmpty()) {
 			log.info("No active stocks in the last 5 minutes. Skipping KIS current price refresh.");
 			return;
@@ -56,7 +56,7 @@ public class KisProductionScheduler {
 	@SchedulerLock(name = "kisCleanupInactiveStocksScheduler", lockAtLeastFor = "50s", lockAtMostFor = "110s")
 	@Scheduled(cron = "0 0 * * * *")
 	public void cleanupInactiveStocks() {
-		activeStockService.cleanupInactiveStocks(60);
+		activeStockRepository.cleanupInactiveStocks(60);
 		log.info("Inactive stock data cleanup completed.");
 	}
 }

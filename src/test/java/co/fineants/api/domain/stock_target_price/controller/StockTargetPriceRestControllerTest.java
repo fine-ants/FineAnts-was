@@ -6,6 +6,10 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
+
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +33,7 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 
@@ -51,6 +56,9 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private ClosingPriceRepository closingPriceRepository;
+
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
 
 	private MockMvc mockMvc;
 
@@ -116,14 +124,12 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 		// given
 		Member member = memberRepository.save(TestDataFactory.createMember());
 		Stock stock = stockRepository.save(TestDataFactory.createSamsungStock());
-		StockTargetPrice stockTargetPrice = StockTargetPrice.newStockTargetPriceWithActive(member, stock);
-		StockTargetPrice saveStockTargetPrice = stockTargetPriceRepository.save(stockTargetPrice);
+		StockTargetPrice stockTargetPrice = stockTargetPriceRepository.save(
+			StockTargetPrice.newStockTargetPriceWithActive(member, stock));
 
 		Money targetPrice = Money.won(60000L);
-		TargetPriceNotification targetPriceNotification = TargetPriceNotification.newTargetPriceNotification(
-			targetPrice, saveStockTargetPrice);
-		TargetPriceNotification saveTargetPriceNotification = targetPriceNotificationRepository.save(
-			targetPriceNotification);
+		TargetPriceNotification targetPriceNotification = targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(targetPrice, stockTargetPrice));
 
 		// when & then
 		mockMvc.perform(get("/api/stocks/target-price/notifications"))
@@ -135,11 +141,16 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.stocks[0].tickerSymbol").value(equalTo(stock.getTickerSymbol())))
 			.andExpect(jsonPath("data.stocks[0].lastPrice").value(equalTo(50000)))
 			.andExpect(jsonPath("data.stocks[0].targetPrices[0].notificationId").value(
-				equalTo(saveTargetPriceNotification.getId().intValue())))
+				equalTo(targetPriceNotification.getId().intValue())))
 			.andExpect(jsonPath("data.stocks[0].targetPrices[0].targetPrice").value(equalTo(60_000)))
 			.andExpect(jsonPath("data.stocks[0].targetPrices[0].dateAdded").value(notNullValue()))
 			.andExpect(jsonPath("data.stocks[0].isActive").value(equalTo(true)))
 			.andExpect(jsonPath("data.stocks[0].lastUpdated").value(notNullValue()));
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("사용자는 특정 종목의 지정 알림가들을 조회합니다")
@@ -172,6 +183,10 @@ class StockTargetPriceRestControllerTest extends AbstractContainerBaseTest {
 				equalTo(targetPriceNotification2.getId().intValue())))
 			.andExpect(jsonPath("data.targetPrices[1].targetPrice").value(equalTo(70000)))
 			.andExpect(jsonPath("data.targetPrices[1].dateAdded").value(notNullValue()));
+
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("사용자는 종목 지정가 알림의 정보를 수정한다")

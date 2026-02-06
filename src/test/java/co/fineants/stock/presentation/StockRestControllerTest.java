@@ -2,6 +2,10 @@ package co.fineants.stock.presentation;
 
 import static org.hamcrest.Matchers.*;
 
+import java.time.Duration;
+
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,7 @@ import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
@@ -39,6 +44,9 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -133,5 +141,10 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 			.body("data.annualDividend", equalTo(361))
 			.body("data.annualDividendYield", equalTo(0.53F))
 			.body("data.dividendMonths[0]", equalTo(5));
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 }
