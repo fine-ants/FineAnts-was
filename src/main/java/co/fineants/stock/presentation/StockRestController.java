@@ -16,6 +16,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.StockSuccessCode;
 import co.fineants.api.infra.s3.service.WriteStockService;
 import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.application.ReloadStock;
 import co.fineants.stock.application.SearchStock;
@@ -79,7 +80,7 @@ public class StockRestController {
 
 	@GetMapping("/{tickerSymbol}")
 	@PermitAll
-	@ActiveStockMarker(resourceId = "#tickerSymbol", type = co.fineants.stock.annotation.ResourceType.STOCK)
+	@ActiveStockMarker(resourceId = "#tickerSymbol", type = ResourceType.STOCK)
 	public ApiResponse<StockResponse> getStock(@PathVariable String tickerSymbol) {
 		StockResponse response = searchStock.findDetailedStock(tickerSymbol);
 		return ApiResponse.success(StockSuccessCode.OK_SEARCH_DETAIL_STOCK, response);
