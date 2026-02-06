@@ -279,4 +279,14 @@ public class TestDataProvider {
 			Arguments.of("invalidExpression")
 		);
 	}
+
+	public static Stream<Arguments> validResourceIdAndTypes() {
+		return Stream.of(
+			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.MEMBER),
+			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.STOCK_TARGET_PRICE),
+			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.WATCHLIST),
+			Arguments.of("#portfolioId", co.fineants.stock.annotation.ResourceType.PORTFOLIO),
+			Arguments.of("#tickerSymbol", co.fineants.stock.annotation.ResourceType.STOCK)
+		);
+	}
 }

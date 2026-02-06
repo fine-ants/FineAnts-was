@@ -2,6 +2,7 @@ package co.fineants.stock.application.aop;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.Set;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -18,9 +19,19 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
+import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
+import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
+import co.fineants.api.domain.watchlist.domain.entity.WatchList;
+import co.fineants.api.domain.watchlist.repository.WatchListRepository;
+import co.fineants.api.domain.watchlist.repository.WatchStockRepository;
+import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.stock.annotation.ActiveStockMarker;
@@ -56,22 +67,43 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 	@Autowired
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
+	@Autowired
+	private StockTargetPriceRepository stockTargetPriceRepository;
+
+	@Autowired
+	private TargetPriceNotificationRepository targetPriceNotificationRepository;
+
+	@Autowired
+	private WatchListRepository watchListRepository;
+
+	@Autowired
+	private WatchStockRepository watchStockRepository;
+
 	@BeforeEach
 	void setUp() throws NoSuchMethodException {
 		Stock stock = stockRepository.save(createSamsungStock());
 		Member member = memberRepository.save(createMember());
 		Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
 		portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+		StockTargetPrice stockTargetPrice = stockTargetPriceRepository.save(
+			StockTargetPrice.newStockTargetPriceWithActive(member, stock));
+		Money targetPrice = Money.won(60000L);
+		targetPriceNotificationRepository.save(
+			TargetPriceNotification.newTargetPriceNotification(targetPrice, stockTargetPrice));
+		WatchList watchList = watchListRepository.save(TestDataFactory.createWatchList("My WatchList 1", member));
+		watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
 
 		MockitoAnnotations.openMocks(this);
 		// JoinPoint 설정 : 메서드 인자와 파라미터 설정
-		Method method = TestTarget.class.getMethod("sampleMethod", Long.class, Long.class, String.class);
+		Method method = TestTarget.class.getMethod("sampleMethod", MemberAuthentication.class, Long.class,
+			String.class);
 		BDDMockito.given(joinPoint.getSignature())
 			.willReturn(methodSignature);
 		BDDMockito.given(methodSignature.getMethod())
 			.willReturn(method);
+		MemberAuthentication memberAuthentication = MemberAuthentication.from(member, Set.of("ROLE_USER"));
 		BDDMockito.given(joinPoint.getArgs())
-			.willReturn(new Object[] {member.getId(), portfolio.getId(), stock.getTickerSymbol()});
+			.willReturn(new Object[] {memberAuthentication, portfolio.getId(), stock.getTickerSymbol()});
 	}
 
 	@DisplayName("객체 생성")
@@ -80,41 +112,12 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(aspect).isNotNull();
 	}
 
-	@DisplayName("활성 종목 등록 - 회원이 가진 포트폴리오 종목들을 활성 종목으로 등록한다.")
-	@Test
-	void markBeforeController_whenMemberPortfolioStocks_thenRegisterActiveStocks() {
+	@DisplayName("활성 종목 등록")
+	@ParameterizedTest
+	@MethodSource(value = {"co.fineants.TestDataProvider#validResourceIdAndTypes"})
+	void markBeforeController_whenValidResourceId_thenRegistersActiveStock(String resourceId, ResourceType type) {
 		// given
-		ActiveStockMarker marker = createMarker("#memberId", ResourceType.MEMBER);
-
-		// when
-		aspect.markBeforeController(joinPoint, marker);
-
-		// then
-		Awaitility.await()
-			.atMost(Duration.ofSeconds(5))
-			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
-	}
-
-	@DisplayName("활성 종목 등록 - 특정 포트폴리오에 등록된 종목들을 활성 종목으로 등록한다")
-	@Test
-	void markBeforeController_whenResourceIdIsPortfolioId_thenRegisterActiveStocks() {
-		// given
-		ActiveStockMarker marker = createMarker("#portfolioId", ResourceType.PORTFOLIO);
-
-		// when
-		aspect.markBeforeController(joinPoint, marker);
-
-		// then
-		Awaitility.await()
-			.atMost(Duration.ofSeconds(5))
-			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
-	}
-
-	@DisplayName("활성 종목 등록 - 특정 종목을 활성 종목으로 등록한다.")
-	@Test
-	void markBeforeController_whenResourceIdIsTickerSymbol_thenRegisterActiveStocks() {
-		// given
-		ActiveStockMarker marker = createMarker("#tickerSymbol", ResourceType.STOCK);
+		ActiveStockMarker marker = createMarker(resourceId, type);
 
 		// when
 		aspect.markBeforeController(joinPoint, marker);
@@ -159,7 +162,7 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
 	@Slf4j
 	private static class TestTarget {
-		public void sampleMethod(Long memberId, Long portfolioId, String tickerSymbol) {
+		public void sampleMethod(MemberAuthentication authentication, Long portfolioId, String tickerSymbol) {
 			log.debug("sampleMethod called");
 		}
 	}
