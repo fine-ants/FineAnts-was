@@ -15,6 +15,7 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.DashboardSuccessCode;
 import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +27,7 @@ public class DashboardRestController {
 	private final DashboardService dashboardService;
 
 	@GetMapping("/overview")
-	@ActiveStockMarker(resourceId = "#authentication.id", type = co.fineants.stock.annotation.ResourceType.MEMBER)
+	@ActiveStockMarker(resourceId = "#authentication.id", type = ResourceType.MEMBER)
 	public ApiResponse<OverviewResponse> readOverview(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		return ApiResponse.success(DashboardSuccessCode.OK_OVERVIEW,
@@ -34,7 +35,7 @@ public class DashboardRestController {
 	}
 
 	@GetMapping("/pieChart")
-	@ActiveStockMarker(resourceId = "#authentication.id", type = co.fineants.stock.annotation.ResourceType.MEMBER)
+	@ActiveStockMarker(resourceId = "#authentication.id", type = ResourceType.MEMBER)
 	public ApiResponse<List<DashboardPieChartResponse>> readPieChart(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
 		return ApiResponse.success(DashboardSuccessCode.OK_PORTFOLIO_PIE_CHART,
