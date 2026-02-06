@@ -1,7 +1,5 @@
 package co.fineants.api.domain.stock_target_price.controller;
 
-import java.util.Set;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,8 +22,8 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.StockSuccessCode;
-import co.fineants.stock.event.StockViewedEvent;
-import co.fineants.stock.event.StocksViewedEvent;
+import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,13 +50,10 @@ public class StockTargetPriceRestController {
 
 	// 종목 지정가 알림 조회
 	@GetMapping("/api/stocks/target-price/notifications")
+	@ActiveStockMarker(resourceId = "#authentication.id", type = ResourceType.STOCK_TARGET_PRICE)
 	public ApiResponse<TargetPriceNotificationSearchResponse> searchStockTargetPriceNotification(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
-		// 활성 종목 등록
-		Set<String> tickers = service.getAllStockTargetPriceTickers(authentication.getId());
-		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
-
 		TargetPriceNotificationSearchResponse response = service.searchStockTargetPrices(
 			authentication.getId());
 		log.info("종목 지정가 알림 검색 결과 : {}", response);
@@ -67,13 +62,11 @@ public class StockTargetPriceRestController {
 
 	// 특정 종목 지정가 알림 목록 조회
 	@GetMapping("/api/stocks/{tickerSymbol}/target-price/notifications")
+	@ActiveStockMarker(resourceId = "#tickerSymbol", type = ResourceType.STOCK)
 	public ApiResponse<TargetPriceNotificationSpecifiedSearchResponse> searchTargetPriceNotifications(
 		@PathVariable String tickerSymbol,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
 	) {
-		// 활성 종목 등록
-		eventPublisher.publishEvent(new StockViewedEvent(tickerSymbol));
-
 		TargetPriceNotificationSpecifiedSearchResponse response = service.searchStockTargetPrice(tickerSymbol,
 			authentication.getId());
 		log.info("특정 종목 지정가 알림 리스트 조회 결과 : {}", response);

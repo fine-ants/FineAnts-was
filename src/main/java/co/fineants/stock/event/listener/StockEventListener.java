@@ -10,7 +10,7 @@ import co.fineants.api.domain.kis.service.ClosingPriceService;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
-import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.event.StockClosingPriceRefreshEvent;
 import co.fineants.stock.event.StockClosingPriceRequiredEvent;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class StockEventListener {
-	private final ActiveStockService service;
+	private final ActiveStockRepository service;
 	private final KisService kisService;
 	private final CurrentPriceService currentPriceService;
 	private final ClosingPriceService closingPriceService;

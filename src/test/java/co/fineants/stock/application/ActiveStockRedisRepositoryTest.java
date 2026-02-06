@@ -13,11 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.stock.domain.ActiveStockRepository;
 
-class ActiveStockServiceTest extends AbstractContainerBaseTest {
+class ActiveStockRedisRepositoryTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private ActiveStockService service;
+	private ActiveStockRepository repository;
 
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
@@ -30,19 +31,19 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol = "005930";
 		// when
-		service.markStockAsActive(tickerSymbol);
+		repository.markStockAsActive(tickerSymbol);
 		// then
-		Double score = redisTemplate.opsForZSet().score(ActiveStockService.ACTIVE_STOCKS_KEY, tickerSymbol);
+		Double score = redisTemplate.opsForZSet().score(ActiveStockRepository.ACTIVE_STOCKS_KEY, tickerSymbol);
 		Assertions.assertThat(score).isGreaterThan(0);
 	}
 
 	@Test
 	void markStockAsActive_whenTickerSymbolIsNull_thenDoNothing() {
 		// when
-		service.markStockAsActive(null);
-		service.markStockAsActive(Strings.EMPTY);
+		repository.markStockAsActive(null);
+		repository.markStockAsActive(Strings.EMPTY);
 		// then
-		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Long size = redisTemplate.opsForZSet().size(ActiveStockRepository.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
 	}
 
@@ -51,10 +52,10 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
-		service.markStockAsActive(tickerSymbol1);
-		service.markStockAsActive(tickerSymbol2);
+		repository.markStockAsActive(tickerSymbol1);
+		repository.markStockAsActive(tickerSymbol2);
 		// when
-		Set<String> activeStocks = service.getActiveStockTickerSymbols(1); // 1분 이내 활동한 종목 조회
+		Set<String> activeStocks = repository.getActiveStockTickerSymbols(1); // 1분 이내 활동한 종목 조회
 		// then
 		Assertions.assertThat(activeStocks)
 			.containsExactlyInAnyOrder(tickerSymbol1, tickerSymbol2);
@@ -70,10 +71,10 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 			.willReturn(1000000L + 1L); // 1밀리초 후
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
-		service.markStockAsActive(tickerSymbol1);
-		service.markStockAsActive(tickerSymbol2);
+		repository.markStockAsActive(tickerSymbol1);
+		repository.markStockAsActive(tickerSymbol2);
 		// when
-		Set<String> activeStocks = service.getActiveStockTickerSymbols(0); // 0분 이내 활동한 종목 조회
+		Set<String> activeStocks = repository.getActiveStockTickerSymbols(0); // 0분 이내 활동한 종목 조회
 		// then
 		Assertions.assertThat(activeStocks).isEmpty();
 	}
@@ -83,10 +84,10 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
-		service.markStockAsActive(tickerSymbol1);
-		service.markStockAsActive(tickerSymbol2);
+		repository.markStockAsActive(tickerSymbol1);
+		repository.markStockAsActive(tickerSymbol2);
 		// when
-		Set<String> activeStocks = service.getActiveStockTickerSymbols(-1); // -1분 이내 활동한 종목 조회
+		Set<String> activeStocks = repository.getActiveStockTickerSymbols(-1); // -1분 이내 활동한 종목 조회
 		// then
 		Assertions.assertThat(activeStocks).isEmpty();
 	}
@@ -96,12 +97,12 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol1 = "005930";
 		String tickerSymbol2 = "000660";
-		service.markStockAsActive(tickerSymbol1);
-		service.markStockAsActive(tickerSymbol2);
+		repository.markStockAsActive(tickerSymbol1);
+		repository.markStockAsActive(tickerSymbol2);
 		// when
-		service.cleanupInactiveStocks(0); // 0분 이상 활동이 없는 종목 정리
+		repository.cleanupInactiveStocks(0); // 0분 이상 활동이 없는 종목 정리
 		// then
-		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Long size = redisTemplate.opsForZSet().size(ActiveStockRepository.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
 	}
 
@@ -111,13 +112,13 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		Set<String> tickerSymbols = Set.of("005930", "000660", "035420");
 		// when
-		service.markStocksAsActive(tickerSymbols);
+		repository.markStocksAsActive(tickerSymbols);
 		// then
 		for (String symbol : tickerSymbols) {
-			Double score = redisTemplate.opsForZSet().score(ActiveStockService.ACTIVE_STOCKS_KEY, symbol);
+			Double score = redisTemplate.opsForZSet().score(ActiveStockRepository.ACTIVE_STOCKS_KEY, symbol);
 			Assertions.assertThat(score).isGreaterThan(0);
 		}
-		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Long size = redisTemplate.opsForZSet().size(ActiveStockRepository.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isEqualTo(tickerSymbols.size());
 	}
 
@@ -126,10 +127,10 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 	void markStocksAsActive_whenCollectionsIsInvalid_thenDoNothing() {
 		// given
 		// when
-		service.markStocksAsActive(null);
-		service.markStocksAsActive(Collections.emptySet());
+		repository.markStocksAsActive(null);
+		repository.markStocksAsActive(Collections.emptySet());
 		// then
-		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Long size = redisTemplate.opsForZSet().size(ActiveStockRepository.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
 	}
 
@@ -139,9 +140,9 @@ class ActiveStockServiceTest extends AbstractContainerBaseTest {
 		// given
 		Set<String> tickerSymbols = Set.of("", " ", "  ");
 		// when
-		service.markStocksAsActive(tickerSymbols);
+		repository.markStocksAsActive(tickerSymbols);
 		// then
-		Long size = redisTemplate.opsForZSet().size(ActiveStockService.ACTIVE_STOCKS_KEY);
+		Long size = redisTemplate.opsForZSet().size(ActiveStockRepository.ACTIVE_STOCKS_KEY);
 		Assertions.assertThat(size).isZero();
 	}
 }

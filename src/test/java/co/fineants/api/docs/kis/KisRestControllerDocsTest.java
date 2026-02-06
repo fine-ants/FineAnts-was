@@ -31,23 +31,23 @@ import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import co.fineants.stock.application.ActiveStockService;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.infrastructure.ActiveStockRedisRepository;
 import reactor.core.publisher.Mono;
 
 class KisRestControllerDocsTest extends RestDocsSupport {
 
 	private final KisService service = Mockito.mock(KisService.class);
-	private final ActiveStockService activeStockService = Mockito.mock(ActiveStockService.class);
+	private final ActiveStockRedisRepository activeStockRepository = Mockito.mock(ActiveStockRedisRepository.class);
 
 	@Override
 	protected Object initController() {
-		return new KisRestController(service, activeStockService);
+		return new KisRestController(service, activeStockRepository);
 	}
 
 	@BeforeEach
 	void setUp() {
-		BDDMockito.given(activeStockService.getActiveStockTickerSymbols(5))
+		BDDMockito.given(activeStockRepository.getActiveStockTickerSymbols(5))
 			.willReturn(Set.of("005930"));
 	}
 
