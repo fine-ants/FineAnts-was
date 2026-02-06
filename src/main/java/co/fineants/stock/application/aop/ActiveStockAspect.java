@@ -47,9 +47,10 @@ public class ActiveStockAspect {
 				case STOCK -> Set.of((String)evaluatedValue);
 				case WATCHLIST -> watchListService.getAllWatchListTickers((Long)evaluatedValue);
 			};
-			if (!tickers.isEmpty()) {
-				eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+			if (tickers.isEmpty()) {
+				return;
 			}
+			eventPublisher.publishEvent(new StocksViewedEvent(tickers));
 		} catch (Exception e) {
 			log.error("Failed to process ActiveStockMarker for type: {}", marker.type(), e);
 		}
