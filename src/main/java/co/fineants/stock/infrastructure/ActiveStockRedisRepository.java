@@ -74,6 +74,15 @@ public class ActiveStockRedisRepository implements ActiveStockRepository {
 	}
 
 	/**
+	 * 활성 종목의 총 개수를 반환합니다.
+	 * @return 활성 종목 개수
+	 */
+	@Override
+	public Long size() {
+		return template.opsForZSet().size(ACTIVE_STOCKS_KEY);
+	}
+
+	/**
 	 * 너무 오래된(예: 1시간 이상) 활동 기록은 Redis 메모리 관리를 위해 삭제합니다.
 	 */
 	@Override

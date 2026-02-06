@@ -12,5 +12,7 @@ public interface ActiveStockRepository {
 
 	Set<String> getActiveStockTickerSymbols(long minutesAgo);
 
+	Long size();
+
 	void cleanupInactiveStocks(long minutesAgo);
 }

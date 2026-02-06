@@ -4,11 +4,16 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
+
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +22,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioCreateRequest;
 import co.fineants.api.domain.portfolio.domain.dto.request.PortfolioModifyRequest;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
@@ -25,6 +33,10 @@ import co.fineants.api.global.success.PortfolioSuccessCode;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
+import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockRepository;
+import reactor.core.publisher.Mono;
 
 class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 
@@ -36,6 +48,18 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private PortfolioRepository portfolioRepository;
+
+	@Autowired
+	private PortfolioHoldingRepository portfolioHoldingRepository;
+
+	@Autowired
+	private StockRepository stockRepository;
+
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
+
+	@Autowired
+	private KisService kisService;
 
 	private MockMvc mockMvc;
 	private Member member;
@@ -132,6 +156,46 @@ class PortFolioRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.portfolios[0].numShares")
 				.value(equalTo(0)))
 			.andExpect(jsonPath("data.portfolios[0].dateCreated").value(notNullValue()));
+	}
+
+	@DisplayName("포트폴리오 목록 조회 - 활성 종목이 등록되어 있어야 한다")
+	@Test
+	void searchMyAllPortfolios_WithActiveStocks() throws Exception {
+		// given
+		Stock stock = stockRepository.save(createSamsungStock());
+		Portfolio portfolio = portfolioRepository.save(TestDataFactory.createPortfolio(member));
+		portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+
+		BDDMockito.given(kisService.fetchCurrentPrice(stock.getTickerSymbol()))
+			.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L)));
+
+		// when & then
+		mockMvc.perform(get("/api/portfolios"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.OK.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.OK.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(PortfolioSuccessCode.OK_SEARCH_PORTFOLIOS.getMessage())))
+			.andExpect(jsonPath("data.portfolios").isArray())
+			.andExpect(jsonPath("data.portfolios[0].id").value(equalTo(portfolio.getId().intValue())))
+			.andExpect(jsonPath("data.portfolios[0].securitiesFirm").value(equalTo("토스증권")))
+			.andExpect(jsonPath("data.portfolios[0].name").value(equalTo("내꿈은 워렌버핏")))
+			.andExpect(jsonPath("data.portfolios[0].budget").value(equalTo(1000000)))
+			.andExpect(jsonPath("data.portfolios[0].totalGain").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].totalGainRate").value(equalTo(0.0)))
+			.andExpect(jsonPath("data.portfolios[0].dailyGain").value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].dailyGainRate").value(equalTo(0.0)))
+			.andExpect(jsonPath("data.portfolios[0].currentValuation")
+				.value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].expectedMonthlyDividend")
+				.value(equalTo(0)))
+			.andExpect(jsonPath("data.portfolios[0].numShares")
+				.value(equalTo(1)))
+			.andExpect(jsonPath("data.portfolios[0].dateCreated").value(notNullValue()));
+
+		// 활성 종목 등록 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("사용자는 포트폴리오 수정을 요청한다")
