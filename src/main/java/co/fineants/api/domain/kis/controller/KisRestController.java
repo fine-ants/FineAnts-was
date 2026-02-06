@@ -22,7 +22,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.success.KisSuccessCode;
-import co.fineants.stock.application.ActiveStockService;
+import co.fineants.stock.application.ActiveStockRepository;
 import co.fineants.stock.presentation.dto.response.StockDataResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -33,13 +33,13 @@ import reactor.core.publisher.Mono;
 public class KisRestController {
 
 	private final KisService service;
-	private final ActiveStockService activeStockService;
+	private final ActiveStockRepository activeStockRepository;
 
 	// 종목 현재가 갱신
 	@PostMapping("/current-price/all/refresh")
 	@Secured(value = {"ROLE_MANAGER", "ROLE_ADMIN"})
 	public ApiResponse<List<KisCurrentPrice>> refreshAllStockCurrentPrice() {
-		Set<String> activeTickerSymbols = activeStockService.getActiveStockTickerSymbols(5);
+		Set<String> activeTickerSymbols = activeStockRepository.getActiveStockTickerSymbols(5);
 		List<KisCurrentPrice> responses = service.refreshStockCurrentPrice(activeTickerSymbols);
 		return ApiResponse.success(KisSuccessCode.OK_REFRESH_CURRENT_PRICE_STOCKS, responses);
 	}
