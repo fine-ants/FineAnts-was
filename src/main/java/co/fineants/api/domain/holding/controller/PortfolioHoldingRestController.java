@@ -36,6 +36,7 @@ import co.fineants.api.global.api.ApiResponse;
 import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.PortfolioHoldingSuccessCode;
+import co.fineants.stock.annotation.ActiveStockMarker;
 import co.fineants.stock.event.StocksViewedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -76,11 +77,8 @@ public class PortfolioHoldingRestController {
 
 	// 포트폴리오 종목 조회
 	@GetMapping("/holdings")
+	@ActiveStockMarker(resourceId = "#portfolioId", type = co.fineants.stock.annotation.ResourceType.PORTFOLIO)
 	public ApiResponse<PortfolioHoldingsResponse> readPortfolioHoldings(@PathVariable Long portfolioId) {
-		// 활성 종목 등록
-		Set<String> tickers = portfolioService.getTickerSymbolsInPortfolio(portfolioId);
-		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
-
 		return ApiResponse.success(PortfolioHoldingSuccessCode.OK_READ_PORTFOLIO_HOLDING,
 			portfolioHoldingService.readPortfolioHoldings(portfolioId));
 	}
