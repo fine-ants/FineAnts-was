@@ -103,7 +103,8 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 			.willReturn(method);
 		MemberAuthentication memberAuthentication = MemberAuthentication.from(member, Set.of("ROLE_USER"));
 		BDDMockito.given(joinPoint.getArgs())
-			.willReturn(new Object[] {memberAuthentication, portfolio.getId(), stock.getTickerSymbol()});
+			.willReturn(
+				new Object[] {memberAuthentication, portfolio.getId(), stock.getTickerSymbol(), watchList.getId()});
 	}
 
 	@DisplayName("객체 생성")

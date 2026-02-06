@@ -27,6 +27,7 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.WatchListSuccessCode;
 import co.fineants.stock.annotation.ActiveStockMarker;
+import co.fineants.stock.annotation.ResourceType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -54,7 +55,7 @@ public class WatchListRestController {
 	}
 
 	@GetMapping("/{watchlistId}")
-	@ActiveStockMarker(resourceId = "#watchlistId", type = co.fineants.stock.annotation.ResourceType.WATCHLIST)
+	@ActiveStockMarker(resourceId = "#watchlistId", type = ResourceType.WATCHLIST)
 	public ApiResponse<ReadWatchListResponse> readWatchList(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication,
 		@PathVariable Long watchlistId) {
