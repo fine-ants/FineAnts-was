@@ -32,7 +32,7 @@ public class ActiveStockAspect {
 	private final WatchListService watchListService;
 	private final StockTargetPriceService stockTargetPriceService;
 	private final ApplicationEventPublisher eventPublisher;
-	
+
 	@Before("@annotation(marker)")
 	public void markBeforeController(JoinPoint joinPoint, ActiveStockMarker marker) {
 		try {
@@ -40,7 +40,7 @@ public class ActiveStockAspect {
 			Object evaluatedValue = parser.parseExpression(marker.resourceId()).getValue(context);
 
 			if (evaluatedValue == null) {
-				return;
+				throw new IllegalArgumentException("Evaluated resourceId is null, expression: " + marker.resourceId());
 			}
 			Set<String> tickers = switch (marker.type()) {
 				case MEMBER -> portfolioService.getAllPortfolioTickers((Long)evaluatedValue);
@@ -54,6 +54,7 @@ public class ActiveStockAspect {
 			}
 			eventPublisher.publishEvent(new StocksViewedEvent(tickers));
 		} catch (Exception e) {
+			log.error("Failed to process ActiveStockMarker", e);
 			throw new IllegalStateException("Failed to process ActiveStockMarker", e);
 		}
 	}

@@ -268,4 +268,15 @@ public class TestDataProvider {
 			Arguments.of("samsung")
 		);
 	}
+
+	public static Stream<Arguments> invalidResourceIds() {
+		return Stream.of(
+			Arguments.of((Object)null),
+			Arguments.of(""),
+			Arguments.of(" "),
+			Arguments.of("#invalidParam"),
+			Arguments.of("#123invalid"),
+			Arguments.of("invalidExpression")
+		);
+	}
 }
