@@ -26,14 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class ActiveStockAspect {
+	private static final SpelExpressionParser parser = new SpelExpressionParser();
+	private static final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 	private final PortfolioService portfolioService;
 	private final WatchListService watchListService;
 	private final StockTargetPriceService stockTargetPriceService;
 	private final ApplicationEventPublisher eventPublisher;
-
-	private final SpelExpressionParser parser = new SpelExpressionParser();
-	private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
-
+	
 	@Before("@annotation(marker)")
 	public void markBeforeController(JoinPoint joinPoint, ActiveStockMarker marker) {
 		try {
