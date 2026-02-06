@@ -295,8 +295,8 @@ public class TestDataProvider {
 		return Stream.of(
 			Arguments.of("#authentication.id", ResourceType.MEMBER, new Object[] {"invalidString", 1L, "005930", 1L}),
 			Arguments.of("#authentication.id", ResourceType.STOCK_TARGET_PRICE,
-				new Object[] {"invalidString", 1L, "005930"}),
-			Arguments.of("#watchlistId", ResourceType.WATCHLIST, new Object[] {1L, 1L, "005930", 1L}),
+				new Object[] {"invalidString", 1L, "005930", 1L}),
+			Arguments.of("#watchlistId", ResourceType.WATCHLIST, new Object[] {1L, 1L, "005930", "invalidString"}),
 			Arguments.of("#portfolioId", ResourceType.PORTFOLIO, new Object[] {1L, "invalidString", "005930", 1L}),
 			Arguments.of("#tickerSymbol", ResourceType.STOCK, new Object[] {1L, 1L, 12345, 1L})
 		);

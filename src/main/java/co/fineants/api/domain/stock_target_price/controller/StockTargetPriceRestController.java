@@ -62,7 +62,7 @@ public class StockTargetPriceRestController {
 
 	// 특정 종목 지정가 알림 목록 조회
 	@GetMapping("/api/stocks/{tickerSymbol}/target-price/notifications")
-	@ActiveStockMarker(resourceId = "#tickerSymbol", type = co.fineants.stock.annotation.ResourceType.STOCK)
+	@ActiveStockMarker(resourceId = "#tickerSymbol", type = ResourceType.STOCK)
 	public ApiResponse<TargetPriceNotificationSpecifiedSearchResponse> searchTargetPriceNotifications(
 		@PathVariable String tickerSymbol,
 		@MemberAuthenticationPrincipal MemberAuthentication authentication
