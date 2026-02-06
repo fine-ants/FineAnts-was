@@ -5,9 +5,12 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.stock.domain.ActiveStockRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 
@@ -64,6 +68,9 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private ActiveStockRepository activeStockRepository;
 
 	private MockMvc mockMvc;
 	private Member member;
@@ -163,6 +170,11 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.watchStocks[0].annualDividendYield").value(equalTo(2.41)))
 			.andExpect(jsonPath("data.watchStocks[0].sector").value(equalTo(stock.getSector())))
 			.andExpect(jsonPath("data.watchStocks[0].dateAdded").value(notNullValue()));
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
 	@DisplayName("사용자가 watchlist에 종목을 추가한다.")
