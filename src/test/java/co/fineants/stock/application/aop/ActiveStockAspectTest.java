@@ -141,6 +141,22 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 			.hasMessageContaining("Failed to process ActiveStockMarker");
 	}
 
+	@DisplayName("활성 종목 등록 실패 - 리소스 타입과 매개변수 값이 일치하지 않으면 예외가 발생한다.")
+	@ParameterizedTest
+	@MethodSource(value = {"co.fineants.TestDataProvider#invalidArgsForMemberResourceType"})
+	void markBeforeController_whenInvalidTypeCasting_throwsException(String resourceId, ResourceType type,
+		Object[] args) {
+		// given
+		ActiveStockMarker marker = createMarker(resourceId, type);
+		BDDMockito.given(joinPoint.getArgs())
+			.willReturn(args);
+
+		// when & then
+		Assertions.assertThatThrownBy(() -> aspect.markBeforeController(joinPoint, marker))
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessageContaining("Failed to process ActiveStockMarker");
+	}
+
 	private ActiveStockMarker createMarker(String resourceId, ResourceType type) {
 		return new ActiveStockMarker() {
 			@Override

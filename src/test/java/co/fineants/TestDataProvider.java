@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.stock.annotation.ResourceType;
 
 public class TestDataProvider {
 
@@ -282,11 +283,22 @@ public class TestDataProvider {
 
 	public static Stream<Arguments> validResourceIdAndTypes() {
 		return Stream.of(
-			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.MEMBER),
-			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.STOCK_TARGET_PRICE),
-			Arguments.of("#authentication.id", co.fineants.stock.annotation.ResourceType.WATCHLIST),
-			Arguments.of("#portfolioId", co.fineants.stock.annotation.ResourceType.PORTFOLIO),
-			Arguments.of("#tickerSymbol", co.fineants.stock.annotation.ResourceType.STOCK)
+			Arguments.of("#authentication.id", ResourceType.MEMBER),
+			Arguments.of("#authentication.id", ResourceType.STOCK_TARGET_PRICE),
+			Arguments.of("#authentication.id", ResourceType.WATCHLIST),
+			Arguments.of("#portfolioId", ResourceType.PORTFOLIO),
+			Arguments.of("#tickerSymbol", ResourceType.STOCK)
+		);
+	}
+
+	public static Stream<Arguments> invalidArgsForMemberResourceType() {
+		return Stream.of(
+			Arguments.of("#authentication.id", ResourceType.MEMBER, new Object[] {"invalidString", 1L, "005930"}),
+			Arguments.of("#authentication.id", ResourceType.STOCK_TARGET_PRICE,
+				new Object[] {"invalidString", 1L, "005930"}),
+			Arguments.of("#authentication.id", ResourceType.WATCHLIST, new Object[] {"invalidString", 1L, "005930"}),
+			Arguments.of("#portfolioId", ResourceType.PORTFOLIO, new Object[] {1L, "invalidString", "005930"}),
+			Arguments.of("#tickerSymbol", ResourceType.STOCK, new Object[] {1L, 1L, 12345})
 		);
 	}
 }
