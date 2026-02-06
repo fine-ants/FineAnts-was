@@ -1,7 +1,6 @@
 package co.fineants.api.domain.portfolio.controller;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +17,6 @@ import co.fineants.api.global.security.oauth.dto.MemberAuthentication;
 import co.fineants.api.global.security.oauth.resolver.MemberAuthenticationPrincipal;
 import co.fineants.api.global.success.DashboardSuccessCode;
 import co.fineants.stock.annotation.ActiveStockMarker;
-import co.fineants.stock.event.StocksViewedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,12 +38,9 @@ public class DashboardRestController {
 	}
 
 	@GetMapping("/pieChart")
+	@ActiveStockMarker(resourceId = "#authentication.id", type = co.fineants.stock.annotation.ResourceType.MEMBER)
 	public ApiResponse<List<DashboardPieChartResponse>> readPieChart(
 		@MemberAuthenticationPrincipal MemberAuthentication authentication) {
-		// 활성 종목 등록
-		Set<String> tickers = portfolioService.getAllPortfolioTickers(authentication.getId());
-		eventPublisher.publishEvent(new StocksViewedEvent(tickers));
-
 		return ApiResponse.success(DashboardSuccessCode.OK_PORTFOLIO_PIE_CHART,
 			dashboardService.getPieChart(authentication.getId()));
 	}

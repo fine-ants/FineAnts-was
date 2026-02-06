@@ -139,6 +139,26 @@ class DashboardRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data[0].totalGainRate").value(0.0));
 	}
 
+	@DisplayName("포트폴리오 파이 차트 조회 - 활성 종목이 등록되어야 한다")
+	@Test
+	void readPieChart_ActiveStocks() throws Exception {
+		// given
+		Stock stock = stockRepository.save(createSamsungStock());
+		portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
+
+		currentPriceRepository.savePrice(stock.getTickerSymbol(), 50000L);
+		closingPriceRepository.savePrice(stock.getTickerSymbol(), 48000L);
+
+		// when
+		mockMvc.perform(get("/api/dashboard/pieChart"))
+			.andExpect(status().isOk());
+
+		// then - 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
+	}
+
 	@DisplayName("사용자는 라인차트를 조회한다")
 	@Test
 	void readLineChart() throws Exception {
