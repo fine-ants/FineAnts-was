@@ -55,7 +55,7 @@ public class ActiveStockAspect {
 			}
 			eventPublisher.publishEvent(new StocksViewedEvent(tickers));
 		} catch (Exception e) {
-			log.error("Failed to process ActiveStockMarker for type: {}", marker.type(), e);
+			throw new IllegalStateException("Failed to process ActiveStockMarker", e);
 		}
 	}
 
