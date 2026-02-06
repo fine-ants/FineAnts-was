@@ -489,7 +489,7 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 		Stock stock = TestDataFactory.createSamsungStock();
 		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
 		Stock saveStock = stockRepository.save(stock);
-		currentPriceRepository.savePrice(saveStock, 60_000L);
+		currentPriceRepository.savePrice(saveStock.getTickerSymbol(), 60_000L);
 		closingPriceRepository.savePrice(saveStock.getTickerSymbol(), 59_000L);
 
 		PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
@@ -546,5 +546,10 @@ class PortfolioHoldingRestControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("data.sectorChart[0].sectorWeight").value(equalTo(76.0)))
 			.andExpect(jsonPath("data.sectorChart[1].sector").value(equalTo("전기,전자")))
 			.andExpect(jsonPath("data.sectorChart[1].sectorWeight").value(equalTo(24.0)));
+
+		// 활성 종목 검증
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 }
