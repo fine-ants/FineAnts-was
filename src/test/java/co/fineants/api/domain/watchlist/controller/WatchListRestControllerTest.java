@@ -1,5 +1,6 @@
 package co.fineants.api.domain.watchlist.controller;
 
+import static co.fineants.api.global.errors.errorcode.ErrorCode.*;
 import static co.fineants.api.global.success.WatchListSuccessCode.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -175,6 +176,21 @@ class WatchListRestControllerTest extends AbstractContainerBaseTest {
 		Awaitility.await()
 			.atMost(Duration.ofSeconds(5))
 			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
+	}
+
+	@DisplayName("사용자가 존재하지 않는 watchlist 단일 조회시 404 에러를 응답한다")
+	@Test
+	void readWatchList_whenNotExistWatchList_thenRespond404Error() throws Exception {
+		// given
+		Long watchlistId = 9999L;
+		// when & then
+		mockMvc.perform(get("/api/watchlists/{watchlistId}", watchlistId)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("code").value(equalTo(HttpStatus.NOT_FOUND.value())))
+			.andExpect(jsonPath("status").value(equalTo(HttpStatus.NOT_FOUND.getReasonPhrase())))
+			.andExpect(jsonPath("message").value(equalTo(WATCH_LIST_NOT_FOUND.getMessage())))
+			.andExpect(jsonPath("data").value(equalTo(watchlistId.toString())));
 	}
 
 	@DisplayName("사용자가 watchlist에 종목을 추가한다.")
