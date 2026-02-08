@@ -33,9 +33,12 @@ public class KisProductionScheduler {
 	@Scheduled(cron = "0/5 * 9-16 ? * MON,TUE,WED,THU,FRI")
 	@Transactional
 	public void refreshCurrentPrice() {
+		long startTime = System.currentTimeMillis();
 		if (holidayService.isHoliday(LocalDate.now())) {
 			return;
 		}
 		kisService.refreshAllStockCurrentPrice();
+		long endTime = System.currentTimeMillis();
+		log.info("KIS 주식 현재가 갱신 스케줄러 완료, 소요시간 {}ms", (endTime - startTime));
 	}
 }
