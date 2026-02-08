@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.stock_target_price.service.StockTargetPriceService;
 import co.fineants.api.domain.watchlist.service.WatchListService;
+import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
+import co.fineants.api.global.errors.exception.business.WatchListNotFoundException;
 import co.fineants.stock.annotation.ActiveStockMarker;
 import co.fineants.stock.event.StocksViewedEvent;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,12 @@ public class ActiveStockAspect {
 				return;
 			}
 			eventPublisher.publishEvent(new StocksViewedEvent(tickers));
+		} catch (PortfolioNotFoundException e) {
+			log.warn("Portfolio not found while processing ActiveStockMarker: {}", e.getMessage());
+			throw e;
+		} catch (WatchListNotFoundException e) {
+			log.warn("WatchList not found while processing ActiveStockMarker: {}", e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			log.error("Failed to process ActiveStockMarker", e);
 			throw new IllegalStateException("Failed to process ActiveStockMarker", e);
