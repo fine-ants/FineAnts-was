@@ -243,7 +243,9 @@ jobs:
             echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
             
             # 3. IMAGE_TAG 체크
-            echo "Using IMAGE_TAG: ${{ env.IMAGE_TAG }}"
+            export IMAGE_TAG=${{ env.IMAGE_TAG }}
+            echo "env.IMAGE_TAG: ${{ env.IMAGE_TAG }}"
+            echo "Remote Shell Check - IMAGE_TAG is set to: $IMAGE_TAG"
             
             # 3. docker-compose 파일을 실행하여 컨테이너 생성 및 교체 (down, pull, up -d)
             docker-compose -f docker-compose.yml -f docker-compose.production.yml down
