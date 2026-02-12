@@ -8,6 +8,8 @@ import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -225,13 +227,13 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	}
 
 	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선하지 않은 데이터가 존재하면 비동기 이벤트를 갱신하지 않고 기존 데이터를 반환한다")
-	@Test
-	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh() {
+	@ParameterizedTest
+	@MethodSource(value = {"co.fineants.TestDataProvider#provideLocalDateTimeNearMarketClose"})
+	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh(LocalDateTime now) {
 		// given
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
 			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
-		LocalDateTime now = LocalDateTime.of(2026, 2, 12, 15, 30, 1);
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(now);
 

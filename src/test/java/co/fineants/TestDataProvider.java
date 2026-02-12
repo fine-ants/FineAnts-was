@@ -2,6 +2,7 @@ package co.fineants;
 
 import static co.fineants.TestDataFactory.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Stream;
@@ -299,6 +300,13 @@ public class TestDataProvider {
 			Arguments.of("#watchlistId", ResourceType.WATCHLIST, new Object[] {1L, 1L, "005930", "invalidString"}),
 			Arguments.of("#portfolioId", ResourceType.PORTFOLIO, new Object[] {1L, "invalidString", "005930", 1L}),
 			Arguments.of("#tickerSymbol", ResourceType.STOCK, new Object[] {1L, 1L, 12345, 1L})
+		);
+	}
+
+	public static Stream<Arguments> provideLocalDateTimeNearMarketClose() {
+		return Stream.of(
+			Arguments.of(LocalDateTime.of(2026, 2, 12, 8, 59, 59)),
+			Arguments.of(LocalDateTime.of(2026, 2, 12, 15, 30, 1))
 		);
 	}
 }
