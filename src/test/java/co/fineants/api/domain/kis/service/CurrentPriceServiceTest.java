@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,22 +49,64 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@Autowired
 	private HolidayService holidayService;
 
-	@DisplayName("종목 현재가 조회 - 캐시된 종목 현재가를 반환한다")
-	@Test
-	void fetchPrice_whenCurrentPriceIsFresh_thenReturnCurrentPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long expectedPrice = 50000L;
-		currentPriceRepository.savePrice(tickerSymbol, expectedPrice);
-
-		// when
-		Money price = service.fetchPrice(tickerSymbol);
-
-		// then
-		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
+	@BeforeEach
+	void setUp() {
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(LocalDateTime.of(2026, 2, 12, 9, 0)); // 목요일
 	}
 
-	@DisplayName("종목 현재가 조회 - 캐시 저장소에 현재가가 없어서 동기적 이벤트를 발행하고, 외부 API에서 현재가를 조회하여 반환한다.")
+	@DisplayName("종목 현재가 저장 - 정상 저장된다")
+	@Test
+	void savePrice_thenSaveToRepository() {
+		// given
+		String tickerSymbol = "005930";
+		long priceToSave = 60000L;
+
+		// when
+		service.savePrice(tickerSymbol, priceToSave);
+
+		// then
+		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
+		Assertions.assertThat(actual)
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", priceToSave);
+	}
+
+	@DisplayName("종목 현재가 저장 - 빈 티커 심볼을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenBlankTickerSymbol_thenNotSavedPrice() {
+		// given
+		long price = 1000L;
+
+		// when
+		service.savePrice("", price);
+		service.savePrice("   ", price);
+		service.savePrice(null, price);
+		// then
+		boolean actual1 = currentPriceRepository.fetchPriceBy("").isEmpty();
+		boolean actual2 = currentPriceRepository.fetchPriceBy("   ").isEmpty();
+		boolean actual3 = currentPriceRepository.fetchPriceBy(null).isEmpty();
+		Assertions.assertThat(actual1).isTrue();
+		Assertions.assertThat(actual2).isTrue();
+		Assertions.assertThat(actual3).isTrue();
+	}
+
+	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
+	@Test
+	void savePrice_whenNegativePrice_thenNotSavedPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long negativePrice = -1000L;
+
+		// when
+		service.savePrice(tickerSymbol, negativePrice);
+
+		// then
+		boolean actual = currentPriceRepository.fetchPriceBy(tickerSymbol).isEmpty();
+		Assertions.assertThat(actual).isTrue();
+	}
+
+	@DisplayName("종목 현재가 조회 - 캐시 저장소에 현재가가 없어서 동기적 이벤트를 발행하고, 외부 API에서 조회한 현재가를 반환한다.")
 	@Test
 	void fetchPrice_whenPriceNotInCache_thenPublishStockCurrentPriceRefreshSyncEventAndReturnClosingPrice() {
 		// given
@@ -82,7 +125,22 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("price", freshPrice);
 	}
 
-	@DisplayName("종목 현재가 조회 - 캐시 저장소에 존재하는 현재가가 신선도(freshness) 기준에 맞지 않으면 비동기적 이벤트를 발행하고, 캐시된 현재가를 반환한다.")
+	@DisplayName("종목 현재가 조회 - 캐시 저장소에 신선한 현재가가 있어서 바로 반환한다.")
+	@Test
+	void fetchPrice_whenCurrentPriceIsFresh_thenReturnCurrentPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long expectedPrice = 50000L;
+		currentPriceRepository.savePrice(tickerSymbol, expectedPrice);
+
+		// when
+		Money price = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
+	}
+
+	@DisplayName("종목 현재가 조회 - 캐시 저장소에 종목 현재가가 신선도(freshness) 기준에 맞지 않아서 비동기적 이벤트를 발행하고, 기존 현재가를 반환해야 한다.")
 	@Test
 	void fetchPrice_whenCurrentPriceIsStale_thenPublishStockCurrentPriceRefreshEventAndReturnStaleCurrentPrice() {
 		// given
@@ -147,57 +205,6 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("price", 0L);
 	}
 
-	@DisplayName("종목 현재가 저장 - 정상 저장된다")
-	@Test
-	void savePrice_thenSaveToRepository() {
-		// given
-		String tickerSymbol = "005930";
-		long priceToSave = 60000L;
-
-		// when
-		service.savePrice(tickerSymbol, priceToSave);
-
-		// then
-		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
-		Assertions.assertThat(actual)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", priceToSave);
-	}
-
-	@DisplayName("종목 현재가 저장 - 빈 티커 심볼을 저장하면 저장되지 않는다")
-	@Test
-	void savePrice_whenBlankTickerSymbol_thenNotSavedPrice() {
-		// given
-		long price = 1000L;
-
-		// when
-		service.savePrice("", price);
-		service.savePrice("   ", price);
-		service.savePrice(null, price);
-		// then
-		boolean actual1 = currentPriceRepository.fetchPriceBy("").isEmpty();
-		boolean actual2 = currentPriceRepository.fetchPriceBy("   ").isEmpty();
-		boolean actual3 = currentPriceRepository.fetchPriceBy(null).isEmpty();
-		Assertions.assertThat(actual1).isTrue();
-		Assertions.assertThat(actual2).isTrue();
-		Assertions.assertThat(actual3).isTrue();
-	}
-
-	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
-	@Test
-	void savePrice_whenNegativePrice_thenNotSavedPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long negativePrice = -1000L;
-
-		// when
-		service.savePrice(tickerSymbol, negativePrice);
-
-		// then
-		boolean actual = currentPriceRepository.fetchPriceBy(tickerSymbol).isEmpty();
-		Assertions.assertThat(actual).isTrue();
-	}
-
 	@DisplayName("종목 현재가 조회 - 장시간 외에서 데이터가 존재하지 않으면 동기 이벤트로 조회후 반환한다")
 	@Test
 	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsNotExist_thenPublishEventAndReturnCurrentPrice() {
@@ -234,7 +241,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선하지 않은 데이터가 존재하면 비동기 이벤트를 갱신하지 않고 기존 데이터를 반환한다")
 	@ParameterizedTest
-	@MethodSource(value = {"co.fineants.TestDataProvider#provideLocalDateTimeNearMarketClose"})
+	@MethodSource(value = {"co.fineants.TestDataProvider#provideMarketCloseTime"})
 	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh(LocalDateTime now,
 		String ignoredDescription) {
 		// given
@@ -259,7 +266,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
 	}
 
-	@DisplayName("종목 현재가 조회 - 휴일에는 비동기 갱신하지 않고 기존 데이터를 반환한다")
+	@DisplayName("종목 현재가 조회 - 공휴일에는 비동기 갱신하지 않고 기존 데이터를 반환한다")
 	@Test
 	void fetchPrice_whenTodayIsHoliday_thenReturnCurrentPriceWithoutRefresh() {
 		// given
