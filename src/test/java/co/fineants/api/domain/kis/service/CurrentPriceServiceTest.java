@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.service;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
@@ -16,6 +17,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import reactor.core.publisher.Mono;
 
 class CurrentPriceServiceTest extends AbstractContainerBaseTest {
@@ -34,6 +36,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Value("${stock.current-price.freshness-threshold-millis:5000}")
 	private long freshnessThresholdMillis;
+
+	@Autowired
+	private LocalDateTimeService spyLocalDateTimeService;
 
 	@DisplayName("종목 현재가 조회 - 캐시된 종목 현재가를 반환한다")
 	@Test
@@ -183,5 +188,65 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		// then
 		boolean actual = currentPriceRepository.fetchPriceBy(tickerSymbol).isEmpty();
 		Assertions.assertThat(actual).isTrue();
+	}
+
+	@DisplayName("종목 현재가 조회 - 장시간 외에서 데이터가 존재하지 않으면 동기 이벤트로 조회후 반환한다")
+	@Test
+	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsNotExist_thenPublishEventAndReturnCurrentPrice() {
+		// given
+		String tickerSymbol = "005930";
+		long freshPrice = 50000L;
+		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
+			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
+
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
+	}
+
+	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선한 데이터가 존재하면 해당 데이터를 반환한다")
+	@Test
+	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsFresh_thenReturnCurrentPrice() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L);  // initial time
+
+		String tickerSymbol = "005930";
+		long expectedPrice = 50000L;
+		currentPriceRepository.savePrice(tickerSymbol, expectedPrice);
+
+		// when
+		Money price = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
+	}
+
+	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선하지 않은 데이터가 존재하면 비동기 이벤트를 갱신하지 않고 기존 데이터를 반환한다")
+	@Test
+	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
+		LocalDateTime now = LocalDateTime.of(2026, 2, 12, 15, 30, 1);
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(now);
+
+		String tickerSymbol = "005930";
+		long stalePrice = 45000L;
+
+		currentPriceRepository.savePrice(tickerSymbol, stalePrice);
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(stalePrice));
+		Assertions.assertThat(currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", stalePrice);
+		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
 	}
 }
