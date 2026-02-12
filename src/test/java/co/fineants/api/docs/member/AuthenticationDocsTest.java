@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import okhttp3.mockwebserver.MockWebServer;
 
+@Tag("rest-docs")
 @ExtendWith(RestDocumentationExtension.class)
 public class AuthenticationDocsTest extends AbstractContainerBaseTest {
 	public static MockWebServer mockWebServer;
