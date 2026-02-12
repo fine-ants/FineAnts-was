@@ -305,8 +305,10 @@ public class TestDataProvider {
 
 	public static Stream<Arguments> provideLocalDateTimeNearMarketClose() {
 		return Stream.of(
-			Arguments.of(LocalDateTime.of(2026, 2, 12, 8, 59, 59)),
-			Arguments.of(LocalDateTime.of(2026, 2, 12, 15, 30, 1))
+			Arguments.of(LocalDateTime.of(2026, 2, 12, 8, 59, 59), "평일 장 시작 직전"),
+			Arguments.of(LocalDateTime.of(2026, 2, 12, 15, 30, 1), "평일 장 종료 직후"),
+			Arguments.of(LocalDateTime.of(2026, 2, 14, 9, 0, 0), "주말 토요일"),
+			Arguments.of(LocalDateTime.of(2026, 2, 15, 9, 0, 0), "주말 일요일")
 		);
 	}
 }

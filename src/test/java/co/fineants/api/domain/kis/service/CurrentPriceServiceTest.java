@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.service;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holiday.domain.entity.Holiday;
+import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
@@ -41,6 +44,9 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private LocalDateTimeService spyLocalDateTimeService;
+
+	@Autowired
+	private HolidayService holidayService;
 
 	@DisplayName("종목 현재가 조회 - 캐시된 종목 현재가를 반환한다")
 	@Test
@@ -229,13 +235,42 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선하지 않은 데이터가 존재하면 비동기 이벤트를 갱신하지 않고 기존 데이터를 반환한다")
 	@ParameterizedTest
 	@MethodSource(value = {"co.fineants.TestDataProvider#provideLocalDateTimeNearMarketClose"})
-	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh(LocalDateTime now) {
+	void fetchPrice_whenMarketIsCloseAndCurrentPriceIsStale_thenReturnCurrentPriceWithoutRefresh(LocalDateTime now,
+		String ignoredDescription) {
 		// given
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
 			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
 		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(now);
+
+		String tickerSymbol = "005930";
+		long stalePrice = 45000L;
+
+		currentPriceRepository.savePrice(tickerSymbol, stalePrice);
+		// when
+		Money actualPrice = service.fetchPrice(tickerSymbol);
+
+		// then
+		Assertions.assertThat(actualPrice).isEqualTo(Money.won(stalePrice));
+		Assertions.assertThat(currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
+			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
+			.hasFieldOrPropertyWithValue("price", stalePrice);
+		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
+	}
+
+	@DisplayName("종목 현재가 조회 - 휴일에는 비동기 갱신하지 않고 기존 데이터를 반환한다")
+	@Test
+	void fetchPrice_whenTodayIsHoliday_thenReturnCurrentPriceWithoutRefresh() {
+		// given
+		BDDMockito.given(spyClock.millis())
+			.willReturn(1_000_000L)  // initial time
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
+		LocalDate now = LocalDate.of(2026, 2, 16); // 월요일 휴장
+		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(now.atTime(9, 0));
+		Holiday holiday = Holiday.close(now);
+		holidayService.saveHoliday(holiday);
 
 		String tickerSymbol = "005930";
 		long stalePrice = 45000L;
