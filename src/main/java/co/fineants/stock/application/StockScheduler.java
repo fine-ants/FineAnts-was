@@ -36,8 +36,8 @@ public class StockScheduler {
 	/**
 	 * 평일 15:30에 캐시 저장소에 저장된 종목의 현재가를 최신 정보로 갱신합니다.
 	 */
-	@SchedulerLock(name = "stockCurrentPriceRefreshScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
-	@Scheduled(cron = "${cron.expression.refresh-current-price:0 30 15 ? * MON-FRI}")
+	@SchedulerLock(name = "batchStockCurrentPriceRefreshScheduler", lockAtLeastFor = "1m", lockAtMostFor = "1m")
+	@Scheduled(cron = "0 30 15 ? * MON-FRI")
 	public void scheduledRefreshCurrentPrice() {
 		// redis에 저장된 현재가 종목들을 가져옵니다.
 		Set<String> tickers = currentPriceService.getAllTickers();
