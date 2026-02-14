@@ -18,7 +18,7 @@ public class SchedulerAsyncConfig implements AsyncConfigurer {
 		// 1. 스레드 이름 접두사 설정
 		executor.setThreadNamePrefix("scheduler-async-executor-");
 		// 2. 스레드풀 상세 설정
-		executor.setCorePoolSize(5);// 기본 유지 스레드 수
+		executor.setCorePoolSize(5); // 기본 유지 스레드 수
 		executor.setMaxPoolSize(10); // 최대 스레드 수
 		executor.setQueueCapacity(100); // 대기 큐 크기
 		// 3. 스레드 풀 종료 시 작업 완료 대기 설정
