@@ -7,8 +7,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.stock.event.StockCurrentPriceRefreshEvent;
 import co.fineants.stock.event.StockCurrentPriceRequiredEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +22,22 @@ public class CurrentPriceService {
 	private final Clock clock;
 	private final long freshnessThresholdMillis;
 	private final ApplicationEventPublisher eventPublisher;
+	private final MarketStatusChecker marketStatusChecker;
+	private final LocalDateTimeService timeService;
 
 	public CurrentPriceService(
 		CurrentPriceRepository currentPriceRepository,
 		Clock clock,
 		@Value("${stock.current-price.freshness-threshold-millis:5000}") long freshnessThresholdMillis,
-		ApplicationEventPublisher eventPublisher) {
+		ApplicationEventPublisher eventPublisher,
+		MarketStatusChecker marketStatusChecker,
+		LocalDateTimeService timeService) {
 		this.currentPriceRepository = currentPriceRepository;
 		this.clock = clock;
 		this.freshnessThresholdMillis = freshnessThresholdMillis;
 		this.eventPublisher = eventPublisher;
+		this.marketStatusChecker = marketStatusChecker;
+		this.timeService = timeService;
 	}
 
 	public void savePrice(String tickerSymbol, long price) {
@@ -50,7 +58,7 @@ public class CurrentPriceService {
 
 	private Money processCachedEntity(CurrentPriceRedisEntity entity) {
 		// 신선하지 않다면 비동기 갱신 트리거 (Stale-While-Revalidate)
-		if (isStale(entity)) {
+		if (isStale(entity) && marketStatusChecker.isOpen(timeService.getLocalDateTimeWithNow())) {
 			log.warn("Stale price detected for {}. Triggering refresh.", entity.getTickerSymbol());
 			triggerAsyncRefresh(entity.getTickerSymbol());
 		}
