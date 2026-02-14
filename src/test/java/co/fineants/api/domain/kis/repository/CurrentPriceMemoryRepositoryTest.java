@@ -144,4 +144,23 @@ class CurrentPriceMemoryRepositoryTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", price);
 	}
+
+	@DisplayName("모든 현재가 엔티티 조회 - 저장된 모든 현재가 엔티티를 조회한다.")
+	@Test
+	void findAll() {
+		// given
+		currentPriceMemoryRepository.savePrice("005930", 50000L);
+		currentPriceMemoryRepository.savePrice("035720", 30000L);
+
+		// when
+		var entities = currentPriceMemoryRepository.findAll();
+
+		// then
+		Assertions.assertThat(entities)
+			.extracting(CurrentPriceRedisEntity::getTickerSymbol, CurrentPriceRedisEntity::getPrice)
+			.containsExactlyInAnyOrder(
+				Assertions.tuple("005930", 50000L),
+				Assertions.tuple("035720", 30000L)
+			);
+	}
 }

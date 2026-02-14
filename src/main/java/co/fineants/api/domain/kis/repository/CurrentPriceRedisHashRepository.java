@@ -2,6 +2,8 @@ package co.fineants.api.domain.kis.repository;
 
 import java.time.Clock;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Primary;
@@ -110,6 +112,13 @@ public class CurrentPriceRedisHashRepository implements CurrentPriceRepository {
 			log.error("Failed to deserialize JSON to CurrentPriceRedisEntity", e);
 			throw new IllegalArgumentException("Deserialization error", e);
 		}
+	}
+
+	@Override
+	public Set<CurrentPriceRedisEntity> findAll() {
+		return template.opsForHash().entries(KEY).values().stream()
+			.map(value -> fromJson((String)value))
+			.collect(Collectors.toUnmodifiableSet());
 	}
 
 	@Override

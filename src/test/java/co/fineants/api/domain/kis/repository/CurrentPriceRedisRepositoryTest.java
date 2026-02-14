@@ -1,6 +1,7 @@
 package co.fineants.api.domain.kis.repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -159,5 +160,24 @@ class CurrentPriceRedisRepositoryTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(currentPriceRedisRepository.fetchPriceBy("005930")).isEmpty();
 		Assertions.assertThat(currentPriceRedisRepository.fetchPriceBy("000660")).isEmpty();
 		Assertions.assertThat(stringRedisTemplate.keys("cp:*")).isEmpty();
+	}
+
+	@DisplayName("모든 현재가 엔티티 조회 - 저장된 모든 현재가 엔티티를 조회한다.")
+	@Test
+	void findAll() {
+		// given
+		currentPriceRedisRepository.savePrice("005930", 50000L);
+		currentPriceRedisRepository.savePrice("035720", 30000L);
+
+		// when
+		Set<CurrentPriceRedisEntity> entities = currentPriceRedisRepository.findAll();
+
+		// then
+		Assertions.assertThat(entities)
+			.extracting(CurrentPriceRedisEntity::getTickerSymbol, CurrentPriceRedisEntity::getPrice)
+			.containsExactlyInAnyOrder(
+				Assertions.tuple("005930", 50000L),
+				Assertions.tuple("035720", 30000L)
+			);
 	}
 }

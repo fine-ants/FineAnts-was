@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,11 @@ import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
+import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
+import co.fineants.api.domain.kis.service.CurrentPriceService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.infra.s3.service.FetchDividendService;
@@ -53,7 +57,16 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockCsvParser stockCsvParser;
-	
+
+	@Autowired
+	private CurrentPriceService currentPriceService;
+
+	@Autowired
+	private CurrentPriceRepository currentPriceRepository;
+
+	@Autowired
+	private KisService spyKisService;
+
 	@DisplayName("서버는 종목들을 최신화한다")
 	@Test
 	void scheduledRefreshStocks() {
@@ -119,5 +132,33 @@ class StockSchedulerTest extends AbstractContainerBaseTest {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@DisplayName("일괄 종목 현재가 갱신 스케줄러 - 서버는 일괄적으로 종목들의 현재가를 갱신한다")
+	@Test
+	void scheduledRefreshCurrentPrices() {
+		// given
+		currentPriceService.savePrice("005930", 50000L);
+		currentPriceService.savePrice("000660", 80000L);
+		given(spyDelayManager.delay()).willReturn(Duration.ZERO);
+		given(spyKisService.fetchCurrentPrice("005930"))
+			.willReturn(Mono.just(KisCurrentPrice.create("005930", 60000L)));
+		given(spyKisService.fetchCurrentPrice("000660"))
+			.willReturn(Mono.just(KisCurrentPrice.create("000660", 90000L)));
+		// when
+		stockScheduler.scheduledBatchRefreshCurrentPrice();
+		// then
+		Awaitility.await()
+			.atMost(Duration.ofSeconds(5))
+			.untilAsserted(() -> {
+				assertThat(currentPriceRepository.fetchPriceBy("005930")).isPresent()
+					.hasValueSatisfying(entity -> assertThat(entity)
+						.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
+						.hasFieldOrPropertyWithValue("price", 60000L));
+				assertThat(currentPriceRepository.fetchPriceBy("000660")).isPresent()
+					.hasValueSatisfying(entity -> assertThat(entity)
+						.hasFieldOrPropertyWithValue("tickerSymbol", "000660")
+						.hasFieldOrPropertyWithValue("price", 90000L));
+			});
 	}
 }

@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.util.Strings;
@@ -60,6 +61,11 @@ public class CurrentPriceMemoryRepository implements CurrentPriceRepository {
 
 	private boolean isBlankTickerSymbol(String tickerSymbol) {
 		return Strings.isBlank(tickerSymbol);
+	}
+
+	@Override
+	public Set<CurrentPriceRedisEntity> findAll() {
+		return Set.copyOf(store.values());
 	}
 
 	@Override

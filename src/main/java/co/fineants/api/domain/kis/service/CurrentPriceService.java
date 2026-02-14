@@ -1,6 +1,8 @@
 package co.fineants.api.domain.kis.service;
 
 import java.time.Clock;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -83,5 +85,15 @@ public class CurrentPriceService {
 
 	private void triggerSyncRefresh(String tickerSymbol) {
 		eventPublisher.publishEvent(new StockCurrentPriceRequiredEvent(tickerSymbol));
+	}
+
+	/**
+	 * 현재 캐시 저장소에 저장된 모든 종목의 티커 심볼을 조회한다.
+	 * @return 현재 캐시 저장소에 저장된 모든 종목의 티커 심볼 집합
+	 */
+	public Set<String> getAllTickers() {
+		return currentPriceRepository.findAll().stream()
+			.map(CurrentPriceRedisEntity::getTickerSymbol)
+			.collect(Collectors.toUnmodifiableSet());
 	}
 }
