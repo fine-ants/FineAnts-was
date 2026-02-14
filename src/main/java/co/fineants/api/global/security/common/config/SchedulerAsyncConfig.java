@@ -2,18 +2,18 @@ package co.fineants.api.global.security.common.config;
 
 import java.util.concurrent.Executor;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
 @Configuration
 @EnableAsync
-public class SchedulerAsyncConfig implements AsyncConfigurer {
+public class SchedulerAsyncConfig {
 
-	@Override
-	public Executor getAsyncExecutor() {
+	@Bean
+	public Executor schedulerAsyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		// 1. 스레드 이름 접두사 설정
 		executor.setThreadNamePrefix("scheduler-async-executor-");
