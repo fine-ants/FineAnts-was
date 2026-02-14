@@ -1,6 +1,7 @@
 package co.fineants.api.domain.kis.repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
@@ -15,6 +16,7 @@ public interface CurrentPriceRepository {
 
 	Optional<CurrentPriceRedisEntity> fetchPriceBy(String tickerSymbol);
 
-	void clear();
+	Set<CurrentPriceRedisEntity> findAll();
 
+	void clear();
 }

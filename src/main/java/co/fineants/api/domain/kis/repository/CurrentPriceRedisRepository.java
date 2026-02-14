@@ -3,8 +3,10 @@ package co.fineants.api.domain.kis.repository;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.redis.core.Cursor;
@@ -83,6 +85,28 @@ public class CurrentPriceRedisRepository implements CurrentPriceRepository {
 			log.error("Failed to deserialize JSON to CurrentPriceRedisEntity", e);
 			throw new IllegalArgumentException("Deserialization error", e);
 		}
+	}
+
+	@Override
+	public Set<CurrentPriceRedisEntity> findAll() {
+		return redisTemplate.execute((RedisCallback<Set<CurrentPriceRedisEntity>>)connection -> {
+			ScanOptions options = ScanOptions.scanOptions()
+				.match("cp:*")
+				.count(100)
+				.build();
+			Set<CurrentPriceRedisEntity> resultSet = new HashSet<>();
+			try (Cursor<byte[]> cursor = connection.scan(options)) {
+				while (cursor.hasNext()) {
+					byte[] keyBytes = cursor.next();
+					String key = new String(keyBytes);
+					String value = redisTemplate.opsForValue().get(key);
+					if (value != null) {
+						resultSet.add(fromJson(value));
+					}
+				}
+			}
+			return resultSet;
+		});
 	}
 
 	@Override
