@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
@@ -294,5 +295,20 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 			.hasFieldOrPropertyWithValue("price", stalePrice);
 		// 이벤트는 비즈니스 흐름상 발행될 수 있으나, 리스너의 필터링 로직에 의해 고비용 작업인 API 호출이 차단됨을 검증함
 		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
+	}
+
+	@DisplayName("모든 종목 티커 조회 - 저장된 모든 종목 티커에 대한 현재가를 조회한다")
+	@Test
+	void getAllTickers_thenReturnAllTickers() {
+		// given
+		currentPriceRepository.savePrice("005930", 50000L);
+		currentPriceRepository.savePrice("000660", 30000L);
+
+		// when
+		Set<String> actual = service.getAllTickers();
+
+		// then
+		Assertions.assertThat(actual)
+			.containsExactlyInAnyOrder("005930", "000660");
 	}
 }
