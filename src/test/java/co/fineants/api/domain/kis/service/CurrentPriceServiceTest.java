@@ -263,6 +263,7 @@ class CurrentPriceServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
 			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
 			.hasFieldOrPropertyWithValue("price", stalePrice);
+		// 이벤트는 비즈니스 흐름상 발행될 수 있으나, 리스너의 필터링 로직에 의해 고비용 작업인 API 호출이 차단됨을 검증함
 		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
 	}
 
