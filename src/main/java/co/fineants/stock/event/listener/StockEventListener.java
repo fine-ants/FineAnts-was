@@ -45,7 +45,7 @@ public class StockEventListener {
 	}
 
 	@EventListener
-	@Async
+	@Async("eventAsyncExecutor")
 	public void handleStockCurrentPriceRefreshEvent(StockCurrentPriceRefreshEvent event) {
 		log.info("Handling StockCurrentPriceRefreshEvent - tickerSymbol={}", event.getTickerSymbol());
 		kisService.fetchCurrentPrice(event.getTickerSymbol())
@@ -73,7 +73,7 @@ public class StockEventListener {
 	}
 
 	@EventListener
-	@Async
+	@Async("eventAsyncExecutor")
 	public void handleStockClosingPriceRefreshEvent(StockClosingPriceRefreshEvent event) {
 		log.info("Handling StockClosingPriceRefreshEvent - tickerSymbol={}", event.getTickerSymbol());
 		kisService.fetchClosingPrice(event.getTickerSymbol())
