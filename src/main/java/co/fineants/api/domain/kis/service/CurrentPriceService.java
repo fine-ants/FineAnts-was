@@ -89,7 +89,7 @@ public class CurrentPriceService {
 
 	/**
 	 * 현재 캐시 저장소에 저장된 모든 종목의 티커 심볼을 조회한다.
-	 * @return 현재 캐시 저장소에 저장된 모든 종목의 티커 심볼 리스트
+	 * @return 현재 캐시 저장소에 저장된 모든 종목의 티커 심볼 집합
 	 */
 	public Set<String> getAllTickers() {
 		return currentPriceRepository.findAll().stream()
