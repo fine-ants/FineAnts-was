@@ -85,7 +85,7 @@ import okhttp3.mockwebserver.MockResponse;
 @WithMockMemberAuthentication
 public abstract class AbstractContainerBaseTest {
 	public static final LocalStackContainer LOCAL_STACK_CONTAINER = new LocalStackContainer(
-		DockerImageName.parse("localstack/localstack"))
+		DockerImageName.parse("localstack/localstack:3.0"))
 		.withServices(LocalStackContainer.Service.S3)
 		.withReuse(true);
 	private static final String REDIS_IMAGE = "redis:7-alpine";
