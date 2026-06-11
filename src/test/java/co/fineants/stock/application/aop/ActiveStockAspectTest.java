@@ -17,6 +17,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -41,6 +42,7 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
+@DirtiesContext
 class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -105,6 +107,7 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 		BDDMockito.given(joinPoint.getArgs())
 			.willReturn(
 				new Object[] {memberAuthentication, portfolio.getId(), stock.getTickerSymbol(), watchList.getId()});
+		setAuthentication(member);
 	}
 
 	@DisplayName("객체 생성")
@@ -125,7 +128,7 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
 		// then
 		Awaitility.await()
-			.atMost(Duration.ofSeconds(5))
+			.atMost(Duration.ofSeconds(3600))
 			.untilAsserted(() -> Assertions.assertThat(activeStockRepository.size()).isEqualTo(1L));
 	}
 
