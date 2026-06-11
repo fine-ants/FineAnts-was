@@ -1,10 +1,11 @@
 package co.fineants.member.application.listener;
 
 import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -46,6 +47,8 @@ class NotificationPreferenceChangeEventListenerTest extends AbstractContainerBas
 		newMember.addRoleId(userRole.getId());
 		this.member = memberRepository.save(newMember);
 
+		// 비동기 스레드에도 SeucirtyContext 전파 설정함
+		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 		setAuthentication(this.member);
 	}
 
