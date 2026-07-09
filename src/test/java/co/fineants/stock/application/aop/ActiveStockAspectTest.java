@@ -17,6 +17,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -43,6 +44,7 @@ import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @DirtiesContext
+@Slf4j
 class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
 	@Autowired
@@ -96,7 +98,6 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 		watchStockRepository.save(TestDataFactory.createWatchStock(stock, watchList));
 
 		MockitoAnnotations.openMocks(this);
-		// JoinPoint 설정 : 메서드 인자와 파라미터 설정
 		Method method = TestTarget.class.getMethod("sampleMethod", MemberAuthentication.class, Long.class,
 			String.class, Long.class);
 		BDDMockito.given(joinPoint.getSignature())
@@ -108,6 +109,10 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 			.willReturn(
 				new Object[] {memberAuthentication, portfolio.getId(), stock.getTickerSymbol(), watchList.getId()});
 		setAuthentication(member);
+
+		// SecurityContext의 Authentication 확인
+		log.info("@BeforeEach 실행 중 SecurityContext의 Authentication 확인 : {}",
+			SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	@DisplayName("객체 생성")
@@ -120,6 +125,8 @@ class ActiveStockAspectTest extends AbstractContainerBaseTest {
 	@ParameterizedTest
 	@MethodSource(value = {"co.fineants.TestDataProvider#validResourceIdAndTypes"})
 	void markBeforeController_whenValidResourceId_thenRegistersActiveStock(String resourceId, ResourceType type) {
+		// SecurityContextHolder Authentication 확인
+		Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		// given
 		ActiveStockMarker marker = createMarker(resourceId, type);
 
