@@ -2,6 +2,7 @@ package co.fineants.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,6 +135,28 @@ class UpdateNotificationPreferenceTest extends AbstractContainerBaseTest {
 		);
 		assertThat(findMember.getNotificationPreference()).isEqualTo(expected);
 		assertThat(fcmRepository.findAllByMemberId(member.getId())).isEmpty();
+	}
+
+	@DisplayName("사용자가 계정의 모든 알림을 비활성화하고 토큰을 가지고 있는 상태라면 FCM 토큰을 제거되어야 한다")
+	@Test
+	void updateNotificationPreference_whenPreferenceIsAllInActiveAndHasFcmToken_thenDeleteFcmToken() {
+		// given
+		Member member = memberRepository.save(createMember());
+		FcmToken fcmToken = fcmRepository.save(createFcmToken("fcmToken", member));
+		MemberNotificationPreferenceRequest request = MemberNotificationPreferenceRequest.builder()
+			.browserNotify(false)
+			.targetGainNotify(false)
+			.maxLossNotify(false)
+			.targetPriceNotify(false)
+			.fcmTokenId(fcmToken.getId())
+			.build();
+
+		setAuthentication(member);
+		// when
+		service.update(member.getId(), request);
+
+		// then
+		Assertions.assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty();
 	}
 
 	@DisplayName("사용자는 다른 사용자의 회원 알림 설정을 수정할 수 없습니다")

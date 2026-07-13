@@ -36,6 +36,7 @@ class StockRestControllerTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private StockRepository stockRepository;
+
 	@Autowired
 	private CurrentPriceRepository currentPriceRepository;
 
