@@ -18,7 +18,7 @@ import co.fineants.member.domain.MemberRepository;
 import co.fineants.role.application.FindRole;
 import co.fineants.role.domain.RoleRepository;
 
-class AbstractUserServiceTest extends AbstractContainerBaseTest {
+class CustomOidcUserServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
@@ -33,9 +33,9 @@ class AbstractUserServiceTest extends AbstractContainerBaseTest {
 	private FindRole findRole;
 
 	@Transactional
-	@DisplayName("OAuth google 계정이 다른 프로필로 변경한 상태에서 회원 정보 저장시 프로필 사진을 유지한다")
+	@DisplayName("구글 계정이 다른 프로필 사진으로 변경된 상태여도 회원 정보 저장시 프로필 사진을 유지해야 한다")
 	@Test
-	void saveOrUpdate_givenOtherProfileUrl_whenSaveOrUpdate_thenMaintainProfileUrl() {
+	void givenGoogleProfilePictureChanged_whenSavingUserInfo_thenOriginalProfilePictureIsMaintained() {
 		// given
 		memberRepository.save(createOauthMember());
 		AbstractUserService userService = new CustomOidcUserService(memberRepository,
@@ -44,9 +44,9 @@ class AbstractUserServiceTest extends AbstractContainerBaseTest {
 		attributes.put("email", "fineants1234@gmail.com");
 		attributes.put("profile", "profileUrl0");
 		attributes.put("sub", "123445");
-		OAuthAttribute googleOAuth = OAuthAttribute.of("google", attributes, "sub");
+		OAuthAttribute oAuthAttribute = OAuthAttribute.of("google", attributes, "sub");
 		// when
-		Member member = userService.saveOrUpdate(googleOAuth);
+		Member member = userService.saveOrUpdate(oAuthAttribute);
 		// then
 		assertThat(member.getProfileUrl().orElseThrow()).isEqualTo("profileUrl1");
 	}
