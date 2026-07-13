@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.global.security.oauth.dto.OAuthAttribute;
 import co.fineants.member.application.NicknameGenerator;
@@ -25,6 +26,7 @@ public abstract class AbstractUserService {
 	private final RoleRepository roleRepository;
 	private final FindRole findRole;
 
+	@Transactional(readOnly = true)
 	public OAuthAttribute getUserInfo(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 		String provider = userRequest.getClientRegistration().getRegistrationId();
 		String nameAttributeKey = userRequest.getClientRegistration()
@@ -36,8 +38,9 @@ public abstract class AbstractUserService {
 		return OAuthAttribute.of(provider, oAuth2User.getAttributes(), nameAttributeKey);
 	}
 
+	@Transactional
 	public Member saveOrUpdate(OAuthAttribute attributes) {
-		Role userRole = findRole.findBy("ROLE_USER");
+		Role userRole = findRole.findBy(DEFAULT_ROLE);
 		Member member = attributes.findMember(memberRepository)
 			.orElseGet(() -> attributes.toEntity(nicknameGenerator, userRole.getId()));
 		attributes.updateProfileUrlIfAbsent(member);
