@@ -1,9 +1,14 @@
 package co.fineants.api.domain.exchangerate.service;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -13,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import co.fineants.api.domain.common.money.Currency;
+import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
@@ -26,7 +33,7 @@ class ExchangeRateServiceUnitTest {
 	@InjectMocks
 	private ExchangeRateService service;
 
-	@DisplayName("관리자는 환율을 저장한다")
+	@DisplayName("환율 데이터가 추가 및 저장되어야 한다")
 	@CsvSource(value = {
 		"KRW, 1.0, true",
 		"USD, 0.0007322, false",
@@ -39,7 +46,7 @@ class ExchangeRateServiceUnitTest {
 		"CHF, 0.0088, false"
 	})
 	@ParameterizedTest
-	void createExchangeRate(String code, double rate, boolean base) {
+	void should_save_exchange_rate_data(String code, double rate, boolean base) {
 		// given
 		String baseCode = "KRW";
 		BDDMockito.given(repository.findAll())
@@ -57,48 +64,55 @@ class ExchangeRateServiceUnitTest {
 		ExchangeRate expected = ExchangeRate.of(code, rate, base);
 		BDDMockito.verify(repository, Mockito.times(1)).save(expected);
 	}
-	//
-	// @DisplayName("환율 추가 시나리오")
-	// @TestFactory
-	// Collection<DynamicTest> createExchangeRateDynamicTest() {
-	//
-	// 	return List.of(
-	// 		DynamicTest.dynamicTest("기준 통화가 없는 상태에서 통화를 추가시 기준 통화가 된다", () -> {
-	// 			// given
-	// 			String krw = Currency.KRW.name();
-	//
-	// 			given(mockedExchangeRateClient.fetchRateBy(krw, krw))
-	// 				.willReturn(1.0);
-	// 			// when
-	// 			service.createExchangeRate(krw);
-	//
-	// 			// then
-	// 			ExchangeRate exchangeRate = repository.findByCode(krw).orElseThrow();
-	// 			assertThat(exchangeRate)
-	// 				.extracting("code", "rate", "base")
-	// 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 				.containsExactly(krw, Percentage.from(1.0), true);
-	// 		}),
-	// 		DynamicTest.dynamicTest("기준 통화가 있는 상태에서 다른 통화를 추가할 수 있다", () -> {
-	// 			// given
-	// 			String base = "KRW";
-	// 			String usd = Currency.USD.name();
-	// 			double rate = 0.0007322;
-	// 			given(mockedExchangeRateClient.fetchRateBy(usd, base))
-	// 				.willReturn(rate);
-	// 			// when
-	// 			service.createExchangeRate(usd);
-	//
-	// 			// then
-	// 			ExchangeRate exchangeRate = repository.findByCode(usd).orElseThrow();
-	// 			assertThat(exchangeRate)
-	// 				.extracting("code", "rate", "base")
-	// 				.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 				.containsExactly(usd, Percentage.from(rate), false);
-	// 		})
-	// 	);
-	// }
-	//
+
+	@DisplayName("환율 추가 시나리오")
+	@TestFactory
+	Collection<DynamicTest> createExchangeRateDynamicTest() {
+		return List.of(
+			DynamicTest.dynamicTest("기준 통화가 없는 상태에서 통화를 추가시 기준 통화가 된다", () -> {
+				// given
+				String krw = Currency.KRW.name();
+
+				BDDMockito.given(exchangeRateClient.fetchRateBy(krw, krw))
+					.willReturn(1.0);
+				// when
+				service.createExchangeRate(krw);
+
+				// then
+				ExchangeRate exchangeRate = ExchangeRate.of(krw, 1.0, true);
+				BDDMockito.verify(repository, Mockito.times(1)).save(exchangeRate);
+
+				Assertions.assertThat(exchangeRate)
+					.extracting("code", "rate", "base")
+					.usingComparatorForType(Percentage::compareTo, Percentage.class)
+					.containsExactly(krw, Percentage.from(1.0), true);
+			}),
+			DynamicTest.dynamicTest("기준 통화가 있는 상태에서 다른 통화를 추가할 수 있다", () -> {
+				// given
+				String base = "KRW";
+				String usd = Currency.USD.name();
+				double rate = 0.0007322;
+				ExchangeRate baseExchangeRate = ExchangeRate.of(base, 1.0, true);
+				BDDMockito.given(repository.findAll())
+					.willReturn(List.of(baseExchangeRate));
+				BDDMockito.given(repository.findBase())
+					.willReturn(Optional.of(baseExchangeRate));
+				BDDMockito.given(exchangeRateClient.fetchRateBy(usd, base))
+					.willReturn(rate);
+				// when
+				service.createExchangeRate(usd);
+
+				// then
+				ExchangeRate exchangeRate = ExchangeRate.of(usd, rate, false);
+				BDDMockito.verify(repository, Mockito.times(1)).save(exchangeRate);
+				Assertions.assertThat(exchangeRate)
+					.extracting(ExchangeRate::getCode, ExchangeRate::getRate, ExchangeRate::getBase)
+					.usingComparatorForType(Percentage::compareTo, Percentage.class)
+					.containsExactly(usd, Percentage.from(rate), false);
+			})
+		);
+	}
+
 	// @DisplayName("관리자는 존재하지 않는 통화를 추가할 수 없다")
 	// @Test
 	// void createExchangeRate_whenNotExistCode_thenError() {
