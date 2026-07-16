@@ -48,9 +48,9 @@ class StockDividendServiceUnitTest {
 	@InjectMocks
 	private StockDividendService stockDividendService;
 
-	@DisplayName("배당일정을 초기화한다")
+	@DisplayName("종목 배당 데이터를 초기화하면 종목 데이터에 배당 데이터가 추가되어야 하고 데이터베이스에 저장되어야 한다")
 	@Test
-	void initializeStockDividend() {
+	void should_add_stock_dividends_to_stock_when_initialize_stock_dividends_then_save_to_db() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		Stock kakao = TestDataFactory.createKakaoStock();
@@ -71,9 +71,9 @@ class StockDividendServiceUnitTest {
 		assertThat(kakao.getStockDividends()).containsExactlyElementsOf(kakaoStockDividends);
 	}
 
-	@DisplayName("배당 일정을 최신화한다")
+	@DisplayName("배당 일정을 최신화하면 새로운 배당 일정을 추가하고 기존 배당 데이터의 현금 지급일을 수정하고 범위를 벗어난 배당 일정을 삭제해야 한다")
 	@Test
-	void refreshStockDividend() {
+	void should_add_new_stock_dividends_and_update_payment_date_and_delete_stock_dividends_not_in_range() {
 		// given
 		Stock samsung = TestDataFactory.createSamsungStock();
 		List<StockDividend> samsungStockDividends = TestDataFactory.createSamsungStockDividends();
@@ -128,7 +128,7 @@ class StockDividendServiceUnitTest {
 		return String.format("%s:%s:%s", stockDividend.getTickerSymbol(), stockDividend.getDividend(),
 			dividendDateString);
 	}
-	
+
 	/**
 	 * KisDividend 리스트 데이터 생성
 	 * - 새로운 배정 기준일 생성
