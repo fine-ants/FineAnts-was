@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +24,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
+import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class ExchangeRateServiceUnitTest {
@@ -113,23 +115,23 @@ class ExchangeRateServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("관리자는 존재하지 않는 통화를 추가할 수 없다")
-	// @Test
-	// void createExchangeRate_whenNotExistCode_thenError() {
-	// 	// given
-	// 	String usd = "AAA";
-	// 	given(mockedExchangeRateClient.fetchRateBy(usd, usd))
-	// 		.willThrow(new ExchangeRateNotFoundException(usd));
-	//
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> service.createExchangeRate(usd));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ExchangeRateNotFoundException.class)
-	// 		.hasMessage(usd);
-	// }
-	//
+	@DisplayName("존재하지 않는 통화는 저장할 수 없다")
+	@Test
+	void should_not_save_exchange_rate_when_not_exist_code_then_throw_exception() {
+		// given
+		String usd = "AAA";
+		BDDMockito.given(exchangeRateClient.fetchRateBy(usd, usd))
+			.willThrow(new ExchangeRateNotFoundException(usd));
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.createExchangeRate(usd));
+
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(ExchangeRateNotFoundException.class)
+			.hasMessage(usd);
+	}
+
 	// @DisplayName("관리자는 이미 존재하는 통화를 저장할 수 없다")
 	// @Test
 	// void createExchangeRate_whenExistRate_thenThrowError() {
