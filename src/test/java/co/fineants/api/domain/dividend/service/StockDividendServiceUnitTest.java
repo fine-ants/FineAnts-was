@@ -68,7 +68,8 @@ class StockDividendServiceUnitTest {
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
-		stocks.forEach(stock -> Assertions.assertThat(stock.getStockDividends()).hasSize(9));
+		Assertions.assertThat(samsung.getStockDividends()).containsExactlyElementsOf(samsungStockDividends);
+		Assertions.assertThat(kakao.getStockDividends()).containsExactlyElementsOf(kakaoStockDividends);
 	}
 
 	// @Transactional
