@@ -1,6 +1,8 @@
 package co.fineants.api.domain.dividend.service;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -51,8 +53,14 @@ class StockDividendServiceUnitTest {
 	@Test
 	void initializeStockDividend() {
 		// given
-		List<Stock> stocks = List.of(TestDataFactory.createSamsungStock());
-		List<StockDividend> stockDividends = TestDataFactory.createSamsungStockDividends();
+		Stock samsung = TestDataFactory.createSamsungStock();
+		Stock kakao = TestDataFactory.createKakaoStock();
+		List<Stock> stocks = List.of(samsung, kakao);
+		List<StockDividend> samsungStockDividends = TestDataFactory.createSamsungStockDividends();
+		List<StockDividend> kakaoStockDividends = TestDataFactory.createKakaoStockDividends();
+		List<StockDividend> stockDividends = Stream.of(samsungStockDividends, kakaoStockDividends)
+			.flatMap(Collection::stream)
+			.toList();
 		BDDMockito.given(stockRepository.findAll())
 			.willReturn(stocks);
 		BDDMockito.given(fetchDividendService.fetchDividendEntityIn(stocks))
@@ -60,9 +68,7 @@ class StockDividendServiceUnitTest {
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
-		for (Stock stock : stocks) {
-			Assertions.assertThat(stock.getStockDividends()).hasSize(9);
-		}
+		stocks.forEach(stock -> Assertions.assertThat(stock.getStockDividends()).hasSize(9));
 	}
 
 	// @Transactional
