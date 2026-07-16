@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,14 +83,6 @@ class StockDividendServiceUnitTest {
 		kakaoStockDividends.forEach(kakao::addStockDividend);
 		List<Stock> stocks = List.of(samsung, kakao);
 
-		// 새로운 배정 기준일이 생김
-		// 기존 데이터에 현금 배당 지급일이 새로 할당됨
-		String samsungTickerSymbol = "005930";
-		int samsungDividend = 361;
-
-		String kakaoTickerSymbol = "035720";
-		int kakaoDividend = 61;
-
 		LocalDate from = LocalDate.of(2024, 4, 17);
 		LocalDate to = from.with(TemporalAdjusters.lastDayOfYear());
 		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
@@ -99,7 +90,7 @@ class StockDividendServiceUnitTest {
 		BDDMockito.given(kisService.fetchDividendsBetween(
 			from,
 			to
-		)).willReturn(createKisDividends(samsungTickerSymbol, samsungDividend, kakaoTickerSymbol, kakaoDividend));
+		)).willReturn(createKisDividends());
 		BDDMockito.given(stockRepository.findAllWithDividends(ArgumentMatchers.anyList()))
 			.willReturn(stocks);
 		BDDMockito.given(exDividendDateCalculator.calculate(LocalDate.of(2024, 2, 29)))
@@ -137,11 +128,18 @@ class StockDividendServiceUnitTest {
 		return String.format("%s:%s:%s", stockDividend.getTickerSymbol(), stockDividend.getDividend(),
 			dividendDateString);
 	}
-
-	@NotNull
-	private List<KisDividend> createKisDividends(String samsungTickerSymbol, int samsungDividend,
-		String kakaoTickerSymbol,
-		int kakaoDividend) {
+	
+	/**
+	 * KisDividend 리스트 데이터 생성
+	 * - 새로운 배정 기준일 생성
+	 * - 기존 데이터에 현금 배당 지급일 새로 할당
+	 * @return KisDividend 타입의 리스트
+	 */
+	private List<KisDividend> createKisDividends() {
+		String samsungTickerSymbol = "005930";
+		int samsungDividend = 361;
+		String kakaoTickerSymbol = "035720";
+		int kakaoDividend = 61;
 		return List.of(
 			KisDividend.create(
 				samsungTickerSymbol,
