@@ -1,24 +1,30 @@
 package co.fineants.api.domain.dividend.service;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculator;
+import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.infra.s3.service.FetchDividendService;
-import co.fineants.api.infra.s3.service.WriteDividendService;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
@@ -38,17 +44,11 @@ class StockDividendServiceUnitTest {
 	private KisService kisService;
 
 	@Mock
-	private WriteDividendService writeDividendService;
-
-	@Mock
 	private FetchDividendService fetchDividendService;
 
 	@InjectMocks
 	private StockDividendService stockDividendService;
 
-	/**
-	 * 해당 테스트 수행시 localStack에 저장된 dividends.csv 파일을 이용하여 배당 일정을 초기화합니다.
-	 */
 	@DisplayName("배당일정을 초기화한다")
 	@Test
 	void initializeStockDividend() {
@@ -68,101 +68,123 @@ class StockDividendServiceUnitTest {
 		// when
 		stockDividendService.initializeStockDividend();
 		// then
-		Assertions.assertThat(samsung.getStockDividends()).containsExactlyElementsOf(samsungStockDividends);
-		Assertions.assertThat(kakao.getStockDividends()).containsExactlyElementsOf(kakaoStockDividends);
+		assertThat(samsung.getStockDividends()).containsExactlyElementsOf(samsungStockDividends);
+		assertThat(kakao.getStockDividends()).containsExactlyElementsOf(kakaoStockDividends);
 	}
 
-	// @Transactional
-	// @DisplayName("배당 일정을 최신화한다")
-	// @Test
-	// void refreshStockDividend() {
-	// 	// given
-	// 	Stock samsung = createSamsungStock();
-	// 	TestDataFactory.createSamsungStockDividends().forEach(samsung::addStockDividend);
-	// 	Stock kakao = createKakaoStock();
-	// 	TestDataFactory.createKakaoStockDividends().forEach(kakao::addStockDividend);
-	// 	stockRepository.saveAll(List.of(samsung, kakao));
-	//
-	// 	// 새로운 배정 기준일이 생김
-	// 	// 기존 데이터에 현금 배당 지급일이 새로 할당됨
-	// 	String samsungTickerSymbol = "005930";
-	// 	int samsungDividend = 361;
-	//
-	// 	String kakaoTickerSymbol = "035720";
-	// 	int kakaoDividend = 61;
-	//
-	// 	given(mockedKisService.fetchDividendsBetween(
-	// 		ArgumentMatchers.any(LocalDate.class),
-	// 		ArgumentMatchers.any(LocalDate.class)
-	// 	)).willReturn(List.of(
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2023, 3, 31),
-	// 			LocalDate.of(2023, 5, 17)
-	// 		),
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2023, 6, 30),
-	// 			LocalDate.of(2023, 8, 16)
-	// 		),
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2023, 9, 30),
-	// 			LocalDate.of(2023, 11, 20)
-	// 		),
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2023, 12, 31),
-	// 			LocalDate.of(2024, 4, 19)
-	// 		),
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2024, 3, 31),
-	// 			LocalDate.of(2024, 5, 17) // 기존 데이터에서 새로운 현금 배당 지급일이 할당된 경우
-	// 		),
-	// 		KisDividend.create(
-	// 			samsungTickerSymbol,
-	// 			Money.won(samsungDividend),
-	// 			LocalDate.of(2024, 6, 30), // 새로운 배당 기준일이 생긴 경우
-	// 			null
-	// 		),
-	// 		KisDividend.create(
-	// 			kakaoTickerSymbol,
-	// 			Money.won(kakaoDividend),
-	// 			LocalDate.of(2024, 2, 29),
-	// 			null
-	// 		)
-	// 	));
-	// 	given(spyLocalDateTimeService.getLocalDateWithNow())
-	// 		.willReturn(LocalDate.of(2024, 4, 17));
-	// 	// when
-	// 	stockDividendService.reloadStockDividend();
-	//
-	// 	// then
-	// 	Stock findSamsungStock = stockRepository.findByTickerSymbol(samsungTickerSymbol).orElseThrow();
-	// 	assertThat(findSamsungStock.getStockDividends())
-	// 		.hasSize(6)
-	// 		.map(stockDividend -> stockDividend.parse(findSamsungStock.getTickerSymbol()))
-	// 		.containsExactlyInAnyOrder(
-	// 			"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
-	// 			"005930:₩361:2023-06-30:2023-06-29:2023-08-16",
-	// 			"005930:₩361:2023-09-30:2023-09-27:2023-11-20",
-	// 			"005930:₩361:2023-12-31:2023-12-28:2024-04-19",
-	// 			"005930:₩361:2024-03-31:2024-03-29:2024-05-17",
-	// 			"005930:₩361:2024-06-30:2024-06-28:null"
-	// 		);
-	//
-	// 	Stock findKakaoStock = stockRepository.findByTickerSymbol(kakaoTickerSymbol).orElseThrow();
-	// 	assertThat(findKakaoStock.getStockDividends())
-	// 		.hasSize(1)
-	// 		.map(stockDividend -> stockDividend.parse(findKakaoStock.getTickerSymbol()))
-	// 		.containsExactlyInAnyOrder(
-	// 			"035720:₩61:2024-02-29:2024-02-28:null"
-	// 		);
-	// }
+	@DisplayName("배당 일정을 최신화한다")
+	@Test
+	void refreshStockDividend() {
+		// given
+		Stock samsung = TestDataFactory.createSamsungStock();
+		List<StockDividend> samsungStockDividends = TestDataFactory.createSamsungStockDividends();
+		samsungStockDividends.forEach(samsung::addStockDividend);
+		Stock kakao = TestDataFactory.createKakaoStock();
+		List<StockDividend> kakaoStockDividends = TestDataFactory.createKakaoStockDividends();
+		kakaoStockDividends.forEach(kakao::addStockDividend);
+		List<Stock> stocks = List.of(samsung, kakao);
+
+		// 새로운 배정 기준일이 생김
+		// 기존 데이터에 현금 배당 지급일이 새로 할당됨
+		String samsungTickerSymbol = "005930";
+		int samsungDividend = 361;
+
+		String kakaoTickerSymbol = "035720";
+		int kakaoDividend = 61;
+
+		LocalDate from = LocalDate.of(2024, 4, 17);
+		LocalDate to = from.with(TemporalAdjusters.lastDayOfYear());
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(from);
+		BDDMockito.given(kisService.fetchDividendsBetween(
+			from,
+			to
+		)).willReturn(createKisDividends(samsungTickerSymbol, samsungDividend, kakaoTickerSymbol, kakaoDividend));
+		BDDMockito.given(stockRepository.findAllWithDividends(ArgumentMatchers.anyList()))
+			.willReturn(stocks);
+		BDDMockito.given(exDividendDateCalculator.calculate(LocalDate.of(2024, 2, 29)))
+			.willReturn(LocalDate.of(2024, 2, 28));
+		BDDMockito.given(exDividendDateCalculator.calculate(LocalDate.of(2024, 3, 31)))
+			.willReturn(LocalDate.of(2024, 3, 29));
+		BDDMockito.given(exDividendDateCalculator.calculate(LocalDate.of(2024, 6, 30)))
+			.willReturn(LocalDate.of(2024, 6, 28));
+		// when
+		stockDividendService.reloadStockDividend();
+
+		// then
+		assertThat(samsung.getStockDividends())
+			.hasSize(6)
+			.map(this::parseStockDividend)
+			.containsExactly(
+				"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
+				"005930:₩361:2023-06-30:2023-06-29:2023-08-16",
+				"005930:₩361:2023-09-30:2023-09-27:2023-11-20",
+				"005930:₩361:2023-12-31:2023-12-28:2024-04-19",
+				"005930:₩361:2024-03-31:2024-03-29:2024-05-17",
+				"005930:₩361:2024-06-30:2024-06-28:null"
+			);
+		assertThat(kakao.getStockDividends())
+			.hasSize(1)
+			.map(this::parseStockDividend)
+			.containsExactly(
+				"035720:₩61:2024-02-29:2024-02-28:null"
+			);
+	}
+
+	private String parseStockDividend(StockDividend stockDividend) {
+		String dividendDateString = String.format("%s:%s:%s", stockDividend.getRecordDate(),
+			stockDividend.getExDividendDate(), stockDividend.getPaymentDate());
+		return String.format("%s:%s:%s", stockDividend.getTickerSymbol(), stockDividend.getDividend(),
+			dividendDateString);
+	}
+
+	@NotNull
+	private List<KisDividend> createKisDividends(String samsungTickerSymbol, int samsungDividend,
+		String kakaoTickerSymbol,
+		int kakaoDividend) {
+		return List.of(
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2023, 3, 31),
+				LocalDate.of(2023, 5, 17)
+			),
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2023, 6, 30),
+				LocalDate.of(2023, 8, 16)
+			),
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2023, 9, 30),
+				LocalDate.of(2023, 11, 20)
+			),
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2023, 12, 31),
+				LocalDate.of(2024, 4, 19)
+			),
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2024, 3, 31),
+				LocalDate.of(2024, 5, 17) // 기존 데이터에서 새로운 현금 배당 지급일이 할당된 경우
+			),
+			KisDividend.create(
+				samsungTickerSymbol,
+				Money.won(samsungDividend),
+				LocalDate.of(2024, 6, 30), // 새로운 배당 기준일이 생긴 경우
+				null
+			),
+			KisDividend.create(
+				kakaoTickerSymbol,
+				Money.won(kakaoDividend),
+				LocalDate.of(2024, 2, 29),
+				null
+			)
+		);
+	}
 }

@@ -138,7 +138,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		Stock findSamsungStock = stockRepository.findByTickerSymbol(samsungTickerSymbol).orElseThrow();
 		assertThat(findSamsungStock.getStockDividends())
 			.hasSize(6)
-			.map(stockDividend -> stockDividend.parse(findSamsungStock.getTickerSymbol()))
+			.map(StockDividend::parse)
 			.containsExactlyInAnyOrder(
 				"005930:₩361:2023-03-31:2023-03-30:2023-05-17",
 				"005930:₩361:2023-06-30:2023-06-29:2023-08-16",
@@ -151,7 +151,7 @@ class StockDividendServiceTest extends AbstractContainerBaseTest {
 		Stock findKakaoStock = stockRepository.findByTickerSymbol(kakaoTickerSymbol).orElseThrow();
 		assertThat(findKakaoStock.getStockDividends())
 			.hasSize(1)
-			.map(stockDividend -> stockDividend.parse(findKakaoStock.getTickerSymbol()))
+			.map(StockDividend::parse)
 			.containsExactlyInAnyOrder(
 				"035720:₩61:2024-02-29:2024-02-28:null"
 			);

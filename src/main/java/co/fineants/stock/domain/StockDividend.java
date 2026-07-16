@@ -123,9 +123,21 @@ public class StockDividend implements CsvLineConvertible {
 	 *   - ex) 005930:361:2022-08-01:2022-08-01:2022-08-01, 005930:361:2022-08-01:2022-08-01:null
 	 * @return 배당 일정 정보 요약
 	 */
-	public String parse(String tickerSymbol) {
+	public String parse() {
 		String dividendDateString = dividendDates.parse();
 		return String.format("%s:%s:%s", tickerSymbol, dividend, dividendDateString);
+	}
+
+	public LocalDate getRecordDate() {
+		return getDividendDates().getRecordDate();
+	}
+
+	public LocalDate getExDividendDate() {
+		return getDividendDates().getExDividendDate();
+	}
+
+	public LocalDate getPaymentDate() {
+		return getDividendDates().getPaymentDate();
 	}
 
 	@Override
