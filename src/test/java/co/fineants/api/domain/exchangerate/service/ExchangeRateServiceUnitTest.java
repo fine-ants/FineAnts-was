@@ -203,23 +203,24 @@ class ExchangeRateServiceUnitTest {
 		Assertions.assertThat(usd.isBase()).isTrue();
 	}
 
-	// @DisplayName("관리자가 환율을 삭제한다")
-	// @Test
-	// void deleteExchangeRates() {
-	// 	// given
-	// 	String krw = "KRW";
-	// 	String usd = "USD";
-	// 	repository.save(ExchangeRate.base(krw));
-	// 	repository.save(ExchangeRate.zero(usd, false));
-	//
-	// 	// when
-	// 	service.deleteExchangeRates(List.of(usd));
-	//
-	// 	// then
-	// 	boolean actual = repository.findByCode(usd).isEmpty();
-	// 	assertThat(actual).isTrue();
-	// }
-	//
+	@DisplayName("usd 통화가 삭제되어야 한다")
+	@Test
+	void should_delete_usd_exchange_rate() {
+		// given
+		String krw = "KRW";
+		String usd = "USD";
+
+		ExchangeRate base = ExchangeRate.base(krw);
+		BDDMockito.given(repository.findBase())
+			.willReturn(Optional.of(base));
+
+		// when
+		service.deleteExchangeRates(List.of(usd));
+
+		// then
+		BDDMockito.verify(repository, Mockito.times(1)).deleteByCodeIn(List.of(usd));
+	}
+
 	// @DisplayName("관리자는 기준 통화를 제거할 수 없다")
 	// @Test
 	// void deleteExchangeRates_whenDeletedBaseCode_thenChangeBase() {
