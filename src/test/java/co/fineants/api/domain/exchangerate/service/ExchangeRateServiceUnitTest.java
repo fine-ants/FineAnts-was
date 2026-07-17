@@ -27,6 +27,7 @@ import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateDeleteInvalidInputException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 
@@ -221,21 +222,22 @@ class ExchangeRateServiceUnitTest {
 		BDDMockito.verify(repository, Mockito.times(1)).deleteByCodeIn(List.of(usd));
 	}
 
-	// @DisplayName("관리자는 기준 통화를 제거할 수 없다")
-	// @Test
-	// void deleteExchangeRates_whenDeletedBaseCode_thenChangeBase() {
-	// 	// given
-	// 	repository.save(ExchangeRate.base(Currency.KRW.name()));
-	// 	repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
-	// 	repository.save(ExchangeRate.noneBase(Currency.CHF.name(), 0.2));
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> service.deleteExchangeRates(List.of(Currency.KRW.name())));
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(BaseExchangeRateDeleteInvalidInputException.class)
-	// 		.hasMessage(List.of(Currency.KRW.name()).toString());
-	// }
-	//
+	@DisplayName("기준 통화를 제거할 때 예외를 발생시켜야 한다")
+	@Test
+	void should_throw_exception_when_delete_base_code() {
+		// given
+		ExchangeRate base = ExchangeRate.base(Currency.KRW.name());
+		BDDMockito.given(repository.findBase())
+			.willReturn(Optional.of(base));
+		// when
+		Throwable throwable = Assertions.catchThrowable(
+			() -> service.deleteExchangeRates(List.of(Currency.KRW.name())));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(BaseExchangeRateDeleteInvalidInputException.class)
+			.hasMessage(List.of(Currency.KRW.name()).toString());
+	}
+
 	// @DisplayName("관리자가 기준 통화를 제외한 모든 통화를 제거한다")
 	// @Test
 	// void deleteExchangeRates_whenAllDeleted() {
