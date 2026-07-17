@@ -238,20 +238,19 @@ class ExchangeRateServiceUnitTest {
 			.hasMessage(List.of(Currency.KRW.name()).toString());
 	}
 
-	// @DisplayName("관리자가 기준 통화를 제외한 모든 통화를 제거한다")
-	// @Test
-	// void deleteExchangeRates_whenAllDeleted() {
-	// 	// given
-	// 	repository.save(ExchangeRate.base(Currency.KRW.name()));
-	// 	repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
-	// 	repository.save(ExchangeRate.noneBase(Currency.CHF.name(), 0.2));
-	// 	// when
-	// 	service.deleteExchangeRates(List.of(Currency.USD.name(), Currency.CHF.name()));
-	// 	// then
-	// 	List<ExchangeRate> rates = repository.findAll();
-	// 	assertThat(rates).hasSize(1);
-	// }
-	//
+	@DisplayName("usd, chf 통화가 제거되어야 한다")
+	@Test
+	void should_delete_usd_and_chf() {
+		// given
+		ExchangeRate base = ExchangeRate.base(Currency.KRW.name());
+		BDDMockito.given(repository.findBase())
+			.willReturn(Optional.of(base));
+		// when
+		service.deleteExchangeRates(List.of(Currency.USD.name(), Currency.CHF.name()));
+		// then
+		BDDMockito.verify(repository).deleteByCodeIn(List.of(Currency.USD.name(), Currency.CHF.name()));
+	}
+
 	// @DisplayName("USD 통화의 환율 값을 수정한다")
 	// @Test
 	// void updateRate() {
