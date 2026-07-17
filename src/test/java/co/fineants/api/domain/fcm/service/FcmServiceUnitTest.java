@@ -29,6 +29,7 @@ import co.fineants.api.domain.fcm.domain.dto.response.FcmRegisterResponse;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 
@@ -126,27 +127,29 @@ class FcmServiceUnitTest {
 		Assertions.assertThat(savedFcmToken.getLatestActivationTime()).isEqualTo(latestActivationTime);
 	}
 
-	// @DisplayName("사용자는 유효하지 않은 FCM 토큰을 등록할 수 없다")
-	// @Test
-	// void registerToken_whenInvalidToken_thenThrow400Error() throws FirebaseMessagingException {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	FcmRegisterRequest request = FcmRegisterRequest.builder()
-	// 		.fcmToken("fcmToken")
-	// 		.build();
-	//
-	// 	given(mockedFirebaseMessaging.send(any(Message.class), anyBoolean()))
-	// 		.willThrow(FirebaseMessagingException.class);
-	//
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> fcmService.createToken(request, member.getId()));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(FcmInvalidInputException.class)
-	// 		.hasMessage("fcmToken");
-	// }
-	//
+	@DisplayName("사용자는 유효하지 않은 FCM 토큰을 등록할 수 없다")
+	@Test
+	void should_not_save_fcm_token_when_invalid_fcm_token() throws FirebaseMessagingException {
+		// given
+		Member member = TestDataFactory.createMember();
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		FcmRegisterRequest request = FcmRegisterRequest.builder()
+			.fcmToken("fcmToken")
+			.build();
+
+		BDDMockito.given(firebaseMessaging.send(any(Message.class), anyBoolean()))
+			.willThrow(FirebaseMessagingException.class);
+
+		// when
+		Throwable throwable = catchThrowable(() -> fcmService.createToken(request, member.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(FcmInvalidInputException.class)
+			.hasMessage("fcmToken");
+	}
+
 	// @DisplayName("사용자는 이미 동일한 FCM 토큰이 등록되어 있는 경우 최신 활성화 시간을 업데이트한다")
 	// @Test
 	// void registerToken_whenAlreadyFcmToken_thenThrow409Error() {
