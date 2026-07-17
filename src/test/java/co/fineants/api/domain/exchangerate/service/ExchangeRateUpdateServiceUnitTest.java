@@ -2,6 +2,7 @@ package co.fineants.api.domain.exchangerate.service;
 
 import static org.mockito.BDDMockito.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
+import co.fineants.api.global.errors.exception.business.BaseExchangeRateNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class ExchangeRateUpdateServiceUnitTest {
@@ -47,21 +49,21 @@ class ExchangeRateUpdateServiceUnitTest {
 		// then
 		Assertions.assertThat(usd.getRate()).isEqualTo(Percentage.from(usdRate));
 	}
-	//
-	// @DisplayName("관리자는 기준 통화가 없는 상태에서 환율 업데이트를 할 수 없다")
-	// @Test
-	// void updateExchangeRates_whenNoBase_thenError() {
-	// 	// given
-	// 	String baseCode = "KRW";
-	// 	given(exchangeRateClient.fetchRates(baseCode)).willReturn(Map.of(baseCode, 1.0));
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> service.updateExchangeRates());
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(BaseExchangeRateNotFoundException.class)
-	// 		.hasMessage(Collections.EMPTY_LIST.toString());
-	// }
-	//
+
+	@DisplayName("기준 통화가 없으면 환율 최신화가 안된다")
+	@Test
+	void should_throw_exception_when_not_exist_base_code() {
+		// given
+		BDDMockito.given(repository.findAll())
+			.willReturn(Collections.emptyList());
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.updateExchangeRates());
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(BaseExchangeRateNotFoundException.class)
+			.hasMessage(Collections.EMPTY_LIST.toString());
+	}
+
 	// @DisplayName("외부 API 호출에 실패하면 환율을 업데이트 하지 않는다")
 	// @Test
 	// void updateExchangeRates_whenExternalApiError_thenNotUpdate() {
