@@ -33,7 +33,7 @@ import co.fineants.api.infra.mail.MimeMessageFactory;
 import jakarta.mail.internet.MimeMessage;
 
 @ExtendWith(MockitoExtension.class)
-class ExchangeRateUpdateServiceUnitTest {
+class ExchangeRateUpdateServiceTest {
 
 	@Mock
 	private ExchangeRateRepository repository;
