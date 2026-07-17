@@ -76,13 +76,11 @@ public class ExchangeRateService {
 		// 기존 기준 통화의 base 값을 false로 변경
 		findBaseExchangeRate().changeBase(false);
 		// code의 base 값을 true로 변경
-		findExchangeRateBy(code).changeBase(true);
+		exchangeRateRepository.findByCode(code)
+			.orElseThrow(() -> new ExchangeRateNotFoundException(code))
+			.changeBase(true);
+		// 환율 최신 정보로 갱신
 		exchangeRateUpdateService.updateExchangeRates();
-	}
-
-	private ExchangeRate findExchangeRateBy(String code) {
-		return exchangeRateRepository.findByCode(code)
-			.orElseThrow(() -> new ExchangeRateNotFoundException(code));
 	}
 
 	@Transactional

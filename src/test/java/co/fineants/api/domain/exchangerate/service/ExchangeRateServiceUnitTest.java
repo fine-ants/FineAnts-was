@@ -1,5 +1,7 @@
 package co.fineants.api.domain.exchangerate.service;
 
+import static org.assertj.core.groups.Tuple.*;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import co.fineants.api.domain.common.money.Currency;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.exchangerate.client.ExchangeRateClient;
+import co.fineants.api.domain.exchangerate.domain.dto.response.ExchangeRateListResponse;
 import co.fineants.api.domain.exchangerate.domain.entity.ExchangeRate;
 import co.fineants.api.domain.exchangerate.repository.ExchangeRateRepository;
+import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateException;
 import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +36,8 @@ class ExchangeRateServiceUnitTest {
 	private ExchangeRateRepository repository;
 	@Mock
 	private ExchangeRateClient exchangeRateClient;
+	@Mock
+	private ExchangeRateUpdateService exchangeRateUpdateService;
 	@InjectMocks
 	private ExchangeRateService service;
 
@@ -132,68 +138,71 @@ class ExchangeRateServiceUnitTest {
 			.hasMessage(usd);
 	}
 
-	// @DisplayName("관리자는 이미 존재하는 통화를 저장할 수 없다")
-	// @Test
-	// void createExchangeRate_whenExistRate_thenThrowError() {
-	// 	// given
-	// 	String usd = "USD";
-	// 	repository.save(ExchangeRate.zero(usd, false));
-	//
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> service.createExchangeRate(usd));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ExchangeRateDuplicateException.class)
-	// 		.hasMessage(usd);
-	// }
-	//
-	// @DisplayName("관리자는 환율을 조회한다")
-	// @Test
-	// void readExchangeRates() {
-	// 	// given
-	// 	repository.save(ExchangeRate.of("KRW", 1.0, true));
-	// 	repository.save(ExchangeRate.of("USD", 0.1, false));
-	//
-	// 	// when
-	// 	ExchangeRateListResponse response = service.readExchangeRates();
-	// 	// then
-	// 	assertThat(response)
-	// 		.extracting("rates")
-	// 		.asList()
-	// 		.hasSize(2)
-	// 		.extracting("code", "rate")
-	// 		.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 		.containsExactlyInAnyOrder(
-	// 			tuple("KRW", Percentage.from(1.0)),
-	// 			tuple("USD", Percentage.from(0.1))
-	// 		);
-	// }
-	//
-	// @DisplayName("기준 통화를 변경한다")
-	// @Test
-	// void patchBase() {
-	// 	// given
-	// 	repository.save(ExchangeRate.base(Currency.KRW.name()));
-	// 	repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
-	//
-	// 	given(mockedExchangeRateClient.fetchRates(Currency.USD.name()))
-	// 		.willReturn(Map.of("USD", 1.0, "KRW", 1300.0));
-	// 	// when
-	// 	service.patchBase("USD");
-	//
-	// 	// then
-	// 	List<ExchangeRate> rates = repository.findAll();
-	// 	assertThat(rates)
-	// 		.hasSize(2)
-	// 		.extracting("code", "rate", "base")
-	// 		.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 		.containsExactlyInAnyOrder(
-	// 			tuple(Currency.KRW.name(), Percentage.from(1300.0), false),
-	// 			tuple(Currency.USD.name(), Percentage.from(1.0), true)
-	// 		);
-	// }
-	//
+	@DisplayName("이미 존재하는 통화 코드인 경우 예외가 발생해야 한다")
+	@Test
+	void should_throw_exception_when_code_is_base_code_then_not_save_code() {
+		// given
+		String usd = "USD";
+		ExchangeRate base = ExchangeRate.base(usd);
+		BDDMockito.given(repository.findAll())
+			.willReturn(List.of(base));
+
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.createExchangeRate(usd));
+
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(ExchangeRateDuplicateException.class)
+			.hasMessage(usd);
+	}
+
+	@DisplayName("환율 데이터들을 조회하고자 하면 환율 데이터를 반환되어야 한다")
+	@Test
+	void should_return_exchange_rate_list_when_read_exchange_rates() {
+		// given
+		List<ExchangeRate> exchangeRates = List.of(
+			ExchangeRate.of("KRW", 1.0, true),
+			ExchangeRate.of("USD", 0.1, false)
+		);
+		BDDMockito.given(repository.findAll())
+			.willReturn(exchangeRates);
+
+		// when
+		ExchangeRateListResponse response = service.readExchangeRates();
+		// then
+		Assertions.assertThat(response)
+			.extracting("rates")
+			.asList()
+			.hasSize(2)
+			.extracting("code", "rate")
+			.usingComparatorForType(Percentage::compareTo, Percentage.class)
+			.containsExactlyInAnyOrder(
+				tuple("KRW", Percentage.from(1.0)),
+				tuple("USD", Percentage.from(0.1))
+			);
+	}
+
+	@DisplayName("변경하고자 하는 베이스 통화 코드가 usd라면 usd는 기준 통화가 된다")
+	@Test
+	void should_change_usd_base_is_true_when_base_param_is_usd() {
+		// given
+		String changeBaseCode = "USD";
+		ExchangeRate base = ExchangeRate.base(Currency.KRW.name());
+		ExchangeRate usd = ExchangeRate.noneBase(Currency.USD.name(), 0.1);
+		BDDMockito.given(repository.findBase())
+			.willReturn(Optional.of(base));
+		BDDMockito.given(repository.findByCode(changeBaseCode))
+			.willReturn(Optional.of(usd));
+
+		// when
+		service.patchBase(changeBaseCode);
+
+		// then
+		BDDMockito.verify(exchangeRateUpdateService, Mockito.times(1)).updateExchangeRates();
+		Assertions.assertThat(base.isBase()).isFalse();
+		Assertions.assertThat(usd.isBase()).isTrue();
+	}
+
 	// @DisplayName("관리자가 환율을 삭제한다")
 	// @Test
 	// void deleteExchangeRates() {
