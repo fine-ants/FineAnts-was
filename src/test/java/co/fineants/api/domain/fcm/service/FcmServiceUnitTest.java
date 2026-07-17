@@ -5,7 +5,10 @@ import static org.mockito.ArgumentMatchers.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -78,42 +81,51 @@ class FcmServiceUnitTest {
 		Assertions.assertThat(savedFcmToken.getLatestActivationTime()).isEqualTo(latestActivationTime);
 	}
 
-	// @DisplayName("한 사용자가 동일한 토큰값으로 여러번의 토큰 등록을 요청해도 db에는 한개의 member_id, token 값쌍의 데이터가 있어야 한다")
-	// @Test
-	// void createToken_whenMultipleCreateFcmTokenApi_thenOneFcmToken() throws FirebaseMessagingException {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	FcmRegisterRequest request = FcmRegisterRequest.builder()
-	// 		.fcmToken("token")
-	// 		.build();
-	//
-	// 	// 사용자 인증 제공
-	// 	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	// 	// when
-	// 	List<CompletableFuture<FcmRegisterResponse>> futures = new ArrayList<>();
-	// 	for (int i = 0; i < 10; i++) {
-	// 		CompletableFuture<FcmRegisterResponse> future = CompletableFuture.supplyAsync(() -> {
-	// 			SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
-	// 			return fcmService.createToken(request, member.getId());
-	// 		});
-	// 		futures.add(future);
-	// 	}
-	//
-	// 	String messageId = "1";
-	// 	given(mockedFirebaseMessaging.send(any(Message.class), anyBoolean()))
-	// 		.willReturn(messageId);
-	//
-	// 	// 10개의 쓰레드가 전부 완료할때까지 대기
-	// 	Throwable throwable = catchThrowable(() -> futures.stream()
-	// 		.map(CompletableFuture::join)
-	// 		.toList());
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(CompletionException.class);
-	// 	assertThat(fcmRepository.findAllByMemberId(member.getId())).hasSize(1);
-	// }
-	//
+	@DisplayName("한 사용자가 동일한 토큰값으로 여러번의 토큰 등록을 요청해도 db에는 한개의 member_id, token 값쌍의 데이터가 있어야 한다")
+	@Test
+	void should_only_one_fcm_token_data_when_multiple_thread_save_fcm_token() throws FirebaseMessagingException {
+		// given
+		Member member = TestDataFactory.createMember();
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		String messageId = "1";
+		BDDMockito.given(firebaseMessaging.send(any(Message.class), anyBoolean()))
+			.willReturn(messageId);
+		String fcmTokenText = "token";
+		FcmRegisterRequest request = FcmRegisterRequest.builder()
+			.fcmToken(fcmTokenText)
+			.build();
+		FcmToken fcmToken = FcmToken.create(member, fcmTokenText);
+		BDDMockito.given(fcmRepository.findByTokenAndMemberId(request.getFcmToken(), member.getId()))
+			.willReturn(Optional.of(fcmToken));
+
+		LocalDateTime latestActivationTime = LocalDate.of(2026, 7, 17).atStartOfDay();
+		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(latestActivationTime);
+		FcmToken savedFcmToken = FcmToken.create(1L, member, fcmTokenText);
+		savedFcmToken.refreshLatestActivationTime(latestActivationTime);
+		BDDMockito.given(fcmRepository.save(fcmToken))
+			.willReturn(savedFcmToken);
+		// when
+		List<CompletableFuture<FcmRegisterResponse>> futures = new ArrayList<>();
+		for (int i = 0; i < 10; i++) {
+			CompletableFuture<FcmRegisterResponse> future = CompletableFuture.supplyAsync(() -> {
+				return fcmService.createToken(request, member.getId());
+			});
+			futures.add(future);
+		}
+		// 10개의 쓰레드가 전부 완료할때까지 대기
+		List<FcmRegisterResponse> results = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+			.thenApply(v -> futures.stream().map(CompletableFuture::join).toList())
+			.join();
+
+		// then
+		assertThat(results)
+			.hasSize(10)
+			.allSatisfy(response -> Assertions.assertThat(response.getFcmTokenId()).isEqualTo(savedFcmToken.getId()));
+		Assertions.assertThat(savedFcmToken.getLatestActivationTime()).isEqualTo(latestActivationTime);
+	}
+
 	// @DisplayName("사용자는 유효하지 않은 FCM 토큰을 등록할 수 없다")
 	// @Test
 	// void registerToken_whenInvalidToken_thenThrow400Error() throws FirebaseMessagingException {
