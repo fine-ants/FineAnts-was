@@ -275,5 +275,6 @@ class ExchangeRateServiceTest {
 		Assertions.assertThat(actual)
 			.usingRecursiveComparison()
 			.isEqualTo(expected);
+		Assertions.assertThat(usd.getRate()).isEqualTo(Percentage.from(0.2));
 	}
 }
