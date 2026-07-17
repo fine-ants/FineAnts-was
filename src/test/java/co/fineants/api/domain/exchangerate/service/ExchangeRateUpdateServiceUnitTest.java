@@ -83,9 +83,9 @@ class ExchangeRateUpdateServiceUnitTest {
 			.hasMessage(Collections.EMPTY_LIST.toString());
 	}
 
-	@DisplayName("외부 API 호출에 실패하면 환율을 업데이트 하지 않는다")
+	@DisplayName("외부 API 호출에 실패하면 환율을 업데이트 하면 안된다")
 	@Test
-	void updateExchangeRates_whenExternalApiError_thenNotUpdate() {
+	void should_not_update_exchange_rate_when_fail_external_api() {
 		// given
 		ExchangeRate krw = ExchangeRate.base(Currency.KRW.name());
 		ExchangeRate usd = ExchangeRate.noneBase(Currency.USD.name(), 0.1);
