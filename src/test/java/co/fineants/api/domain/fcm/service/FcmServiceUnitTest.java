@@ -25,6 +25,7 @@ import com.google.firebase.messaging.Message;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.fcm.domain.dto.request.FcmRegisterRequest;
+import co.fineants.api.domain.fcm.domain.dto.response.FcmDeleteResponse;
 import co.fineants.api.domain.fcm.domain.dto.response.FcmRegisterResponse;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.fcm.repository.FcmRepository;
@@ -150,63 +151,51 @@ class FcmServiceUnitTest {
 			.hasMessage("fcmToken");
 	}
 
-	// @DisplayName("사용자는 이미 동일한 FCM 토큰이 등록되어 있는 경우 최신 활성화 시간을 업데이트한다")
-	// @Test
-	// void registerToken_whenAlreadyFcmToken_thenThrow409Error() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	FcmToken token = fcmRepository.save(createFcmToken("fcmToken", member));
-	// 	FcmRegisterRequest request = FcmRegisterRequest.builder()
-	// 		.fcmToken("fcmToken")
-	// 		.build();
-	// 	// when
-	// 	FcmRegisterResponse response = fcmService.createToken(request, member.getId());
-	//
-	// 	// then
-	// 	Assertions.assertAll(
-	// 		() -> assertThat(response)
-	// 			.extracting("fcmTokenId")
-	// 			.isEqualTo(token.getId()),
-	// 		() -> {
-	// 			FcmToken findFcmToken = fcmRepository.findById(token.getId()).orElseThrow();
-	// 			assertThat(token.getLatestActivationTime().isBefore(findFcmToken.getLatestActivationTime())).isTrue();
-	// 		}
-	// 	);
-	// }
-	//
-	// @DisplayName("사용자는 FCM 토큰을 삭제한다")
-	// @Test
-	// void deleteToken() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	FcmToken fcmToken = fcmRepository.save(createFcmToken("fcmToken", member));
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	FcmDeleteResponse response = fcmService.deleteToken(fcmToken.getId());
-	//
-	// 	// then
-	// 	Assertions.assertAll(
-	// 		() -> assertThat(response)
-	// 			.extracting("fcmTokenId")
-	// 			.isEqualTo(fcmToken.getId()),
-	// 		() -> assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty()
-	// 	);
-	// }
-	//
-	// @DisplayName("사용자는 다른 사용자의 FCM 토큰을 삭제할 수 없다")
-	// @Test
-	// void deleteToken_whenOtherMemberRequest_thenThrowException() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Member hacker = memberRepository.save(createMember("hacker"));
-	// 	FcmToken fcmToken = fcmRepository.save(createFcmToken("fcmToken", member));
-	//
-	// 	setAuthentication(hacker);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> fcmService.deleteToken(fcmToken.getId()));
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ForbiddenException.class);
-	// }
+	@DisplayName("사용자는 이미 동일한 FCM 토큰이 등록되어 있는 경우 최신 활성화 시간을 업데이트한다")
+	@Test
+	void should_update_activation_time_when_already_saved_token() {
+		// given
+		Member member = TestDataFactory.createMember();
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+
+		FcmToken token = TestDataFactory.createFcmToken(1L, "fcmToken", member);
+		LocalDateTime oldActivationTime = LocalDate.of(2026, 7, 17).atStartOfDay().minusMinutes(1);
+		token.refreshLatestActivationTime(oldActivationTime);
+		BDDMockito.given(fcmRepository.findByTokenAndMemberId("fcmToken", member.getId()))
+			.willReturn(Optional.of(token));
+		LocalDateTime latestActivationTime = LocalDate.of(2026, 7, 17).atStartOfDay();
+		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(latestActivationTime);
+		FcmToken savedToken = FcmToken.create(1L, member, "fcmToken");
+		savedToken.refreshLatestActivationTime(latestActivationTime);
+		BDDMockito.given(fcmRepository.save(token))
+			.willReturn(savedToken);
+		FcmRegisterRequest request = FcmRegisterRequest.builder()
+			.fcmToken("fcmToken")
+			.build();
+		// when
+		FcmRegisterResponse response = fcmService.createToken(request, member.getId());
+
+		// then
+		Assertions.assertThat(response.getFcmTokenId()).isEqualTo(token.getId());
+		Assertions.assertThat(token.getLatestActivationTime()).isEqualTo(latestActivationTime);
+		Assertions.assertThat(savedToken.getLatestActivationTime()).isEqualTo(latestActivationTime);
+	}
+
+	@DisplayName("사용자는 FCM 토큰을 삭제한다")
+	@Test
+	void should_delete_fcm_token() {
+		// given
+		Member member = TestDataFactory.createMember();
+		FcmToken fcmToken = TestDataFactory.createFcmToken(1L, "token", member);
+
+		BDDMockito.given(fcmRepository.deleteByFcmTokenId(fcmToken.getId()))
+			.willReturn(1);
+		// when
+		FcmDeleteResponse response = fcmService.deleteToken(fcmToken.getId());
+
+		// then
+		Assertions.assertThat(response.getFcmTokenId()).isEqualTo(1L);
+	}
 }

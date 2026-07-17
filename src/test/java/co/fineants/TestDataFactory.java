@@ -23,6 +23,7 @@ import co.fineants.api.domain.dividend.domain.calculator.ExDividendDateCalculato
 import co.fineants.api.domain.dividend.domain.calculator.FileExDividendDateCalculator;
 import co.fineants.api.domain.dividend.domain.entity.DividendDates;
 import co.fineants.api.domain.dividend.domain.reader.HolidayFileReader;
+import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.gainhistory.domain.entity.PortfolioGainHistory;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
@@ -449,5 +450,13 @@ public final class TestDataFactory {
 			"소프트웨어",
 			Market.KOSDAQ
 		);
+	}
+
+	public static FcmToken createFcmToken(String token, Member member) {
+		return FcmToken.create(member, token);
+	}
+
+	public static FcmToken createFcmToken(Long id, String token, Member member) {
+		return FcmToken.create(id, member, token);
 	}
 }
