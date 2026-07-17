@@ -33,7 +33,7 @@ import co.fineants.api.global.errors.exception.business.ExchangeRateDuplicateExc
 import co.fineants.api.global.errors.exception.business.ExchangeRateNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class ExchangeRateServiceUnitTest {
+class ExchangeRateServiceTest {
 	@Mock
 	private ExchangeRateRepository repository;
 	@Mock
