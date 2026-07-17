@@ -49,8 +49,8 @@ public class FcmToken extends BaseEntity {
 		return new FcmToken(id, member, token, LocalDateTime.now());
 	}
 
-	public void refreshLatestActivationTime() {
-		this.latestActivationTime = LocalDateTime.now();
+	public void refreshLatestActivationTime(LocalDateTime latestActivationTime) {
+		this.latestActivationTime = latestActivationTime;
 	}
 
 	public boolean hasAuthorization(Long memberId) {
