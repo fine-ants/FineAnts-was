@@ -5,6 +5,7 @@ import static org.assertj.core.groups.Tuple.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -251,24 +252,28 @@ class ExchangeRateServiceUnitTest {
 		BDDMockito.verify(repository).deleteByCodeIn(List.of(Currency.USD.name(), Currency.CHF.name()));
 	}
 
-	// @DisplayName("USD 통화의 환율 값을 수정한다")
-	// @Test
-	// void updateRate() {
-	// 	// given
-	// 	repository.save(ExchangeRate.base(Currency.KRW.name()));
-	// 	repository.save(ExchangeRate.noneBase(Currency.USD.name(), 0.1));
-	//
-	// 	String code = Currency.USD.name();
-	// 	double newRate = 0.2;
-	// 	// when
-	// 	Map<String, Double> actual = service.updateRate(code, newRate);
-	// 	// then
-	// 	Map<String, Double> expected = Map.of(
-	// 		"KRW", 1.0,
-	// 		"USD", 0.2
-	// 	);
-	// 	assertThat(actual)
-	// 		.usingRecursiveComparison()
-	// 		.isEqualTo(expected);
-	// }
+	@DisplayName("usd 통화의 값이 변경되어야 한다")
+	@Test
+	void should_change_usd_rate() {
+		// given
+		String code = Currency.USD.name();
+		double newRate = 0.2;
+
+		ExchangeRate usd = ExchangeRate.noneBase(Currency.USD.name(), 0.1);
+		BDDMockito.given(repository.findByCode(code))
+			.willReturn(Optional.of(usd));
+		ExchangeRate base = ExchangeRate.base(Currency.KRW.name());
+		BDDMockito.given(repository.findBase())
+			.willReturn(Optional.of(base));
+		// when
+		Map<String, Double> actual = service.updateRate(code, newRate);
+		// then
+		Map<String, Double> expected = Map.of(
+			"KRW", 1.0,
+			"USD", 0.2
+		);
+		Assertions.assertThat(actual)
+			.usingRecursiveComparison()
+			.isEqualTo(expected);
+	}
 }
