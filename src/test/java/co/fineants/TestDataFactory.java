@@ -459,4 +459,9 @@ public final class TestDataFactory {
 	public static FcmToken createFcmToken(Long id, String token, Member member) {
 		return FcmToken.create(id, member, token);
 	}
+
+	public static PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
+		Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
+		return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
+	}
 }
