@@ -114,33 +114,45 @@ class PortfolioHoldingFacadeUnitTest {
 			.savePurchaseHistory(purchaseHistory, portfolio);
 	}
 
-	// @DisplayName("기존 포트폴리오 종목이 있는 상태에서 매입 이력과 같이 포트폴리오 종목을 같이 생성 요청 시, 매입 이력을 추가한다")
-	// @Test
-	// void createPortfolioHolding_whenExistPortfolioHolding_thenSavePurchaseHistory() {
-	// 	Member member = memberRepository.save(createMember());
-	// 	setAuthentication(member);
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock samsung = stockRepository.save(createSamsungStock());
-	// 	portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, samsung));
-	//
-	// 	PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
-	// 		LocalDateTime.now(),
-	// 		Count.from(3),
-	// 		Money.won(50_000),
-	// 		"memo"
-	// 	);
-	// 	PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
-	// 		purchaseHistoryCreateRequest);
-	// 	// when
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
-	//
-	// 	// then
-	// 	assertThat(portfolioHolding).isNotNull();
-	// 	assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
-	// 	assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
-	// 		.hasSize(1);
-	// }
-	//
+	@DisplayName("기존 포트폴리오 종목이 있는 상태에서 매입 이력과 같이 포트폴리오 종목을 같이 생성 요청 시, 매입 이력을 추가한다")
+	@Test
+	void createPortfolioHolding_whenExistPortfolioHolding_thenSavePurchaseHistory() {
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock samsung = TestDataFactory.createSamsungStock();
+
+		LocalDateTime purchaseDate = LocalDate.of(2026, 7, 20).atStartOfDay();
+		Count numShares = Count.from(3);
+		Money purchasePricePerShare = Money.won(50_000);
+		String memo = "memo";
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			purchaseDate,
+			numShares,
+			purchasePricePerShare,
+			memo
+		);
+		PortfolioHolding holding = PortfolioHolding.of(1L, portfolio, samsung);
+
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
+			purchaseHistoryCreateRequest);
+		BDDMockito.given(portfolioService.findPortfolio(portfolio.getId()))
+			.willReturn(portfolio);
+		BDDMockito.given(findStock.byTickerSymbol(samsung.getTickerSymbol()))
+			.willReturn(samsung);
+		BDDMockito.given(portfolioHoldingService.getPortfolioHoldingBy(portfolio, samsung))
+			.willReturn(Optional.of(holding));
+		BDDMockito.given(portfolioHoldingService.savePortfolioHolding(holding))
+			.willReturn(holding);
+		// when
+		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+		// then
+		assertThat(portfolioHolding).isEqualTo(holding);
+		PurchaseHistory purchaseHistory = PurchaseHistory.create(purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		BDDMockito.verify(purchaseHistoryService, Mockito.times(1))
+			.savePurchaseHistory(purchaseHistory, portfolio);
+	}
+
 	// @DisplayName("포트폴리오 종목과 매입 이력 추가시 매입 이력 필수 입력 정보를 넣지 않으면 포트폴리오 종목만 추가된다")
 	// @Test
 	// void createPortfolioHolding_whenInvalidPurchaseHistory_thenSaveOnlyPortfolioHolding() {
