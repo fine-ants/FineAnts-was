@@ -153,32 +153,39 @@ class PortfolioHoldingFacadeUnitTest {
 			.savePurchaseHistory(purchaseHistory, portfolio);
 	}
 
-	// @DisplayName("포트폴리오 종목과 매입 이력 추가시 매입 이력 필수 입력 정보를 넣지 않으면 포트폴리오 종목만 추가된다")
-	// @Test
-	// void createPortfolioHolding_whenInvalidPurchaseHistory_thenSaveOnlyPortfolioHolding() {
-	// 	Member member = memberRepository.save(createMember());
-	// 	setAuthentication(member);
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock samsung = stockRepository.save(createSamsungStock());
-	//
-	// 	PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
-	// 		null,
-	// 		null,
-	// 		null,
-	// 		null
-	// 	);
-	// 	PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
-	// 		purchaseHistoryCreateRequest);
-	// 	// when
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
-	//
-	// 	// then
-	// 	assertThat(portfolioHolding).isNotNull();
-	// 	assertThat(portfolioHoldingRepository.findAllByPortfolio(portfolio)).hasSize(1);
-	// 	assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHolding.getId()))
-	// 		.isEmpty();
-	// }
-	//
+	@DisplayName("포트폴리오 종목과 매입 이력 추가시 매입 이력 필수 입력 정보를 넣지 않으면 포트폴리오 종목만 추가된다")
+	@Test
+	void createPortfolioHolding_whenInvalidPurchaseHistory_thenSaveOnlyPortfolioHolding() {
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock samsung = TestDataFactory.createSamsungStock();
+
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			null,
+			null,
+			null,
+			null
+		);
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(samsung.getTickerSymbol(),
+			purchaseHistoryCreateRequest);
+		BDDMockito.given(portfolioService.findPortfolio(portfolio.getId()))
+			.willReturn(portfolio);
+		BDDMockito.given(findStock.byTickerSymbol(samsung.getTickerSymbol()))
+			.willReturn(samsung);
+		BDDMockito.given(portfolioHoldingService.getPortfolioHoldingBy(portfolio, samsung))
+			.willReturn(Optional.empty());
+		PortfolioHolding holding = PortfolioHolding.of(portfolio, samsung);
+		PortfolioHolding saveHolding = PortfolioHolding.of(1L, portfolio, samsung);
+		BDDMockito.given(portfolioHoldingService.savePortfolioHolding(holding))
+			.willReturn(saveHolding);
+		// when
+		PortfolioHolding portfolioHolding = portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId());
+
+		// then
+		assertThat(portfolioHolding).isEqualTo(saveHolding);
+		BDDMockito.verifyNoInteractions(purchaseHistoryService);
+	}
+
 	// @DisplayName("포트폴리오 종목 추가할 때 존재하지 않는 종목인 경우에는 추가할 수 없다")
 	// @Test
 	// void whenTickerSymbolIsNotFound_thenThrowException() {
