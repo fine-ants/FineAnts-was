@@ -31,7 +31,7 @@ import co.fineants.stock.application.FindStock;
 import co.fineants.stock.domain.Stock;
 
 @ExtendWith(MockitoExtension.class)
-class PortfolioHoldingFacadeUnitTest {
+class PortfolioHoldingFacadeTest {
 	@Mock
 	private PortfolioService portfolioService;
 
