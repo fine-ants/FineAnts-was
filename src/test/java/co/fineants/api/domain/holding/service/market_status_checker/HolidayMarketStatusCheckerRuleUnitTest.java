@@ -12,19 +12,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 
 @ExtendWith(MockitoExtension.class)
 class HolidayMarketStatusCheckerRuleUnitTest {
-
 	@Mock
 	private HolidayRepository repository;
 	private LocalDateTime dateTime;
 	private MarketStatusCheckerRule rule;
-	private RedisTemplate<String, Object> redisTemplate;
 
 	@BeforeEach
 	void setUp() {
