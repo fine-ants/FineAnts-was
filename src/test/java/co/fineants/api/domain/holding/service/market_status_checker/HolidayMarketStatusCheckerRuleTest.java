@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,17 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 		boolean cachedIsOpen = Boolean.parseBoolean(
 			Objects.requireNonNull(redisTemplate.opsForValue().get("holidayMarketStatus::" + date)).toString());
 		assertThat(cachedIsOpen).isFalse();
+	}
+
+	@DisplayName("휴장일이 아니면 false를 반환한다")
+	@Test
+	void givenDateTime_whenNotHoliday_thenReturnTrue() {
+		// given
+		repository.save(Holiday.close(LocalDate.of(2025, 6, 6)));
+		LocalDateTime localDateTime = LocalDateTime.of(2025, 6, 6, 9, 0);
+		// when
+		boolean isOpen = rule.isOpen(localDateTime);
+		// then
+		Assertions.assertThat(isOpen).isFalse();
 	}
 }
