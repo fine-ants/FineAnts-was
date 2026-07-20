@@ -23,7 +23,6 @@ import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryReposit
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
-import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 
@@ -41,9 +40,6 @@ class PortfolioGainHistoryServiceUnitTest {
 
 	@Mock
 	private LocalDateTimeService timeService;
-
-	@Mock
-	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	@InjectMocks
 	private PortfolioGainHistoryService service;
@@ -104,29 +100,4 @@ class PortfolioGainHistoryServiceUnitTest {
 			.hasSize(1)
 			.containsExactly(1L);
 	}
-
-	// @DisplayName("포트폴리오 손익 내역 추가시 캐시를 제거한다")
-	// @Test
-	// void givenPortfolios_whenAddPortfolioGainHistory_thenDeleteCache() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portFolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePricePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	// 	currentPriceRepository.savePrice(stock, 60_000);
-	//
-	// 	// when
-	// 	PortfolioGainHistoryCreateResponse response = service.addPortfolioGainHistory();
-	//
-	// 	// then
-	// 	assertThat(response).extracting("ids").asList().hasSize(1);
-	// 	assertThat(Objects.requireNonNull(cacheManager.getCache("lineChartCache")).get(portfolio.getId())).isNull();
-	// }
 }
