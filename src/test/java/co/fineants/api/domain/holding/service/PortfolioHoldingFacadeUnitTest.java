@@ -25,6 +25,7 @@ import co.fineants.api.domain.portfolio.service.PortfolioService;
 import co.fineants.api.domain.purchasehistory.domain.dto.request.PurchaseHistoryCreateRequest;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.service.PurchaseHistoryService;
+import co.fineants.api.global.errors.exception.business.StockNotFoundException;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.application.FindStock;
 import co.fineants.stock.domain.Stock;
@@ -186,29 +187,32 @@ class PortfolioHoldingFacadeUnitTest {
 		BDDMockito.verifyNoInteractions(purchaseHistoryService);
 	}
 
-	// @DisplayName("포트폴리오 종목 추가할 때 존재하지 않는 종목인 경우에는 추가할 수 없다")
-	// @Test
-	// void whenTickerSymbolIsNotFound_thenThrowException() {
-	// 	Member member = memberRepository.save(createMember());
-	// 	setAuthentication(member);
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	//
-	// 	PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
-	// 		LocalDateTime.now(),
-	// 		Count.from(3),
-	// 		Money.won(50_000),
-	// 		"memo"
-	// 	);
-	// 	String invalidTickerSymbol = "INVALID_TICKER";
-	// 	PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(invalidTickerSymbol,
-	// 		purchaseHistoryCreateRequest);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(
-	// 		() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(StockNotFoundException.class)
-	// 		.hasMessage(invalidTickerSymbol);
-	// }
+	@DisplayName("포트폴리오 종목 추가할 때 존재하지 않는 종목인 경우에는 추가할 수 없다")
+	@Test
+	void whenTickerSymbolIsNotFound_thenThrowException() {
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+
+		PurchaseHistoryCreateRequest purchaseHistoryCreateRequest = PurchaseHistoryCreateRequest.create(
+			LocalDateTime.now(),
+			Count.from(3),
+			Money.won(50_000),
+			"memo"
+		);
+		String invalidTickerSymbol = "INVALID_TICKER";
+		PortfolioHoldingCreateRequest request = PortfolioHoldingCreateRequest.create(invalidTickerSymbol,
+			purchaseHistoryCreateRequest);
+		BDDMockito.given(portfolioService.findPortfolio(portfolio.getId()))
+			.willReturn(portfolio);
+		BDDMockito.given(findStock.byTickerSymbol(invalidTickerSymbol))
+			.willThrow(new StockNotFoundException(invalidTickerSymbol));
+		// when
+		Throwable throwable = catchThrowable(
+			() -> portfolioHoldingFacade.createPortfolioHolding(request, portfolio.getId()));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(StockNotFoundException.class)
+			.hasMessage(invalidTickerSymbol);
+	}
 }
