@@ -1,6 +1,5 @@
 package co.fineants.api.domain.gainhistory.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +14,7 @@ import co.fineants.api.domain.gainhistory.repository.PortfolioGainHistoryReposit
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +26,7 @@ public class PortfolioGainHistoryService {
 	private final PortfolioGainHistoryRepository repository;
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioCalculator calculator;
+	private final LocalDateTimeService timeService;
 
 	@Transactional
 	@CacheEvict(value = "lineChartCache", allEntries = true)
@@ -35,7 +36,7 @@ public class PortfolioGainHistoryService {
 		for (Portfolio portfolio : portfolios) {
 			PortfolioGainHistory latestHistory =
 				repository.findFirstLatestPortfolioGainHistory(
-						portfolio.getId(), LocalDateTime.now(), PageRequest.of(0, 1))
+						portfolio.getId(), timeService.getLocalDateTimeWithNow(), PageRequest.of(0, 1))
 					.stream()
 					.findAny()
 					.orElseGet(() -> PortfolioGainHistory.empty(portfolio));
