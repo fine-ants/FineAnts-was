@@ -13,7 +13,7 @@ class PortfolioHoldingTest {
 
 	@DisplayName("포트폴리오 종목에 포트폴리오를 설정한다")
 	@Test
-	void should_set_other_portfolio() {
+	void should_holding_has_other_portfolio_and_other_portfolio_has_holding() {
 		// given
 		Member member = TestDataFactory.createMember();
 		Portfolio portfolio = TestDataFactory.createPortfolio(member);
