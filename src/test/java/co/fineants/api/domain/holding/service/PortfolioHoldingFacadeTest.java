@@ -49,7 +49,7 @@ class PortfolioHoldingFacadeTest {
 
 	@DisplayName("포트폴리오 종목 생성 시 매입 이력 생성 요청이 null인 경우, 포트폴리오 종목만 저장한다")
 	@Test
-	void createPortfolioHolding_whenOnlyPortfolioHolding_thenSavePortfolioHolding() {
+	void should_only_save_holding_when_purchase_history_request_is_null() {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
@@ -76,7 +76,7 @@ class PortfolioHoldingFacadeTest {
 
 	@DisplayName("포트폴리오 종목 생성 시 매입 이력 생성 요청이 null이 아닌 경우, 포트폴리오 종목과 매입 이력을 저장한다")
 	@Test
-	void createPortfolioHolding_whenPurchaseHistoryCreateRequestIsNotNull_thenSavePortfolioHoldingAndPurchaseHistory() {
+	void should_save_holding_and_purchase_history_when_purchase_history_request_is_not_null() {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
@@ -117,7 +117,7 @@ class PortfolioHoldingFacadeTest {
 
 	@DisplayName("기존 포트폴리오 종목이 있는 상태에서 매입 이력과 같이 포트폴리오 종목을 같이 생성 요청 시, 매입 이력을 추가한다")
 	@Test
-	void createPortfolioHolding_whenExistPortfolioHolding_thenSavePurchaseHistory() {
+	void should_save_purchase_history_when_exist_holding() {
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
 		Stock samsung = TestDataFactory.createSamsungStock();
@@ -156,7 +156,7 @@ class PortfolioHoldingFacadeTest {
 
 	@DisplayName("포트폴리오 종목과 매입 이력 추가시 매입 이력 필수 입력 정보를 넣지 않으면 포트폴리오 종목만 추가된다")
 	@Test
-	void createPortfolioHolding_whenInvalidPurchaseHistory_thenSaveOnlyPortfolioHolding() {
+	void should_only_save_holding_when_purchase_history_request_has_null_content() {
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
 		Stock samsung = TestDataFactory.createSamsungStock();
@@ -189,7 +189,7 @@ class PortfolioHoldingFacadeTest {
 
 	@DisplayName("포트폴리오 종목 추가할 때 존재하지 않는 종목인 경우에는 추가할 수 없다")
 	@Test
-	void whenTickerSymbolIsNotFound_thenThrowException() {
+	void should_throw_exception_when_not_found_stock() {
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
 
