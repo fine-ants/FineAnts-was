@@ -74,11 +74,15 @@ public final class TestDataFactory {
 		return createMember("nemo1234");
 	}
 
-	public static Member createMember(String nickname) {
-		return createMember(nickname, "dragonbead95@naver.com");
+	public static Member createMember(Long id) {
+		return createMember(id, "nemo1234", "dragonbead95@naver.com");
 	}
 
-	public static Member createMember(String nickname, String email) {
+	public static Member createMember(String nickname) {
+		return createMember(null, nickname, "dragonbead95@naver.com");
+	}
+
+	public static Member createMember(Long id, String nickname, String email) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 		MemberEmail memberEmail = new MemberEmail(email);
@@ -91,7 +95,7 @@ public final class TestDataFactory {
 			profileUrl);
 		NotificationPreference notificationPreference = NotificationPreference.allActive();
 		Set<Long> roleIds = Set.of(TestDataFactory.userRoleId);
-		return Member.createMember(profile, notificationPreference, roleIds);
+		return Member.createMember(id, profile, notificationPreference, roleIds);
 	}
 
 	public static Portfolio createPortfolio(Member member) {
@@ -103,6 +107,7 @@ public final class TestDataFactory {
 
 	public static Portfolio createPortfolio(Member member, Money budget) {
 		return createPortfolio(
+			null,
 			member,
 			"내꿈은 워렌버핏",
 			budget,
@@ -111,26 +116,38 @@ public final class TestDataFactory {
 		);
 	}
 
-	public static Portfolio createPortfolio(Member member, String name, Money budget, Money targetGain,
-		Money maximumLoss) {
-		PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권"});
-		PortfolioDetail detail = PortfolioDetail.of(name, "토스증권", properties);
-		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
-		return Portfolio.allActive(
-			null,
-			detail,
-			financial,
-			member
-		);
-	}
-
 	public static Portfolio createPortfolio(Member member, String name) {
 		return createPortfolio(
+			null,
 			member,
 			name,
 			Money.won(1000000L),
 			Money.won(1500000L),
 			Money.won(900000L)
+		);
+	}
+
+	public static Portfolio createPortfolio(Long id, Member member) {
+		return createPortfolio(
+			id,
+			member,
+			"내꿈은 워렌버핏",
+			Money.won(1000000L),
+			Money.won(1500000L),
+			Money.won(900000L)
+		);
+	}
+
+	public static Portfolio createPortfolio(Long id, Member member, String name, Money budget, Money targetGain,
+		Money maximumLoss) {
+		PortfolioProperties properties = new PortfolioProperties(new String[] {"토스증권"});
+		PortfolioDetail detail = PortfolioDetail.of(name, "토스증권", properties);
+		PortfolioFinancial financial = PortfolioFinancial.of(budget, targetGain, maximumLoss);
+		return Portfolio.allActive(
+			id,
+			detail,
+			financial,
+			member
 		);
 	}
 

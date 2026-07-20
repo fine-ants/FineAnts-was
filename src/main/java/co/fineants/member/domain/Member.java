@@ -45,10 +45,16 @@ public class Member extends BaseEntity {
 
 	public static Member createMember(MemberProfile profile, NotificationPreference notificationPreference,
 		Set<Long> roleIds) {
-		return new Member(profile, notificationPreference, roleIds);
+		return new Member(null, profile, notificationPreference, roleIds);
 	}
 
-	private Member(MemberProfile profile, NotificationPreference notificationPreference, Set<Long> roleIds) {
+	public static Member createMember(Long id, MemberProfile profile, NotificationPreference notificationPreference,
+		Set<Long> roleIds) {
+		return new Member(id, profile, notificationPreference, roleIds);
+	}
+
+	private Member(Long id, MemberProfile profile, NotificationPreference notificationPreference, Set<Long> roleIds) {
+		this.id = id;
 		setMemberProfile(profile);
 		setNotificationPreference(notificationPreference);
 		setRoleIds(roleIds);
