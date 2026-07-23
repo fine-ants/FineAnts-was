@@ -25,10 +25,17 @@ import co.fineants.api.domain.common.money.Expression;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
+import co.fineants.api.domain.holding.domain.chart.DividendChart;
+import co.fineants.api.domain.holding.domain.chart.PieChart;
+import co.fineants.api.domain.holding.domain.chart.SectorChart;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingDetailItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PurchaseHistoryItem;
 import co.fineants.api.domain.holding.domain.dto.response.StockItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -41,6 +48,7 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.stock.domain.Stock;
@@ -48,14 +56,7 @@ import co.fineants.stock.domain.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PortfolioHoldingServiceUnitTest {
-
-	private PurchaseHistoryRepository purchaseHistoryRepository;
-
 	private PortfolioHoldingRepository portfolioHoldingRepository;
-
-	@Mock
-	private PortfolioRepository portfolioRepository;
-
 	private MemberRepository memberRepository;
 
 	private StockRepository stockRepository;
@@ -66,10 +67,30 @@ class PortfolioHoldingServiceUnitTest {
 
 	@InjectMocks
 	private PortfolioHoldingService service;
+
+	@Mock
+	private PortfolioRepository portfolioRepository;
+
 	@Mock
 	private PortfolioDetailFactory portfolioDetailFactory;
+
 	@Mock
 	private PortfolioHoldingDetailFactory portfolioHoldingDetailFactory;
+
+	@Mock
+	private LocalDateTimeService localDateTimeService;
+
+	@Mock
+	private PurchaseHistoryRepository purchaseHistoryRepository;
+
+	@Mock
+	private PieChart pieChart;
+
+	@Mock
+	private DividendChart dividendChart;
+
+	@Mock
+	private SectorChart sectorChart;
 
 	@DisplayName("포트폴리오 종목들의 상세 정보를 조회한다")
 	@Test
@@ -236,80 +257,100 @@ class PortfolioHoldingServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("사용자는 포트폴리오의 차트 정보를 조회한다")
-	// @Test
-	// void readMyPortfolioCharts() {
-	// 	// given
-	// 	BDDMockito.given(spyLocalDateTimeService.getLocalDateWithNow())
-	// 		.willReturn(LocalDate.of(2023, 12, 15));
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock samsung = createSamsungStock();
-	// 	createStockDividendWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividend);
-	// 	Stock stock = stockRepository.save(samsung);
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create("005930", 60000L));
-	// 	closingPriceRepository.savePrice("005930", 50000);
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(response)
-	// 			.extracting("portfolioDetails")
-	// 			.extracting("id", "securitiesFirm", "name")
-	// 			.containsExactly(portfolio.getId(), "토스증권", "내꿈은 워렌버핏"),
-	// 		() -> assertThat(response)
-	// 			.extracting("pieChart")
-	// 			.asList()
-	// 			.hasSize(2)
-	// 			.extracting("name", "valuation", "weight", "totalGain", "totalGainRate")
-	// 			.usingComparatorForType(Money::compareTo, Money.class)
-	// 			.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 			.containsExactlyInAnyOrder(
-	// 				Tuple.tuple("현금", Money.won(850000L), Percentage.from(0.8252), Money.zero(), Percentage.zero()),
-	// 				Tuple.tuple("삼성전자보통주", Money.won(180000L), Percentage.from(0.1748), Money.won(30000L),
-	// 					Percentage.from(0.2))
-	// 			),
-	// 		() -> assertThat(response)
-	// 			.extracting("dividendChart")
-	// 			.asList()
-	// 			.hasSize(12)
-	// 			.extracting("month", "amount")
-	// 			.usingComparatorForType(Money::compareTo, Money.class)
-	// 			.containsExactlyInAnyOrder(
-	// 				Tuple.tuple(1, Money.zero()),
-	// 				Tuple.tuple(2, Money.zero()),
-	// 				Tuple.tuple(3, Money.zero()),
-	// 				Tuple.tuple(4, Money.zero()),
-	// 				Tuple.tuple(5, Money.zero()),
-	// 				Tuple.tuple(6, Money.zero()),
-	// 				Tuple.tuple(7, Money.zero()),
-	// 				Tuple.tuple(8, Money.zero()),
-	// 				Tuple.tuple(9, Money.zero()),
-	// 				Tuple.tuple(10, Money.zero()),
-	// 				Tuple.tuple(11, Money.won(1083L)),
-	// 				Tuple.tuple(12, Money.zero())
-	// 			),
-	// 		() -> assertThat(response.getSectorChart())
-	// 			.extracting(PortfolioSectorChartItem::getSector, PortfolioSectorChartItem::getSectorWeight)
-	// 			.containsExactlyInAnyOrder(
-	// 				Tuple.tuple("현금", Percentage.from(0.8252)),
-	// 				Tuple.tuple("전기전자", Percentage.from(0.1748))
-	// 			)
-	// 	);
-	// }
-	//
+	@DisplayName("사용자는 포트폴리오의 차트 정보를 조회한다")
+	@Test
+	void should_return_portfolio_chart_data_when_read_my_portfolio_charts() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		TestDataFactory.createStockDividend(stock.getTickerSymbol()).forEach(stock::addStockDividend);
+
+		BDDMockito.given(portfolioRepository.findById(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+		PortfolioPieChartItem cashPieChartItem = PortfolioPieChartItem.cash(
+			Percentage.from(BigDecimal.valueOf(0.8252)),
+			Money.won(850_000L)
+		);
+		PortfolioPieChartItem samsungPieChartItem = PortfolioPieChartItem.stock(
+			stock.getCompanyName(),
+			Money.won(180_000L),
+			Percentage.from(0.1748),
+			Money.won(30_000L),
+			Percentage.from(BigDecimal.valueOf(0.2))
+		);
+		BDDMockito.given(pieChart.createItemsBy(portfolio))
+			.willReturn(List.of(cashPieChartItem, samsungPieChartItem));
+		BDDMockito.given(dividendChart.createItemsBy(portfolio))
+			.willReturn(List.of(
+				PortfolioDividendChartItem.empty(1),
+				PortfolioDividendChartItem.empty(2),
+				PortfolioDividendChartItem.empty(3),
+				PortfolioDividendChartItem.empty(4),
+				PortfolioDividendChartItem.empty(5),
+				PortfolioDividendChartItem.empty(6),
+				PortfolioDividendChartItem.empty(7),
+				PortfolioDividendChartItem.empty(8),
+				PortfolioDividendChartItem.empty(9),
+				PortfolioDividendChartItem.empty(10),
+				PortfolioDividendChartItem.create(11, Money.won(1083L)),
+				PortfolioDividendChartItem.empty(12)
+			));
+		BDDMockito.given(sectorChart.createBy(portfolio))
+			.willReturn(List.of(
+				PortfolioSectorChartItem.create("현금", Percentage.from(0.8252)),
+				PortfolioSectorChartItem.create("전기전자", Percentage.from(0.1748))
+			));
+		// when
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
+
+		// then
+		assertAll(
+			() -> assertThat(response)
+				.extracting("portfolioDetails")
+				.extracting("id", "securitiesFirm", "name")
+				.containsExactly(portfolio.getId(), "토스증권", "내꿈은 워렌버핏"),
+			() -> assertThat(response)
+				.extracting("pieChart")
+				.asList()
+				.hasSize(2)
+				.extracting("name", "valuation", "weight", "totalGain", "totalGainRate")
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					Tuple.tuple("현금", Money.won(850_000L), Percentage.from(0.8252), Money.zero(), Percentage.zero()),
+					Tuple.tuple("삼성전자보통주", Money.won(180_000L), Percentage.from(0.1748), Money.won(30_000L),
+						Percentage.from(0.2))
+				),
+			() -> assertThat(response)
+				.extracting("dividendChart")
+				.asList()
+				.hasSize(12)
+				.extracting("month", "amount")
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.containsExactlyInAnyOrder(
+					Tuple.tuple(1, Money.zero()),
+					Tuple.tuple(2, Money.zero()),
+					Tuple.tuple(3, Money.zero()),
+					Tuple.tuple(4, Money.zero()),
+					Tuple.tuple(5, Money.zero()),
+					Tuple.tuple(6, Money.zero()),
+					Tuple.tuple(7, Money.zero()),
+					Tuple.tuple(8, Money.zero()),
+					Tuple.tuple(9, Money.zero()),
+					Tuple.tuple(10, Money.zero()),
+					Tuple.tuple(11, Money.won(1083L)),
+					Tuple.tuple(12, Money.zero())
+				),
+			() -> assertThat(response.getSectorChart())
+				.extracting(PortfolioSectorChartItem::getSector, PortfolioSectorChartItem::getSectorWeight)
+				.containsExactlyInAnyOrder(
+					Tuple.tuple("현금", Percentage.from(0.8252)),
+					Tuple.tuple("전기전자", Percentage.from(0.1748))
+				)
+		);
+	}
+
 	// @DisplayName("사용자는 예산이 0원인 상태의 포트폴리오의 차트를 조회한다")
 	// @Test
 	// void readMyPortfolioCharts_whenPortfolioBudgetIsZero_thenOK() {
