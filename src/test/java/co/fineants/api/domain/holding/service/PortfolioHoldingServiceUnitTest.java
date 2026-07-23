@@ -58,6 +58,7 @@ import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.api.global.errors.exception.business.HoldingNotFoundException;
 import co.fineants.member.domain.Member;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
@@ -579,35 +580,39 @@ class PortfolioHoldingServiceUnitTest {
 			.containsExactlyInAnyOrder(portfolioHolding1.getId(), portfolioHolding2.getId());
 	}
 
-	// @DisplayName("사용자는 다수의 포트폴리오 삭제시 존재하지 않는 일부 포트폴리오 종목이 존재한다면 전부 삭제할 수 없다")
-	// @Test
-	// void deletePortfolioStocks_whenNotExistPortfolioHolding_thenError404() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock1 = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	// 	List<Long> portfolioHoldingIds = List.of(portfolioHolding.getId(), 9999L);
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(
-	// 		() -> service.deletePortfolioHoldings(portfolio.getId(), member.getId(), portfolioHoldingIds));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(HoldingNotFoundException.class)
-	// 		.hasMessage("9999");
-	// 	assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
-	// 	assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
-	// }
-	//
+	@DisplayName("사용자는 다수의 포트폴리오 삭제시 존재하지 않는 일부 포트폴리오 종목이 존재한다면 전부 삭제할 수 없다")
+	@Test
+	void should_throw_exception_when_portfolio_holding_is_not_exist() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock1 = TestDataFactory.createSamsungStock();
+		PortfolioHolding portfolioHolding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock1);
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(3);
+		Money purchasePerShare = Money.won(50000);
+		String memo = "첫구매";
+		PurchaseHistory purchaseHistory = TestDataFactory.createPurchaseHistory(1L, purchaseDate, numShares,
+			purchasePerShare, memo, portfolioHolding);
+		portfolioHolding.addPurchaseHistory(purchaseHistory);
+
+		Long notExistHoldingId = 9999L;
+		List<Long> portfolioHoldingIds = List.of(portfolioHolding.getId(), notExistHoldingId);
+		BDDMockito.given(portfolioHoldingRepository.existsById(portfolioHolding.getId()))
+			.willReturn(true);
+		BDDMockito.given(portfolioHoldingRepository.existsById(notExistHoldingId))
+			.willReturn(false);
+
+		// when
+		Throwable throwable = catchThrowable(
+			() -> service.deletePortfolioHoldings(portfolio.getId(), member.getId(), portfolioHoldingIds));
+
+		// then
+		assertThat(throwable)
+			.isInstanceOf(HoldingNotFoundException.class)
+			.hasMessage(notExistHoldingId.toString());
+	}
+
 	// @DisplayName("사용자는 다수의 포트폴리오 삭제시 다른 회원의 포트폴리오 종목이 존재한다면 전부 삭제할 수 없다")
 	// @Test
 	// void deletePortfolioStocks_whenNotExistPortfolioHolding_thenError403() {
