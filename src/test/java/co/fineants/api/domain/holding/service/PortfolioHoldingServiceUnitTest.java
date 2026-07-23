@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,12 +43,14 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealT
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PurchaseHistoryItem;
 import co.fineants.api.domain.holding.domain.dto.response.StockItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioDetailFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioHoldingDetailFactory;
 import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
@@ -89,6 +92,9 @@ class PortfolioHoldingServiceUnitTest {
 
 	@Mock
 	private PortfolioCalculator portfolioCalculator;
+
+	@Mock
+	private PortfolioHoldingRepository portfolioHoldingRepository;
 
 	@DisplayName("포트폴리오 종목들의 상세 정보를 조회한다")
 	@Test
@@ -508,39 +514,30 @@ class PortfolioHoldingServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
-	// @Test
-	// void deletePortfolioStock() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	//
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(
-	// 		PortfolioHolding.of(portfolio, stock)
-	// 	);
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(1);
-	// 	Money purchasePerShare = Money.won(10000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	//
-	// 	Long portfolioHoldingId = portfolioHolding.getId();
-	// 	setAuthentication(member);
-	// 	// when
-	// 	PortfolioStockDeleteResponse response = service.deletePortfolioStock(portfolioHoldingId, portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(response).extracting("portfolioHoldingId").isNotNull(),
-	// 		() -> assertThat(portfolioHoldingRepository.findById(portfolioHoldingId)).isEmpty(),
-	// 		() -> assertThat(purchaseHistoryRepository.findAllByPortfolioHoldingId(portfolioHoldingId)).isEmpty(),
-	// 		() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
-	// 	);
-	// }
-	//
+	@DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
+	@Test
+	void should_delete_portfolio_holding() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding portfolioHolding = PortfolioHolding.of(1L, portfolio, stock);
+
+		BDDMockito.given(purchaseHistoryRepository.deleteAllByPortfolioHoldingIdIn(List.of(portfolioHolding.getId())))
+			.willReturn(0);
+		BDDMockito.given(portfolioHoldingRepository.deleteAllByIdIn(List.of(portfolioHolding.getId())))
+			.willReturn(1);
+
+		// when
+		PortfolioStockDeleteResponse response = service.deletePortfolioStock(portfolioHolding.getId(),
+			portfolio.getId());
+
+		// then
+		Assertions.assertThat(response)
+			.extracting(PortfolioStockDeleteResponse::getPortfolioHoldingId)
+			.isEqualTo(portfolioHolding.getId());
+	}
+
 	// @DisplayName("사용자는 다수의 포트폴리오 종목을 삭제할 수 있다")
 	// @Test
 	// void deletePortfolioStocks() {
