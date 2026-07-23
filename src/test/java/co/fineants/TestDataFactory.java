@@ -245,6 +245,10 @@ public final class TestDataFactory {
 		return PortfolioHolding.of(portfolio, stock);
 	}
 
+	public static PortfolioHolding createPortfolioHolding(Long id, Portfolio portfolio, Stock stock) {
+		return PortfolioHolding.of(id, portfolio, stock);
+	}
+
 	public static StockDividend createStockDividend(DividendDates dividendDates) {
 		Money dividend = Money.won(1000);
 		boolean isDeleted = false;

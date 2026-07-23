@@ -44,6 +44,7 @@ import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRespo
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeleteResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioStockDeletesResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PurchaseHistoryItem;
 import co.fineants.api.domain.holding.domain.dto.response.StockItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
@@ -538,47 +539,46 @@ class PortfolioHoldingServiceUnitTest {
 			.isEqualTo(portfolioHolding.getId());
 	}
 
-	// @DisplayName("사용자는 다수의 포트폴리오 종목을 삭제할 수 있다")
-	// @Test
-	// void deletePortfolioStocks() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock1 = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-	// 	PortfolioHolding portfolioHolding1 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
-	// 	PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(5);
-	// 	Money purchasePerShare = Money.won(10000);
-	// 	String memo = "첫구매";
-	// 	PurchaseHistory purchaseHistory1 = purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding1));
-	// 	PurchaseHistory purchaseHistory2 = purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding2));
-	// 	List<Long> portfolioHoldingIds = List.of(portfolioHolding1.getId(), portfolioHolding2.getId());
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	PortfolioStockDeletesResponse response = service.deletePortfolioHoldings(portfolio.getId(), member.getId(),
-	// 		portfolioHoldingIds);
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(response)
-	// 			.extracting("portfolioHoldingIds")
-	// 			.asList()
-	// 			.hasSize(2)
-	// 			.containsExactlyInAnyOrder(portfolioHolding1.getId(), portfolioHolding2.getId()),
-	// 		() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory1.getId())).isFalse(),
-	// 		() -> assertThat(purchaseHistoryRepository.existsById(purchaseHistory2.getId())).isFalse(),
-	// 		() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding1.getId())).isFalse(),
-	// 		() -> assertThat(portfolioHoldingRepository.existsById(portfolioHolding2.getId())).isFalse(),
-	// 		() -> assertThat(portfolioCacheSupportService.fetchCache().get(portfolio.getId())).isNull()
-	// 	);
-	// }
-	//
+	@DisplayName("사용자는 다수의 포트폴리오 종목을 삭제할 수 있다")
+	@Test
+	void should_delete_multiple_portfolio_holding_when_portfolio_holding_are_multiple_data() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock1 = TestDataFactory.createSamsungStock();
+		Stock stock2 = TestDataFactory.createDongwhaPharmStock();
+		PortfolioHolding portfolioHolding1 = TestDataFactory.createPortfolioHolding(1L, portfolio, stock1);
+		PortfolioHolding portfolioHolding2 = TestDataFactory.createPortfolioHolding(2L, portfolio, stock2);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(5);
+		Money purchasePerShare = Money.won(10000);
+		String memo = "첫구매";
+		PurchaseHistory purchaseHistory1 = TestDataFactory.createPurchaseHistory(1L, purchaseDate, numShares,
+			purchasePerShare, memo, portfolioHolding1);
+		PurchaseHistory purchaseHistory2 = TestDataFactory.createPurchaseHistory(2L, purchaseDate, numShares,
+			purchasePerShare, memo, portfolioHolding2);
+		portfolioHolding1.addPurchaseHistory(purchaseHistory1);
+		portfolioHolding2.addPurchaseHistory(purchaseHistory2);
+
+		List<Long> portfolioHoldingIds = List.of(portfolioHolding1.getId(), portfolioHolding2.getId());
+
+		BDDMockito.given(portfolioHoldingRepository.existsById(portfolioHolding1.getId()))
+			.willReturn(true);
+		BDDMockito.given(portfolioHoldingRepository.existsById(portfolioHolding2.getId()))
+			.willReturn(true);
+		// when
+		PortfolioStockDeletesResponse response = service.deletePortfolioHoldings(portfolio.getId(), member.getId(),
+			portfolioHoldingIds);
+
+		// then
+		Assertions.assertThat(response)
+			.extracting(PortfolioStockDeletesResponse::getPortfolioHoldingIds)
+			.asInstanceOf(list(Long.class))
+			.hasSize(2)
+			.containsExactlyInAnyOrder(portfolioHolding1.getId(), portfolioHolding2.getId());
+	}
+
 	// @DisplayName("사용자는 다수의 포트폴리오 삭제시 존재하지 않는 일부 포트폴리오 종목이 존재한다면 전부 삭제할 수 없다")
 	// @Test
 	// void deletePortfolioStocks_whenNotExistPortfolioHolding_thenError404() {
