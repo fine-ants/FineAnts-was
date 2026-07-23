@@ -613,22 +613,25 @@ class PortfolioHoldingServiceUnitTest {
 			.hasMessage(notExistHoldingId.toString());
 	}
 
-	// @DisplayName("사용자는 매입이력 없이 포트폴리오 종목을 추가할 수 있다")
-	// @Test
-	// void givenRequest_whenOnlyTickerSymbol_thenReturnResponse() {
-	// 	// given
-	// 	Stock samsung = stockRepository.save(createSamsungStock());
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	//
-	// 	PortfolioHolding holding = PortfolioHolding.of(portfolio, samsung);
-	// 	// when
-	// 	service.savePortfolioHolding(holding);
-	// 	// then
-	// 	List<PortfolioHolding> holdings = portfolioHoldingRepository.findAll();
-	// 	assertThat(holdings).hasSize(1);
-	// }
-	//
+	@DisplayName("사용자는 매입이력 없이 포트폴리오 종목을 추가할 수 있다")
+	@Test
+	void should_save_portfolio_holding_when_without_purchase_history_data() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock samsung = TestDataFactory.createSamsungStock();
+
+		PortfolioHolding holding = PortfolioHolding.of(portfolio, samsung);
+		BDDMockito.given(portfolioHoldingRepository.save(holding))
+			.willReturn(PortfolioHolding.of(1L, portfolio, samsung));
+		// when
+		PortfolioHolding saveHolding = service.savePortfolioHolding(holding);
+		// then
+		Assertions.assertThat(saveHolding).isNotNull();
+		Assertions.assertThat(saveHolding.getId()).isEqualTo(1L);
+		Assertions.assertThat(saveHolding.getPurchaseHistories()).isEmpty();
+	}
+
 	// @DisplayName("포트폴리오 종목이 없으면 빈 Optional을 반환한다")
 	// @Test
 	// void getPortfolioHoldingBy_givenPortfolioAndStock_whenNotExistPortfolioHolding_thenReturnEmptyOptional() {
