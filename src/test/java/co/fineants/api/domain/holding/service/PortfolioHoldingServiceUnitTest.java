@@ -613,42 +613,6 @@ class PortfolioHoldingServiceUnitTest {
 			.hasMessage(notExistHoldingId.toString());
 	}
 
-	// @DisplayName("사용자는 다수의 포트폴리오 삭제시 다른 회원의 포트폴리오 종목이 존재한다면 전부 삭제할 수 없다")
-	// @Test
-	// void deletePortfolioStocks_whenNotExistPortfolioHolding_thenError403() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock1 = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock1));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	PurchaseHistory purchaseHistory = purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	//
-	// 	Member member2 = memberRepository.save(createMember("일개미2222", "user2@gmail.com"));
-	// 	Portfolio portfolio2 = portfolioRepository.save(createPortfolio(member2));
-	// 	PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(
-	// 		createPortfolioHolding(portfolio2, stock1));
-	// 	List<Long> portfolioHoldingIds = List.of(portfolioHolding.getId(), portfolioHolding2.getId());
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(
-	// 		() -> service.deletePortfolioHoldings(portfolio.getId(), member.getId(), portfolioHoldingIds));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ForbiddenException.class)
-	// 		.hasMessage(portfolioHolding2.toString());
-	// 	assertThat(portfolioHoldingRepository.findById(portfolioHolding.getId())).isPresent();
-	// 	assertThat(portfolioHoldingRepository.findById(portfolioHolding2.getId())).isPresent();
-	// 	assertThat(purchaseHistoryRepository.findById(purchaseHistory.getId())).isPresent();
-	// }
-	//
 	// @DisplayName("사용자는 매입이력 없이 포트폴리오 종목을 추가할 수 있다")
 	// @Test
 	// void givenRequest_whenOnlyTickerSymbol_thenReturnResponse() {
