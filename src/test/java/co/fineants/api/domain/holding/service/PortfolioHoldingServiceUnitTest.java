@@ -648,18 +648,20 @@ class PortfolioHoldingServiceUnitTest {
 		assertThat(holding).isEmpty();
 	}
 
-	// @DisplayName("포트폴리오 종목을 조회한다")
-	// @Test
-	// void getPortfolioHoldingBy_givenPortfolioAndStock_whenExistPortfolioHolding_thenReturnHoldingOptional() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	//
-	// 	portfolioHoldingRepository.save(PortfolioHolding.of(portfolio, stock));
-	// 	// when
-	// 	Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
-	// 	// then
-	// 	assertThat(holding).isPresent();
-	// }
+	@DisplayName("포트폴리오 종목을 조회한다")
+	@Test
+	void should_return_optional_portfolio_holding_data_when_exist_portfolio_holding() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+
+		PortfolioHolding foundHolding = PortfolioHolding.of(1L, portfolio, stock);
+		BDDMockito.given(portfolioHoldingRepository.findByPortfolioAndStock(portfolio, stock))
+			.willReturn(Optional.of(foundHolding));
+		// when
+		Optional<PortfolioHolding> holding = service.getPortfolioHoldingBy(portfolio, stock);
+		// then
+		Assertions.assertThat(holding).containsSame(foundHolding);
+	}
 }
