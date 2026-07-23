@@ -2,18 +2,20 @@ package co.fineants.api.domain.holding.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.common.count.Count;
@@ -24,8 +26,14 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.money.Percentage;
 import co.fineants.api.domain.common.money.RateDivision;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingDetailItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PurchaseHistoryItem;
+import co.fineants.api.domain.holding.domain.dto.response.StockItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
+import co.fineants.api.domain.holding.domain.factory.PortfolioDetailFactory;
+import co.fineants.api.domain.holding.domain.factory.PortfolioHoldingDetailFactory;
 import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
@@ -33,22 +41,19 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
-import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
-import co.fineants.support.cache.PortfolioCacheSupportService;
 
+@ExtendWith(MockitoExtension.class)
 class PortfolioHoldingServiceUnitTest {
-
-	@InjectMocks
-	private PortfolioHoldingService service;
 
 	private PurchaseHistoryRepository purchaseHistoryRepository;
 
 	private PortfolioHoldingRepository portfolioHoldingRepository;
 
+	@Mock
 	private PortfolioRepository portfolioRepository;
 
 	private MemberRepository memberRepository;
@@ -59,14 +64,12 @@ class PortfolioHoldingServiceUnitTest {
 
 	private ClosingPriceRepository closingPriceRepository;
 
-	private PortfolioCacheSupportService portfolioCacheSupportService;
-
-	private LocalDateTimeService localDateTimeService;
-
-	@AfterEach
-	void tearDown() {
-		portfolioCacheSupportService.clear();
-	}
+	@InjectMocks
+	private PortfolioHoldingService service;
+	@Mock
+	private PortfolioDetailFactory portfolioDetailFactory;
+	@Mock
+	private PortfolioHoldingDetailFactory portfolioHoldingDetailFactory;
 
 	@DisplayName("포트폴리오 종목들의 상세 정보를 조회한다")
 	@Test
@@ -76,8 +79,6 @@ class PortfolioHoldingServiceUnitTest {
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
 		Stock samsung = TestDataFactory.createSamsungStock();
 		TestDataFactory.createStockDividendThisYearWith(samsung.getTickerSymbol()).forEach(samsung::addStockDividend);
-
-		given(localDateTimeService.getLocalDateWithNow()).willReturn(LocalDate.of(2024, 1, 1));
 
 		PortfolioHolding portfolioHolding = TestDataFactory.createPortfolioHolding(portfolio, samsung);
 
@@ -90,6 +91,53 @@ class PortfolioHoldingServiceUnitTest {
 
 		BDDMockito.given(portfolioRepository.findById(portfolio.getId()))
 			.willReturn(Optional.of(portfolio));
+		PortfolioDetailResponse portfolioDetailResponse = PortfolioDetailResponse.builder()
+			.id(portfolio.getId())
+			.securitiesFirm("토스증권")
+			.name("내꿈은 워렌버핏")
+			.budget(Money.won(1_000_000L))
+			.targetGain(Money.won(1_500_000L))
+			.targetReturnRate(Percentage.from(BigDecimal.valueOf(0.5)))
+			.maximumLoss(Money.won(900_000L))
+			.maximumLossRate(Percentage.from(BigDecimal.valueOf(0.1)))
+			.currentValuation(Money.won(180_000))
+			.investedAmount(Money.won(150_000))
+			.totalGain(Money.won(30_000L))
+			.totalGainRate(Percentage.from(BigDecimal.valueOf(0.2)))
+			.dailyGain(Money.won(30_000L))
+			.dailyGainRate(Percentage.from(BigDecimal.valueOf(0.2)))
+			.balance(Money.won(850_000L))
+			.annualDividend(Money.won(3_249))
+			.annualDividendYield(Percentage.from(BigDecimal.valueOf(0.0181)))
+			.annualInvestmentDividendYield(Percentage.from(BigDecimal.valueOf(0.0217)))
+			.provisionalLossBalance(Money.won(0L))
+			.targetGainNotify(true)
+			.maxLossNotify(true)
+			.build();
+		BDDMockito.given(portfolioDetailFactory.createPortfolioDetailItem(portfolio))
+			.willReturn(portfolioDetailResponse);
+
+		StockItem stockItem = StockItem.from(samsung);
+		PortfolioHoldingDetailItem portfolioHoldingDetailItem = PortfolioHoldingDetailItem.builder()
+			.id(portfolioHolding.getId())
+			.currentValuation(Money.won(180_000))
+			.averageCostPerShare(Money.won(50_000))
+			.numShares(Count.from(3))
+			.dailyChange(Money.won(10_000))
+			.dailyChangeRate(Percentage.from(0.2))
+			.totalGain(Money.won(30_000))
+			.totalReturnRate(Percentage.from(0.2))
+			.annualDividend(Money.won(3_249))
+			.build();
+		PurchaseHistoryItem purchaseHistoryItem = PurchaseHistoryItem.from(history);
+		PortfolioHoldingItem portfolioHoldingItem = PortfolioHoldingItem.builder()
+			.stock(stockItem)
+			.portfolioHolding(portfolioHoldingDetailItem)
+			.purchaseHistory(List.of(purchaseHistoryItem))
+			.build();
+		BDDMockito.given(portfolioHoldingDetailFactory.createPortfolioHoldingItems(portfolio))
+			.willReturn(List.of(portfolioHoldingItem));
+
 		// when
 		PortfolioHoldingsResponse response = service.readPortfolioHoldings(portfolio.getId());
 
@@ -114,24 +162,24 @@ class PortfolioHoldingServiceUnitTest {
 			.toPercentage(Bank.getInstance(), Currency.KRW);
 
 		Money totalAnnualDividend = Money.won(361 * 3 * 3);
-		Expression currentValuation = Money.won(180000);
+		Expression currentValuation = Money.won(180_000);
 		Percentage annualDividendYield = RateDivision.of(totalAnnualDividend, currentValuation)
 			.toPercentage(Bank.getInstance(), Currency.KRW);
 
 		assertAll(
 			() -> assertThat(details.getSecuritiesFirm()).isEqualTo("토스증권"),
 			() -> assertThat(details.getName()).isEqualTo("내꿈은 워렌버핏"),
-			() -> assertThat(details.getBudget()).isEqualByComparingTo(Money.won(1000000L)),
-			() -> assertThat(details.getTargetGain()).isEqualByComparingTo(Money.won(1500000L)),
+			() -> assertThat(details.getBudget()).isEqualByComparingTo(Money.won(1_000_000L)),
+			() -> assertThat(details.getTargetGain()).isEqualByComparingTo(Money.won(1_500_000L)),
 			() -> assertThat(details.getTargetReturnRate()).isEqualByComparingTo(targetReturnRate),
-			() -> assertThat(details.getMaximumLoss()).isEqualByComparingTo(Money.won(900000L)),
+			() -> assertThat(details.getMaximumLoss()).isEqualByComparingTo(Money.won(900_000L)),
 			() -> assertThat(details.getMaximumLossRate()).isEqualByComparingTo(maximumLossRate),
-			() -> assertThat(details.getInvestedAmount()).isEqualByComparingTo(Money.won(150000L)),
-			() -> assertThat(details.getTotalGain()).isEqualByComparingTo(Money.won(30000L)),
+			() -> assertThat(details.getInvestedAmount()).isEqualByComparingTo(Money.won(150_000L)),
+			() -> assertThat(details.getTotalGain()).isEqualByComparingTo(Money.won(30_000L)),
 			() -> assertThat(details.getTotalGainRate()).isEqualByComparingTo(totalGainRate),
-			() -> assertThat(details.getDailyGain()).isEqualByComparingTo(Money.won(30000L)),
+			() -> assertThat(details.getDailyGain()).isEqualByComparingTo(Money.won(30_000L)),
 			() -> assertThat(details.getDailyGainRate()).isEqualByComparingTo(dailyGainRate),
-			() -> assertThat(details.getBalance()).isEqualByComparingTo(Money.won(850000L)),
+			() -> assertThat(details.getBalance()).isEqualByComparingTo(Money.won(850_000L)),
 			() -> assertThat(details.getAnnualDividend()).isEqualByComparingTo(totalAnnualDividend),
 			() -> assertThat(details.getAnnualDividendYield()).isEqualByComparingTo(annualDividendYield),
 			() -> assertThat(details.getProvisionalLossBalance()).isEqualByComparingTo(Money.won(0L)),
@@ -159,14 +207,14 @@ class PortfolioHoldingServiceUnitTest {
 				.containsExactlyInAnyOrder(
 					Tuple.tuple(
 						portfolioHolding.getId(),
-						Money.won(180000),
-						Money.won(50000),
+						Money.won(180_000),
+						Money.won(50_000),
 						Count.from(3L),
-						Money.won(10000),
+						Money.won(10_000),
 						Percentage.from(0.2),
-						Money.won(30000),
+						Money.won(30_000),
 						Percentage.from(0.2),
-						Money.won(3249)
+						Money.won(3_249)
 					)
 				),
 			() -> assertThat(response)
