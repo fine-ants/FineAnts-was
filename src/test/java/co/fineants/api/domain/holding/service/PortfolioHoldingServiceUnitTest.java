@@ -235,24 +235,7 @@ class PortfolioHoldingServiceUnitTest {
 				)
 		);
 	}
-	//
-	// @DisplayName("회원은 다른 회원의 포트폴리오 종목들을 읽을 수 없다")
-	// @Test
-	// void readMyPortfolioStocks_whenReadOtherMemberHolding_thenThrowException() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Member hacker = memberRepository.save(createMember("hacker"));
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	//
-	// 	setAuthentication(hacker);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(() -> service.readPortfolioHoldings(portfolio.getId()));
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ForbiddenException.class)
-	// 		.hasMessage(portfolio.toString());
-	// }
-	//
+
 	// @DisplayName("사용자는 포트폴리오의 차트 정보를 조회한다")
 	// @Test
 	// void readMyPortfolioCharts() {
