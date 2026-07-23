@@ -73,7 +73,7 @@ class PortfolioHoldingServiceUnitTest {
 
 	@DisplayName("포트폴리오 종목들의 상세 정보를 조회한다")
 	@Test
-	void readMyPortfolioStocks() {
+	void should_return_detailed_portfolio_response_when_read_my_portfolio_stocks() {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
