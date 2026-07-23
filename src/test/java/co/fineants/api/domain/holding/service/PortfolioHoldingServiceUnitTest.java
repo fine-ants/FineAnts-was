@@ -1,9 +1,11 @@
 package co.fineants.api.domain.holding.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.InstanceOfAssertFactories.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +31,14 @@ import co.fineants.api.domain.holding.domain.chart.DividendChart;
 import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailRealTimeItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingDetailItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingRealTimeItem;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsRealTimeResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingsResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioPieChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioSectorChartItem;
@@ -42,31 +47,19 @@ import co.fineants.api.domain.holding.domain.dto.response.StockItem;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.holding.domain.factory.PortfolioDetailFactory;
 import co.fineants.api.domain.holding.domain.factory.PortfolioHoldingDetailFactory;
-import co.fineants.api.domain.holding.repository.PortfolioHoldingRepository;
-import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
+import co.fineants.api.domain.holding.domain.message.StreamMessage;
+import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
-import co.fineants.member.domain.MemberRepository;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockDividend;
-import co.fineants.stock.domain.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PortfolioHoldingServiceUnitTest {
-	private PortfolioHoldingRepository portfolioHoldingRepository;
-	private MemberRepository memberRepository;
-
-	private StockRepository stockRepository;
-
-	private CurrentPriceRepository currentPriceRepository;
-
-	private ClosingPriceRepository closingPriceRepository;
-
 	@InjectMocks
 	private PortfolioHoldingService service;
 
@@ -93,6 +86,9 @@ class PortfolioHoldingServiceUnitTest {
 
 	@Mock
 	private SectorChart sectorChart;
+
+	@Mock
+	private PortfolioCalculator portfolioCalculator;
 
 	@DisplayName("포트폴리오 종목들의 상세 정보를 조회한다")
 	@Test
@@ -398,69 +394,120 @@ class PortfolioHoldingServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("사용자는 포트폴리오에 실시간 상세 데이터를 조회한다")
-	// @Test
-	// void readMyPortfolioStocksInRealTime() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createKakaoStock());
-	// 	List<StockDividend> stockDividends = createStockDividendWith(stock.getTickerSymbol());
-	// 	stockDividends.forEach(stock::addStockDividend);
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	// 	PortfolioHolding portfolioHolding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding2));
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding2));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create("005930", 60000L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create("035720", 60000L));
-	// 	closingPriceRepository.savePrice("005930", 50000);
-	// 	closingPriceRepository.savePrice("035720", 50000);
-	//
-	// 	// when
-	// 	StreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(portfolioStreamMessage)
-	// 			.extracting("portfolioDetails")
-	// 			.extracting("currentValuation", "totalGain", "totalGainRate", "dailyGain", "dailyGainRate",
-	// 				"provisionalLossBalance")
-	// 			.usingComparatorForType(Money::compareTo, Money.class)
-	// 			.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 			.containsExactlyInAnyOrder(Money.won(720000L), Money.won(120000L), Percentage.from(0.2),
-	// 				Money.won(120000L), Percentage.from(0.2), Money.zero()),
-	//
-	// 		() -> assertThat(portfolioStreamMessage)
-	// 			.extracting("portfolioHoldings")
-	// 			.asList()
-	// 			.hasSize(2)
-	// 			.extracting("currentValuation", "dailyChange", "dailyChangeRate", "totalGain",
-	// 				"totalReturnRate")
-	// 			.usingComparatorForType(Money::compareTo, Money.class)
-	// 			.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 			.containsExactlyInAnyOrder(
-	// 				Tuple.tuple(Money.won(360000L), Money.won(10000L), Percentage.from(0.2),
-	// 					Money.won(60000L),
-	// 					Percentage.from(0.2)),
-	// 				Tuple.tuple(Money.won(360000L), Money.won(10000L), Percentage.from(0.2),
-	// 					Money.won(60000L),
-	// 					Percentage.from(0.2)))
-	// 	);
-	// }
-	//
+	@DisplayName("사용자는 포트폴리오에 실시간 상세 데이터를 조회한다")
+	@Test
+	void should_return_portfolio_stream_message_when_read_my_portfolio_stocks_in_real_time() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(member);
+
+		BDDMockito.given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+		PortfolioDetailRealTimeItem portfolioDetailRealTimeItem = PortfolioDetailRealTimeItem.builder()
+			.currentValuation(Money.won(720000L))
+			.totalGain(Money.won(120_000L))
+			.totalGainRate(Percentage.from(0.2))
+			.dailyGain(Money.won(120_000L))
+			.dailyGainRate(Percentage.from(0.2))
+			.provisionalLossBalance(Money.zero())
+			.build();
+		BDDMockito.given(portfolioDetailFactory.createPortfolioDetailRealTimeItem(portfolio))
+			.willReturn(portfolioDetailRealTimeItem);
+		LocalDateTime dateAdded = LocalDate.of(2026, 7, 23).atStartOfDay();
+		PortfolioHoldingRealTimeItem portfolioHoldingRealTimeItem1 = PortfolioHoldingRealTimeItem.builder()
+			.id(1L)
+			.currentValuation(Money.won(360_000L))
+			.currentPrice(Money.won(60_000L))
+			.dailyChange(Money.won(10_000L))
+			.dailyChangeRate(Percentage.from(0.2))
+			.totalGain(Money.won(60000L))
+			.totalReturnRate(Percentage.from(0.2))
+			.dateAdded(dateAdded)
+			.build();
+		PortfolioHoldingRealTimeItem portfolioHoldingRealTimeItem2 = PortfolioHoldingRealTimeItem.builder()
+			.id(2L)
+			.currentValuation(Money.won(360_000L))
+			.currentPrice(Money.won(60_000L))
+			.dailyChange(Money.won(10_000L))
+			.dailyChangeRate(Percentage.from(0.2))
+			.totalGain(Money.won(60000L))
+			.totalReturnRate(Percentage.from(0.2))
+			.dateAdded(dateAdded)
+			.build();
+		BDDMockito.given(
+				portfolioHoldingDetailFactory.createPortfolioHoldingRealTimeItems(portfolio, portfolioCalculator))
+			.willReturn(List.of(portfolioHoldingRealTimeItem1, portfolioHoldingRealTimeItem2));
+
+		// when
+		StreamMessage portfolioStreamMessage = service.getPortfolioReturns(portfolio.getId());
+
+		// then
+		assertAll(
+			() -> assertThat(portfolioStreamMessage)
+				.extracting(StreamMessage::getData)
+				.asInstanceOf(type(PortfolioHoldingsRealTimeResponse.class))
+				.extracting(PortfolioHoldingsRealTimeResponse::getPortfolioDetails)
+				.extracting(
+					PortfolioDetailRealTimeItem::getCurrentValuation,
+					PortfolioDetailRealTimeItem::getTotalGain,
+					PortfolioDetailRealTimeItem::getTotalGainRate,
+					PortfolioDetailRealTimeItem::getDailyGain,
+					PortfolioDetailRealTimeItem::getDailyGainRate,
+					PortfolioDetailRealTimeItem::getProvisionalLossBalance
+				)
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					Money.won(720_000L),
+					Money.won(120_000L),
+					Percentage.from(0.2),
+					Money.won(120_000L),
+					Percentage.from(0.2),
+					Money.zero()
+				),
+
+			() -> assertThat(portfolioStreamMessage)
+				.extracting(StreamMessage::getData)
+				.asInstanceOf(type(PortfolioHoldingsRealTimeResponse.class))
+				.extracting(PortfolioHoldingsRealTimeResponse::getPortfolioHoldings)
+				.asInstanceOf(list(PortfolioHoldingRealTimeItem.class))
+				.extracting(item -> Tuple.tuple(
+					item.getId(),
+					item.getCurrentValuation(),
+					item.getCurrentPrice(),
+					item.getDailyChange(),
+					item.getDailyChangeRate(),
+					item.getTotalGain(),
+					item.getTotalReturnRate(),
+					item.getDateAdded()
+				))
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					Tuple.tuple(
+						1L,
+						Money.won(360_000L),
+						Money.won(60_000L),
+						Money.won(10_000L),
+						Percentage.from(0.2),
+						Money.won(60000L),
+						Percentage.from(0.2),
+						LocalDate.of(2026, 7, 23).atStartOfDay()
+					),
+					Tuple.tuple(
+						2L,
+						Money.won(360000L),
+						Money.won(60_000L),
+						Money.won(10_000L),
+						Percentage.from(0.2),
+						Money.won(60000L),
+						Percentage.from(0.2),
+						LocalDate.of(2026, 7, 23).atStartOfDay()
+					)
+				)
+		);
+	}
+
 	// @DisplayName("사용자는 포트폴리오의 종목을 삭제한다")
 	// @Test
 	// void deletePortfolioStock() {

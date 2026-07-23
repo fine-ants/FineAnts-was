@@ -11,6 +11,7 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -19,6 +20,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
+@Builder
 public class PortfolioHoldingRealTimeItem {
 	private Long id;
 	private Money currentValuation;
@@ -47,6 +49,7 @@ public class PortfolioHoldingRealTimeItem {
 			dailyChangeRate.toPercentage(bank, to),
 			totalGain.reduce(bank, to),
 			totalReturnPercentage,
-			holding.getCreateAt());
+			holding.getCreateAt()
+		);
 	}
 }
