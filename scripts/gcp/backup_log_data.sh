@@ -40,7 +40,7 @@ sudo find "$LOG_DIR" -type f -name "spring*.log.gz" -exec mv {} "$BACKUP_DIR/" \
 
 # Bucket 업로드
 echo "Uploading to Bucket..." >> "$DEPLOY_FILE"
-sudo gsutil cp -r "$BACKUP_DIR/" "$BUCKET_LOG_PATH/$YEAR_PATH/$MONTH_PATH/$DAY_PATH/"
+sudo gcloud storage cp -r "$BACKUP_DIR/" "$BUCKET_LOG_PATH/$YEAR_PATH/$MONTH_PATH/$DAY_PATH/"
 
 # 업로드 완료 후 로컬 백업 파일 정리
 echo "Cleaning up local back files..." >> "$DEPLOY_FILE"

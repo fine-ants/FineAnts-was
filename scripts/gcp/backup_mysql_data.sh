@@ -22,7 +22,7 @@ cd "$BACKUP_DIR" || exit 1
 # shellcheck disable=SC2024
 if sudo tar -cf - . | sudo gzip > "$BACKUP_FILE"; then
     # GCP Storage 업로드
-    if gsutil cp "$BACKUP_FILE" "$GCP_BUCKET"; then
+    if gcloud storage cp "$BACKUP_FILE" "$GCP_BUCKET"; then
         # 로컬 백업 파일 삭제
         rm -f "$BACKUP_FILE"
 
