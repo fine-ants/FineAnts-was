@@ -30,6 +30,7 @@ import co.fineants.api.domain.holding.domain.chart.PieChart;
 import co.fineants.api.domain.holding.domain.chart.SectorChart;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioChartResponse;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetailResponse;
+import co.fineants.api.domain.holding.domain.dto.response.PortfolioDetails;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioDividendChartItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingDetailItem;
 import co.fineants.api.domain.holding.domain.dto.response.PortfolioHoldingItem;
@@ -52,6 +53,7 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
 import co.fineants.stock.domain.Stock;
+import co.fineants.stock.domain.StockDividend;
 import co.fineants.stock.domain.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -351,45 +353,51 @@ class PortfolioHoldingServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("사용자는 예산이 0원인 상태의 포트폴리오의 차트를 조회한다")
-	// @Test
-	// void readMyPortfolioCharts_whenPortfolioBudgetIsZero_thenOK() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member, Money.zero()));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	List<StockDividend> stockDividends = createStockDividendWith(stock.getTickerSymbol());
-	// 	stockDividends.forEach(stock::addStockDividend);
-	//
-	// 	setAuthentication(member);
-	// 	// when
-	// 	PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(response.getPortfolioDetails())
-	// 			.extracting("id", "securitiesFirm", "name")
-	// 			.containsExactly(portfolio.getId(), "토스증권", "내꿈은 워렌버핏"),
-	// 		() -> assertThat(response.getPieChart())
-	// 			.asList()
-	// 			.hasSize(1)
-	// 			.extracting("name", "valuation", "weight", "totalGain", "totalGainRate")
-	// 			.usingComparatorForType(Money::compareTo, Money.class)
-	// 			.usingComparatorForType(Percentage::compareTo, Percentage.class)
-	// 			.containsExactlyInAnyOrder(
-	// 				Tuple.tuple("현금", Money.zero(), Percentage.zero(), Money.zero(), Percentage.zero())
-	// 			),
-	// 		() -> assertThat(response.getDividendChart())
-	// 			.asList()
-	// 			.isEmpty(),
-	// 		() -> assertThat(response.getSectorChart())
-	// 			.asList()
-	// 			.hasSize(1)
-	// 			.extracting("sector", "sectorWeight")
-	// 			.containsExactlyInAnyOrder(Tuple.tuple("현금", Percentage.zero()))
-	// 	);
-	// }
-	//
+	@DisplayName("사용자는 예산이 0원인 상태의 포트폴리오의 차트를 조회한다")
+	@Test
+	void should_return_portfolio_chart_data_when_portfolio_budget_is_zero_then_cash_is_zero() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member, Money.zero());
+		Stock stock = TestDataFactory.createSamsungStock();
+		List<StockDividend> stockDividends = TestDataFactory.createStockDividend(stock.getTickerSymbol());
+		stockDividends.forEach(stock::addStockDividend);
+
+		BDDMockito.given(portfolioRepository.findById(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+		PortfolioPieChartItem cashPieChartItem = PortfolioPieChartItem.cash(Percentage.zero(), Money.zero());
+		BDDMockito.given(pieChart.createItemsBy(portfolio))
+			.willReturn(List.of(cashPieChartItem));
+		BDDMockito.given(sectorChart.createBy(portfolio))
+			.willReturn(List.of(
+				PortfolioSectorChartItem.create("현금", Percentage.zero())
+			));
+
+		// when
+		PortfolioChartResponse response = service.readPortfolioCharts(portfolio.getId());
+
+		// then
+		assertAll(
+			() -> assertThat(response.getPortfolioDetails())
+				.extracting(PortfolioDetails::getId, PortfolioDetails::getSecuritiesFirm, PortfolioDetails::getName)
+				.containsExactly(portfolio.getId(), "토스증권", "내꿈은 워렌버핏"),
+			() -> assertThat(response.getPieChart())
+				.hasSize(1)
+				.extracting(pie -> Tuple.tuple(pie.getName(), pie.getValuation(), pie.getWeight(), pie.getTotalGain(),
+					pie.getTotalGainRate()))
+				.usingComparatorForType(Money::compareTo, Money.class)
+				.usingComparatorForType(Percentage::compareTo, Percentage.class)
+				.containsExactlyInAnyOrder(
+					Tuple.tuple("현금", Money.zero(), Percentage.zero(), Money.zero(), Percentage.zero())
+				),
+			() -> assertThat(response.getDividendChart()).isEmpty(),
+			() -> assertThat(response.getSectorChart())
+				.hasSize(1)
+				.extracting(sector -> Tuple.tuple(sector.getSector(), sector.getSectorWeight()))
+				.containsExactlyInAnyOrder(Tuple.tuple("현금", Percentage.zero()))
+		);
+	}
+
 	// @DisplayName("회원은 다른 회원의 포트폴리오 차트를 조회할 수 없다")
 	// @Test
 	// void readMyPortfolioCharts_whenOtherMemberRead_thenThrowException() {

@@ -116,6 +116,17 @@ public final class TestDataFactory {
 		);
 	}
 
+	public static Portfolio createPortfolio(Long id, Member member, Money budget) {
+		return createPortfolio(
+			id,
+			member,
+			"내꿈은 워렌버핏",
+			budget,
+			Money.won(1500000L),
+			Money.won(900000L)
+		);
+	}
+
 	public static Portfolio createPortfolio(Member member, String name) {
 		return createPortfolio(
 			null,
