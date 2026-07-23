@@ -398,34 +398,6 @@ class PortfolioHoldingServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("회원은 다른 회원의 포트폴리오 차트를 조회할 수 없다")
-	// @Test
-	// void readMyPortfolioCharts_whenOtherMemberRead_thenThrowException() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Member hacker = memberRepository.save(createMember("hacker"));
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	List<StockDividend> stockDividends = createStockDividendWith(stock.getTickerSymbol());
-	// 	stockDividends.forEach(stock::addStockDividend);
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(3);
-	// 	Money purchasePerShare = Money.won(50000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo, portfolioHolding));
-	// 	setAuthentication(hacker);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(
-	// 		() -> service.readPortfolioCharts(portfolio.getId()));
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ForbiddenException.class)
-	// 		.hasMessage(portfolio.toString());
-	// }
-	//
 	// @DisplayName("사용자는 포트폴리오에 실시간 상세 데이터를 조회한다")
 	// @Test
 	// void readMyPortfolioStocksInRealTime() {
