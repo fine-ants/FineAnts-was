@@ -75,6 +75,11 @@ public class PortfolioGainHistory extends BaseEntity {
 		return new PortfolioGainHistory(totalGain, dailyGain, cash, currentValuation, portfolio);
 	}
 
+	public static PortfolioGainHistory create(Long id, Money totalGain, Money dailyGain, Money cash,
+		Money currentValuation, Portfolio portfolio) {
+		return new PortfolioGainHistory(id, totalGain, dailyGain, cash, currentValuation, portfolio);
+	}
+
 	public String getLineChartKey() {
 		return LINE_CHART_KEY_FORMATTER.format(super.getCreateAt());
 	}

@@ -31,7 +31,7 @@ public class ExchangeRateUpdateService {
 	private final EmailService emailService;
 	private final String adminEmail;
 	private final MimeMessageFactory messageFactory;
-
+	
 	public ExchangeRateUpdateService(ExchangeRateRepository exchangeRateRepository, ExchangeRateClient client,
 		EmailService emailService, @Value("${admin.email}") String adminEmail,
 		@Qualifier("exchangeRateErrorMimeMessageFactory") MimeMessageFactory messageFactory) {

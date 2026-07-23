@@ -48,7 +48,7 @@ class SignUpRestControllerTest extends AbstractContainerBaseTest {
 	private VerifyCodeGenerator spyVerifyCodeGenerator;
 
 	private void saveMember(String nickname, String email) {
-		Member member = TestDataFactory.createMember(nickname, email);
+		Member member = TestDataFactory.createMember(null, nickname, email);
 		signupMember.signup(member);
 	}
 

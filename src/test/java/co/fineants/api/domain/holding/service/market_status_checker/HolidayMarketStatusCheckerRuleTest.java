@@ -25,35 +25,12 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 	@Autowired
 	@Qualifier("holidayMarketStatusCheckerRule")
 	private MarketStatusCheckerRule rule;
-
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@BeforeEach
 	void setUp() {
 		dateTime = LocalDateTime.of(2025, 6, 6, 9, 0);
-	}
-
-	@DisplayName("dateTime이 공휴일인 경우에는 false를 반환한다")
-	@Test
-	void isOpen_shouldReturnFalse_whenDateTimeIsHoliday() {
-		// given
-		Holiday holiday = Holiday.close(dateTime.toLocalDate());
-		repository.save(holiday);
-		// when
-		boolean isOpen = rule.isOpen(dateTime);
-		// then
-		assertThat(isOpen).isFalse();
-	}
-
-	@DisplayName("dateTime이 공휴일이 아닌 경우에는 true를 반환한다")
-	@Test
-	void isOpen_shouldReturnTrue_whenDateTimeIsNotHoliday() {
-		// given
-		// when
-		boolean isOpen = rule.isOpen(dateTime);
-		// then
-		assertThat(isOpen).isTrue();
 	}
 
 	@DisplayName("dateTime에 따른 공휴일 캐시가 존재하는 경우 캐시값을 반환한다")

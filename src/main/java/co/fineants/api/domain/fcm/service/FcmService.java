@@ -19,6 +19,7 @@ import co.fineants.api.domain.fcm.repository.FcmRepository;
 import co.fineants.api.global.common.authorized.Authorized;
 import co.fineants.api.global.common.authorized.service.FcmAuthorizedService;
 import co.fineants.api.global.common.resource.ResourceId;
+import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.FcmDuplicateException;
 import co.fineants.api.global.errors.exception.business.FcmInvalidInputException;
 import co.fineants.api.global.errors.exception.business.MemberNotFoundException;
@@ -36,6 +37,7 @@ public class FcmService {
 	private final FcmRepository fcmRepository;
 	private final MemberRepository memberRepository;
 	private final FirebaseMessaging firebaseMessaging;
+	private final LocalDateTimeService localDateTimeService;
 
 	@Transactional
 	public FcmRegisterResponse createToken(FcmRegisterRequest request, Long memberId) {
@@ -44,7 +46,7 @@ public class FcmService {
 
 		FcmToken fcmToken = fcmRepository.findByTokenAndMemberId(request.getFcmToken(), memberId)
 			.orElseGet(() -> request.toEntity(member));
-		fcmToken.refreshLatestActivationTime();
+		fcmToken.refreshLatestActivationTime(localDateTimeService.getLocalDateTimeWithNow());
 		try {
 			FcmToken saveFcmToken = fcmRepository.save(fcmToken);
 			FcmRegisterResponse response = FcmRegisterResponse.from(saveFcmToken);

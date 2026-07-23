@@ -10,8 +10,10 @@ import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class PortfolioHoldingItem {
 
 	@JsonUnwrapped

@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
 
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
@@ -43,7 +42,6 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 
-@DirtiesContext
 @Slf4j
 class ActiveStockAspectTest extends AbstractContainerBaseTest {
 
