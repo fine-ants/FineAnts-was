@@ -28,7 +28,7 @@ import reactor.util.retry.Retry;
 @Slf4j
 public class KisScheduler {
 
-	private final KisAccessTokenRepository manager;
+	private final KisAccessTokenRepository kisAccessTokenRepository;
 	private final KisAccessTokenRedisService redisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final DelayManager delayManager;
@@ -46,7 +46,7 @@ public class KisScheduler {
 	@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	public void checkAndReissueAccessToken() {
 		LocalDateTime now = localDateTimeService.getLocalDateTimeWithNow();
-		if (!manager.isTokenExpiringSoon(now)) {
+		if (!kisAccessTokenRepository.isTokenExpiringSoon(now)) {
 			return;
 		}
 		kisClient.fetchAccessToken()
@@ -63,7 +63,7 @@ public class KisScheduler {
 			.blockOptional(delayManager.timeout())
 			.ifPresent(newKisAccessToken -> {
 				redisService.setAccessTokenMap(newKisAccessToken, now);
-				manager.refreshAccessToken(newKisAccessToken);
+				kisAccessTokenRepository.refreshAccessToken(newKisAccessToken);
 				log.info("Reissue access tokens 1 hour prior to expiration {}", newKisAccessToken);
 			});
 	}

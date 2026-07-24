@@ -61,8 +61,12 @@ public final class TestDataFactory {
 	}
 
 	public static KisAccessToken createKisAccessToken() {
+		return createKisAccessToken(LocalDateTime.now());
+	}
+
+	public static KisAccessToken createKisAccessToken(LocalDateTime baseTime) {
 		int expiredSeconds = 86400;
-		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(expiredSeconds),
+		return KisAccessToken.bearerType("accessToken", baseTime.plusSeconds(expiredSeconds),
 			expiredSeconds);
 	}
 
