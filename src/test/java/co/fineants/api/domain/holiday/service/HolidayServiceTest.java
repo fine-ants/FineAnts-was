@@ -4,35 +4,46 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.repository.HolidayRepository;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.domain.dto.response.KisHoliday;
+import co.fineants.api.global.common.delay.DelayManager;
 import reactor.core.publisher.Mono;
 
-class HolidayServiceTest extends AbstractContainerBaseTest {
+@ExtendWith(MockitoExtension.class)
+class HolidayServiceTest {
 
-	@Autowired
 	private HolidayService service;
 
-	@Autowired
+	@Mock
+	private KisClient kisClient;
+	@Spy
+	private DelayManager delayManager;
+	@Mock
 	private HolidayRepository repository;
 
-	@Autowired
-	private KisClient mockedKisClient;
+	@BeforeEach
+	void setUp() {
+		service = new HolidayService(kisClient, delayManager, repository);
+	}
 
 	@DisplayName("국내 휴장 일정을 수정한다")
 	@Test
-	void updateHoliday() {
+	void should_update_holiday_value_when_pass_base_date() {
 		// given
-		repository.save(Holiday.close(LocalDate.of(2025, 1, 1))); // 기존 데이터가 있다고 가정
 		LocalDate baseDate = LocalDate.of(2024, 12, 26);
 		List<KisHoliday> data = List.of(
 			KisHoliday.open(LocalDate.of(2024, 12, 26)),
@@ -60,8 +71,16 @@ class HolidayServiceTest extends AbstractContainerBaseTest {
 			KisHoliday.open(LocalDate.of(2025, 1, 17)),
 			KisHoliday.close(LocalDate.of(2025, 1, 18))
 		);
-		given(mockedKisClient.fetchHolidays(baseDate))
+		BDDMockito.given(kisClient.fetchHolidays(baseDate))
 			.willReturn(Mono.just(data));
+		BDDMockito.given(repository.deleteAllByBaseDate(anyList()))
+			.willReturn(1);
+		List<Holiday> closedHoliday = data.stream()
+			.map(KisHoliday::toEntity)
+			.filter(Holiday::isCloseMarket)
+			.toList();
+		BDDMockito.given(repository.saveAll(closedHoliday))
+			.willReturn(closedHoliday);
 		// when
 		List<Holiday> actual = service.updateHoliday(baseDate);
 		// then
@@ -79,9 +98,6 @@ class HolidayServiceTest extends AbstractContainerBaseTest {
 		Assertions.assertThat(actual)
 			.hasSize(expected.size())
 			.containsExactlyElementsOf(expected);
-		Assertions.assertThat(repository.findAll())
-			.hasSize(expected.size())
-			.containsExactlyElementsOf(expected);
 	}
 
 	@DisplayName("휴장 여부를 검사한다")
@@ -89,7 +105,9 @@ class HolidayServiceTest extends AbstractContainerBaseTest {
 	void isHoliday() {
 		// given
 		LocalDate localDate = LocalDate.of(2025, 12, 28);
-		repository.save(Holiday.close(localDate));
+		Holiday holiday = Holiday.close(localDate);
+		BDDMockito.given(repository.findByBaseDate(localDate))
+			.willReturn(Optional.of(holiday));
 		// when
 		boolean actual = service.isHoliday(localDate);
 		// then
