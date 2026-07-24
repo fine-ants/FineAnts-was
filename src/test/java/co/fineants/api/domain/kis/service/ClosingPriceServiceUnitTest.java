@@ -48,9 +48,9 @@ class ClosingPriceServiceUnitTest {
 			eventPublisher);
 	}
 
-	@DisplayName("종목 종가 조회 - 캐시된 종목 종가 데이터 조회한다")
+	@DisplayName("종목 종가 조회 - Redis 캐시된 종목 종가 데이터 조회한다")
 	@Test
-	void fetchPrice_whenCachedClosingPriceExist_thenReturnClosingPrice() {
+	void should_return_closing_price_when_closing_price_saved_in_redis() {
 		// given
 		String tickerSymbol = "005930";
 		long closingPrice = 60000L;
