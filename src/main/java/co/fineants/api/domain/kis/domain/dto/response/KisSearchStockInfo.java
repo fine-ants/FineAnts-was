@@ -1,5 +1,7 @@
 package co.fineants.api.domain.kis.domain.dto.response;
 
+import static co.fineants.api.domain.kis.config.KisSearchStockInfoProperty.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import co.fineants.api.domain.kis.config.KisSearchStockInfoProperty;
 import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import jakarta.validation.constraints.NotNull;
@@ -129,27 +132,31 @@ public class KisSearchStockInfo {
 		public KisSearchStockInfo deserialize(JsonParser parser, DeserializationContext context) throws
 			IOException {
 			TreeNode rootNode = parser.readValueAsTree();
-			TreeNode treeNode = rootNode.get("output");
+			TreeNode treeNode = rootNode.get(OUTPUT.getKey());
 			JsonNode outputNode = (JsonNode)treeNode;
 
+			String pdno = getText(outputNode, PDNO);
 			return KisSearchStockInfo.builder()
-				.stockCode(outputNode.get("std_pdno").asText()) // 표준 상품 번호
-				.tickerSymbol(outputNode.get("pdno")
-					.asText()
-					.substring(outputNode.get("pdno").asText().length() - 6)) // 상품 번호, 마지막 6자리 추출
-				.companyName(outputNode.get("prdt_name").asText())
-				.companyEngName(outputNode.get("prdt_eng_name").asText()) // 상품 영문명
-				.marketIdCode(outputNode.get("mket_id_cd").asText()) // 시장 ID 코드
-				.majorSector(outputNode.get("idx_bztp_lcls_cd_name").asText()) // 지수 업종 대분류 코드명
-				.midSector(outputNode.get("idx_bztp_mcls_cd_name").asText()) // 지수 업종 중분류 코드명
-				.subSector(outputNode.get("idx_bztp_scls_cd_name").asText()) // 지수 업종 소분류 코드명
+				.stockCode(getText(outputNode, STD_PDNO)) // 표준 상품 번호
+				.tickerSymbol(pdno.substring(pdno.length() - 6)) // 상품 번호, 마지막 6자리 추출
+				.companyName(getText(outputNode, PRDT_NAME))
+				.companyEngName(getText(outputNode, PRDT_ENG_NAME)) // 상품 영문명
+				.marketIdCode(getText(outputNode, MKET_ID_CD)) // 시장 ID 코드
+				.majorSector(getText(outputNode, IDX_BZTP_LCLS_CD_NAME)) // 지수 업종 대분류 코드명
+				.midSector(getText(outputNode, IDX_BZTP_MCLS_CD_NAME)) // 지수 업종 중분류 코드명
+				.subSector(getText(outputNode, IDX_BZTP_SCLS_CD_NAME)) // 지수 업종 소분류 코드명
 				.delistedDate(parseDelistedDate(outputNode).orElse(null)) // 상장 폐지 일자
 				.build();
 		}
 
+		private String getText(JsonNode node, KisSearchStockInfoProperty property) {
+			JsonNode valueNode = node.get(property.getKey());
+			return valueNode != null ? valueNode.asText() : "";
+		}
+
 		@NotNull
 		private Optional<LocalDate> parseDelistedDate(JsonNode outputNode) {
-			String text = outputNode.get("lstg_abol_dt").asText();
+			String text = getText(outputNode, LSTG_ABOL_DT);
 			if (Strings.isBlank(text)) {
 				return Optional.empty();
 			}
