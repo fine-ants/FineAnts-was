@@ -4,6 +4,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -95,15 +96,17 @@ class HolidayServiceUnitTest {
 			.containsExactlyElementsOf(expected);
 	}
 
-	// @DisplayName("휴장 여부를 검사한다")
-	// @Test
-	// void isHoliday() {
-	// 	// given
-	// 	LocalDate localDate = LocalDate.of(2025, 12, 28);
-	// 	repository.save(Holiday.close(localDate));
-	// 	// when
-	// 	boolean actual = service.isHoliday(localDate);
-	// 	// then
-	// 	Assertions.assertThat(actual).isTrue();
-	// }
+	@DisplayName("휴장 여부를 검사한다")
+	@Test
+	void isHoliday() {
+		// given
+		LocalDate localDate = LocalDate.of(2025, 12, 28);
+		Holiday holiday = Holiday.close(localDate);
+		BDDMockito.given(repository.findByBaseDate(localDate))
+			.willReturn(Optional.of(holiday));
+		// when
+		boolean actual = service.isHoliday(localDate);
+		// then
+		Assertions.assertThat(actual).isTrue();
+	}
 }
