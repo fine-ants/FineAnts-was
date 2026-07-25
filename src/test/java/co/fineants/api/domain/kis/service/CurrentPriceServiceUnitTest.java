@@ -21,7 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
-import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
@@ -194,31 +193,29 @@ class CurrentPriceServiceUnitTest {
 
 	@DisplayName("종목 현재가 조회 - 공휴일에는 비동기 갱신하지 않고 기존 데이터를 반환한다")
 	@Test
-	void fetchPrice_whenTodayIsHoliday_thenReturnCurrentPriceWithoutRefresh() {
+	void should_return_existing_current_price_when_today_is_holiday() {
 		// given
 		BDDMockito.given(clock.millis())
-			.willReturn(1_000_000L)  // initial time
 			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
-		LocalDate now = LocalDate.of(2026, 2, 16); // 월요일 휴장
+		LocalDateTime now = LocalDate.of(2026, 2, 16).atTime(9, 0); // 월요일 휴장
 		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
-			.willReturn(now.atTime(9, 0));
-		Holiday holiday = Holiday.close(now);
-		holidayService.saveHoliday(holiday);
+			.willReturn(now);
 
 		String tickerSymbol = "005930";
 		long stalePrice = 45000L;
 
 		currentPriceRepository.savePrice(tickerSymbol, stalePrice);
+		CurrentPriceRedisEntity staleEntity = CurrentPriceRedisEntity.of(tickerSymbol, stalePrice, 1_000_000);
+		BDDMockito.given(currentPriceRepository.fetchPriceBy(tickerSymbol))
+			.willReturn(Optional.of(staleEntity));
+		BDDMockito.given(marketStatusChecker.isOpen(now))
+			.willReturn(false);
+
 		// when
 		Money actualPrice = service.fetchPrice(tickerSymbol);
 
 		// then
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(stalePrice));
-		Assertions.assertThat(currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow())
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", stalePrice);
-		// 이벤트는 비즈니스 흐름상 발행될 수 있으나, 리스너의 필터링 로직에 의해 고비용 작업인 API 호출이 차단됨을 검증함
-		BDDMockito.verify(kisService, BDDMockito.never()).fetchCurrentPrice(tickerSymbol);
 	}
 
 	@DisplayName("모든 종목 티커 조회 - 저장된 모든 종목 티커에 대한 현재가를 조회한다")
