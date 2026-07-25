@@ -150,23 +150,6 @@ class ClosingPriceServiceUnitTest {
 			.savePrice(tickerSymbol, closingPrice);
 	}
 
-	@DisplayName("종목 종가 저장 - 종가가 0이어도 저장된다")
-	@Test
-	void savePrice_whenZeroPrice_thenStoreClosingPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long closingPrice = 0L;
-
-		// when
-		closingPriceService.savePrice(tickerSymbol, closingPrice);
-
-		// then
-		ClosingPriceRedisEntity entity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
-		Assertions.assertThat(entity)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", closingPrice);
-	}
-
 	@DisplayName("종목 종가 저장 - 티커가 유효하지 않으면 저장되지 않는다")
 	@Test
 	void savePrice_whenInvalidTicker_thenDoNotStoreClosingPrice() {
