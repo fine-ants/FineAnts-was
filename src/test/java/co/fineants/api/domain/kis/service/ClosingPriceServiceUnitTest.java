@@ -130,14 +130,14 @@ class ClosingPriceServiceUnitTest {
 		Money actual = closingPriceService.fetchPrice(tickerSymbol);
 
 		// then
-		BDDMockito.verify(eventPublisher)
+		BDDMockito.verify(eventPublisher, Mockito.times(1))
 			.publishEvent(new StockClosingPriceRefreshEvent(tickerSymbol));
 		Assertions.assertThat(actual).isEqualTo(Money.won(stalePrice));
 	}
 
 	@DisplayName("종목 종가 저장 - 종목 종가 데이터를 저장한다")
 	@Test
-	void savePrice_thenStoreClosingPrice() {
+	void should_save_closing_price() {
 		// given
 		String tickerSymbol = "005930";
 		long closingPrice = 60000L;
@@ -146,10 +146,8 @@ class ClosingPriceServiceUnitTest {
 		closingPriceService.savePrice(tickerSymbol, closingPrice);
 
 		// then
-		ClosingPriceRedisEntity entity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
-		Assertions.assertThat(entity)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", closingPrice);
+		BDDMockito.verify(closingPriceRepository, Mockito.times(1))
+			.savePrice(tickerSymbol, closingPrice);
 	}
 
 	@DisplayName("종목 종가 저장 - 종가가 음수이면 저장되지 않는다")
