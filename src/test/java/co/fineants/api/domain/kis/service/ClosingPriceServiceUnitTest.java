@@ -6,21 +6,22 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
-import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.kis.repository.ClosingPriceRepository;
-import reactor.core.publisher.Mono;
+import co.fineants.stock.event.StockClosingPriceRefreshEvent;
+import co.fineants.stock.event.StockClosingPriceRequiredEvent;
 
 @ExtendWith(MockitoExtension.class)
 class ClosingPriceServiceUnitTest {
@@ -70,65 +71,68 @@ class ClosingPriceServiceUnitTest {
 
 	@DisplayName("종목 종가 조회 - 캐시된 종목 종가 데이터가 없으면 외부 API를 호출하여 종가 데이터를 반환한다")
 	@Test
-	void fetchPrice_whenCachedClosingPriceNotExist_thenReturnClosingPriceFromExternalAPI() {
+	void should_call_external_api_when_redis_not_have_closing_price_then_return_closing_price() {
 		// given
 		String tickerSymbol = "005930";
 		long freshPrice = 60000L;
-		BDDMockito.given(kisService.fetchClosingPrice(tickerSymbol))
-			.willReturn(Mono.just(KisClosingPrice.create(tickerSymbol, freshPrice)));
-
+		long millis = LocalDate.of(2026, 7, 24).atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+		ClosingPriceRedisEntity entity = ClosingPriceRedisEntity.of(tickerSymbol, freshPrice, millis);
+		BDDMockito.given(closingPriceRepository.fetchPrice(tickerSymbol))
+			.willReturn(Optional.empty())
+			.willReturn(Optional.of(entity));
 		// when
 		Money actual = closingPriceService.fetchPrice(tickerSymbol);
 
 		// then
 		Assertions.assertThat(actual).isEqualTo(Money.won(freshPrice));
+		BDDMockito.verify(eventPublisher, Mockito.times(1))
+			.publishEvent(ArgumentMatchers.any(StockClosingPriceRequiredEvent.class));
 	}
 
 	@DisplayName("종목 종가 조회 - 외부 API 호출 실패 시 예외를 던진다")
 	@Test
-	void fetchPrice_whenExternalAPIFails_thenThrowException() {
+	void should_throw_exception_when_fail_external_api() {
 		// given
 		String tickerSymbol = "005930";
-		BDDMockito.given(kisService.fetchClosingPrice(tickerSymbol))
-			.willReturn(Mono.empty());
-
+		BDDMockito.given(closingPriceRepository.fetchPrice(tickerSymbol))
+			.willReturn(Optional.empty());
+		// eventPublisher 호출후 예외 발생
+		String expectedMessage = "Closing price should be available after refresh for " + tickerSymbol;
+		BDDMockito.willThrow(
+				new IllegalStateException(expectedMessage))
+			.given(eventPublisher)
+			.publishEvent(new StockClosingPriceRequiredEvent(tickerSymbol));
 		// when
 		Throwable throwable = Assertions.catchThrowable(() -> closingPriceService.fetchPrice(tickerSymbol));
 		// then
 		Assertions.assertThat(throwable)
 			.isInstanceOf(IllegalStateException.class)
-			.hasMessage("Closing price should be available after refresh for " + tickerSymbol);
+			.hasMessage(expectedMessage);
 	}
 
 	@DisplayName("종목 종가 조회 - 신선도가 떨어진 종목 종가 데이터가 있으면 비동기 갱신 이벤트를 발행하고 기존 종가 데이터를 반환한다")
 	@Test
-	void fetchPrice_whenCachedClosingPriceIsStale_thenPublishStockClosingPriceRefreshEventAndReturnStaleClosingPrice() {
+	void should_publish_refresh_async_event_when_price_is_stale_then_return_stale_price() {
 		// given
 		String tickerSymbol = "005930";
 		long stalePrice = 60000L;
-		long freshPrice = 65000L;
 
 		BDDMockito.given(clock.millis())
-			.willReturn(1_000_000L)  // initial time
-			.willReturn(1_000_000L + freshnessThresholdMillis + 1L); // after freshness threshold
-		BDDMockito.given(kisService.fetchClosingPrice(tickerSymbol))
-			.willReturn(Mono.just(KisClosingPrice.create(tickerSymbol, freshPrice)));
+			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
 
-		closingPriceRepository.savePrice(tickerSymbol, stalePrice);
+		// 신선도가 떨어진 엔티티 모킹하기
+		long lastUpdatedAt = 1_000_000L;
+		ClosingPriceRedisEntity staleEntity = ClosingPriceRedisEntity.of(tickerSymbol, stalePrice, lastUpdatedAt);
+		BDDMockito.given(closingPriceRepository.fetchPrice(tickerSymbol))
+			.willReturn(Optional.of(staleEntity));
 
 		// when
 		Money actual = closingPriceService.fetchPrice(tickerSymbol);
 
 		// then
+		BDDMockito.verify(eventPublisher)
+			.publishEvent(new StockClosingPriceRefreshEvent(tickerSymbol));
 		Assertions.assertThat(actual).isEqualTo(Money.won(stalePrice));
-		Awaitility.await()
-			.atMost(java.time.Duration.ofSeconds(2))
-			.untilAsserted(() -> {
-				ClosingPriceRedisEntity updatedEntity = closingPriceRepository.fetchPrice(tickerSymbol).orElseThrow();
-				Assertions.assertThat(updatedEntity)
-					.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-					.hasFieldOrPropertyWithValue("price", freshPrice);
-			});
 	}
 
 	@DisplayName("종목 종가 저장 - 종목 종가 데이터를 저장한다")

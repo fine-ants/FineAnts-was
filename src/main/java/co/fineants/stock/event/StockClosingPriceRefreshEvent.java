@@ -2,9 +2,11 @@ package co.fineants.stock.event;
 
 import org.springframework.context.ApplicationEvent;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class StockClosingPriceRefreshEvent extends ApplicationEvent {
 	private final String tickerSymbol;
 
