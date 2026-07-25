@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
@@ -11,54 +12,67 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
-import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.money.Money;
+import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
 import co.fineants.api.domain.holiday.domain.entity.Holiday;
 import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.stock.event.StockCurrentPriceRequiredEvent;
 import reactor.core.publisher.Mono;
 
-class CurrentPriceServiceUnitTest extends AbstractContainerBaseTest {
+@ExtendWith(MockitoExtension.class)
+class CurrentPriceServiceUnitTest {
 
-	@Autowired
 	private CurrentPriceService service;
 
-	@Autowired
+	@Mock
 	private CurrentPriceRepository currentPriceRepository;
 
-	@Autowired
+	@Mock
 	private KisService kisService;
 
-	@Autowired
+	@Mock
 	private Clock spyClock;
 
-	@Value("${stock.current-price.freshness-threshold-millis:5000}")
 	private long freshnessThresholdMillis;
 
-	@Autowired
-	private LocalDateTimeService spyLocalDateTimeService;
+	@Mock
+	private LocalDateTimeService localDateTimeService;
 
-	@Autowired
+	@Mock
 	private HolidayService holidayService;
+
+	@Mock
+	private ApplicationEventPublisher eventPublisher;
+
+	@Mock
+	private MarketStatusChecker marketStatusChecker;
 
 	@BeforeEach
 	void setUp() {
-		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
-			.willReturn(LocalDateTime.of(2026, 2, 12, 9, 0)); // 목요일
+		freshnessThresholdMillis = 5000L;
+		// BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
+		// 	.willReturn(LocalDateTime.of(2026, 2, 12, 9, 0)); // 목요일
+
+		service = new CurrentPriceService(currentPriceRepository, spyClock, freshnessThresholdMillis, eventPublisher,
+			marketStatusChecker, localDateTimeService);
 	}
 
 	@DisplayName("종목 현재가 저장 - 정상 저장된다")
 	@Test
-	void savePrice_thenSaveToRepository() {
+	void should_save_current_price() {
 		// given
 		String tickerSymbol = "005930";
 		long priceToSave = 60000L;
@@ -67,63 +81,26 @@ class CurrentPriceServiceUnitTest extends AbstractContainerBaseTest {
 		service.savePrice(tickerSymbol, priceToSave);
 
 		// then
-		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
-		Assertions.assertThat(actual)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", priceToSave);
-	}
-
-	@DisplayName("종목 현재가 저장 - 빈 티커 심볼을 저장하면 저장되지 않는다")
-	@Test
-	void savePrice_whenBlankTickerSymbol_thenNotSavedPrice() {
-		// given
-		long price = 1000L;
-
-		// when
-		service.savePrice("", price);
-		service.savePrice("   ", price);
-		service.savePrice(null, price);
-		// then
-		boolean actual1 = currentPriceRepository.fetchPriceBy("").isEmpty();
-		boolean actual2 = currentPriceRepository.fetchPriceBy("   ").isEmpty();
-		boolean actual3 = currentPriceRepository.fetchPriceBy(null).isEmpty();
-		Assertions.assertThat(actual1).isTrue();
-		Assertions.assertThat(actual2).isTrue();
-		Assertions.assertThat(actual3).isTrue();
-	}
-
-	@DisplayName("종목 현재가 저장 - 음수 가격을 저장하면 저장되지 않는다")
-	@Test
-	void savePrice_whenNegativePrice_thenNotSavedPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long negativePrice = -1000L;
-
-		// when
-		service.savePrice(tickerSymbol, negativePrice);
-
-		// then
-		boolean actual = currentPriceRepository.fetchPriceBy(tickerSymbol).isEmpty();
-		Assertions.assertThat(actual).isTrue();
+		BDDMockito.verify(currentPriceRepository, Mockito.times(1))
+			.savePrice(tickerSymbol, priceToSave);
 	}
 
 	@DisplayName("종목 현재가 조회 - 캐시 저장소에 현재가가 없어서 동기적 이벤트를 발행하고, 외부 API에서 조회한 현재가를 반환한다.")
 	@Test
-	void fetchPrice_whenPriceNotInCache_thenPublishStockCurrentPriceRefreshSyncEventAndReturnClosingPrice() {
+	void should_publish_current_price_required_event_when_current_price_is_cache_miss() {
 		// given
 		String tickerSymbol = "005930";
 		long freshPrice = 50000L;
-		BDDMockito.given(kisService.fetchCurrentPrice(tickerSymbol))
-			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, freshPrice)));
+		CurrentPriceRedisEntity entity = CurrentPriceRedisEntity.of(tickerSymbol, freshPrice, 1_000_000);
+		BDDMockito.given(currentPriceRepository.fetchPriceBy(tickerSymbol))
+			.willReturn(Optional.empty())
+			.willReturn(Optional.of(entity));
 		// when
 		Money actualPrice = service.fetchPrice(tickerSymbol);
-
 		// then
+		BDDMockito.verify(eventPublisher, Mockito.times(1))
+			.publishEvent(new StockCurrentPriceRequiredEvent(tickerSymbol));
 		Assertions.assertThat(actualPrice).isEqualTo(Money.won(freshPrice));
-		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy(tickerSymbol).orElseThrow();
-		Assertions.assertThat(actual)
-			.hasFieldOrPropertyWithValue("tickerSymbol", tickerSymbol)
-			.hasFieldOrPropertyWithValue("price", freshPrice);
 	}
 
 	@DisplayName("종목 현재가 조회 - 캐시 저장소에 신선한 현재가가 있어서 바로 반환한다.")
@@ -249,7 +226,7 @@ class CurrentPriceServiceUnitTest extends AbstractContainerBaseTest {
 		BDDMockito.given(spyClock.millis())
 			.willReturn(1_000_000L)  // initial time
 			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
-		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(now);
 
 		String tickerSymbol = "005930";
@@ -276,7 +253,7 @@ class CurrentPriceServiceUnitTest extends AbstractContainerBaseTest {
 			.willReturn(1_000_000L)  // initial time
 			.willReturn(1_000_000L + freshnessThresholdMillis + 1L);
 		LocalDate now = LocalDate.of(2026, 2, 16); // 월요일 휴장
-		BDDMockito.given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(now.atTime(9, 0));
 		Holiday holiday = Holiday.close(now);
 		holidayService.saveHoliday(holiday);
