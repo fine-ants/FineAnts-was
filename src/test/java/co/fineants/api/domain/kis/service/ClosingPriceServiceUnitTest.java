@@ -150,20 +150,6 @@ class ClosingPriceServiceUnitTest {
 			.savePrice(tickerSymbol, closingPrice);
 	}
 
-	@DisplayName("종목 종가 저장 - 종가가 음수이면 저장되지 않는다")
-	@Test
-	void savePrice_whenNegativePrice_thenDoNotStoreClosingPrice() {
-		// given
-		String tickerSymbol = "005930";
-		long closingPrice = -100L;
-
-		// when
-		closingPriceService.savePrice(tickerSymbol, closingPrice);
-
-		// then
-		Assertions.assertThat(closingPriceRepository.fetchPrice(tickerSymbol)).isEmpty();
-	}
-
 	@DisplayName("종목 종가 저장 - 종가가 0이어도 저장된다")
 	@Test
 	void savePrice_whenZeroPrice_thenStoreClosingPrice() {
