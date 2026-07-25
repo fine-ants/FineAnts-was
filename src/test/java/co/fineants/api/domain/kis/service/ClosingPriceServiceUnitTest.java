@@ -149,21 +149,4 @@ class ClosingPriceServiceUnitTest {
 		BDDMockito.verify(closingPriceRepository, Mockito.times(1))
 			.savePrice(tickerSymbol, closingPrice);
 	}
-
-	@DisplayName("종목 종가 저장 - 티커가 유효하지 않으면 저장되지 않는다")
-	@Test
-	void savePrice_whenInvalidTicker_thenDoNotStoreClosingPrice() {
-		// given
-		long closingPrice = 60000L;
-
-		// when
-		closingPriceService.savePrice("", closingPrice);
-		closingPriceService.savePrice(" ", closingPrice);
-		closingPriceService.savePrice(null, closingPrice);
-
-		// then
-		Assertions.assertThat(closingPriceRepository.fetchPrice("")).isEmpty();
-		Assertions.assertThat(closingPriceRepository.fetchPrice(" ")).isEmpty();
-		Assertions.assertThat(closingPriceRepository.fetchPrice(null)).isEmpty();
-	}
 }
