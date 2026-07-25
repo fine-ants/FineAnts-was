@@ -220,11 +220,12 @@ class CurrentPriceServiceUnitTest {
 
 	@DisplayName("모든 종목 티커 조회 - 저장된 모든 종목 티커에 대한 현재가를 조회한다")
 	@Test
-	void getAllTickers_thenReturnAllTickers() {
+	void should_return_all_cached_ticker_set() {
 		// given
-		currentPriceRepository.savePrice("005930", 50000L);
-		currentPriceRepository.savePrice("000660", 30000L);
-
+		CurrentPriceRedisEntity entity1 = CurrentPriceRedisEntity.of("005930", 50_000L, 1_000_000L);
+		CurrentPriceRedisEntity entity2 = CurrentPriceRedisEntity.of("000660", 30_000L, 1_000_000L);
+		BDDMockito.given(currentPriceRepository.findAll())
+			.willReturn(Set.of(entity1, entity2));
 		// when
 		Set<String> actual = service.getAllTickers();
 
