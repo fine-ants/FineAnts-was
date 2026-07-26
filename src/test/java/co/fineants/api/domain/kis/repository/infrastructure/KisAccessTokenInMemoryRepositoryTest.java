@@ -149,4 +149,17 @@ class KisAccessTokenInMemoryRepositoryTest {
 		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24).minusHours(1).minusSeconds(1)))
 			.isFalse();
 	}
+
+	@DisplayName("액세스 토큰 제거 - 액세스 토큰을 null로 초기화되어야 한다")
+	@Test
+	void should_access_token_set_null() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2023, 12, 23).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(baseTime);
+		repository.save(accessToken);
+		// when
+		repository.clear();
+		// then
+		Assertions.assertThat(repository.get()).isEmpty();
+	}
 }
