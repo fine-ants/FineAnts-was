@@ -31,6 +31,7 @@ class KisAccessTokenInMemoryRepositoryTest {
 		// when & then
 		Assertions.assertThatCode(() -> repository.save(kisAccessToken))
 			.doesNotThrowAnyException();
+		Assertions.assertThat(repository.get()).isPresent();
 	}
 
 	@DisplayName("액세스 토큰 저장 - 액세스 토큰이 null이어도 예외가 발생하지 않는다")
@@ -41,6 +42,20 @@ class KisAccessTokenInMemoryRepositoryTest {
 		// when & then
 		Assertions.assertThatCode(() -> repository.save(kisAccessToken))
 			.doesNotThrowAnyException();
+		Assertions.assertThat(repository.get()).isEmpty();
+	}
+
+	@DisplayName("액세스 토큰 저장 - 인메모리 저장소는 만료기간을 설정해도 영구 저장된다")
+	@Test
+	void should_save_access_token_when_pass_expired_date_time_then_save_persistence_access_token() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 12, 23).atStartOfDay();
+		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		LocalDateTime expiredDateTime = baseTime.plusHours(24);
+		// when & then
+		Assertions.assertThatCode(() -> repository.save(kisAccessToken, expiredDateTime))
+			.doesNotThrowAnyException();
+		Assertions.assertThat(repository.get()).isPresent();
 	}
 
 	@DisplayName("액세스 토큰 조회")
