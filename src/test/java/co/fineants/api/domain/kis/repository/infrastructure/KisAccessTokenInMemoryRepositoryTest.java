@@ -1,4 +1,4 @@
-package co.fineants.api.domain.kis.repository;
+package co.fineants.api.domain.kis.repository.infrastructure;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
 import co.fineants.api.domain.kis.client.KisAccessToken;
-import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 
 @ActiveProfiles("test")
 class KisAccessTokenInMemoryRepositoryTest {
