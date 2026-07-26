@@ -13,7 +13,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
 import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
-import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
+import co.fineants.api.domain.kis.service.KisAccessTokenService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -29,7 +29,7 @@ import reactor.util.retry.Retry;
 public class KisScheduler {
 
 	private final KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
-	private final KisAccessTokenRedisService redisService;
+	private final KisAccessTokenService redisService;
 	private final LocalDateTimeService localDateTimeService;
 	private final DelayManager delayManager;
 	private final KisClient kisClient;

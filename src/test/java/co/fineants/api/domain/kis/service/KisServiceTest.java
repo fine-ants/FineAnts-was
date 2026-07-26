@@ -80,7 +80,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	private KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
 
 	@Autowired
-	private KisAccessTokenRedisService kisAccessTokenRedisService;
+	private KisAccessTokenService kisAccessTokenService;
 
 	@Autowired
 	private CurrentPriceRepository currentPriceRepository;
@@ -122,7 +122,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			portfolioPublisher,
 			spyDelayManager,
 			kisAccessTokenInMemoryRepository,
-			kisAccessTokenRedisService,
+			kisAccessTokenService,
 			stockRepository,
 			spyLocalDateTimeService
 		);
@@ -132,7 +132,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void tearDown() {
 		Mockito.clearInvocations(mockedKisClient);
 		kisAccessTokenInMemoryRepository.save(null);
-		kisAccessTokenRedisService.deleteAccessTokenMap();
+		kisAccessTokenService.deleteAccessTokenMap();
 	}
 
 	@WithMockUser(roles = {"ADMIN"})
@@ -231,7 +231,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		KisAccessToken soonExpiredAccessToken = KisAccessToken.bearerType("accessToken",
 			LocalDateTime.now().plusMinutes(10), 6000);
 		kisAccessTokenInMemoryRepository.save(soonExpiredAccessToken);
-		kisAccessTokenRedisService.setAccessTokenMap(soonExpiredAccessToken, LocalDateTime.now());
+		kisAccessTokenService.setAccessTokenMap(soonExpiredAccessToken, LocalDateTime.now());
 
 		KisAccessToken reloadAccessToken = createKisAccessToken();
 		given(mockedKisClient.fetchAccessToken())
@@ -243,7 +243,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(kisAccessTokenInMemoryRepository.createAuthorization()).isEqualTo(
 			reloadAccessToken.createAuthorization());
-		assertThat(kisAccessTokenRedisService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
+		assertThat(kisAccessTokenService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
 			reloadAccessToken.getAccessToken());
 		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
 		assertThat(actual)

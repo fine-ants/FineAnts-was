@@ -48,7 +48,7 @@ public class KisService {
 	private final PortfolioPublisher portfolioPublisher;
 	private final DelayManager delayManager;
 	private final KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
-	private final KisAccessTokenRedisService kisAccessTokenRedisService;
+	private final KisAccessTokenService kisAccessTokenService;
 	private final StockRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
 
@@ -215,8 +215,8 @@ public class KisService {
 
 	public KisAccessToken deleteAccessToken() {
 		kisAccessTokenInMemoryRepository.save(null);
-		KisAccessToken kisAccessToken = kisAccessTokenRedisService.getAccessTokenMap().orElse(null);
-		kisAccessTokenRedisService.deleteAccessTokenMap();
+		KisAccessToken kisAccessToken = kisAccessTokenService.getAccessTokenMap().orElse(null);
+		kisAccessTokenService.deleteAccessTokenMap();
 		return kisAccessToken;
 	}
 }

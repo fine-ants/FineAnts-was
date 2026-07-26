@@ -1,6 +1,6 @@
 package co.fineants.api.domain.kis.repository.infrastructure;
 
-import static co.fineants.api.domain.kis.service.KisAccessTokenRedisService.*;
+import static co.fineants.api.domain.kis.service.KisAccessTokenService.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

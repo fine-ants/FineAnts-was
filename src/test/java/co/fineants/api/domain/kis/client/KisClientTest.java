@@ -41,7 +41,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
 import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
-import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
+import co.fineants.api.domain.kis.service.KisAccessTokenService;
 import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
 import co.fineants.api.global.util.ObjectMapperUtil;
 import okhttp3.mockwebserver.MockWebServer;
@@ -57,7 +57,7 @@ class KisClientTest extends AbstractContainerBaseTest {
 	private KisAccessTokenInMemoryRepository manager;
 
 	@Autowired
-	private KisAccessTokenRedisService kisAccessTokenRedisService;
+	private KisAccessTokenService kisAccessTokenService;
 
 	@Autowired
 	private KisProperties kisProperties;
@@ -86,7 +86,7 @@ class KisClientTest extends AbstractContainerBaseTest {
 			manager);
 
 		KisAccessToken kisAccessToken = createKisAccessToken();
-		kisAccessTokenRedisService.setAccessTokenMap(kisAccessToken, LocalDateTime.of(2023, 12, 7, 11, 40, 0));
+		kisAccessTokenService.setAccessTokenMap(kisAccessToken, LocalDateTime.of(2023, 12, 7, 11, 40, 0));
 		manager.save(kisAccessToken);
 	}
 

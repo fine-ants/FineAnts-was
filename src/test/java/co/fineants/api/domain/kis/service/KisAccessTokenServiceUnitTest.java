@@ -1,6 +1,6 @@
 package co.fineants.api.domain.kis.service;
 
-import static co.fineants.api.domain.kis.service.KisAccessTokenRedisService.*;
+import static co.fineants.api.domain.kis.service.KisAccessTokenService.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
@@ -26,10 +26,10 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
 @ExtendWith(MockitoExtension.class)
-class KisAccessTokenRedisServiceUnitTest {
+class KisAccessTokenServiceUnitTest {
 
 	@InjectMocks
-	private KisAccessTokenRedisService service;
+	private KisAccessTokenService service;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;

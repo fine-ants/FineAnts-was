@@ -14,10 +14,10 @@ import co.fineants.AbstractContainerBaseTest;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 
-class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
+class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
-	private KisAccessTokenRedisService service;
+	private KisAccessTokenService service;
 
 	private LocalDateTime createNow() {
 		return LocalDateTime.of(2023, 12, 6, 14, 0, 0);
