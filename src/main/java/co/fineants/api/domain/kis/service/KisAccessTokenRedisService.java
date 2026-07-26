@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 public class KisAccessTokenRedisService {
-	private static final String ACCESS_TOKEN_MAP_KEY = "kis:accessTokenMap";
+	public static final String ACCESS_TOKEN_MAP_KEY = "kis:accessTokenMap";
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final RedisTemplate<String, Object> redisTemplate;

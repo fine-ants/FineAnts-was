@@ -1,7 +1,9 @@
 package co.fineants.api.domain.kis.service;
 
+import static co.fineants.api.domain.kis.service.KisAccessTokenRedisService.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -15,11 +17,13 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.global.util.ObjectMapperUtil;
 
 @ExtendWith(MockitoExtension.class)
 class KisAccessTokenRedisServiceUnitTest {
@@ -68,46 +72,49 @@ class KisAccessTokenRedisServiceUnitTest {
 
 	@DisplayName("이미 만료된 액세스 토큰을 redis에 저장할 수 없다.")
 	@Test
-	void setAccessTokenMapWithExpiredAccessToken() {
+	void should_not_set_access_token_map_when_expired_access_token() {
 		// given
-		KisAccessToken accessToken = createKisAccessToken();
+		LocalDateTime createdAt = LocalDate.of(2026, 7, 26).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(createdAt);
 
-		// when
-		service.setAccessTokenMap(accessToken, LocalDateTime.of(2023, 12, 8, 15, 0, 0));
+		LocalDateTime now = createdAt.plusSeconds(accessToken.getExpiresIn());
+		Duration timeout = Duration.ofSeconds(accessToken.betweenSecondFrom(now).toSeconds());
+		BDDMockito.willThrow(RedisSystemException.class)
+			.given(valueOperations)
+			.set(ACCESS_TOKEN_MAP_KEY, ObjectMapperUtil.serialize(accessToken), timeout);
 
-		// then
-		assertThat(service.getAccessTokenMap()).isEmpty();
+		// when & then
+		Assertions.assertThatCode(() -> service.setAccessTokenMap(accessToken, now))
+			.doesNotThrowAnyException();
 	}
 
-	@DisplayName("kis 액세스 토큰맵을 가져온다")
+	@DisplayName("액세스 토큰 조회 - Redis에 저장된 액세스 토큰 맵을 조회한다")
 	@Test
-	void getAccessTokenMap() {
+	void should_return_access_token() {
 		// given
-		service.setAccessTokenMap(createKisAccessToken(), createNow());
-
+		LocalDateTime createdAt = LocalDate.of(2026, 7, 26).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(createdAt);
+		String json = ObjectMapperUtil.serialize(accessToken);
+		BDDMockito.given(valueOperations.get(ACCESS_TOKEN_MAP_KEY))
+			.willReturn(json);
 		// when
-		KisAccessToken accessToken = service.getAccessTokenMap().orElseThrow();
+		Optional<KisAccessToken> actual = service.getAccessTokenMap();
 
 		// then
-		assertThat(accessToken)
-			.extracting("accessToken", "tokenType", "accessTokenExpired", "expiresIn")
-			.containsExactlyInAnyOrder(
-				"accessToken",
-				"Bearer",
-				LocalDateTime.of(2023, 12, 7, 11, 41, 27),
-				86400
-			);
+		int expiredSeconds = 86400;
+		KisAccessToken expected = KisAccessToken.bearerType("accessToken", createdAt.plusSeconds(expiredSeconds),
+			expiredSeconds);
+		Assertions.assertThat(actual).contains(expected);
 	}
 
-	@DisplayName("redis에 accessToken이 없는 경우 Optional.empty()를 반환한다")
+	@DisplayName("Redis에 accessToken이 없는 경우 Optional.empty()를 반환한다")
 	@Test
-	void getAccessTokenMap_whenEmptyAccessToken_thenReturnEmptyOptional() {
+	void should_return_empty_optional_when_get_access_token() {
 		// given
-		service.deleteAccessTokenMap();
-
+		BDDMockito.given(valueOperations.get(ACCESS_TOKEN_MAP_KEY))
+			.willReturn(null);
 		// when
 		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessTokenMap();
-
 		// then
 		assertThat(optionalKisAccessToken).isEmpty();
 	}

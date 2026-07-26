@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 
 class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
@@ -47,10 +49,12 @@ class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void setAccessTokenMapWithExpiredAccessToken() {
 		// given
-		KisAccessToken accessToken = createKisAccessToken();
+		LocalDateTime createdAt = LocalDate.of(2026, 7, 26).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(createdAt);
 
+		LocalDateTime now = createdAt.plusSeconds(accessToken.getExpiresIn());
 		// when
-		service.setAccessTokenMap(accessToken, LocalDateTime.of(2023, 12, 8, 15, 0, 0));
+		service.setAccessTokenMap(accessToken, now);
 
 		// then
 		assertThat(service.getAccessTokenMap()).isEmpty();
