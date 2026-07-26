@@ -30,6 +30,7 @@ spring:
       - ./mail.yml
       - ./sse.yml
       - ./csv.yml
+      - ./kis.yml
   application:
     name: fineAnts
   thymeleaf:
