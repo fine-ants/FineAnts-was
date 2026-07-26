@@ -115,4 +115,38 @@ class KisAccessTokenInMemoryRepositoryTest {
 		// then
 		Assertions.assertThat(authorization).isEqualTo("Bearer accessToken");
 	}
+
+	@DisplayName("액세스 토킅 만료 임박 여부 - 시간이 만료 시간 1시간 이내라면 true를 반환한다")
+	@Test
+	void should_return_true_when_time_is_in_rage_1_hour() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2023, 12, 23).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(baseTime);
+		repository.save(accessToken);
+
+		// when & then
+		// 만료되기 59분 59초전
+		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24).minusHours(1).plusSeconds(1)))
+			.isTrue();
+		// 시간이 만료시간과 같으면 true
+		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24))).isTrue();
+		// 시간이 만료시간보다 크면 true
+		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24).plusSeconds(1))).isTrue();
+	}
+
+	@DisplayName("액세스 토킅 만료 임박 여부 - 시간이 만료 시간 1시간보다 같거나 아니라면 false를 반환한다")
+	@Test
+	void should_return_true_when_time_is_not_in_rage_1_hour() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2023, 12, 23).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(baseTime);
+		repository.save(accessToken);
+
+		// when & then
+		// 만료시간 1시간전은 false
+		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24).minusHours(1))).isFalse();
+		// 만료시간 1시간 1초전 false
+		Assertions.assertThat(repository.isTokenExpiringSoon(baseTime.plusHours(24).minusHours(1).minusSeconds(1)))
+			.isFalse();
+	}
 }
