@@ -21,7 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.holding.service.market_status_checker.MarketStatusChecker;
-import co.fineants.api.domain.holiday.service.HolidayService;
 import co.fineants.api.domain.kis.domain.CurrentPriceRedisEntity;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -37,18 +36,12 @@ class CurrentPriceServiceUnitTest {
 	private CurrentPriceRepository currentPriceRepository;
 
 	@Mock
-	private KisService kisService;
-
-	@Mock
 	private Clock clock;
 
 	private long freshnessThresholdMillis;
 
 	@Mock
 	private LocalDateTimeService localDateTimeService;
-
-	@Mock
-	private HolidayService holidayService;
 
 	@Mock
 	private ApplicationEventPublisher eventPublisher;
@@ -59,9 +52,6 @@ class CurrentPriceServiceUnitTest {
 	@BeforeEach
 	void setUp() {
 		freshnessThresholdMillis = 5000L;
-		// BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
-		// 	.willReturn(LocalDateTime.of(2026, 2, 12, 9, 0)); // 목요일
-
 		service = new CurrentPriceService(currentPriceRepository, clock, freshnessThresholdMillis, eventPublisher,
 			marketStatusChecker, localDateTimeService);
 	}
@@ -162,8 +152,7 @@ class CurrentPriceServiceUnitTest {
 		// then
 		Assertions.assertThat(price).isEqualTo(Money.won(50000L));
 	}
-
-	// todo: convert to unit test
+	
 	@DisplayName("종목 현재가 조회 - 장시간 외에서 신선하지 않은 데이터가 존재하면 비동기 이벤트를 갱신하지 않고 기존 데이터를 반환한다")
 	@ParameterizedTest
 	@MethodSource(value = {"co.fineants.TestDataProvider#provideMarketCloseTime"})
