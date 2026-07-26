@@ -40,7 +40,7 @@ import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.kis.properties.KisProperties;
 import co.fineants.api.domain.kis.properties.KisTrIdProperties;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
 import co.fineants.api.global.errors.exception.business.RequestLimitExceededKisException;
 import co.fineants.api.global.util.ObjectMapperUtil;
@@ -54,7 +54,7 @@ class KisClientTest extends AbstractContainerBaseTest {
 	private KisClient kisClient;
 
 	@Autowired
-	private KisAccessTokenRepository manager;
+	private KisAccessTokenInMemoryRepository manager;
 
 	@Autowired
 	private KisAccessTokenRedisService kisAccessTokenRedisService;

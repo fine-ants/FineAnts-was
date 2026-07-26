@@ -19,7 +19,7 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -50,13 +50,14 @@ class KisSchedulerTest {
 	@Mock
 	private FileHolidayRepository fileHolidayRepository;
 
-	private KisAccessTokenRepository kisAccessTokenRepository;
+	private KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
 
 	@BeforeEach
 	void clean() {
-		kisAccessTokenRepository = new KisAccessTokenRepository(null);
-		kisAccessTokenRepository.refreshAccessToken(null);
-		kisScheduler = new KisScheduler(kisAccessTokenRepository, kisAccessTokenRedisService, localDateTimeService,
+		kisAccessTokenInMemoryRepository = new KisAccessTokenInMemoryRepository(null);
+		kisAccessTokenInMemoryRepository.refreshAccessToken(null);
+		kisScheduler = new KisScheduler(kisAccessTokenInMemoryRepository, kisAccessTokenRedisService,
+			localDateTimeService,
 			delayManager, kisClient, kisService, fileHolidayRepository);
 	}
 
@@ -74,7 +75,7 @@ class KisSchedulerTest {
 		// when
 		kisScheduler.checkAndReissueAccessToken();
 		// then
-		Assertions.assertThat(kisAccessTokenRepository.getAccessToken()).isPresent();
+		Assertions.assertThat(kisAccessTokenInMemoryRepository.getAccessToken()).isPresent();
 		BDDMockito.verify(kisAccessTokenRedisService, Mockito.times(1))
 			.setAccessTokenMap(newAccessToken, baseTime);
 	}

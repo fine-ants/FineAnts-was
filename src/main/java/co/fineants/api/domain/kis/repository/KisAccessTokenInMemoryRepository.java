@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class KisAccessTokenRepository {
+public class KisAccessTokenInMemoryRepository {
 
 	private KisAccessToken accessToken;
 

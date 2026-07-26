@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 
 @ActiveProfiles("test")
-class KisAccessTokenRepositoryTest {
+class KisAccessTokenInMemoryRepositoryTest {
 
 	@DisplayName("액세스 토큰이 만료되었다")
 	@Test
@@ -19,7 +19,7 @@ class KisAccessTokenRepositoryTest {
 		// given
 		KisAccessToken accessToken = new KisAccessToken("accessTokenValue", "Bearer",
 			LocalDateTime.of(2023, 12, 23, 14, 8, 26), 86400);
-		KisAccessTokenRepository repository = new KisAccessTokenRepository(accessToken);
+		KisAccessTokenInMemoryRepository repository = new KisAccessTokenInMemoryRepository(accessToken);
 		LocalDateTime now = LocalDateTime.of(2023, 12, 22, 15, 0, 0);
 
 		// when

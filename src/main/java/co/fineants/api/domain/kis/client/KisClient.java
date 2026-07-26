@@ -36,7 +36,7 @@ import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidOrgAdjPrc;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidPeriodDivCode;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.GB1;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.PrdtTypeCd;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -49,12 +49,12 @@ public class KisClient {
 	private final KisProperties kisProperties;
 	private final KisTrIdProperties kisTrIdProperties;
 	private final WebClient webClient;
-	private final KisAccessTokenRepository manager;
+	private final KisAccessTokenInMemoryRepository manager;
 
 	public KisClient(KisProperties properties,
 		KisTrIdProperties kisTrIdProperties,
 		@Qualifier("koreaInvestmentWebClient") WebClient webClient,
-		KisAccessTokenRepository manager) {
+		KisAccessTokenInMemoryRepository manager) {
 		this.kisProperties = properties;
 		this.kisTrIdProperties = kisTrIdProperties;
 		this.webClient = webClient;

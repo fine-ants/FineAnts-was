@@ -37,19 +37,6 @@ class KisAccessTokenRedisServiceUnitTest {
 	@Mock
 	private ValueOperations<String, Object> valueOperations;
 
-	private LocalDateTime createNow() {
-		return LocalDateTime.of(2023, 12, 6, 14, 0, 0);
-	}
-
-	public KisAccessToken createKisAccessToken() {
-		return new KisAccessToken(
-			"accessToken",
-			"Bearer",
-			LocalDateTime.of(2023, 12, 7, 11, 41, 27),
-			86400
-		);
-	}
-
 	@BeforeEach
 	void setUp() {
 		BDDMockito.given(redisTemplate.opsForValue())
