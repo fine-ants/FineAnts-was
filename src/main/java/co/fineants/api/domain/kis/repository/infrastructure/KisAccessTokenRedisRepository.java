@@ -5,6 +5,7 @@ import static co.fineants.api.domain.kis.service.KisAccessTokenRedisService.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
+@Primary
 public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 
 	private final RedisTemplate<String, Object> redisTemplate;
