@@ -1,13 +1,14 @@
 package co.fineants.api.domain.kis.repository.infrastructure;
 
-import static org.assertj.core.api.Assertions.*;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.domain.repository.KisAccessTokenRepository;
 
@@ -22,20 +23,15 @@ class KisAccessTokenInMemoryRepositoryTest {
 
 	@DisplayName("액세스 토큰이 만료되었다")
 	@Test
-	void isAccessTokenExpired() {
+	void should_return_true_when_date_time_is_greater_than_base_time() {
 		// given
-		KisAccessToken accessToken = new KisAccessToken("accessTokenValue", "Bearer",
-			LocalDateTime.of(2023, 12, 23, 14, 8, 26), 86400);
+		LocalDateTime baseTime = LocalDate.of(2023, 12, 23).atStartOfDay();
+		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(baseTime);
 		repository.refreshAccessToken(accessToken);
-
-		LocalDateTime now = LocalDateTime.of(2023, 12, 22, 15, 0, 0);
+		LocalDateTime expiredDateTime = baseTime.plusHours(24).plusSeconds(1);
 		// when
-		boolean actual = repository.isAccessTokenExpired(now);
-		assertThat(actual).isFalse();
-
-		LocalDateTime now2 = now.plusDays(2);
-		boolean actual2 = repository.isAccessTokenExpired(now2);
-		assertThat(actual2).isTrue();
+		boolean actual = repository.isAccessTokenExpired(expiredDateTime);
+		// then
+		Assertions.assertThat(actual).isTrue();
 	}
-
 }
