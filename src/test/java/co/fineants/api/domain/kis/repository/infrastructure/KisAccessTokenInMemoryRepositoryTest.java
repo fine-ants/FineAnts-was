@@ -4,14 +4,21 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.ActiveProfiles;
 
 import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.domain.kis.domain.repository.KisAccessTokenRepository;
 
-@ActiveProfiles("test")
 class KisAccessTokenInMemoryRepositoryTest {
+
+	private KisAccessTokenRepository repository;
+
+	@BeforeEach
+	void setUp() {
+		repository = new KisAccessTokenInMemoryRepository();
+	}
 
 	@DisplayName("액세스 토큰이 만료되었다")
 	@Test
@@ -19,9 +26,9 @@ class KisAccessTokenInMemoryRepositoryTest {
 		// given
 		KisAccessToken accessToken = new KisAccessToken("accessTokenValue", "Bearer",
 			LocalDateTime.of(2023, 12, 23, 14, 8, 26), 86400);
-		KisAccessTokenInMemoryRepository repository = new KisAccessTokenInMemoryRepository(accessToken);
-		LocalDateTime now = LocalDateTime.of(2023, 12, 22, 15, 0, 0);
+		repository.refreshAccessToken(accessToken);
 
+		LocalDateTime now = LocalDateTime.of(2023, 12, 22, 15, 0, 0);
 		// when
 		boolean actual = repository.isAccessTokenExpired(now);
 		assertThat(actual).isFalse();
