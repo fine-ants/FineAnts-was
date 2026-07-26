@@ -1,7 +1,5 @@
 package co.fineants.api.domain.kis.repository.infrastructure;
 
-import static co.fineants.api.domain.kis.service.KisAccessTokenService.*;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -23,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Primary
 public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 
+	public static final String ACCESS_TOKEN_MAP_KEY = "kis:accessTokenMap";
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final LocalDateTimeService timeService;
 

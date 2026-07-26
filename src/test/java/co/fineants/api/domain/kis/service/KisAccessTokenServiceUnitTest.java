@@ -1,6 +1,5 @@
 package co.fineants.api.domain.kis.service;
 
-import static co.fineants.api.domain.kis.service.KisAccessTokenService.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
@@ -23,6 +22,7 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
+import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenRedisRepository;
 import co.fineants.api.global.util.ObjectMapperUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +68,7 @@ class KisAccessTokenServiceUnitTest {
 		Duration timeout = Duration.ofSeconds(accessToken.betweenSecondFrom(now).toSeconds());
 		BDDMockito.willThrow(RedisSystemException.class)
 			.given(valueOperations)
-			.set(ACCESS_TOKEN_MAP_KEY, ObjectMapperUtil.serialize(accessToken), timeout);
+			.set(KisAccessTokenRedisRepository.ACCESS_TOKEN_MAP_KEY, ObjectMapperUtil.serialize(accessToken), timeout);
 
 		// when & then
 		Assertions.assertThatCode(() -> service.setAccessTokenMap(accessToken, now))
@@ -82,7 +82,7 @@ class KisAccessTokenServiceUnitTest {
 		LocalDateTime createdAt = LocalDate.of(2026, 7, 26).atStartOfDay();
 		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(createdAt);
 		String json = ObjectMapperUtil.serialize(accessToken);
-		BDDMockito.given(valueOperations.get(ACCESS_TOKEN_MAP_KEY))
+		BDDMockito.given(valueOperations.get(KisAccessTokenRedisRepository.ACCESS_TOKEN_MAP_KEY))
 			.willReturn(json);
 		// when
 		Optional<KisAccessToken> actual = service.getAccessTokenMap();
@@ -98,7 +98,7 @@ class KisAccessTokenServiceUnitTest {
 	@Test
 	void should_return_empty_optional_when_get_access_token() {
 		// given
-		BDDMockito.given(valueOperations.get(ACCESS_TOKEN_MAP_KEY))
+		BDDMockito.given(valueOperations.get(KisAccessTokenRedisRepository.ACCESS_TOKEN_MAP_KEY))
 			.willReturn(null);
 		// when
 		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessTokenMap();
