@@ -38,7 +38,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
-import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
+import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;

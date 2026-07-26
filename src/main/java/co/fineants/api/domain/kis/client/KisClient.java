@@ -36,7 +36,7 @@ import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidOrgAdjPrc;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidPeriodDivCode;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.GB1;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.PrdtTypeCd;
-import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
+import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;

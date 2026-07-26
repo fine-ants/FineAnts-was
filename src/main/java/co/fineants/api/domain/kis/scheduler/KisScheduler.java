@@ -12,7 +12,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.kis.repository.KisAccessTokenInMemoryRepository;
+import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
