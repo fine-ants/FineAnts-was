@@ -8,11 +8,13 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 public interface KisAccessTokenRepository {
 	void save(KisAccessToken accessToken);
 
+	Optional<KisAccessToken> get();
+
 	boolean isAccessTokenExpired(LocalDateTime dateTime);
 
 	String createAuthorization();
 
 	boolean isTokenExpiringSoon(LocalDateTime localDateTime);
 
-	Optional<KisAccessToken> getAccessToken();
+	void clear();
 }

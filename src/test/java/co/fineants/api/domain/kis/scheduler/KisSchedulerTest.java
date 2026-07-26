@@ -75,7 +75,7 @@ class KisSchedulerTest {
 		// when
 		kisScheduler.checkAndReissueAccessToken();
 		// then
-		Assertions.assertThat(kisAccessTokenInMemoryRepository.getAccessToken()).isPresent();
+		Assertions.assertThat(kisAccessTokenInMemoryRepository.get()).isPresent();
 		BDDMockito.verify(kisAccessTokenRedisService, Mockito.times(1))
 			.setAccessTokenMap(newAccessToken, baseTime);
 	}

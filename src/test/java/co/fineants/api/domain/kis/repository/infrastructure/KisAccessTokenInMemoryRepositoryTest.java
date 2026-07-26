@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.repository.infrastructure;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,40 @@ class KisAccessTokenInMemoryRepositoryTest {
 		repository = new KisAccessTokenInMemoryRepository();
 	}
 
-	@DisplayName("액세스 토큰이 만료되었다")
+	@DisplayName("액세스 토큰 저장")
+	@Test
+	void should_save_access_token() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 12, 23).atStartOfDay();
+		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		// when & then
+		Assertions.assertThatCode(() -> repository.save(kisAccessToken))
+			.doesNotThrowAnyException();
+	}
+
+	@DisplayName("액세스 토큰 조회")
+	@Test
+	void should_return_access_token() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 12, 23).atStartOfDay();
+		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		repository.save(kisAccessToken);
+		// when
+		Optional<KisAccessToken> actual = repository.get();
+		// then
+		Assertions.assertThat(actual).isPresent();
+	}
+
+	@DisplayName("액세스 토큰 조회 - 액세스 토큰이 저장되어 있지 않으면 Empty Optional을 반환해야 한다")
+	@Test
+	void should_return_empty_optional_when_not_saved_access_token() {
+		// when
+		Optional<KisAccessToken> actual = repository.get();
+		// then
+		Assertions.assertThat(actual).isEmpty();
+	}
+
+	@DisplayName("액세스 토큰 만료 여부 - 시간이 만료시간보다 크면 true를 반환해야 한다")
 	@Test
 	void should_return_true_when_date_time_is_greater_than_base_time() {
 		// given
