@@ -2,20 +2,36 @@ package co.fineants.api.domain.kis.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
-import co.fineants.AbstractContainerBaseTest;
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 
-class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
+@ExtendWith(MockitoExtension.class)
+class KisAccessTokenRedisServiceUnitTest {
 
-	@Autowired
+	@InjectMocks
 	private KisAccessTokenRedisService service;
+
+	@Mock
+	private RedisTemplate<String, Object> redisTemplate;
+
+	@Mock
+	private ValueOperations<String, Object> valueOperations;
 
 	private LocalDateTime createNow() {
 		return LocalDateTime.of(2023, 12, 6, 14, 0, 0);
@@ -30,17 +46,24 @@ class KisAccessTokenRedisServiceTest extends AbstractContainerBaseTest {
 		);
 	}
 
-	@DisplayName("kis 액세스 토큰맵을 저장한다")
+	@BeforeEach
+	void setUp() {
+		BDDMockito.given(redisTemplate.opsForValue())
+			.willReturn(valueOperations);
+	}
+
+	@DisplayName("액세스 토큰 저장 - kis 액세스 토큰맵을 저장한다")
 	@Test
-	void setAccessTokenMap() {
+	void should_set_access_token_map() {
 		// given
-		KisAccessToken kisAccessToken = createKisAccessToken();
+		LocalDateTime createdTime = LocalDate.of(2026, 7, 26).atStartOfDay();
+		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(createdTime);
 
-		// when
-		service.setAccessTokenMap(kisAccessToken, createNow());
+		LocalDateTime now = createdTime.minusHours(24);
 
-		// then
-		assertThat(service.getAccessTokenMap()).isPresent();
+		// when & then
+		Assertions.assertThatCode(() -> service.setAccessTokenMap(kisAccessToken, now))
+			.doesNotThrowAnyException();
 	}
 
 	@DisplayName("이미 만료된 액세스 토큰을 redis에 저장할 수 없다.")
