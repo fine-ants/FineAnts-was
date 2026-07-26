@@ -27,7 +27,7 @@ class KisAccessTokenInMemoryRepositoryTest {
 		// given
 		LocalDateTime baseTime = LocalDate.of(2023, 12, 23).atStartOfDay();
 		KisAccessToken accessToken = TestDataFactory.createKisAccessToken(baseTime);
-		repository.refreshAccessToken(accessToken);
+		repository.save(accessToken);
 		LocalDateTime expiredDateTime = baseTime.plusHours(24).plusSeconds(1);
 		// when
 		boolean actual = repository.isAccessTokenExpired(expiredDateTime);

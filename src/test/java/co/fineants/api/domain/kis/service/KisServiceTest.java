@@ -131,7 +131,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	@AfterEach
 	void tearDown() {
 		Mockito.clearInvocations(mockedKisClient);
-		kisAccessTokenInMemoryRepository.refreshAccessToken(null);
+		kisAccessTokenInMemoryRepository.save(null);
 		kisAccessTokenRedisService.deleteAccessTokenMap();
 	}
 
@@ -141,7 +141,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void readRealTimeCurrentPrice() {
 		// given
 		String tickerSymbol = "005930";
-		kisAccessTokenInMemoryRepository.refreshAccessToken(createKisAccessToken());
+		kisAccessTokenInMemoryRepository.save(createKisAccessToken());
 		given(mockedKisClient.fetchCurrentPrice(anyString()))
 			.willReturn(Mono.just(KisCurrentPrice.create(tickerSymbol, 60000L)));
 		// when
@@ -230,7 +230,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 		KisAccessToken soonExpiredAccessToken = KisAccessToken.bearerType("accessToken",
 			LocalDateTime.now().plusMinutes(10), 6000);
-		kisAccessTokenInMemoryRepository.refreshAccessToken(soonExpiredAccessToken);
+		kisAccessTokenInMemoryRepository.save(soonExpiredAccessToken);
 		kisAccessTokenRedisService.setAccessTokenMap(soonExpiredAccessToken, LocalDateTime.now());
 
 		KisAccessToken reloadAccessToken = createKisAccessToken();
@@ -324,7 +324,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		));
 		stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
 
-		kisAccessTokenInMemoryRepository.refreshAccessToken(createKisAccessToken());
+		kisAccessTokenInMemoryRepository.save(createKisAccessToken());
 		given(mockedKisClient.fetchClosingPrice(anyString()))
 			.willThrow(KisApiRequestException.requestLimitExceeded())
 			.willThrow(KisApiRequestException.requestLimitExceeded())
@@ -345,7 +345,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void fetchStockInfoInRangedIpo() {
 		// given
 		KisAccessToken kisAccessToken = createKisAccessToken();
-		kisAccessTokenInMemoryRepository.refreshAccessToken(kisAccessToken);
+		kisAccessTokenInMemoryRepository.save(kisAccessToken);
 
 		KisIpoResponse kisIpoResponse = KisIpoResponse.create(
 			List.of(KisIpo.create("20240326", "000660", "에스케이하이닉스보통주"))
@@ -401,7 +401,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			.toList();
 
 		KisAccessToken kisAccessToken = createKisAccessToken();
-		kisAccessTokenInMemoryRepository.refreshAccessToken(kisAccessToken);
+		kisAccessTokenInMemoryRepository.save(kisAccessToken);
 		stocks.forEach(s ->
 			given(mockedKisClient.fetchSearchStockInfo(s.getTickerSymbol()))
 				.willReturn(Mono.just(
@@ -443,7 +443,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		// given
 		String tickerSymbol = "005930";
 		KisAccessToken kisAccessToken = createKisAccessToken();
-		kisAccessTokenInMemoryRepository.refreshAccessToken(kisAccessToken);
+		kisAccessTokenInMemoryRepository.save(kisAccessToken);
 		given(mockedKisClient.fetchDividendThisYear(tickerSymbol))
 			.willReturn(Mono.just(KisDividendWrapper.create(List.of(
 				KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
@@ -463,7 +463,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 	void fetchDividend_whenAccessTokenExpired_thenIssueAccessToken() {
 		// given
 		String tickerSymbol = "005930";
-		kisAccessTokenInMemoryRepository.refreshAccessToken(null);
+		kisAccessTokenInMemoryRepository.save(null);
 		KisAccessToken newKisAccessToken = createKisAccessToken();
 		given(mockedKisClient.fetchAccessToken())
 			.willReturn(Mono.just(newKisAccessToken));

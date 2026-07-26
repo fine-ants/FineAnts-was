@@ -29,7 +29,7 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 	}
 
 	@Override
-	public void refreshAccessToken(KisAccessToken accessToken) {
+	public void save(KisAccessToken accessToken) {
 		this.accessToken = accessToken;
 	}
 

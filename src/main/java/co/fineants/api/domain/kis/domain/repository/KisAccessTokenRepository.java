@@ -6,9 +6,9 @@ import java.util.Optional;
 import co.fineants.api.domain.kis.client.KisAccessToken;
 
 public interface KisAccessTokenRepository {
-	boolean isAccessTokenExpired(LocalDateTime dateTime);
+	void save(KisAccessToken accessToken);
 
-	void refreshAccessToken(KisAccessToken accessToken);
+	boolean isAccessTokenExpired(LocalDateTime dateTime);
 
 	String createAuthorization();
 

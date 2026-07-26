@@ -55,7 +55,7 @@ class KisSchedulerTest {
 	@BeforeEach
 	void clean() {
 		kisAccessTokenInMemoryRepository = new KisAccessTokenInMemoryRepository(null);
-		kisAccessTokenInMemoryRepository.refreshAccessToken(null);
+		kisAccessTokenInMemoryRepository.save(null);
 		kisScheduler = new KisScheduler(kisAccessTokenInMemoryRepository, kisAccessTokenRedisService,
 			localDateTimeService,
 			delayManager, kisClient, kisService, fileHolidayRepository);
