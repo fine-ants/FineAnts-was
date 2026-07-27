@@ -146,4 +146,18 @@ class KisAccessTokenServiceUnitTest {
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("dateTime must not null");
 	}
+
+	@DisplayName("인증 헤더 문자열 생성")
+	@Test
+	void should_return_authorization() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		KisAccessToken savedAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		BDDMockito.given(repository.get())
+			.willReturn(Optional.of(savedAccessToken));
+		// when
+		String authorization = service.getAuthorization();
+		// then
+		Assertions.assertThat(authorization).isEqualTo("Bearer accessToken");
+	}
 }

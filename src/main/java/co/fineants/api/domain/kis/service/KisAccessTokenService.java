@@ -37,6 +37,12 @@ public class KisAccessTokenService {
 			.orElse(true);
 	}
 
+	public String getAuthorization() {
+		return repository.get()
+			.map(KisAccessToken::createAuthorization)
+			.orElseThrow(() -> new IllegalStateException("can get Authorization"));
+	}
+
 	public void deleteAccessTokenMap() {
 		repository.clear();
 	}
