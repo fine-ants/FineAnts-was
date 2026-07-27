@@ -26,7 +26,7 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 	}
 
 	@Override
-	public void save(KisAccessToken accessToken, LocalDateTime expiredDateTime) {
+	public void save(KisAccessToken accessToken, LocalDateTime now) {
 		this.accessToken = accessToken;
 	}
 
