@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.repository.infrastructure;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,18 +13,24 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.domain.repository.KisAccessTokenRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.util.ObjectMapperUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Repository
-@RequiredArgsConstructor
 @Slf4j
 @Primary
 public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
-
-	public static final String ACCESS_TOKEN_MAP_KEY = "kis:accessTokenMap";
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final LocalDateTimeService timeService;
+	private final String key;
+
+	public KisAccessTokenRedisRepository(
+		RedisTemplate<String, Object> redisTemplate,
+		LocalDateTimeService timeService,
+		@Value("${kis.access-token.key:kis:accessTokenMap}") String key) {
+		this.redisTemplate = redisTemplate;
+		this.timeService = timeService;
+		this.key = key;
+	}
 
 	@Override
 	public void save(KisAccessToken accessToken) {
@@ -31,11 +38,14 @@ public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 	}
 
 	@Override
-	public void save(KisAccessToken accessToken, LocalDateTime expiredDateTime) {
+	public void save(KisAccessToken accessToken, LocalDateTime now) {
+		if (accessToken == null) {
+			throw new IllegalArgumentException("accessToken is null object");
+		}
 		try {
-			redisTemplate.opsForValue().set(ACCESS_TOKEN_MAP_KEY,
+			redisTemplate.opsForValue().set(key,
 				ObjectMapperUtil.serialize(accessToken),
-				accessToken.betweenSecondFrom(expiredDateTime));
+				accessToken.betweenSecondFrom(now));
 		} catch (RedisSystemException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -43,7 +53,7 @@ public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 
 	@Override
 	public Optional<KisAccessToken> get() {
-		Object result = redisTemplate.opsForValue().get(ACCESS_TOKEN_MAP_KEY);
+		Object result = redisTemplate.opsForValue().get(key);
 		if (result == null) {
 			return Optional.empty();
 		}
@@ -70,7 +80,7 @@ public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 
 	@Override
 	public void clear() {
-		Boolean isDeleted = redisTemplate.delete(ACCESS_TOKEN_MAP_KEY);
+		Boolean isDeleted = redisTemplate.delete(key);
 		log.info("액세스 토큰 제거 완료 여부 : {}", isDeleted);
 	}
 }
