@@ -19,12 +19,6 @@ class KisAccessTokenRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Autowired
 	private KisAccessTokenRedisRepository repository;
 
-	@DisplayName("객체 생성")
-	@Test
-	void canCreated() {
-		Assertions.assertThat(repository).isNotNull();
-	}
-
 	@DisplayName("액세스 토큰 저장")
 	@Test
 	void should_save_access_token() {
