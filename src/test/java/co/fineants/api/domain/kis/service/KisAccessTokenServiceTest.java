@@ -42,7 +42,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 		service.saveAccessToken(kisAccessToken, createNow());
 
 		// then
-		assertThat(service.getAccessTokenMap()).isPresent();
+		assertThat(service.getAccessToken()).isPresent();
 	}
 
 	@DisplayName("이미 만료된 액세스 토큰을 redis에 저장할 수 없다.")
@@ -57,7 +57,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 		service.saveAccessToken(accessToken, now);
 
 		// then
-		assertThat(service.getAccessTokenMap()).isEmpty();
+		assertThat(service.getAccessToken()).isEmpty();
 	}
 
 	@DisplayName("kis 액세스 토큰맵을 가져온다")
@@ -67,7 +67,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 		service.saveAccessToken(createKisAccessToken(), createNow());
 
 		// when
-		KisAccessToken accessToken = service.getAccessTokenMap().orElseThrow();
+		KisAccessToken accessToken = service.getAccessToken().orElseThrow();
 
 		// then
 		assertThat(accessToken)
@@ -87,7 +87,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 		service.deleteAccessTokenMap();
 
 		// when
-		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessTokenMap();
+		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessToken();
 
 		// then
 		assertThat(optionalKisAccessToken).isEmpty();

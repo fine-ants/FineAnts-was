@@ -215,7 +215,7 @@ public class KisService {
 
 	public KisAccessToken deleteAccessToken() {
 		kisAccessTokenInMemoryRepository.save(null);
-		KisAccessToken kisAccessToken = kisAccessTokenService.getAccessTokenMap().orElse(null);
+		KisAccessToken kisAccessToken = kisAccessTokenService.getAccessToken().orElse(null);
 		kisAccessTokenService.deleteAccessTokenMap();
 		return kisAccessToken;
 	}

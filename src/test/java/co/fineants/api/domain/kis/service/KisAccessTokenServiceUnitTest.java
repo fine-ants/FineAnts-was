@@ -65,7 +65,7 @@ class KisAccessTokenServiceUnitTest {
 		BDDMockito.given(repository.get())
 			.willReturn(Optional.of(accessToken));
 		// when
-		Optional<KisAccessToken> actual = service.getAccessTokenMap();
+		Optional<KisAccessToken> actual = service.getAccessToken();
 
 		// then
 		int expiredSeconds = 86400;
@@ -81,7 +81,7 @@ class KisAccessTokenServiceUnitTest {
 		BDDMockito.given(repository.get())
 			.willReturn(Optional.empty());
 		// when
-		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessTokenMap();
+		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessToken();
 		// then
 		Assertions.assertThat(optionalKisAccessToken).isEmpty();
 	}

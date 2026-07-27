@@ -243,7 +243,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		// then
 		assertThat(kisAccessTokenInMemoryRepository.createAuthorization()).isEqualTo(
 			reloadAccessToken.createAuthorization());
-		assertThat(kisAccessTokenService.getAccessTokenMap().orElseThrow().getAccessToken()).isEqualTo(
+		assertThat(kisAccessTokenService.getAccessToken().orElseThrow().getAccessToken()).isEqualTo(
 			reloadAccessToken.getAccessToken());
 		CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
 		assertThat(actual)

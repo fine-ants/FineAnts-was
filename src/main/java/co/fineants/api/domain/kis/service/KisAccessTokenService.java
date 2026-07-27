@@ -24,7 +24,7 @@ public class KisAccessTokenService {
 		repository.save(accessToken, now);
 	}
 
-	public Optional<KisAccessToken> getAccessTokenMap() {
+	public Optional<KisAccessToken> getAccessToken() {
 		return repository.get();
 	}
 
