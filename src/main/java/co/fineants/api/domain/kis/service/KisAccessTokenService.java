@@ -21,8 +21,11 @@ public class KisAccessTokenService {
 		return repository.get();
 	}
 
-	public void setAccessTokenMap(KisAccessToken accessToken, LocalDateTime expiredDateTime) {
-		repository.save(accessToken, expiredDateTime);
+	public void setAccessTokenMap(KisAccessToken accessToken, LocalDateTime now) {
+		if (accessToken.isAccessTokenExpired(now)) {
+			return;
+		}
+		repository.save(accessToken, now);
 	}
 
 	public void deleteAccessTokenMap() {
