@@ -16,7 +16,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
-import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -47,7 +46,6 @@ public class KisService {
 	private final StockTargetPricePublisher stockTargetPricePublisher;
 	private final PortfolioPublisher portfolioPublisher;
 	private final DelayManager delayManager;
-	private final KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
 	private final KisAccessTokenService kisAccessTokenService;
 	private final StockRepository stockRepository;
 	private final LocalDateTimeService localDateTimeService;
@@ -214,9 +212,8 @@ public class KisService {
 	}
 
 	public KisAccessToken deleteAccessToken() {
-		kisAccessTokenInMemoryRepository.save(null);
-		KisAccessToken kisAccessToken = kisAccessTokenService.getAccessToken().orElse(null);
+		KisAccessToken deleted = kisAccessTokenService.getAccessToken().orElse(null);
 		kisAccessTokenService.deleteAccessTokenMap();
-		return kisAccessToken;
+		return deleted;
 	}
 }

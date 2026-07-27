@@ -36,7 +36,6 @@ import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
-import co.fineants.api.domain.kis.repository.ClosingPriceRedisHashRepository;
 import co.fineants.api.domain.kis.repository.CurrentPriceRepository;
 import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
@@ -87,9 +86,6 @@ class KisServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private CurrentPriceService currentPriceService;
-
-	@Autowired
-	private ClosingPriceRedisHashRepository closingPriceRepository;
 
 	@Autowired
 	private ClosingPriceService closingPriceService;
