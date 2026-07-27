@@ -17,15 +17,24 @@ public class KisAccessTokenService {
 
 	private final KisAccessTokenRepository repository;
 
-	public Optional<KisAccessToken> getAccessTokenMap() {
-		return repository.get();
-	}
-
-	public void setAccessTokenMap(KisAccessToken accessToken, LocalDateTime now) {
+	public void saveAccessToken(KisAccessToken accessToken, LocalDateTime now) {
 		if (accessToken.isAccessTokenExpired(now)) {
 			return;
 		}
 		repository.save(accessToken, now);
+	}
+
+	public Optional<KisAccessToken> getAccessTokenMap() {
+		return repository.get();
+	}
+
+	boolean isAccessTokenExpired(LocalDateTime dateTime) {
+		Optional<KisAccessToken> optional = repository.get();
+		if (optional.isEmpty()) {
+			return true;
+		}
+		KisAccessToken kisAccessToken = optional.get();
+		return kisAccessToken.isAccessTokenExpired(dateTime);
 	}
 
 	public void deleteAccessTokenMap() {

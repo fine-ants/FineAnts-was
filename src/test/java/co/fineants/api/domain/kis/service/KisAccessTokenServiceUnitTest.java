@@ -36,7 +36,7 @@ class KisAccessTokenServiceUnitTest {
 		LocalDateTime now = createdTime.minusHours(24);
 
 		// when & then
-		Assertions.assertThatCode(() -> service.setAccessTokenMap(kisAccessToken, now))
+		Assertions.assertThatCode(() -> service.saveAccessToken(kisAccessToken, now))
 			.doesNotThrowAnyException();
 	}
 
@@ -51,7 +51,7 @@ class KisAccessTokenServiceUnitTest {
 			.plusSeconds(1);
 
 		// when & then
-		Assertions.assertThatCode(() -> service.setAccessTokenMap(accessToken, now))
+		Assertions.assertThatCode(() -> service.saveAccessToken(accessToken, now))
 			.doesNotThrowAnyException();
 	}
 
@@ -84,5 +84,21 @@ class KisAccessTokenServiceUnitTest {
 		Optional<KisAccessToken> optionalKisAccessToken = service.getAccessTokenMap();
 		// then
 		Assertions.assertThat(optionalKisAccessToken).isEmpty();
+	}
+
+	@DisplayName("액세스 토큰 만료 여부 - 현재 시간이 만료시간보다 이후라면 true를 반환해야 한다")
+	@Test
+	void should_return_true_when_datetime_is_before_expiration_time() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		KisAccessToken savedAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		BDDMockito.given(repository.get())
+			.willReturn(Optional.of(savedAccessToken));
+
+		LocalDateTime dateTime = baseTime.plusHours(25);
+		// when
+		boolean actual = service.isAccessTokenExpired(dateTime);
+		// then
+		Assertions.assertThat(actual).isTrue();
 	}
 }
