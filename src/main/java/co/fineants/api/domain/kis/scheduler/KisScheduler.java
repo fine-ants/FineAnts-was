@@ -29,7 +29,7 @@ import reactor.util.retry.Retry;
 public class KisScheduler {
 
 	private final KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
-	private final KisAccessTokenService redisService;
+	private final KisAccessTokenService kisAccessTokenService;
 	private final LocalDateTimeService localDateTimeService;
 	private final DelayManager delayManager;
 	private final KisClient kisClient;
@@ -62,7 +62,7 @@ public class KisScheduler {
 			})
 			.blockOptional(delayManager.timeout())
 			.ifPresent(newKisAccessToken -> {
-				redisService.saveAccessToken(newKisAccessToken, now);
+				kisAccessTokenService.saveAccessToken(newKisAccessToken, now);
 				kisAccessTokenInMemoryRepository.save(newKisAccessToken);
 				log.info("Reissue access tokens 1 hour prior to expiration {}", newKisAccessToken);
 			});
