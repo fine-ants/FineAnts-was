@@ -39,7 +39,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 		KisAccessToken kisAccessToken = createKisAccessToken();
 
 		// when
-		service.setAccessTokenMap(kisAccessToken, createNow());
+		service.saveAccessToken(kisAccessToken, createNow());
 
 		// then
 		assertThat(service.getAccessTokenMap()).isPresent();
@@ -54,7 +54,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 
 		LocalDateTime now = createdAt.plusSeconds(accessToken.getExpiresIn());
 		// when
-		service.setAccessTokenMap(accessToken, now);
+		service.saveAccessToken(accessToken, now);
 
 		// then
 		assertThat(service.getAccessTokenMap()).isEmpty();
@@ -64,7 +64,7 @@ class KisAccessTokenServiceTest extends AbstractContainerBaseTest {
 	@Test
 	void getAccessTokenMap() {
 		// given
-		service.setAccessTokenMap(createKisAccessToken(), createNow());
+		service.saveAccessToken(createKisAccessToken(), createNow());
 
 		// when
 		KisAccessToken accessToken = service.getAccessTokenMap().orElseThrow();

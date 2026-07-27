@@ -77,6 +77,6 @@ class KisSchedulerTest {
 		// then
 		Assertions.assertThat(kisAccessTokenInMemoryRepository.get()).isPresent();
 		BDDMockito.verify(kisAccessTokenService, Mockito.times(1))
-			.setAccessTokenMap(newAccessToken, baseTime);
+			.saveAccessToken(newAccessToken, baseTime);
 	}
 }

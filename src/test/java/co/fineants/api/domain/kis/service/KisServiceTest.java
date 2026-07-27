@@ -231,7 +231,7 @@ class KisServiceTest extends AbstractContainerBaseTest {
 		KisAccessToken soonExpiredAccessToken = KisAccessToken.bearerType("accessToken",
 			LocalDateTime.now().plusMinutes(10), 6000);
 		kisAccessTokenInMemoryRepository.save(soonExpiredAccessToken);
-		kisAccessTokenService.setAccessTokenMap(soonExpiredAccessToken, LocalDateTime.now());
+		kisAccessTokenService.saveAccessToken(soonExpiredAccessToken, LocalDateTime.now());
 
 		KisAccessToken reloadAccessToken = createKisAccessToken();
 		given(mockedKisClient.fetchAccessToken())

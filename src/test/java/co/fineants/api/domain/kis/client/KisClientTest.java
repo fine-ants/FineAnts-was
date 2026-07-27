@@ -86,7 +86,7 @@ class KisClientTest extends AbstractContainerBaseTest {
 			manager);
 
 		KisAccessToken kisAccessToken = createKisAccessToken();
-		kisAccessTokenService.setAccessTokenMap(kisAccessToken, LocalDateTime.of(2023, 12, 7, 11, 40, 0));
+		kisAccessTokenService.saveAccessToken(kisAccessToken, LocalDateTime.of(2023, 12, 7, 11, 40, 0));
 		manager.save(kisAccessToken);
 	}
 

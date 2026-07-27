@@ -62,7 +62,7 @@ public class KisScheduler {
 			})
 			.blockOptional(delayManager.timeout())
 			.ifPresent(newKisAccessToken -> {
-				redisService.setAccessTokenMap(newKisAccessToken, now);
+				redisService.saveAccessToken(newKisAccessToken, now);
 				kisAccessTokenInMemoryRepository.save(newKisAccessToken);
 				log.info("Reissue access tokens 1 hour prior to expiration {}", newKisAccessToken);
 			});
