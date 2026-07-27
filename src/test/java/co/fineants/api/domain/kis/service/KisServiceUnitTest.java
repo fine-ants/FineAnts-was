@@ -1,5 +1,10 @@
 package co.fineants.api.domain.kis.service;
 
+import static org.mockito.BDDMockito.*;
+
+import java.time.Duration;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,16 +12,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import co.fineants.TestDataFactory;
+import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
+import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.member.domain.Member;
 import co.fineants.stock.application.StockCsvParser;
+import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -50,8 +59,8 @@ class KisServiceUnitTest {
 	@Mock
 	private KisClient kisClient;
 
-	@Spy
-	private DelayManager spyDelayManager;
+	@Mock
+	private DelayManager delayManager;
 
 	private StockCsvParser stockCsvParser;
 
@@ -63,11 +72,15 @@ class KisServiceUnitTest {
 			closingPriceService,
 			stockTargetPricePublisher,
 			portfolioPublisher,
-			spyDelayManager,
+			delayManager,
 			kisAccessTokenService,
 			stockRepository,
 			spyLocalDateTimeService
 		);
+
+		given(delayManager.timeout()).willReturn(Duration.ofSeconds(1));
+		given(delayManager.delay()).willReturn(Duration.ZERO);
+		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
 	}
 
 	@DisplayName("객체 생성")
@@ -82,7 +95,7 @@ class KisServiceUnitTest {
 		// given
 		String tickerSymbol = "005930";
 		KisCurrentPrice kisCurrentPrice = KisCurrentPrice.create(tickerSymbol, 60000L);
-		BDDMockito.given(kisClient.fetchCurrentPrice(tickerSymbol))
+		given(kisClient.fetchCurrentPrice(tickerSymbol))
 			.willReturn(Mono.just(kisCurrentPrice));
 		// when
 		Mono<KisCurrentPrice> currentPrice = kisService.fetchCurrentPrice(tickerSymbol);
@@ -92,35 +105,36 @@ class KisServiceUnitTest {
 			.verifyComplete();
 	}
 
-	// @WithMockUser(roles = {"ADMIN"})
-	// @DisplayName("현재가를 갱신한다")
-	// @Test
-	// void refreshStockCurrentPriceWhenExceedingTransactionPerSecond() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	List<Stock> stocks = stockRepository.saveAll(List.of(createSamsungStock()));
-	// 	stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
-	//
-	// 	given(mockedKisClient.fetchCurrentPrice("005930"))
-	// 		.willReturn(Mono.just(KisCurrentPrice.create("005930", 10000L)));
-	// 	given(spyDelayManager.timeout()).willReturn(Duration.ofSeconds(1));
-	// 	given(spyDelayManager.delay()).willReturn(Duration.ZERO);
-	// 	given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
-	//
-	// 	List<String> tickerSymbols = stocks.stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	// when
-	// 	kisService.refreshStockCurrentPrice(tickerSymbols);
-	//
-	// 	// then
-	// 	CurrentPriceRedisEntity entity = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
-	// 	assertThat(entity)
-	// 		.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
-	// 		.hasFieldOrPropertyWithValue("price", 10000L);
-	// }
-	//
+	@DisplayName("현재가를 갱신한다")
+	@Test
+	void refreshStockCurrentPriceWhenExceedingTransactionPerSecond() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+		portfolio.addHolding(holding);
+
+		KisCurrentPrice kisCurrentPrice = KisCurrentPrice.create(stock.getTickerSymbol(), 10_000L);
+		given(kisClient.fetchCurrentPrice(stock.getTickerSymbol()))
+			.willReturn(Mono.just(kisCurrentPrice));
+
+		List<String> tickerSymbols = List.of(stock.getTickerSymbol());
+		// when
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickerSymbols);
+
+		// then
+		Assertions.assertThat(prices)
+			.hasSize(1)
+			.containsExactly(kisCurrentPrice);
+		BDDMockito.verify(currentPriceService, times(1))
+			.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice());
+		BDDMockito.verify(stockTargetPricePublisher, times(1))
+			.publishEvent(tickerSymbols);
+		BDDMockito.verify(portfolioPublisher, times(1))
+			.publishCurrentPriceEvent();
+	}
+
 	// @DisplayName("다수의 종목들의 현재가를 갱신한 다음에 레디스에 저장한다")
 	// @Test
 	// void refreshStockCurrentPrice_whenMultipleStocks_thenSaveToRedis() {
