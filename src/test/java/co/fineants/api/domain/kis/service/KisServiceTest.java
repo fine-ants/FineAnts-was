@@ -117,7 +117,6 @@ class KisServiceTest extends AbstractContainerBaseTest {
 			stockTargetPricePublisher,
 			portfolioPublisher,
 			spyDelayManager,
-			kisAccessTokenInMemoryRepository,
 			kisAccessTokenService,
 			stockRepository,
 			spyLocalDateTimeService

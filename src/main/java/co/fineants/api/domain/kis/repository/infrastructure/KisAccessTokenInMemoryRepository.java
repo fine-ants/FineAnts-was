@@ -3,6 +3,7 @@ package co.fineants.api.domain.kis.repository.infrastructure;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import co.fineants.api.domain.kis.client.KisAccessToken;
@@ -16,6 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @ToString
+@Profile("test")
 public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepository {
 
 	private KisAccessToken accessToken;
