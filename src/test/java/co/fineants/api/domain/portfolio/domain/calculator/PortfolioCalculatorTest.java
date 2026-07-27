@@ -55,8 +55,11 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 
 	@BeforeEach
 	void setUp() {
+		LocalDate baseTime = LocalDate.of(2024, 5, 1);
 		given(spyLocalDateTimeService.getLocalDateWithNow())
-			.willReturn(LocalDate.of(2024, 5, 1));
+			.willReturn(baseTime);
+		given(spyLocalDateTimeService.getLocalDateTimeWithNow())
+			.willReturn(baseTime.atStartOfDay());
 	}
 
 	@AfterEach
@@ -76,7 +79,7 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
-		currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
+		currentPriceRepository.savePrice(stock, 50_000L);
 		// when
 		Expression result = calculator.calTotalGainBy(portfolio);
 		// then
@@ -197,9 +200,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -251,9 +254,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -276,9 +279,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -301,9 +304,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -326,9 +329,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -351,9 +354,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -376,9 +379,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -401,9 +404,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -650,9 +653,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		currentPriceRepository.savePrice(stock, 50_000L);
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -781,9 +784,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -805,12 +808,12 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		// given
 		Portfolio portfolio = createPortfolio(createMember());
 		Stock stock = createSamsungStock();
-		currentPriceRepository.savePrice(stock, 150_000);
+		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
-			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
-			Money.won(10000), "첫구매", holding);
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(30),
+			Money.won(10_000), "첫구매", holding);
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(30),
+			Money.won(10_000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
 		holding.addPurchaseHistory(purchaseHistory2);
@@ -851,9 +854,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		currentPriceRepository.savePrice(stock, 50_000);
 		PortfolioHolding holding = createPortfolioHolding(portfolio, stock);
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 
 		holding.addPurchaseHistory(purchaseHistory1);
@@ -1158,9 +1161,9 @@ class PortfolioCalculatorTest extends AbstractContainerBaseTest {
 		Stock stock = createSamsungStock();
 		PortfolioHolding holding = PortfolioHolding.of(portfolio, stock);
 
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, LocalDateTime.now(), Count.from(5),
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, LocalDateTime.now(), Count.from(5),
 			Money.won(10000), "첫구매", holding);
 		holding.addPurchaseHistory(purchaseHistory1);
 		holding.addPurchaseHistory(purchaseHistory2);

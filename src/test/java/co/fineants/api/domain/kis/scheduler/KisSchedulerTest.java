@@ -3,13 +3,11 @@ package co.fineants.api.domain.kis.scheduler;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
@@ -29,7 +27,6 @@ import reactor.core.publisher.Mono;
 @ExtendWith(MockitoExtension.class)
 class KisSchedulerTest {
 
-	@InjectMocks
 	private KisScheduler kisScheduler;
 
 	@Mock
@@ -50,15 +47,13 @@ class KisSchedulerTest {
 	@Mock
 	private FileHolidayRepository fileHolidayRepository;
 
-	private KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
+	@Mock
+	private KisAccessTokenInMemoryRepository kisAccessTokenRepository;
 
 	@BeforeEach
 	void clean() {
-		kisAccessTokenInMemoryRepository = new KisAccessTokenInMemoryRepository(null);
-		kisAccessTokenInMemoryRepository.save(null);
-		kisScheduler = new KisScheduler(kisAccessTokenInMemoryRepository, kisAccessTokenService,
-			localDateTimeService,
-			delayManager, kisClient, kisService, fileHolidayRepository);
+		kisScheduler = new KisScheduler(kisAccessTokenRepository, kisAccessTokenService,
+			localDateTimeService, delayManager, kisClient, kisService, fileHolidayRepository);
 	}
 
 	@DisplayName("액세스 토큰의 만료시간이 1시간 이전이어서 재발급하여 저장소에 저장된다")
@@ -72,10 +67,11 @@ class KisSchedulerTest {
 
 		BDDMockito.given(localDateTimeService.getLocalDateTimeWithNow())
 			.willReturn(baseTime);
+		BDDMockito.given(kisAccessTokenService.isAccessTokenExpiringSoon(baseTime))
+			.willReturn(true);
 		// when
 		kisScheduler.checkAndReissueAccessToken();
 		// then
-		Assertions.assertThat(kisAccessTokenInMemoryRepository.get()).isPresent();
 		BDDMockito.verify(kisAccessTokenService, Mockito.times(1))
 			.saveAccessToken(newAccessToken, baseTime);
 	}
