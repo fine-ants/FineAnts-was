@@ -27,6 +27,9 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 
 	@Override
 	public void save(KisAccessToken accessToken, LocalDateTime now) {
+		if (accessToken == null) {
+			throw new IllegalArgumentException("accessToken is null object");
+		}
 		this.accessToken = accessToken;
 	}
 
