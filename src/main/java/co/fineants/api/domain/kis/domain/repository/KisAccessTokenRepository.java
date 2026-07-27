@@ -12,7 +12,5 @@ public interface KisAccessTokenRepository {
 
 	Optional<KisAccessToken> get();
 
-	String createAuthorization();
-
 	void clear();
 }

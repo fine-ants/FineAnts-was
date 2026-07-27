@@ -39,14 +39,6 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 	}
 
 	@Override
-	public String createAuthorization() {
-		if (accessToken == null) {
-			return null;
-		}
-		return accessToken.createAuthorization();
-	}
-
-	@Override
 	public void clear() {
 		this.accessToken = null;
 	}
