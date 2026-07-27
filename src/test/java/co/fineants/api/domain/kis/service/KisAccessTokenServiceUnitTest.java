@@ -160,4 +160,46 @@ class KisAccessTokenServiceUnitTest {
 		// then
 		Assertions.assertThat(authorization).isEqualTo("Bearer accessToken");
 	}
+
+	@DisplayName("인증 헤더 문자열 생성 - 액세스 토큰이 저장되어 있지 않으면 예외가 발생해야 한다")
+	@Test
+	void should_throw_exception_when_not_saved_access_token() {
+		// given
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.getAuthorization());
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessage("can't get Authorization");
+	}
+
+	@DisplayName("액세스 토큰 만료 임박 여부 - 현재시간이 만료시간 1시간 이내라면 True를 반환해야 한다")
+	@Test
+	void should_return_true_when_date_time_is_in_range_1_hour() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		KisAccessToken savedAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		BDDMockito.given(repository.get())
+			.willReturn(Optional.of(savedAccessToken));
+		LocalDateTime now = baseTime.plusHours(23);
+		// when
+		boolean actual = service.isAccessTokenExpiringSoon(now);
+		// then
+		Assertions.assertThat(actual).isTrue();
+	}
+
+	@DisplayName("액세스 토큰 만료 임박 여부 - 현재시간이 만료시간 1시간 이내가 아니라면 False를 반환해야 한다")
+	@Test
+	void should_return_false_when_date_time_is_not_in_range_1_hour() {
+		// given
+		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		KisAccessToken savedAccessToken = TestDataFactory.createKisAccessToken(baseTime);
+		BDDMockito.given(repository.get())
+			.willReturn(Optional.of(savedAccessToken));
+		LocalDateTime now = baseTime.plusHours(23).minusSeconds(1);
+		// when
+		boolean actual = service.isAccessTokenExpiringSoon(now);
+		// then
+		Assertions.assertThat(actual).isFalse();
+	}
 }

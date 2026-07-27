@@ -40,7 +40,16 @@ public class KisAccessTokenService {
 	public String getAuthorization() {
 		return repository.get()
 			.map(KisAccessToken::createAuthorization)
-			.orElseThrow(() -> new IllegalStateException("can get Authorization"));
+			.orElseThrow(() -> new IllegalStateException("can't get Authorization"));
+	}
+
+	public boolean isAccessTokenExpiringSoon(LocalDateTime now) {
+		Optional<KisAccessToken> optional = repository.get();
+		if (optional.isEmpty()) {
+			return true;
+		}
+		KisAccessToken accessToken = optional.get();
+		return accessToken.betweenSecondFrom(now).toSeconds() <= 3600;
 	}
 
 	public void deleteAccessTokenMap() {
