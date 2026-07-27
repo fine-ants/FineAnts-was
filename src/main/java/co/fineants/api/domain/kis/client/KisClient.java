@@ -36,7 +36,7 @@ import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidOrgAdjPrc;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.FidPeriodDivCode;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.GB1;
 import co.fineants.api.domain.kis.properties.kiscodevalue.imple.PrdtTypeCd;
-import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
+import co.fineants.api.domain.kis.service.KisAccessTokenService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -49,16 +49,16 @@ public class KisClient {
 	private final KisProperties kisProperties;
 	private final KisTrIdProperties kisTrIdProperties;
 	private final WebClient webClient;
-	private final KisAccessTokenInMemoryRepository manager;
+	private final KisAccessTokenService kisAccessTokenService;
 
 	public KisClient(KisProperties properties,
 		KisTrIdProperties kisTrIdProperties,
 		@Qualifier("koreaInvestmentWebClient") WebClient webClient,
-		KisAccessTokenInMemoryRepository manager) {
+		KisAccessTokenService kisAccessTokenService) {
 		this.kisProperties = properties;
 		this.kisTrIdProperties = kisTrIdProperties;
 		this.webClient = webClient;
-		this.manager = manager;
+		this.kisAccessTokenService = kisAccessTokenService;
 	}
 
 	// 액세스 토큰 발급
@@ -78,7 +78,7 @@ public class KisClient {
 	// 현재가 조회
 	public Mono<KisCurrentPrice> fetchCurrentPrice(String tickerSymbol) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getCurrentPrice())
@@ -99,7 +99,7 @@ public class KisClient {
 	// 직전 거래일의 종가 조회
 	public Mono<KisClosingPrice> fetchClosingPrice(String tickerSymbol) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getClosingPrice())
@@ -145,7 +145,7 @@ public class KisClient {
 	private Mono<KisDividendWrapper> fetchDividend(String tickerSymbol, LocalDate from, LocalDate to) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
 			.add(KisHeader.CONTENT_TYPE, APPLICATION_JSON_UTF8)
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getDividend())
@@ -172,7 +172,7 @@ public class KisClient {
 	public Mono<List<KisDividend>> fetchDividendsBetween(LocalDate from, LocalDate to) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
 			.add(KisHeader.CONTENT_TYPE, APPLICATION_JSON_UTF8)
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getDividend())
@@ -198,7 +198,7 @@ public class KisClient {
 	public Mono<KisIpoResponse> fetchIpo(LocalDate from, LocalDate to) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
 			.add(KisHeader.CONTENT_TYPE, APPLICATION_JSON_UTF8)
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getIpo())
@@ -227,7 +227,7 @@ public class KisClient {
 	public Mono<KisSearchStockInfo> fetchSearchStockInfo(String tickerSymbol) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
 			.add(KisHeader.CONTENT_TYPE, APPLICATION_JSON_UTF8)
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getSearchStockInfo())
@@ -254,7 +254,7 @@ public class KisClient {
 	public Mono<List<KisHoliday>> fetchHolidays(LocalDate baseDate) {
 		MultiValueMap<String, String> header = KisHeaderBuilder.builder()
 			.add(KisHeader.CONTENT_TYPE, APPLICATION_JSON_UTF8)
-			.add(KisHeader.AUTHORIZATION, manager.createAuthorization())
+			.add(KisHeader.AUTHORIZATION, kisAccessTokenService.getAuthorization())
 			.add(KisHeader.APP_KEY, kisProperties.getAppkey())
 			.add(KisHeader.APP_SECRET, kisProperties.getSecretkey())
 			.add(KisHeader.TR_ID, kisTrIdProperties.getHoliday())

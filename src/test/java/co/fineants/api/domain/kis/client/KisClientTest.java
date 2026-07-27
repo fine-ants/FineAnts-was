@@ -83,7 +83,7 @@ class KisClientTest extends AbstractContainerBaseTest {
 			kisProperties,
 			kisTrIdProperties,
 			WebClient.builder().baseUrl(baseUrl).build(),
-			manager);
+			kisAccessTokenService);
 
 		KisAccessToken kisAccessToken = createKisAccessToken();
 		kisAccessTokenService.saveAccessToken(kisAccessToken, LocalDateTime.of(2023, 12, 7, 11, 40, 0));
