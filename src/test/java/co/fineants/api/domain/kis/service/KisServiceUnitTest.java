@@ -76,9 +76,9 @@ class KisServiceUnitTest {
 		Assertions.assertThat(kisService).isNotNull();
 	}
 
-	@DisplayName("주식 현재가 시세를 가져온다")
+	@DisplayName("종목 현재가 조회")
 	@Test
-	void readRealTimeCurrentPrice() {
+	void should_return_current_price() {
 		// given
 		String tickerSymbol = "005930";
 		KisCurrentPrice kisCurrentPrice = KisCurrentPrice.create(tickerSymbol, 60000L);
