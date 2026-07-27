@@ -18,7 +18,7 @@ import co.fineants.api.domain.kis.client.KisAccessToken;
 import co.fineants.api.domain.kis.domain.repository.KisAccessTokenRepository;
 
 @ExtendWith(MockitoExtension.class)
-class KisAccessTokenServiceUnitTest {
+class KisAccessTokenServiceTest {
 
 	@InjectMocks
 	private KisAccessTokenService service;
