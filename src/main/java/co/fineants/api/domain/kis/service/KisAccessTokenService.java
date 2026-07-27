@@ -32,12 +32,9 @@ public class KisAccessTokenService {
 		if (dateTime == null) {
 			throw new IllegalArgumentException("dateTime must not null");
 		}
-		Optional<KisAccessToken> optional = repository.get();
-		if (optional.isEmpty()) {
-			return true;
-		}
-		KisAccessToken kisAccessToken = optional.get();
-		return kisAccessToken.isAccessTokenExpired(dateTime);
+		return repository.get()
+			.map(token -> token.isAccessTokenExpired(dateTime))
+			.orElse(true);
 	}
 
 	public void deleteAccessTokenMap() {
