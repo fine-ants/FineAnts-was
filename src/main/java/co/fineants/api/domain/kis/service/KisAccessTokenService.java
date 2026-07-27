@@ -28,7 +28,10 @@ public class KisAccessTokenService {
 		return repository.get();
 	}
 
-	boolean isAccessTokenExpired(LocalDateTime dateTime) {
+	public boolean isAccessTokenExpired(LocalDateTime dateTime) {
+		if (dateTime == null) {
+			throw new IllegalArgumentException("dateTime must not null");
+		}
 		Optional<KisAccessToken> optional = repository.get();
 		if (optional.isEmpty()) {
 			return true;

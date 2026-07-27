@@ -133,4 +133,17 @@ class KisAccessTokenServiceUnitTest {
 		// then
 		Assertions.assertThat(actual).isFalse();
 	}
+
+	@DisplayName("액세스 토큰 만료 여부 - 현재 시간이 null이면 예외가 발생해야 한다")
+	@Test
+	void should_throw_exception_when_check_access_token_expired_and_date_time_is_null() {
+		// given
+		LocalDateTime dateTime = null;
+		// when
+		Throwable throwable = Assertions.catchThrowable(() -> service.isAccessTokenExpired(dateTime));
+		// then
+		Assertions.assertThat(throwable)
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("dateTime must not null");
+	}
 }
