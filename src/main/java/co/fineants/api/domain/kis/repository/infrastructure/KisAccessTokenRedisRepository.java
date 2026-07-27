@@ -61,12 +61,6 @@ public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 	}
 
 	@Override
-	public boolean isAccessTokenExpired(LocalDateTime dateTime) {
-		// todo: service로 이전할 예정
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String createAuthorization() {
 		// todo: service로 이전할 예정
 		throw new UnsupportedOperationException();

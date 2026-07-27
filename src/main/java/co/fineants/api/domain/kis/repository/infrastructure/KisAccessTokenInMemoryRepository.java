@@ -39,14 +39,6 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 	}
 
 	@Override
-	public boolean isAccessTokenExpired(LocalDateTime dateTime) {
-		if (accessToken == null) {
-			return true;
-		}
-		return accessToken.isAccessTokenExpired(dateTime);
-	}
-
-	@Override
 	public String createAuthorization() {
 		if (accessToken == null) {
 			return null;

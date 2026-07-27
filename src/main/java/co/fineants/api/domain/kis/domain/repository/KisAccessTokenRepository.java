@@ -12,8 +12,6 @@ public interface KisAccessTokenRepository {
 
 	Optional<KisAccessToken> get();
 
-	boolean isAccessTokenExpired(LocalDateTime dateTime);
-
 	String createAuthorization();
 
 	boolean isTokenExpiringSoon(LocalDateTime localDateTime);
