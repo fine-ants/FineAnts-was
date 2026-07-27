@@ -1,29 +1,30 @@
 package co.fineants.api.domain.kis.service;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ClassPathResource;
 
-import co.fineants.TestDataFactory;
-import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
-import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
-import co.fineants.member.domain.Member;
+import co.fineants.stock.application.StockCsvLineParser;
 import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
@@ -77,6 +78,8 @@ class KisServiceUnitTest {
 			stockRepository,
 			spyLocalDateTimeService
 		);
+		StockCsvLineParser stockCsvLineParser = new StockCsvLineParser("TS");
+		stockCsvParser = new StockCsvParser("\\$", stockCsvLineParser);
 
 		given(delayManager.timeout()).willReturn(Duration.ofSeconds(1));
 		given(delayManager.delay()).willReturn(Duration.ZERO);
@@ -86,7 +89,7 @@ class KisServiceUnitTest {
 	@DisplayName("객체 생성")
 	@Test
 	void canCreated() {
-		Assertions.assertThat(kisService).isNotNull();
+		assertThat(kisService).isNotNull();
 	}
 
 	@DisplayName("종목 현재가 조회")
@@ -105,109 +108,48 @@ class KisServiceUnitTest {
 			.verifyComplete();
 	}
 
-	@DisplayName("현재가를 갱신한다")
+	@DisplayName("100개의 종목들의 현재가를 갱신한 다음에 저장소에 저장해야 한다")
 	@Test
-	void refreshStockCurrentPriceWhenExceedingTransactionPerSecond() {
+	void should_return_current_price_when_ticker_are_multiple_then_save_current_price() {
 		// given
-		Member member = TestDataFactory.createMember(1L);
-		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
-		Stock stock = TestDataFactory.createSamsungStock();
-		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
-		portfolio.addHolding(holding);
-
-		KisCurrentPrice kisCurrentPrice = KisCurrentPrice.create(stock.getTickerSymbol(), 10_000L);
-		given(kisClient.fetchCurrentPrice(stock.getTickerSymbol()))
-			.willReturn(Mono.just(kisCurrentPrice));
-
-		List<String> tickerSymbols = List.of(stock.getTickerSymbol());
+		List<String> tickers = readStocks(100).stream()
+			.map(Stock::getTickerSymbol)
+			.toList();
+		tickers.forEach(ticker -> given(kisClient.fetchCurrentPrice(ticker))
+			.willReturn(Mono.just(KisCurrentPrice.create(ticker, 50000L))));
 		// when
-		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickerSymbols);
-
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
 		// then
-		Assertions.assertThat(prices)
-			.hasSize(1)
-			.containsExactly(kisCurrentPrice);
-		BDDMockito.verify(currentPriceService, times(1))
-			.savePrice(kisCurrentPrice.getTickerSymbol(), kisCurrentPrice.getPrice());
+		KisCurrentPrice[] expected = tickers.stream()
+			.map(t -> KisCurrentPrice.create(t, 50_000L))
+			.toArray(KisCurrentPrice[]::new);
+		assertThat(prices)
+			.hasSize(tickers.size())
+			.containsExactly(expected);
+		BDDMockito.verify(currentPriceService, times(100))
+			.savePrice(ArgumentMatchers.anyString(), ArgumentMatchers.anyLong());
 		BDDMockito.verify(stockTargetPricePublisher, times(1))
-			.publishEvent(tickerSymbols);
+			.publishEvent(tickers);
 		BDDMockito.verify(portfolioPublisher, times(1))
 			.publishCurrentPriceEvent();
 	}
 
-	// @DisplayName("다수의 종목들의 현재가를 갱신한 다음에 레디스에 저장한다")
-	// @Test
-	// void refreshStockCurrentPrice_whenMultipleStocks_thenSaveToRedis() {
-	// 	// given
-	// 	List<String> tickers = saveStocks(100).stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
-	// 		.willReturn(Mono.just(KisCurrentPrice.create(ticker, 50000L)).delayElement(Duration.ofMillis(100))));
-	// 	given(spyDelayManager.delay()).willReturn(Duration.ZERO);
-	// 	// when
-	// 	List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
-	// 	// then
-	// 	Assertions.assertThat(prices).hasSize(tickers.size());
-	// }
-	//
-	// private List<Stock> saveStocks(int limit) {
-	// 	try {
-	// 		InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
-	// 		List<Stock> stocks = stockCsvParser.parse(inputStream).stream()
-	// 			.limit(limit)
-	// 			.toList();
-	// 		return stockRepository.saveAll(stocks);
-	// 	} catch (IOException e) {
-	// 		throw new RuntimeException(e);
-	// 	}
-	// }
-	//
-	// @DisplayName("현재가를 갱신할때 액세스 토큰의 만료시간이 1시간 이전어서 새로운 액세스 토큰을 재발급한다")
-	// @Test
-	// void refreshStockCurrentPrice_whenAccessTokenSoonExpired_thenFetchAccessToken() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	List<Stock> stocks = stockRepository.saveAll(List.of(createSamsungStock()));
-	// 	stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
-	//
-	// 	given(mockedKisClient.fetchCurrentPrice("005930"))
-	// 		.willReturn(Mono.just(KisCurrentPrice.create("005930", 10000L)));
-	// 	given(spyDelayManager.delay()).willReturn(Duration.ZERO);
-	// 	given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
-	//
-	// 	List<String> tickerSymbols = stocks.stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	//
-	// 	KisAccessToken soonExpiredAccessToken = KisAccessToken.bearerType("accessToken",
-	// 		LocalDateTime.now().plusMinutes(10), 6000);
-	// 	kisAccessTokenInMemoryRepository.save(soonExpiredAccessToken);
-	// 	kisAccessTokenService.saveAccessToken(soonExpiredAccessToken, LocalDateTime.now());
-	//
-	// 	KisAccessToken reloadAccessToken = createKisAccessToken();
-	// 	given(mockedKisClient.fetchAccessToken())
-	// 		.willReturn(Mono.just(reloadAccessToken));
-	//
-	// 	// when
-	// 	kisService.refreshStockCurrentPrice(tickerSymbols);
-	//
-	// 	// then
-	// 	assertThat(kisAccessTokenService.getAuthorization()).isEqualTo(reloadAccessToken.createAuthorization());
-	// 	assertThat(kisAccessTokenService.getAccessToken().orElseThrow().getAccessToken()).isEqualTo(
-	// 		reloadAccessToken.getAccessToken());
-	// 	CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
-	// 	assertThat(actual)
-	// 		.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
-	// 		.hasFieldOrPropertyWithValue("price", 10000L);
-	// }
-	//
+	private List<Stock> readStocks(int limit) {
+		try {
+			InputStream inputStream = new ClassPathResource("stocks.csv").getInputStream();
+			return stockCsvParser.parse(inputStream).stream()
+				.limit(limit)
+				.toList();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	// @DisplayName("한국투자증권에 종목 현재가 요청중에 액세스 토큰이 만료되어 실패하게 되면, 해당 요청은 조회하지 않는다")
 	// @Test
 	// void refreshStockCurrentPrice_whenAccessTokenExpired_thenCancelStockCurrentPriceRequest() {
 	// 	// given
-	// 	List<String> tickers = saveStocks(100).stream()
+	// 	List<String> tickers = readStocks(100).stream()
 	// 		.map(Stock::getTickerSymbol)
 	// 		.toList();
 	// 	tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
@@ -222,7 +164,7 @@ class KisServiceUnitTest {
 	// @Test
 	// void refreshStockCurrentPrice_whenFailRetry_thenNotAddResultList() {
 	// 	// given
-	// 	List<String> tickers = saveStocks(100).stream()
+	// 	List<String> tickers = readStocks(100).stream()
 	// 		.map(Stock::getTickerSymbol)
 	// 		.toList();
 	// 	tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
@@ -345,7 +287,7 @@ class KisServiceUnitTest {
 	// @Test
 	// void fetchSearchStockInfo() {
 	// 	// given
-	// 	List<Stock> stocks = saveStocks().stream()
+	// 	List<Stock> stocks = readStocks().stream()
 	// 		.limit(100)
 	// 		.toList();
 	// 	List<String> tickerSymbols = stocks.stream()
@@ -385,8 +327,8 @@ class KisServiceUnitTest {
 	// 		);
 	// }
 	//
-	// private List<Stock> saveStocks() {
-	// 	return saveStocks(0);
+	// private List<Stock> readStocks() {
+	// 	return readStocks(0);
 	// }
 	//
 	// @DisplayName("사용자는 삼성전자의 올해 배당일정을 조회한다")
