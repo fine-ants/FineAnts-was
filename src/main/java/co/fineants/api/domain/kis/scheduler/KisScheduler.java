@@ -46,7 +46,7 @@ public class KisScheduler {
 	@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	public void checkAndReissueAccessToken() {
 		LocalDateTime now = localDateTimeService.getLocalDateTimeWithNow();
-		if (!kisAccessTokenInMemoryRepository.isTokenExpiringSoon(now)) {
+		if (!kisAccessTokenService.isAccessTokenExpiringSoon(now)) {
 			return;
 		}
 		kisClient.fetchAccessToken()

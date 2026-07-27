@@ -14,7 +14,5 @@ public interface KisAccessTokenRepository {
 
 	String createAuthorization();
 
-	boolean isTokenExpiringSoon(LocalDateTime localDateTime);
-
 	void clear();
 }

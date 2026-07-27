@@ -67,12 +67,6 @@ public class KisAccessTokenRedisRepository implements KisAccessTokenRepository {
 	}
 
 	@Override
-	public boolean isTokenExpiringSoon(LocalDateTime localDateTime) {
-		// todo: service로 이전할 예정
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void clear() {
 		Boolean isDeleted = redisTemplate.delete(key);
 		log.info("액세스 토큰 제거 완료 여부 : {}", isDeleted);

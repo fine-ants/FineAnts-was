@@ -47,14 +47,6 @@ public class KisAccessTokenInMemoryRepository implements KisAccessTokenRepositor
 	}
 
 	@Override
-	public boolean isTokenExpiringSoon(LocalDateTime localDateTime) {
-		if (accessToken == null) {
-			return true;
-		}
-		return accessToken.betweenSecondFrom(localDateTime).toSeconds() < 3600;
-	}
-
-	@Override
 	public void clear() {
 		this.accessToken = null;
 	}
