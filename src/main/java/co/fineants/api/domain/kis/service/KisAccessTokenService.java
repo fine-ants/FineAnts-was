@@ -44,6 +44,9 @@ public class KisAccessTokenService {
 	}
 
 	public boolean isAccessTokenExpiringSoon(LocalDateTime now) {
+		if (now == null) {
+			throw new IllegalArgumentException("now object is null object");
+		}
 		Optional<KisAccessToken> optional = repository.get();
 		if (optional.isEmpty()) {
 			return true;
