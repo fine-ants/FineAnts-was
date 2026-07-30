@@ -21,9 +21,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
 import co.fineants.TestDataFactory;
+import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
+import co.fineants.api.domain.kis.domain.dto.response.KisDividend;
+import co.fineants.api.domain.kis.domain.dto.response.KisDividendWrapper;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
 import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
 import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
@@ -284,95 +287,63 @@ class KisServiceUnitTest {
 			.verify();
 	}
 
-	// @DisplayName("사용자는 db에 저장된 종목을 각각 조회한다")
-	// @Test
-	// void fetchSearchStockInfo() {
-	// 	// given
-	// 	List<Stock> stocks = readStocks().stream()
-	// 		.limit(100)
-	// 		.toList();
-	// 	List<String> tickerSymbols = stocks.stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	//
-	// 	KisAccessToken kisAccessToken = createKisAccessToken();
-	// 	kisAccessTokenInMemoryRepository.save(kisAccessToken);
-	// 	stocks.forEach(s ->
-	// 		given(mockedKisClient.fetchSearchStockInfo(s.getTickerSymbol()))
-	// 			.willReturn(Mono.just(
-	// 					KisSearchStockInfo.listedStock(
-	// 						s.getStockCode(),
-	// 						s.getTickerSymbol(),
-	// 						s.getCompanyName(),
-	// 						s.getCompanyNameEng(),
-	// 						"STK",
-	// 						"시가총액규모대",
-	// 						s.getSector(),
-	// 						s.getSector()
-	// 					)
-	// 				)
-	// 			)
-	// 	);
-	//
-	// 	// when & then
-	// 	tickerSymbols.stream()
-	// 		.map(kisService::fetchSearchStockInfo)
-	// 		.map(Mono::just)
-	// 		.forEach(mono ->
-	// 			StepVerifier.create(mono)
-	// 				.expectNextMatches(stockInfo -> {
-	// 					Assertions.assertThat(stockInfo).isNotNull();
-	// 					return true;
-	// 				})
-	// 				.verifyComplete()
-	// 		);
-	// }
-	//
-	// private List<Stock> readStocks() {
-	// 	return readStocks(0);
-	// }
-	//
-	// @DisplayName("사용자는 삼성전자의 올해 배당일정을 조회한다")
-	// @Test
-	// void fetchDividend() {
-	// 	// given
-	// 	String tickerSymbol = "005930";
-	// 	KisAccessToken kisAccessToken = createKisAccessToken();
-	// 	kisAccessTokenInMemoryRepository.save(kisAccessToken);
-	// 	given(mockedKisClient.fetchDividendThisYear(tickerSymbol))
-	// 		.willReturn(Mono.just(KisDividendWrapper.create(List.of(
-	// 			KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
-	// 				LocalDate.of(2024, 5, 1))))));
-	// 	// when
-	// 	Flux<KisDividend> dividends = kisService.fetchDividend(tickerSymbol);
-	// 	// then
-	// 	StepVerifier.create(dividends)
-	// 		.expectNext(
-	// 			KisDividend.create("005930", Money.won(300), LocalDate.of(2024, 3, 1), LocalDate.of(2024, 5, 1)))
-	// 		.expectComplete()
-	// 		.verify();
-	// }
-	//
-	// @DisplayName("사용자는 새로운 한국투자증권의 액세스 토큰을 발급받아서 배당 일정을 조회한다")
-	// @Test
-	// void fetchDividend_whenAccessTokenExpired_thenIssueAccessToken() {
-	// 	// given
-	// 	String tickerSymbol = "005930";
-	// 	kisAccessTokenInMemoryRepository.save(null);
-	// 	KisAccessToken newKisAccessToken = createKisAccessToken();
-	// 	given(mockedKisClient.fetchAccessToken())
-	// 		.willReturn(Mono.just(newKisAccessToken));
-	// 	given(mockedKisClient.fetchDividendThisYear(tickerSymbol))
-	// 		.willReturn(Mono.just(KisDividendWrapper.create(List.of(
-	// 			KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
-	// 				LocalDate.of(2024, 5, 1))))));
-	// 	// when
-	// 	Flux<KisDividend> dividends = kisService.fetchDividend(tickerSymbol);
-	// 	// then
-	// 	StepVerifier.create(dividends)
-	// 		.expectNext(
-	// 			KisDividend.create("005930", Money.won(300), LocalDate.of(2024, 3, 1), LocalDate.of(2024, 5, 1)))
-	// 		.expectComplete()
-	// 		.verify();
-	// }
+	@DisplayName("종목 상세 정보 조회")
+	@Test
+	void should_return_stock_info() {
+		// given
+		List<Stock> stocks = readStocks(100).stream()
+			.toList();
+		List<String> tickerSymbols = stocks.stream()
+			.map(Stock::getTickerSymbol)
+			.toList();
+
+		stocks.forEach(s ->
+			given(kisClient.fetchSearchStockInfo(s.getTickerSymbol()))
+				.willReturn(Mono.just(
+						KisSearchStockInfo.listedStock(
+							s.getStockCode(),
+							s.getTickerSymbol(),
+							s.getCompanyName(),
+							s.getCompanyNameEng(),
+							"STK",
+							"시가총액규모대",
+							s.getSector(),
+							s.getSector()
+						)
+					)
+				)
+		);
+
+		// when & then
+		tickerSymbols.stream()
+			.map(kisService::fetchSearchStockInfo)
+			.map(Mono::just)
+			.forEach(mono ->
+				StepVerifier.create(mono)
+					.expectNextMatches(stockInfo -> {
+						Assertions.assertThat(stockInfo).isNotNull();
+						return true;
+					})
+					.verifyComplete()
+			);
+	}
+
+	@DisplayName("삼성전자의 올해 배당일정을 조회한다")
+	@Test
+	void should_return_dividend_info_in_this_year() {
+		// given
+		String tickerSymbol = TestDataFactory.createSamsungStock().getTickerSymbol();
+		given(kisClient.fetchDividendThisYear(tickerSymbol))
+			.willReturn(Mono.just(KisDividendWrapper.create(List.of(
+				KisDividend.create(tickerSymbol, Money.won(300), LocalDate.of(2024, 3, 1),
+					LocalDate.of(2024, 5, 1))))));
+		// when
+		Flux<KisDividend> dividends = kisService.fetchDividend(tickerSymbol);
+		// then
+		StepVerifier.create(dividends)
+			.expectNext(
+				KisDividend.create("005930", Money.won(300), LocalDate.of(2024, 3, 1), LocalDate.of(2024, 5, 1)))
+			.expectComplete()
+			.verify();
+	}
 }
