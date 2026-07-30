@@ -173,7 +173,7 @@ class KisServiceUnitTest {
 	@Test
 	void should_return_empty_list_when_exceed_request_count_and_fail_to_retry_then_not_refresh_stock_current_price() {
 		// given
-		List<String> tickers = readStocks(100).stream()
+		List<String> tickers = readStocks(200).stream()
 			.map(Stock::getTickerSymbol)
 			.toList();
 		BDDMockito.given(kisClient.fetchCurrentPrice(argThat(tickers::contains)))
@@ -263,24 +263,27 @@ class KisServiceUnitTest {
 			.verify();
 	}
 
-	// @DisplayName("상장된 종목들의 상세 종목을 조회할 때 별도의 스레드에서 blocking되면 안된다")
-	// @Test
-	// void fetchStockInfoInRangedIpo_shouldNotBlockInSeparateThread() {
-	// 	// given
-	// 	given(mockedKisClient.fetchIpo(
-	// 		any(LocalDate.class),
-	// 		any(LocalDate.class)
-	// 	)).willReturn(Mono.error(() -> new IllegalStateException(
-	// 		"blockOptional() is blocking, which is not supported in thread parallel-1")));
-	// 	// when
-	// 	Flux<StockIntegrationInfo> result = kisService.fetchStockInfoInRangedIpo();
-	// 	// then
-	// 	StepVerifier.create(result)
-	// 		.expectNextCount(0)
-	// 		.expectComplete()
-	// 		.verify();
-	// }
-	//
+	@DisplayName("상장 종목 상세 정보 조회시 별도의 스레드에서 블로킹되면 안된다")
+	@Test
+	void should_not_blocking_thread_when_fetch_ipo() {
+		// given
+		LocalDate baseTime = LocalDate.of(2026, 7, 30);
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(baseTime);
+		given(kisClient.fetchIpo(
+			baseTime.minusDays(1),
+			baseTime
+		)).willReturn(Mono.error(() -> new IllegalStateException(
+			"blockOptional() is blocking, which is not supported in thread parallel-1")));
+		// when
+		Flux<StockDataResponse.StockIntegrationInfo> result = kisService.fetchStockInfoInRangedIpo();
+		// then
+		StepVerifier.create(result)
+			.expectNextCount(0)
+			.expectComplete()
+			.verify();
+	}
+
 	// @DisplayName("사용자는 db에 저장된 종목을 각각 조회한다")
 	// @Test
 	// void fetchSearchStockInfo() {
