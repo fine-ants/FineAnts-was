@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,12 +19,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
+import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
+import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import co.fineants.stock.application.StockCsvLineParser;
 import co.fineants.stock.application.StockCsvParser;
 import co.fineants.stock.domain.Stock;
@@ -82,14 +85,7 @@ class KisServiceUnitTest {
 		stockCsvParser = new StockCsvParser("\\$", stockCsvLineParser);
 
 		given(delayManager.timeout()).willReturn(Duration.ofSeconds(1));
-		given(delayManager.delay()).willReturn(Duration.ZERO);
 		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
-	}
-
-	@DisplayName("객체 생성")
-	@Test
-	void canCreated() {
-		assertThat(kisService).isNotNull();
 	}
 
 	@DisplayName("종목 현재가 조회")
@@ -145,37 +141,45 @@ class KisServiceUnitTest {
 		}
 	}
 
-	// @DisplayName("한국투자증권에 종목 현재가 요청중에 액세스 토큰이 만료되어 실패하게 되면, 해당 요청은 조회하지 않는다")
-	// @Test
-	// void refreshStockCurrentPrice_whenAccessTokenExpired_thenCancelStockCurrentPriceRequest() {
-	// 	// given
-	// 	List<String> tickers = readStocks(100).stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
-	// 		.willReturn(Mono.error(KisApiRequestException.expiredAccessToken())));
-	// 	// when
-	// 	List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
-	// 	// then
-	// 	Assertions.assertThat(prices).isEmpty();
-	// }
-	//
-	// @DisplayName("한국투자증권에 종목 현재가 요청중에 요청 건수 초과 에러시 재시도 또한 전부 실패하게 되면 리스트에 추가되지 않는다")
-	// @Test
-	// void refreshStockCurrentPrice_whenFailRetry_thenNotAddResultList() {
-	// 	// given
-	// 	List<String> tickers = readStocks(100).stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	tickers.forEach(ticker -> given(mockedKisClient.fetchCurrentPrice(ticker))
-	// 		.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded())));
-	// 	given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
-	// 	// when
-	// 	List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
-	// 	// then
-	// 	Assertions.assertThat(prices).isEmpty();
-	// }
-	//
+	@DisplayName("한국투자증권에 종목 현재가 요청중에 액세스 토큰이 만료되어 실패하게 되면, 해당 요청은 조회하지 않는다")
+	@Test
+	void should_not_fetch_current_price_when_access_token_is_expired() {
+		// given
+		String ticker = TestDataFactory.createSamsungStock().getTickerSymbol();
+		List<String> tickers = List.of(ticker);
+		BDDMockito.given(kisClient.fetchCurrentPrice(ticker))
+			.willReturn(Mono.error(KisApiRequestException.expiredAccessToken()));
+		// when
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
+		// then
+		Assertions.assertThat(prices).isEmpty();
+		BDDMockito.verify(currentPriceService, times(0))
+			.savePrice(anyString(), anyLong());
+		BDDMockito.verify(stockTargetPricePublisher, times(0))
+			.publishEvent(tickers);
+		BDDMockito.verify(portfolioPublisher, times(0))
+			.publishCurrentPriceEvent();
+	}
+
+	@DisplayName("한국투자증권에 종목 현재가 요청중에 요청 건수 초과 에러시 재시도 또한 전부 실패하게 되면 빈 리스트를 반환한다")
+	@Test
+	void should_return_empty_list_when_exceed_request_count_and_fail_to_retry_then_not_refresh_stock_current_price() {
+		// given
+		List<String> tickers = readStocks(100).stream()
+			.map(Stock::getTickerSymbol)
+			.toList();
+		BDDMockito.given(kisClient.fetchCurrentPrice(argThat(tickers::contains)))
+			.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded()));
+		// when
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickers);
+		// then
+		Assertions.assertThat(prices).isEmpty();
+		int maxAttempts = 5;
+		int expectedTotalCalls = tickers.size() * (1 + maxAttempts);
+		BDDMockito.verify(kisClient, BDDMockito.times(expectedTotalCalls))
+			.fetchCurrentPrice(argThat(tickers::contains));
+	}
+
 	// @DisplayName("종목 현재가 갱신시 예외가 발생하면 다시 시도하여 가격을 조회한다")
 	// @Test
 	// void refreshStockCurrentPrice_whenFailFetch_thenRetryFetch() {

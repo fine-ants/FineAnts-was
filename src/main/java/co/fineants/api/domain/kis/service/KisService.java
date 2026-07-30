@@ -61,8 +61,10 @@ public class KisService {
 		prices.forEach(price ->
 			currentPriceService.savePrice(price.getTickerSymbol(), price.getPrice())
 		);
-		stockTargetPricePublisher.publishEvent(tickerSymbols);
-		portfolioPublisher.publishCurrentPriceEvent();
+		if (!prices.isEmpty()) {
+			stockTargetPricePublisher.publishEvent(tickerSymbols);
+			portfolioPublisher.publishCurrentPriceEvent();
+		}
 		return prices;
 	}
 
