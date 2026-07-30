@@ -22,6 +22,7 @@ import org.springframework.core.io.ClassPathResource;
 import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
+import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -199,33 +200,28 @@ class KisServiceUnitTest {
 			.savePrice(stock.getTickerSymbol(), 50_000L);
 	}
 
-	// @DisplayName("종가 갱신시 요청건수 초과로 실패하였다가 다시 시도하여 성공한다")
-	// @Test
-	// void refreshLastDayClosingPriceWhenExceedingTransactionPerSecond() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	List<Stock> stocks = stockRepository.saveAll(List.of(
-	// 		createSamsungStock()
-	// 	));
-	// 	stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
-	//
-	// 	kisAccessTokenInMemoryRepository.save(createKisAccessToken());
-	// 	given(mockedKisClient.fetchClosingPrice(anyString()))
-	// 		.willThrow(KisApiRequestException.requestLimitExceeded())
-	// 		.willThrow(KisApiRequestException.requestLimitExceeded())
-	// 		.willReturn(Mono.just(KisClosingPrice.create("005930", 10000L)));
-	// 	given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
-	// 	List<String> tickerSymbols = stocks.stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	// when
-	// 	kisService.refreshClosingPrice(tickerSymbols);
-	//
-	// 	// then
-	// 	verify(mockedKisClient, times(3)).fetchClosingPrice(anyString());
-	// }
-	//
+	@DisplayName("종가 갱신시 요청건수 초과로 실패하였다가 다시 시도하여 성공한다")
+	@Test
+	void should_return_and_refresh_closing_price_when_response_error_response_from_kis_then_retry_request() {
+		// given
+		Stock stock = TestDataFactory.createSamsungStock();
+		given(kisClient.fetchClosingPrice(stock.getTickerSymbol()))
+			.willThrow(KisApiRequestException.requestLimitExceeded())
+			.willThrow(KisApiRequestException.requestLimitExceeded())
+			.willReturn(Mono.just(KisClosingPrice.create(stock.getTickerSymbol(), 10_000L)));
+		List<String> tickerSymbols = List.of(stock.getTickerSymbol());
+		// when
+		List<KisClosingPrice> closingPrices = kisService.refreshClosingPrice(tickerSymbols);
+
+		// then
+		Assertions.assertThat(closingPrices)
+			.hasSize(1);
+		verify(kisClient, times(3))
+			.fetchClosingPrice(stock.getTickerSymbol());
+		verify(closingPriceService, times(1))
+			.savePrice(stock.getTickerSymbol(), 10_000L);
+	}
+
 	// @DisplayName("한국투자증권에 상장된 종목 정보를 조회한다")
 	// @Test
 	// void fetchStockInfoInRangedIpo() {
