@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.Notifiable;
@@ -21,7 +22,7 @@ import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepo
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class NotifiableFactory {
 
@@ -29,6 +30,7 @@ public class NotifiableFactory {
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final CurrentPriceService currentPriceService;
 
+	@Transactional(readOnly = true)
 	public List<Notifiable> getAllPortfolios(Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findAllWithAll().stream()
 			.map(mapToNotifiable(reachedPredicate))
@@ -36,6 +38,7 @@ public class NotifiableFactory {
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
 	public Notifiable getPortfolio(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
 			.map(mapToNotifiable(reachedPredicate))
@@ -50,6 +53,7 @@ public class NotifiableFactory {
 		};
 	}
 
+	@Transactional(readOnly = true)
 	public List<Notifiable> getAllTargetPriceNotificationsBy(Long memberId) {
 		return stockTargetPriceRepository.findAllByMemberId(memberId)
 			.stream()
@@ -70,6 +74,7 @@ public class NotifiableFactory {
 		return targetPriceNotification.getTargetPrice().compareTo(currentPrice) == 0;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Notifiable> getAllTargetPriceNotificationsBy(List<String> tickerSymbols) {
 		return stockTargetPriceRepository.findAllByTickerSymbols(
 				tickerSymbols)
