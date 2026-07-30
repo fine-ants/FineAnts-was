@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -23,6 +24,9 @@ import co.fineants.TestDataFactory;
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.client.KisCurrentPrice;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
+import co.fineants.api.domain.kis.domain.dto.response.KisIpo;
+import co.fineants.api.domain.kis.domain.dto.response.KisIpoResponse;
+import co.fineants.api.domain.kis.domain.dto.response.KisSearchStockInfo;
 import co.fineants.api.domain.notification.event.publisher.PortfolioPublisher;
 import co.fineants.api.domain.stock_target_price.event.publisher.StockTargetPricePublisher;
 import co.fineants.api.global.common.delay.DelayManager;
@@ -30,8 +34,11 @@ import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.api.global.errors.exception.business.KisApiRequestException;
 import co.fineants.stock.application.StockCsvLineParser;
 import co.fineants.stock.application.StockCsvParser;
+import co.fineants.stock.domain.Market;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
+import co.fineants.stock.presentation.dto.response.StockDataResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -59,7 +66,7 @@ class KisServiceUnitTest {
 	private PortfolioPublisher portfolioPublisher;
 
 	@Mock
-	private LocalDateTimeService spyLocalDateTimeService;
+	private LocalDateTimeService localDateTimeService;
 
 	@Mock
 	private KisClient kisClient;
@@ -80,13 +87,13 @@ class KisServiceUnitTest {
 			delayManager,
 			kisAccessTokenService,
 			stockRepository,
-			spyLocalDateTimeService
+			localDateTimeService
 		);
 		StockCsvLineParser stockCsvLineParser = new StockCsvLineParser("TS");
 		stockCsvParser = new StockCsvParser("\\$", stockCsvLineParser);
 
-		given(delayManager.timeout()).willReturn(Duration.ofSeconds(1));
-		given(delayManager.fixedDelay()).willReturn(Duration.ZERO);
+		BDDMockito.lenient().when(delayManager.timeout()).thenReturn(Duration.ofSeconds(1));
+		BDDMockito.lenient().when(delayManager.fixedDelay()).thenReturn(Duration.ZERO);
 	}
 
 	@DisplayName("종목 현재가 조회")
@@ -222,37 +229,40 @@ class KisServiceUnitTest {
 			.savePrice(stock.getTickerSymbol(), 10_000L);
 	}
 
-	// @DisplayName("한국투자증권에 상장된 종목 정보를 조회한다")
-	// @Test
-	// void fetchStockInfoInRangedIpo() {
-	// 	// given
-	// 	KisAccessToken kisAccessToken = createKisAccessToken();
-	// 	kisAccessTokenInMemoryRepository.save(kisAccessToken);
-	//
-	// 	KisIpoResponse kisIpoResponse = KisIpoResponse.create(
-	// 		List.of(KisIpo.create("20240326", "000660", "에스케이하이닉스보통주"))
-	// 	);
-	// 	given(mockedKisClient.fetchIpo(
-	// 		any(LocalDate.class),
-	// 		any(LocalDate.class)
-	// 	))
-	// 		.willReturn(Mono.just(kisIpoResponse));
-	//
-	// 	KisSearchStockInfo kisSearchStockInfo = KisSearchStockInfo.listedStock("KR7000660001", "000660", "에스케이하이닉스보통주",
-	// 		"SK hynix", "STK", "시가총액규모대", "전기,전자", "전기,전자");
-	// 	given(mockedKisClient.fetchSearchStockInfo(anyString()))
-	// 		.willReturn(Mono.just(kisSearchStockInfo));
-	// 	// when
-	// 	Flux<StockIntegrationInfo> stocks = kisService.fetchStockInfoInRangedIpo();
-	// 	// then
-	// 	StepVerifier.create(stocks)
-	// 		.expectNext(
-	// 			StockIntegrationInfo.create("000660", "에스케이하이닉스보통주", "SK hynix", "KR7000660001",
-	// 				"전기,전자", Market.KOSPI))
-	// 		.expectComplete()
-	// 		.verify();
-	// }
-	//
+	@DisplayName("한국투자증권에 상장된 종목 정보를 조회한다")
+	@Test
+	void should_return_ipo_stocks_when_fetch_stock_info_in_ranged_ipo() {
+		// given
+		KisIpoResponse kisIpoResponse = KisIpoResponse.create(
+			List.of(KisIpo.create("20240326", "000660", "에스케이하이닉스보통주"))
+		);
+		LocalDate baseTime = LocalDate.of(2026, 7, 30);
+		BDDMockito.given(localDateTimeService.getLocalDateWithNow())
+			.willReturn(baseTime);
+		given(kisClient.fetchIpo(
+			baseTime.minusDays(1),
+			baseTime
+		)).willReturn(Mono.just(kisIpoResponse));
+
+		KisSearchStockInfo kisSearchStockInfo = KisSearchStockInfo.listedStock("KR7000660001", "000660", "에스케이하이닉스보통주",
+			"SK hynix", "STK", "시가총액규모대", "전기,전자", "전기,전자");
+
+		List<String> tickers = kisIpoResponse.getKisIpos().stream()
+			.map(KisIpo::getShtCd)
+			.toList();
+		given(kisClient.fetchSearchStockInfo(argThat(tickers::contains)))
+			.willReturn(Mono.just(kisSearchStockInfo));
+		// when
+		Flux<StockDataResponse.StockIntegrationInfo> stocks = kisService.fetchStockInfoInRangedIpo();
+		// then
+		StepVerifier.create(stocks)
+			.expectNext(
+				StockDataResponse.StockIntegrationInfo.create("000660", "에스케이하이닉스보통주", "SK hynix", "KR7000660001",
+					"전기,전자", Market.KOSPI))
+			.expectComplete()
+			.verify();
+	}
+
 	// @DisplayName("상장된 종목들의 상세 종목을 조회할 때 별도의 스레드에서 blocking되면 안된다")
 	// @Test
 	// void fetchStockInfoInRangedIpo_shouldNotBlockInSeparateThread() {
