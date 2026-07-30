@@ -180,37 +180,25 @@ class KisServiceUnitTest {
 			.fetchCurrentPrice(argThat(tickers::contains));
 	}
 
-	// @DisplayName("종목 현재가 갱신시 예외가 발생하면 다시 시도하여 가격을 조회한다")
-	// @Test
-	// void refreshStockCurrentPrice_whenFailFetch_thenRetryFetch() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	List<Stock> stocks = stockRepository.saveAll(List.of(
-	// 		createSamsungStock()
-	// 	));
-	// 	stocks.forEach(stock -> portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock)));
-	//
-	// 	given(mockedKisClient.fetchCurrentPrice("005930"))
-	// 		.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded()))
-	// 		.willReturn(Mono.just(KisCurrentPrice.create("005930", 50000L)));
-	// 	given(spyDelayManager.delay()).willReturn(Duration.ZERO);
-	// 	given(spyDelayManager.fixedDelay()).willReturn(Duration.ZERO);
-	//
-	// 	List<String> tickerSymbols = stocks.stream()
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	// 	// when
-	// 	List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickerSymbols);
-	//
-	// 	// then
-	// 	assertThat(prices).hasSize(1);
-	// 	CurrentPriceRedisEntity actual = currentPriceRepository.fetchPriceBy("005930").orElseThrow();
-	// 	assertThat(actual)
-	// 		.hasFieldOrPropertyWithValue("tickerSymbol", "005930")
-	// 		.hasFieldOrPropertyWithValue("price", 50000L);
-	// }
-	//
+	@DisplayName("종목 현재가 갱신시 예외가 발생하면 다시 시도하여 가격을 조회한다")
+	@Test
+	void should_return_refreshed_current_prices_when_response_error_response_from_kis_api_then_retry_request() {
+		// given
+		Stock stock = TestDataFactory.createSamsungStock();
+		given(kisClient.fetchCurrentPrice(stock.getTickerSymbol()))
+			.willReturn(Mono.error(KisApiRequestException.requestLimitExceeded()))
+			.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 50_000L)));
+
+		List<String> tickerSymbols = List.of(stock.getTickerSymbol());
+		// when
+		List<KisCurrentPrice> prices = kisService.refreshStockCurrentPrice(tickerSymbols);
+
+		// then
+		assertThat(prices).hasSize(1);
+		BDDMockito.verify(currentPriceService, times(1))
+			.savePrice(stock.getTickerSymbol(), 50_000L);
+	}
+
 	// @DisplayName("종가 갱신시 요청건수 초과로 실패하였다가 다시 시도하여 성공한다")
 	// @Test
 	// void refreshLastDayClosingPriceWhenExceedingTransactionPerSecond() {
