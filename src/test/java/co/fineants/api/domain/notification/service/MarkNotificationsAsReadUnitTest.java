@@ -52,7 +52,7 @@ class MarkNotificationsAsReadUnitTest {
 
 	@DisplayName("사용자는 존재하지 않는 알람을 읽음 처리할 수 없다")
 	@Test
-	void markBy_whenNotExistNotificationIds_thenThrowException() {
+	void should_throw_exception_when_not_exist_notification_ids_then_is_read_is_false() {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		List<Notification> notifications = TestDataFactory.createNotifications(member);
