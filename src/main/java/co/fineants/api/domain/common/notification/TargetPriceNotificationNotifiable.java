@@ -4,12 +4,16 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessage;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
-import co.fineants.member.domain.NotificationPreference;
 import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
 import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
+import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class TargetPriceNotificationNotifiable implements Notifiable {
 
 	private final String title;

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.Notifiable;
+import co.fineants.api.domain.common.notification.PortfolioMaximumLossNotifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
@@ -31,25 +32,48 @@ public class NotifiableFactory {
 	private final CurrentPriceService currentPriceService;
 
 	@Transactional(readOnly = true)
-	public List<Notifiable> getAllPortfolios(Predicate<Portfolio> reachedPredicate) {
+	public List<Notifiable> getAllPortfolioTargetGainNotifiable(Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findAllWithAll().stream()
-			.map(mapToNotifiable(reachedPredicate))
+			.map(mapToTargetGainNotifiable(reachedPredicate))
 			.map(Notifiable.class::cast)
 			.toList();
 	}
 
 	@Transactional(readOnly = true)
-	public Notifiable getPortfolio(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
+	public List<Notifiable> getAllPortfolioMaximumLossNotifiable(Predicate<Portfolio> reachedPredicate) {
+		return portfolioRepository.findAllWithAll().stream()
+			.map(mapToMaximumLossNotifiable(reachedPredicate))
+			.map(Notifiable.class::cast)
+			.toList();
+	}
+
+	@Transactional(readOnly = true)
+	public Notifiable getPortfolioTargetGainNotifiable(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.map(mapToNotifiable(reachedPredicate))
+			.map(mapToTargetGainNotifiable(reachedPredicate))
 			.map(Notifiable.class::cast)
 			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
-	private Function<Portfolio, Notifiable> mapToNotifiable(Predicate<Portfolio> reachedPredicate) {
+	private Function<Portfolio, Notifiable> mapToTargetGainNotifiable(Predicate<Portfolio> reachedPredicate) {
 		return portfolio -> {
 			boolean isReached = reachedPredicate.test(portfolio);
 			return PortfolioTargetGainNotifiable.from(portfolio, isReached);
+		};
+	}
+
+	@Transactional(readOnly = true)
+	public Notifiable getPortfolioMaximumLossNotifiable(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
+		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
+			.map(mapToMaximumLossNotifiable(reachedPredicate))
+			.map(Notifiable.class::cast)
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
+	}
+
+	private Function<Portfolio, Notifiable> mapToMaximumLossNotifiable(Predicate<Portfolio> reachedPredicate) {
+		return portfolio -> {
+			boolean isReached = reachedPredicate.test(portfolio);
+			return PortfolioMaximumLossNotifiable.from(portfolio, isReached);
 		};
 	}
 

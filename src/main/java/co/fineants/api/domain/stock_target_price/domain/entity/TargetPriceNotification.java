@@ -56,6 +56,16 @@ public class TargetPriceNotification extends BaseEntity {
 		return new TargetPriceNotification(LocalDateTime.now(), null, id, targetPrice, stockTargetPrice);
 	}
 
+	public void setStockTargetPrice(StockTargetPrice stockTargetPrice) {
+		if (this.stockTargetPrice != null && this.stockTargetPrice.getTargetPriceNotifications().contains(this)) {
+			this.stockTargetPrice.removeTargetPriceNotification(this);
+		}
+		this.stockTargetPrice = stockTargetPrice;
+		if (stockTargetPrice != null && !stockTargetPrice.getTargetPriceNotifications().contains(this)) {
+			stockTargetPrice.addTargetPriceNotification(this);
+		}
+	}
+
 	public String getReferenceId() {
 		return stockTargetPrice.getStock().getTickerSymbol();
 	}

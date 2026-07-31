@@ -67,6 +67,20 @@ public class StockTargetPrice extends BaseEntity {
 		return new StockTargetPrice(LocalDateTime.now(), null, id, true, member, stock, new ArrayList<>());
 	}
 
+	public void addTargetPriceNotification(TargetPriceNotification targetPriceNotification) {
+		if (targetPriceNotifications.contains(targetPriceNotification)) {
+			return;
+		}
+		targetPriceNotifications.add(targetPriceNotification);
+		if (targetPriceNotification.getStockTargetPrice() != this) {
+			targetPriceNotification.setStockTargetPrice(this);
+		}
+	}
+
+	public void removeTargetPriceNotification(TargetPriceNotification targetPriceNotification) {
+		this.targetPriceNotifications.remove(targetPriceNotification);
+	}
+
 	public void changeIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
@@ -94,4 +108,5 @@ public class StockTargetPrice extends BaseEntity {
 	public String getName() {
 		return stock.getCompanyName();
 	}
+
 }

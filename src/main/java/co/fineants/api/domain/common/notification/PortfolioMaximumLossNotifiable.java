@@ -7,7 +7,11 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class PortfolioMaximumLossNotifiable implements Notifiable {
 
 	private final String title;
