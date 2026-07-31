@@ -77,25 +77,4 @@ class MarkNotificationsAsReadUnitTest {
 		assertThat(notifications)
 			.allMatch(n -> !n.getIsRead());
 	}
-
-	// @DisplayName("사용자는 다른 사용자의 알림을 읽음 처리할 수 없다")
-	// @Test
-	// void markBy_whenOtherMemberRequest_thenThrowException() {
-	// 	Member member = memberRepository.save(createMember());
-	// 	Member hacker = memberRepository.save(createMember("hacker"));
-	//
-	// 	List<Notification> notifications = notificationRepository.saveAll(createNotifications(member));
-	// 	List<Long> notificationIds = notifications.stream()
-	// 		.map(Notification::getId)
-	// 		.toList();
-	//
-	// 	setAuthentication(hacker);
-	// 	// when
-	// 	Throwable throwable = catchThrowable(
-	// 		() -> markNotificationsAsRead.markBy(hacker.getId(), notificationIds));
-	//
-	// 	// then
-	// 	assertThat(throwable)
-	// 		.isInstanceOf(ForbiddenException.class);
-	// }
 }
