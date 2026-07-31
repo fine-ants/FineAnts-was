@@ -465,15 +465,15 @@ public final class TestDataFactory {
 				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
 				Money.won(60000L),
 				1L
-			),
+			).withId(1L),
 			Notification.portfolioNotification(
 				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
 				1L
-			),
+			).withId(2L),
 			Notification.portfolioNotification(
 				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
 				2L
-			)
+			).withId(3L)
 		);
 	}
 
