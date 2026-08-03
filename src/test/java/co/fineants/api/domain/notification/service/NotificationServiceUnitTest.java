@@ -1,5 +1,6 @@
 package co.fineants.api.domain.notification.service;
 
+import static co.fineants.TestDataFactory.*;
 import static co.fineants.api.domain.notification.domain.entity.type.NotificationType.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -148,21 +149,21 @@ class NotificationServiceUnitTest {
 		Count numShares = Count.from(100);
 		Money purchasePricePerShare = Money.won(10000);
 		String memo = "첫구매";
-		PurchaseHistory history = TestDataFactory.createPurchaseHistory(1L, purchaseDate, numShares,
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares,
 			purchasePricePerShare, memo, holding);
 		holding.addPurchaseHistory(history);
 		portfolio.addHolding(holding);
 
 		FcmToken fcmToken = TestDataFactory.createFcmToken(1L, "fcmToken", member);
 
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
 		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
 			.willReturn(Money.won(50_000L));
 		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
 			.willReturn(Optional.of(portfolio));
 		given(fcmService.findTokens(member.getId()))
 			.willReturn(List.of(fcmToken.getToken()));
-		given(firebaseMessagingService.send(ArgumentMatchers.any(Message.class)))
-			.willReturn(Optional.of("messageId"));
 		given(memberRepository.findById(member.getId()))
 			.willReturn(Optional.of(member));
 		Notification notification = Notification.portfolioNotification(
@@ -171,7 +172,7 @@ class NotificationServiceUnitTest {
 			portfolio.getReferenceId(),
 			portfolio.getLink(),
 			member,
-			List.of("messageId"),
+			List.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"),
 			portfolio.name(),
 			1L
 		).withId(1L);
@@ -193,7 +194,7 @@ class NotificationServiceUnitTest {
 			member.getId(),
 			portfolio.getLink(),
 			portfolio.name(),
-			List.of("messageId")
+			List.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5")
 		);
 		assertThat(actual)
 			.hasSize(1)
@@ -206,50 +207,51 @@ class NotificationServiceUnitTest {
 			.saveAll(anyList());
 	}
 
-	// @DisplayName("목표수익률에 도달하지 않아서 알림을 보내지 않는다")
-	// @Test
-	// void notifyTargetGainBy_whenNoTargetGain_thenNotSendNotification() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(
-	// 		createPortfolio(member, "내꿈은 워렌버핏", Money.won(1000000L), Money.won(1100000L), Money.won(900000L)));
-	// 	Stock samsung = stockRepository.save(createSamsungStock());
-	// 	Stock ccs = stockRepository.save(createCcsStack());
-	//
-	// 	PortfolioHolding samsungHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, samsung));
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(12);
-	// 	Money purchasePricePerShare = Money.won(60000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, samsungHolding));
-	//
-	// 	PortfolioHolding ccsHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, ccs));
-	// 	purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	numShares = Count.from(15);
-	// 	purchasePricePerShare = Money.won(2000);
-	// 	memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, ccsHolding));
-	//
-	// 	fcmRepository.save(createFcmToken("fcmToken", member));
-	//
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 83300L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(ccs.getTickerSymbol(), 3750L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).isEmpty(),
-	// 		() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).isEmpty(),
-	// 		() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isFalse()
-	// 	);
-	// }
-	//
+	@DisplayName("목표수익률에 도달하지 않아서 알림을 보내지 않는다")
+	@Test
+	void notifyTargetGainBy_whenNoTargetGain_thenNotSendNotification() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock samsung = TestDataFactory.createSamsungStock();
+		Stock ccs = TestDataFactory.createCcsStack();
+
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, samsung);
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(12);
+		Money purchasePricePerShare = Money.won(60000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+
+		PortfolioHolding holding2 = TestDataFactory.createPortfolioHolding(2L, portfolio, ccs);
+		purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		numShares = Count.from(15);
+		purchasePricePerShare = Money.won(2000);
+		memo = "첫구매";
+		PurchaseHistory history2 = createPurchaseHistory(2L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding2);
+		holding2.addPurchaseHistory(history2);
+
+		// fcmRepository.save(createFcmToken("fcmToken", member));
+		//
+		// given(firebaseMessagingService.send(any(Message.class)))
+		// 	.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
+		// currentPriceRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 83300L));
+		// currentPriceRepository.savePrice(KisCurrentPrice.create(ccs.getTickerSymbol(), 3750L));
+
+		// when
+		// List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
+
+		// then
+		// assertAll(
+		// 	() -> assertThat(actual).isEmpty(),
+		// 	() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).isEmpty(),
+		// 	() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isFalse()
+		// );
+	}
+
 	// @DisplayName("토큰이 유효하지 않아서 목표 수익률 알림을 보낼수 없지만, 알림은 저장된다")
 	// @Test
 	// void notifyTargetGainBy_whenInvalidFcmToken_thenDeleteFcmToken() {
