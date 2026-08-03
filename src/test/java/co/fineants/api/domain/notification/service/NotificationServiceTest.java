@@ -22,6 +22,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 
+import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.common.count.Count;
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
@@ -52,7 +53,7 @@ import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import reactor.core.publisher.Mono;
 
-class NotificationServiceTest extends co.fineants.AbstractContainerBaseTest {
+class NotificationServiceTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private NotificationService service;
