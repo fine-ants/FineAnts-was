@@ -11,7 +11,7 @@ import co.fineants.api.domain.notification.domain.entity.policy.NotificationPoli
 public interface NotificationStrategy {
 	NotificationPolicy<Notifiable> getPolicy();
 
-	Consumer<Notification> getSendHistory();
+	Consumer<Notification> saveSendHistory();
 
 	Function<Notification, NotifyMessageItem> getMapper();
 }

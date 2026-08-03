@@ -95,7 +95,7 @@ public class NotificationService {
 		List<Notification> notifications = saveNotifications(sentNotifyMessages);
 
 		// 전송 내역 저장
-		notifications.forEach(strategy.getSendHistory());
+		notifications.forEach(strategy.saveSendHistory());
 
 		// 결과 객체 생성
 		return notifications.stream()

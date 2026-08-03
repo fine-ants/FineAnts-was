@@ -27,7 +27,7 @@ public class TargetGainNotificationStrategy implements NotificationStrategy {
 	}
 
 	@Override
-	public Consumer<Notification> getSendHistory() {
+	public Consumer<Notification> saveSendHistory() {
 		return sentRepository::addTargetGainSendHistory;
 	}
 
