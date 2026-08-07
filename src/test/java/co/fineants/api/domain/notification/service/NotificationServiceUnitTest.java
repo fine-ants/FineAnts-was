@@ -302,8 +302,8 @@ class NotificationServiceUnitTest {
 	@DisplayName("브라우저 알림 설정이 비활성화되어 목표 수익률 알림을 보낼수 없다")
 	@CsvSource(value = {"false,true", "true,false", "false, false"})
 	@ParameterizedTest
-	void notifyTargetGainBy_whenBrowserNotifyIsInActive_thenResponseEmptyList(boolean browserNotify,
-		boolean targetGainNotify) {
+	void should_can_not_send_target_gain_notification_when_preference_is_inactive_then_return_empty_list(
+		boolean browserNotify, boolean targetGainNotify) {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		NotificationPreference changePreference = TestDataFactory.createNotificationPreference(browserNotify,
