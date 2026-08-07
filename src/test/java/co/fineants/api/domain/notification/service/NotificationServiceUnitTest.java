@@ -234,22 +234,18 @@ class NotificationServiceUnitTest {
 			holding2);
 		holding2.addPurchaseHistory(history2);
 
-		// fcmRepository.save(createFcmToken("fcmToken", member));
-		//
-		// given(firebaseMessagingService.send(any(Message.class)))
-		// 	.willReturn(Optional.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"));
-		// currentPriceRepository.savePrice(KisCurrentPrice.create(samsung.getTickerSymbol(), 83300L));
-		// currentPriceRepository.savePrice(KisCurrentPrice.create(ccs.getTickerSymbol(), 3750L));
+		// given(currentPriceService.fetchPrice(samsung.getTickerSymbol()))
+		// 	.willReturn(Money.won(83_300L));
+		// given(currentPriceService.fetchPrice(ccs.getTickerSymbol()))
+		// 	.willReturn(Money.won(3_750L));
+		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
 
 		// when
-		// List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
+		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
 
 		// then
-		// assertAll(
-		// 	() -> assertThat(actual).isEmpty(),
-		// 	() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).isEmpty(),
-		// 	() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isFalse()
-		// );
+		assertThat(actual).isEmpty();
 	}
 
 	// @DisplayName("토큰이 유효하지 않아서 목표 수익률 알림을 보낼수 없지만, 알림은 저장된다")
