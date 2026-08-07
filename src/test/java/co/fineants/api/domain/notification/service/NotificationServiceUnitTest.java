@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -209,7 +210,7 @@ class NotificationServiceUnitTest {
 
 	@DisplayName("목표수익률에 도달하지 않아서 알림을 보내지 않는다")
 	@Test
-	void notifyTargetGainBy_whenNoTargetGain_thenNotSendNotification() {
+	void should_return_empty_list_when_not_reached_target_gain_amount() {
 		// given
 		Member member = TestDataFactory.createMember(1L);
 		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
@@ -248,39 +249,53 @@ class NotificationServiceUnitTest {
 		assertThat(actual).isEmpty();
 	}
 
-	// @DisplayName("토큰이 유효하지 않아서 목표 수익률 알림을 보낼수 없지만, 알림은 저장된다")
-	// @Test
-	// void notifyTargetGainBy_whenInvalidFcmToken_thenDeleteFcmToken() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	//
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(100);
-	// 	Money purchasePricePerShare = Money.won(10000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	//
-	// 	FcmToken fcmToken = fcmRepository.save(createFcmToken("fcmToken", member));
-	//
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.empty());
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).hasSize(1),
-	// 		() -> assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty(),
-	// 		() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isTrue()
-	// 	);
-	// }
-	//
+	@DisplayName("토큰이 유효하지 않아서 목표 수익률 알림을 보낼수 없지만, 알림은 저장된다")
+	@Test
+	void should_save_notification_to_db_when_invalid_fcm_token_then_can_not_send_target_gain_notification() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(100);
+		Money purchasePricePerShare = Money.won(10000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+		portfolio.addHolding(holding);
+
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.empty());
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(50_000L));
+		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+		given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of("fcmToken"));
+		given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		Notification notification = Notification.portfolioNotification("포트폴리오", PORTFOLIO_TARGET_GAIN,
+			portfolio.getReferenceId(), portfolio.getLink(), member, List.of(""),
+			portfolio.name(), portfolio.getId()).withId(1L);
+		List<Notification> notifications = List.of(notification);
+		given(notificationRepository.saveAll(anyList()))
+			.willReturn(notifications);
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
+
+		// then
+		Assertions.assertThat(actual)
+			.hasSize(1);
+		verify(fcmService, times(1))
+			.deleteToken("fcmToken");
+		verify(notificationSentRepository, times(1))
+			.addTargetGainSendHistory(any(Notification.class));
+	}
+
 	// @DisplayName("브라우저 알림 설정이 비활성화되어 목표 수익률 알림을 보낼수 없다")
 	// @CsvSource(value = {"false,true", "true,false", "false, false"})
 	// @ParameterizedTest
