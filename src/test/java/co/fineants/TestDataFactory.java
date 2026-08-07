@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
@@ -514,5 +517,26 @@ public final class TestDataFactory {
 			maxLossNotify,
 			targetPriceNotify
 		);
+	}
+
+	public static StockTargetPrice createStockTargetPrice(Member member, Stock stock) {
+		return StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+	}
+
+	public static StockTargetPrice createStockTargetPrice(Long id, Member member, Stock stock) {
+		return StockTargetPrice.newStockTargetPriceWithActive(id, member, stock);
+	}
+
+	public static List<TargetPriceNotification> createTargetPriceNotification(List<Long> ids,
+		StockTargetPrice stockTargetPrice,
+		List<Long> targetPrices) {
+		List<TargetPriceNotification> result = new ArrayList<>();
+		for (int i = 0; i < ids.size(); i++) {
+			Money targetPrice = Money.won(targetPrices.get(i));
+			TargetPriceNotification targetPriceNotification = TargetPriceNotification.newTargetPriceNotification(
+				ids.get(i), targetPrice, stockTargetPrice);
+			result.add(targetPriceNotification);
+		}
+		return result;
 	}
 }

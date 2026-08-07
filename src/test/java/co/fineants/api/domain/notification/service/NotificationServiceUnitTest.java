@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,7 @@ import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem
 import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.policy.MaxLossNotificationPolicy;
 import co.fineants.api.domain.notification.domain.entity.policy.TargetGainNotificationPolicy;
+import co.fineants.api.domain.notification.domain.entity.policy.TargetPriceNotificationPolicy;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
@@ -48,6 +50,8 @@ import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.repository.PortfolioRepository;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
 import co.fineants.api.domain.purchasehistory.repository.PurchaseHistoryRepository;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepository;
 import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificationRepository;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -68,9 +72,6 @@ class NotificationServiceUnitTest {
 
 	@Mock
 	private MemberRepository memberRepository;
-
-	@Mock
-	private TargetPriceNotificationStrategy targetPriceNotificationStrategy;
 
 	@Mock
 	private DividendCalculator dividendCalculator;
@@ -101,6 +102,7 @@ class NotificationServiceUnitTest {
 
 	private CurrentPriceRepository currentPriceRepository;
 
+	@Mock
 	private KisService mockedKisService;
 
 	@Mock
@@ -127,6 +129,11 @@ class NotificationServiceUnitTest {
 		MaxLossNotificationPolicy maxLossNotificationPolicy = notificationConfig.maxLossNotificationPolicy();
 		MaximumLossNotificationStrategy maximumLossNotificationStrategy = new MaximumLossNotificationStrategy(
 			maxLossNotificationPolicy, notificationSentRepository);
+
+		TargetPriceNotificationPolicy targetPriceNotificationPolicy = notificationConfig.targetPriceNotificationPolicy();
+		TargetPriceNotificationStrategy targetPriceNotificationStrategy = new TargetPriceNotificationStrategy(
+			targetPriceNotificationPolicy, notificationSentRepository
+		);
 
 		NotificationSender notificationSender = new NotificationSender(firebaseMessagingService, fcmService);
 		service = new NotificationService(
@@ -618,57 +625,123 @@ class NotificationServiceUnitTest {
 			.addTargetGainSendHistory(notification);
 	}
 
-	// @DisplayName("모든 회원들을 대상으로 특정 티커 심볼에 대한 종목 지정가 알림을 발송한다")
-	// @Test
-	// void notifyTargetPrice() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember("일개미1234", "kim1234@naver.com"));
-	// 	Member member2 = memberRepository.save(createMember("네모네모", "dragonbead95@naver.com"));
-	//
-	// 	fcmRepository.save(createFcmToken("token1", member));
-	// 	fcmRepository.save(createFcmToken("token2", member2));
-	//
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-	//
-	// 	StockTargetPrice stockTargetPrice1 = stockTargetPriceRepository.save(createStockTargetPrice(member, stock));
-	// 	StockTargetPrice stockTargetPrice2 = stockTargetPriceRepository.save(createStockTargetPrice(member, stock2));
-	// 	targetPriceNotificationRepository.saveAll(
-	// 		createTargetPriceNotification(stockTargetPrice1, List.of(60000L, 70000L)));
-	// 	targetPriceNotificationRepository.saveAll(
-	// 		createTargetPriceNotification(stockTargetPrice2, List.of(10000L, 20000L)));
-	//
-	// 	StockTargetPrice stockTargetPrice3 = stockTargetPriceRepository.save(createStockTargetPrice(member2, stock));
-	// 	StockTargetPrice stockTargetPrice4 = stockTargetPriceRepository.save(createStockTargetPrice(member2, stock2));
-	//
-	// 	targetPriceNotificationRepository.saveAll(
-	// 		createTargetPriceNotification(stockTargetPrice3, List.of(60000L, 70000L)));
-	// 	targetPriceNotificationRepository.saveAll(
-	// 		createTargetPriceNotification(stockTargetPrice4, List.of(10000L, 20000L)));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
-	// 	given(mockedKisService.fetchCurrentPrice(stock2.getTickerSymbol()))
-	// 		.willReturn(Mono.just(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L)));
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("messageId"));
-	//
-	// 	List<String> tickerSymbols = Stream.of(stock, stock2)
-	// 		.map(Stock::getTickerSymbol)
-	// 		.toList();
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).hasSize(4),
-	// 		() -> assertThat(notificationRepository.findAllByMemberIds(List.of(member.getId(), member2.getId())))
-	// 			.asList()
-	// 			.hasSize(4)
-	// 	);
-	// }
-	//
+	@DisplayName("모든 회원들을 대상으로 특정 티커 심볼에 대한 종목 지정가 알림을 발송한다")
+	@Test
+	void should_send_target_price_notification_when_current_price_is_reached_price() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Member member2 = TestDataFactory.createMember(2L);
+
+		Stock stock = createSamsungStock();
+		Stock stock2 = createDongwhaPharmStock();
+
+		StockTargetPrice stockTargetPrice1 = TestDataFactory.createStockTargetPrice(1L, member, stock);
+		StockTargetPrice stockTargetPrice2 = TestDataFactory.createStockTargetPrice(2L, member, stock2);
+
+		List<TargetPriceNotification> targetPriceNotification = createTargetPriceNotification(List.of(1L, 2L),
+			stockTargetPrice1, List.of(60000L, 70000L));
+		List<TargetPriceNotification> targetPriceNotification2 = createTargetPriceNotification(List.of(3L, 4L),
+			stockTargetPrice2, List.of(10000L, 20000L));
+		targetPriceNotification.forEach(stockTargetPrice1::addTargetPriceNotification);
+		targetPriceNotification2.forEach(stockTargetPrice2::addTargetPriceNotification);
+
+		StockTargetPrice stockTargetPrice3 = createStockTargetPrice(member2, stock);
+		StockTargetPrice stockTargetPrice4 = createStockTargetPrice(member2, stock2);
+
+		List<TargetPriceNotification> targetPriceNotification3 = createTargetPriceNotification(List.of(5L, 6L),
+			stockTargetPrice3, List.of(60000L, 70000L));
+		List<TargetPriceNotification> targetPriceNotification4 = createTargetPriceNotification(List.of(7L, 8L),
+			stockTargetPrice4, List.of(10000L, 20000L));
+		targetPriceNotification3.forEach(stockTargetPrice3::addTargetPriceNotification);
+		targetPriceNotification4.forEach(stockTargetPrice4::addTargetPriceNotification);
+
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000));
+		given(currentPriceService.fetchPrice(stock2.getTickerSymbol()))
+			.willReturn(Money.won(10_000));
+
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("messageId"));
+
+		List<String> tickerSymbols = Stream.of(stock, stock2)
+			.map(Stock::getTickerSymbol)
+			.toList();
+
+		given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of("token1"));
+		given(fcmService.findTokens(member2.getId()))
+			.willReturn(List.of("token2"));
+		given(stockTargetPriceRepository.findAllByTickerSymbols(
+			tickerSymbols))
+			.willReturn(List.of(stockTargetPrice1, stockTargetPrice2, stockTargetPrice3, stockTargetPrice4));
+		given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		given(memberRepository.findById(member2.getId()))
+			.willReturn(Optional.of(member2));
+		List<Notification> notifications = getMockNotification(stockTargetPrice1, member, stock, stockTargetPrice3,
+			stock2, stockTargetPrice4);
+		given(notificationRepository.saveAll(anyList()))
+			.willReturn(notifications);
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
+
+		// then
+		assertThat(actual).hasSize(4);
+		verify(notificationRepository, times(1))
+			.saveAll(anyList());
+		verify(fcmService, times(0))
+			.deleteToken(anyString());
+		verify(notificationSentRepository, times(4))
+			.addTargetPriceSendHistory(ArgumentMatchers.any(Notification.class));
+	}
+
+	private List<Notification> getMockNotification(StockTargetPrice stockTargetPrice1, Member member, Stock stock,
+		StockTargetPrice stockTargetPrice3, Stock stock2, StockTargetPrice stockTargetPrice4) {
+		return List.of(
+			Notification.stockTargetPriceNotification(
+				"종목 지정가",
+				stockTargetPrice1.getReferenceId(),
+				stockTargetPrice1.getLink(),
+				member,
+				List.of("messageId"),
+				stock.getCompanyName(),
+				Money.won(60_000L),
+				1L
+			).withId(1L),
+			Notification.stockTargetPriceNotification(
+				"종목 지정가",
+				stockTargetPrice3.getReferenceId(),
+				stockTargetPrice3.getLink(),
+				member,
+				List.of("messageId"),
+				stock.getCompanyName(),
+				Money.won(60_000L),
+				5L
+			).withId(2L),
+			Notification.stockTargetPriceNotification(
+				"종목 지정가",
+				stockTargetPrice3.getReferenceId(),
+				stockTargetPrice3.getLink(),
+				member,
+				List.of("messageId"),
+				stock2.getCompanyName(),
+				Money.won(10_000L),
+				3L
+			).withId(3L),
+			Notification.stockTargetPriceNotification(
+				"종목 지정가",
+				stockTargetPrice4.getReferenceId(),
+				stockTargetPrice4.getLink(),
+				member,
+				List.of("messageId"),
+				stock2.getCompanyName(),
+				Money.won(10_000L),
+				7L
+			).withId(4L)
+		);
+	}
+
 	// @DisplayName("종목 지정가 알림 발송 시나리오")
 	// @TestFactory
 	// Collection<DynamicTest> createNotifyTargetPriceDynamicTest() {
