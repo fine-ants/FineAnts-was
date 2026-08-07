@@ -39,6 +39,7 @@ import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.domain.notification.config.NotificationConfig;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessageItem;
 import co.fineants.api.domain.notification.domain.entity.Notification;
+import co.fineants.api.domain.notification.domain.entity.policy.MaxLossNotificationPolicy;
 import co.fineants.api.domain.notification.domain.entity.policy.TargetGainNotificationPolicy;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
@@ -67,9 +68,6 @@ class NotificationServiceUnitTest {
 
 	@Mock
 	private MemberRepository memberRepository;
-
-	@Mock
-	private MaximumLossNotificationStrategy maximumLossNotificationStrategy;
 
 	@Mock
 	private TargetPriceNotificationStrategy targetPriceNotificationStrategy;
@@ -125,6 +123,10 @@ class NotificationServiceUnitTest {
 		TargetGainNotificationPolicy targetGainNotificationPolicy = notificationConfig.targetGainNotificationPolicy();
 		TargetGainNotificationStrategy targetGainNotificationStrategy = new TargetGainNotificationStrategy(
 			targetGainNotificationPolicy, notificationSentRepository);
+
+		MaxLossNotificationPolicy maxLossNotificationPolicy = notificationConfig.maxLossNotificationPolicy();
+		MaximumLossNotificationStrategy maximumLossNotificationStrategy = new MaximumLossNotificationStrategy(
+			maxLossNotificationPolicy, notificationSentRepository);
 
 		NotificationSender notificationSender = new NotificationSender(firebaseMessagingService, fcmService);
 		service = new NotificationService(
@@ -238,10 +240,6 @@ class NotificationServiceUnitTest {
 			holding2);
 		holding2.addPurchaseHistory(history2);
 
-		// given(currentPriceService.fetchPrice(samsung.getTickerSymbol()))
-		// 	.willReturn(Money.won(83_300L));
-		// given(currentPriceService.fetchPrice(ccs.getTickerSymbol()))
-		// 	.willReturn(Money.won(3_750L));
 		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
 			.willReturn(Optional.of(portfolio));
 
@@ -334,38 +332,66 @@ class NotificationServiceUnitTest {
 		assertThat(actual).isEmpty();
 	}
 
-	// @DisplayName("모든 포트폴리오의 최대 손실율 도달을 만족하는 회원들에게 알림을 푸시한다")
-	// @Test
-	// void notifyMaxLossAll() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(50);
-	// 	Money purchasePricePerShare = Money.won(60000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	// 	fcmRepository.save(createFcmToken("token", member));
-	//
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("messageId"));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 100L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyMaxLossAll();
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).hasSize(1),
-	// 		() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).hasSize(1),
-	// 		() -> assertThat(sentManager.hasMaxLossSendHistory(portfolio.getId())).isTrue()
-	// 	);
-	// }
-	//
+	@DisplayName("모든 포트폴리오의 최대 손실율 도달을 만족하는 회원들에게 알림을 푸시한다")
+	@Test
+	void should_send_max_loss_notification_and_save_notification_when_reached_maximum_loss_amount() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(50);
+		Money purchasePricePerShare = Money.won(60000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+		portfolio.addHolding(holding);
+
+		given(portfolioRepository.findAllWithAll())
+			.willReturn(List.of(portfolio));
+		given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of("token"));
+
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("messageId"));
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(100L));
+		Notification notification = Notification.portfolioNotification(
+			"포트폴리오",
+			PORTFOLIO_MAX_LOSS,
+			portfolio.getReferenceId(),
+			portfolio.getLink(),
+			member,
+			List.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"),
+			portfolio.name(),
+			1L
+		).withId(1L);
+		given(notificationRepository.saveAll(anyList()))
+			.willReturn(List.of(notification));
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyMaxLossAll();
+
+		// then
+		assertThat(actual).hasSize(1);
+		// 토큰 삭제되지 않는것 검증
+		verify(fcmService, times(0))
+			.deleteToken("token");
+
+		// 알림 저장 검증
+		verify(notificationRepository, times(1))
+			.saveAll(anyList());
+
+		// 알림 전송 검증
+		verify(notificationSentRepository, times(1))
+			.addMaxLossSendHistory(notification);
+	}
+
 	// @DisplayName("포트폴리오의 최대 손실율에 도달하여 사용자에게 알림을 푸시합니다")
 	// @Test
 	// void notifyPortfolioMaxLossMessages() {
