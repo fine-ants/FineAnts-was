@@ -488,7 +488,6 @@ class NotificationServiceUnitTest {
 		assertThat(actual).isEmpty();
 	}
 
-	@SuppressWarnings("checkstyle:OneStatementPerLine")
 	@DisplayName("토큰이 유효하지 않아서 최대 손실율 달성 알림을 보낼수 없지만, 알림은 저장된다")
 	@Test
 	void should_save_max_loss_notification_when_invalid_fcm_token_then_delete_fcm_token() {
