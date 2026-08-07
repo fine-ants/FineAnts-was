@@ -505,4 +505,14 @@ public final class TestDataFactory {
 		Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 		return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
 	}
+
+	public static NotificationPreference createNotificationPreference(boolean browserNotify, boolean targetGainNotify,
+		boolean maxLossNotify, boolean targetPriceNotify) {
+		return NotificationPreference.create(
+			browserNotify,
+			targetGainNotify,
+			maxLossNotify,
+			targetPriceNotify
+		);
+	}
 }

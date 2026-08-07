@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
@@ -50,6 +52,7 @@ import co.fineants.api.domain.stock_target_price.repository.TargetPriceNotificat
 import co.fineants.api.global.common.time.LocalDateTimeService;
 import co.fineants.member.domain.Member;
 import co.fineants.member.domain.MemberRepository;
+import co.fineants.member.domain.NotificationPreference;
 import co.fineants.stock.domain.Stock;
 import co.fineants.stock.domain.StockRepository;
 import co.fineants.stock.domain.calculator.DividendCalculator;
@@ -296,42 +299,41 @@ class NotificationServiceUnitTest {
 			.addTargetGainSendHistory(any(Notification.class));
 	}
 
-	// @DisplayName("브라우저 알림 설정이 비활성화되어 목표 수익률 알림을 보낼수 없다")
-	// @CsvSource(value = {"false,true", "true,false", "false, false"})
-	// @ParameterizedTest
-	// void notifyTargetGainBy_whenBrowserNotifyIsInActive_thenResponseEmptyList(boolean browserNotify,
-	// 	boolean targetGainNotify) {
-	// 	// given
-	// 	Member member = createMember();
-	// 	NotificationPreference changePreference = createNotificationPreference(browserNotify, targetGainNotify, true,
-	// 		true);
-	// 	member.setNotificationPreference(changePreference);
-	// 	member = memberRepository.save(member);
-	//
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	//
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(100);
-	// 	Money purchasePricePerShare = Money.won(10000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	// 	fcmRepository.save(createFcmToken("token", member));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).isEmpty()
-	// 	);
-	// }
-	//
+	@DisplayName("브라우저 알림 설정이 비활성화되어 목표 수익률 알림을 보낼수 없다")
+	@CsvSource(value = {"false,true", "true,false", "false, false"})
+	@ParameterizedTest
+	void notifyTargetGainBy_whenBrowserNotifyIsInActive_thenResponseEmptyList(boolean browserNotify,
+		boolean targetGainNotify) {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		NotificationPreference changePreference = TestDataFactory.createNotificationPreference(browserNotify,
+			targetGainNotify, true, true);
+		member.setNotificationPreference(changePreference);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(100);
+		Money purchasePricePerShare = Money.won(10000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+		portfolio.addHolding(holding);
+
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(50_000L));
+		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetGain(portfolio.getId());
+
+		// then
+		assertThat(actual).isEmpty();
+	}
+
 	// @DisplayName("모든 포트폴리오의 최대 손실율 도달을 만족하는 회원들에게 알림을 푸시한다")
 	// @Test
 	// void notifyMaxLossAll() {
