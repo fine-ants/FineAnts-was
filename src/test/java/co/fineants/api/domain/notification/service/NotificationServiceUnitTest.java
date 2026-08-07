@@ -543,48 +543,81 @@ class NotificationServiceUnitTest {
 			.addMaxLossSendHistory(notification);
 	}
 
-	// @DisplayName("종목의 현재가가 변경됨에 따라 포트폴리오의 목표 수익률을 달성하여 사용자에게 알림을 전송한다")
-	// @Test
-	// void notifyPortfolioTargetGainMessagesByCurrentPrice() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	fcmRepository.saveAll(List.of(createFcmToken("token1", member), createFcmToken("token2", member)));
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-	// 	PortfolioHolding holding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	// 	PortfolioHolding holding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(100);
-	// 	Money purchasePricePerShare = Money.won(100);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding));
-	//
-	// 	purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	numShares = Count.from(1);
-	// 	purchasePricePerShare = Money.won(60000);
-	// 	memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding2));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("messageId"));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> items = service.notifyTargetGainAll();
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(items).hasSize(1),
-	// 		() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).hasSize(1),
-	// 		() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isTrue()
-	// 	);
-	// }
-	//
+	@DisplayName("종목의 현재가가 변경됨에 따라 포트폴리오의 목표 수익률을 달성하여 사용자에게 알림을 전송한다")
+	@Test
+	void when_current_price_changed_and_reached_target_gain_then_send_notification_and_save_notification() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		Stock stock2 = TestDataFactory.createDongwhaPharmStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+		PortfolioHolding holding2 = TestDataFactory.createPortfolioHolding(2L, portfolio, stock2);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(100);
+		Money purchasePricePerShare = Money.won(100);
+		String memo = "첫구매";
+		PurchaseHistory history1 = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history1);
+
+		purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		numShares = Count.from(1);
+		purchasePricePerShare = Money.won(60000);
+		memo = "첫구매";
+		PurchaseHistory history2 = createPurchaseHistory(2L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding2);
+		holding2.addPurchaseHistory(history2);
+
+		portfolio.addHolding(holding);
+		portfolio.addHolding(holding2);
+
+		given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of("token1", "token2"));
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000));
+		given(currentPriceService.fetchPrice(stock2.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("messageId"));
+		given(portfolioRepository.findAllWithAll())
+			.willReturn(List.of(portfolio));
+		given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		Notification notification = Notification.portfolioNotification(
+			"포트폴리오",
+			PORTFOLIO_TARGET_GAIN,
+			portfolio.getReferenceId(),
+			portfolio.getLink(),
+			member,
+			List.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"),
+			portfolio.name(),
+			1L
+		).withId(1L);
+		given(notificationRepository.saveAll(anyList()))
+			.willReturn(List.of(notification));
+
+		// when
+		List<NotifyMessageItem> items = service.notifyTargetGainAll();
+
+		// then
+		assertThat(items).hasSize(1);
+		// 토큰 삭제되지 않는것 검증
+		verify(fcmService, times(0))
+			.deleteToken("token1");
+		verify(fcmService, times(0))
+			.deleteToken("token2");
+
+		// 알림 저장 검증
+		verify(notificationRepository, times(1))
+			.saveAll(anyList());
+
+		// 알림 전송 검증
+		verify(notificationSentRepository, times(1))
+			.addTargetGainSendHistory(notification);
+	}
+
 	// @DisplayName("모든 회원들을 대상으로 특정 티커 심볼에 대한 종목 지정가 알림을 발송한다")
 	// @Test
 	// void notifyTargetPrice() {
