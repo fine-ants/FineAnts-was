@@ -108,6 +108,7 @@ class NotificationServiceUnitTest {
 
 	@Mock
 	private CurrentPriceService currentPriceService;
+	@Mock
 	private NotificationSentRepository notificationSentRepository;
 
 	@BeforeEach
@@ -118,7 +119,6 @@ class NotificationServiceUnitTest {
 			dividendCalculator);
 		NotifyMessageFactory notifyMessageFactory = new NotifyMessageFactory(fcmService);
 
-		notificationSentRepository = BDDMockito.mock(NotificationSentRepository.class);
 		NotificationConfig notificationConfig = new NotificationConfig(notificationSentRepository);
 		TargetGainNotificationPolicy targetGainNotificationPolicy = notificationConfig.targetGainNotificationPolicy();
 		TargetGainNotificationStrategy targetGainNotificationStrategy = new TargetGainNotificationStrategy(
@@ -452,74 +452,98 @@ class NotificationServiceUnitTest {
 			.addMaxLossSendHistory(notification);
 	}
 
-	// @DisplayName("알림 설정이 비활성화 되어 있어서 포트폴리오의 최대 손실율에 도달하여 사용자에게 알림을 푸시할 수 없습니다")
-	// @CsvSource(value = {"false,true", "true,false", "false, false"})
-	// @ParameterizedTest
-	// void notifyMaxLoss_whenNotifySettingIsInActive_thenResponseEmptyList(boolean browserNotify, boolean maxLossNotify) {
-	// 	// given
-	// 	Member member = createMember();
-	// 	NotificationPreference changePreference = createNotificationPreference(browserNotify, true, maxLossNotify,
-	// 		true);
-	// 	member.setNotificationPreference(changePreference);
-	// 	member = memberRepository.save(member);
-	//
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(50);
-	// 	Money purchasePricePerShare = Money.won(60000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	// 	fcmRepository.save(createFcmToken("token", member));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).isEmpty(),
-	// 		() -> assertThat(sentManager.hasMaxLossSendHistory(portfolio.getId())).isFalse()
-	// 	);
-	// }
-	//
-	// @SuppressWarnings("checkstyle:OneStatementPerLine")
-	// @DisplayName("토큰이 유효하지 않아서 최대 손실율 달성 알림을 보낼수 없지만, 알림은 저장된다")
-	// @Test
-	// void notifyMaxLoss_whenInvalidFcmToken_thenDeleteFcmToken() throws FirebaseMessagingException {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	PortfolioHolding portfolioHolding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(10);
-	// 	Money purchasePricePerShare = Money.won(60000);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding));
-	//
-	// 	FcmToken fcmToken = fcmRepository.save(createFcmToken("fcmToken", member));
-	//
-	// 	given(firebaseMessaging.send(any(Message.class)))
-	// 		.willThrow(FirebaseMessagingException.class);
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 50000L));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
-	//
-	// 	// then
-	// 	assertAll(
-	// 		() -> assertThat(actual).hasSize(1),
-	// 		() -> assertThat(fcmRepository.findById(fcmToken.getId())).isEmpty(),
-	// 		() -> assertThat(sentManager.hasMaxLossSendHistory(portfolio.getId())).isTrue()
-	// 	);
-	// }
-	//
+	@DisplayName("알림 설정이 비활성화 되어 있어서 포트폴리오의 최대 손실율에 도달하여 사용자에게 알림을 푸시할 수 없습니다")
+	@CsvSource(value = {"false,true", "true,false", "false, false"})
+	@ParameterizedTest
+	void should_not_send_max_loss_notification_when_preference_is_inactive(boolean browserNotify,
+		boolean maxLossNotify) {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		NotificationPreference changePreference = TestDataFactory.createNotificationPreference(browserNotify, true,
+			maxLossNotify,
+			true);
+		member.setNotificationPreference(changePreference);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(50);
+		Money purchasePricePerShare = Money.won(60000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+		portfolio.addHolding(holding);
+
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(50_000L));
+		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
+
+		// then
+		assertThat(actual).isEmpty();
+	}
+
+	@SuppressWarnings("checkstyle:OneStatementPerLine")
+	@DisplayName("토큰이 유효하지 않아서 최대 손실율 달성 알림을 보낼수 없지만, 알림은 저장된다")
+	@Test
+	void should_save_max_loss_notification_when_invalid_fcm_token_then_delete_fcm_token() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		PortfolioHolding portfolioHolding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(10);
+		Money purchasePricePerShare = Money.won(60000);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			portfolioHolding);
+		portfolioHolding.addPurchaseHistory(history);
+		portfolio.addHolding(portfolioHolding);
+
+		given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of("fcmToken"));
+
+		given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.empty());
+		given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(50_000L));
+		given(portfolioRepository.findByPortfolioIdWithAll(portfolio.getId()))
+			.willReturn(Optional.of(portfolio));
+		given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		Notification notification = Notification.portfolioNotification(
+			"포트폴리오",
+			PORTFOLIO_TARGET_GAIN,
+			portfolio.getReferenceId(),
+			portfolio.getLink(),
+			member,
+			List.of("projects/fineants-404407/messages/4754d355-5d5d-4f14-a642-75fecdb91fa5"),
+			portfolio.name(),
+			1L
+		).withId(1L);
+		List<Notification> notifications = List.of(notification);
+		given(notificationRepository.saveAll(ArgumentMatchers.anyList()))
+			.willReturn(notifications);
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyMaxLoss(portfolio.getId());
+
+		// then
+		assertThat(actual).hasSize(1);
+		verify(fcmService, times(1))
+			.deleteToken("fcmToken");
+		verify(notificationRepository, times(1))
+			.saveAll(anyList());
+		verify(notificationSentRepository, times(1))
+			.addMaxLossSendHistory(notification);
+	}
+
 	// @DisplayName("종목의 현재가가 변경됨에 따라 포트폴리오의 목표 수익률을 달성하여 사용자에게 알림을 전송한다")
 	// @Test
 	// void notifyPortfolioTargetGainMessagesByCurrentPrice() {
