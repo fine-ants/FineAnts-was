@@ -2,6 +2,7 @@ package co.fineants.api.domain.kis.repository.infrastructure;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -23,7 +24,7 @@ class KisAccessTokenRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void should_save_access_token() {
 		// given
-		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		LocalDateTime baseTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(baseTime);
 		// when
 		repository.save(kisAccessToken);
@@ -48,7 +49,7 @@ class KisAccessTokenRedisRepositoryTest extends AbstractContainerBaseTest {
 	@Test
 	void should_return_access_token_when_get_access_token() {
 		// given
-		LocalDateTime baseTime = LocalDate.of(2026, 7, 27).atStartOfDay();
+		LocalDateTime baseTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		KisAccessToken kisAccessToken = TestDataFactory.createKisAccessToken(baseTime);
 		repository.save(kisAccessToken);
 		// when
