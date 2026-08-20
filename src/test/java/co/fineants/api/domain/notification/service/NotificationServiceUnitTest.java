@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -13,7 +15,9 @@ import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,6 +47,7 @@ import co.fineants.api.domain.notification.domain.entity.Notification;
 import co.fineants.api.domain.notification.domain.entity.policy.MaxLossNotificationPolicy;
 import co.fineants.api.domain.notification.domain.entity.policy.TargetGainNotificationPolicy;
 import co.fineants.api.domain.notification.domain.entity.policy.TargetPriceNotificationPolicy;
+import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationRepository;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
 import co.fineants.api.domain.portfolio.domain.calculator.PortfolioCalculator;
@@ -742,68 +747,94 @@ class NotificationServiceUnitTest {
 		);
 	}
 
-	// @DisplayName("종목 지정가 알림 발송 시나리오")
-	// @TestFactory
-	// Collection<DynamicTest> createNotifyTargetPriceDynamicTest() {
-	// 	return List.of(
-	// 		DynamicTest.dynamicTest("종목 지정가 알림을 전송한다", () -> {
-	// 			// given
-	// 			Member member = memberRepository.save(createMember("네모네모", "dragonbead95@naver.com"));
-	// 			fcmRepository.save(createFcmToken("token1", member));
-	// 			Stock stock = stockRepository.save(createSamsungStock());
-	//
-	// 			StockTargetPrice stockTargetPrice1 = stockTargetPriceRepository.save(
-	// 				createStockTargetPrice(member, stock));
-	// 			targetPriceNotificationRepository.saveAll(
-	// 				createTargetPriceNotification(stockTargetPrice1, List.of(60000L, 70000L)));
-	//
-	// 			currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 			given(mockedKisService.fetchCurrentPrice(stock.getTickerSymbol()))
-	// 				.willReturn(Mono.just(KisCurrentPrice.create(stock.getTickerSymbol(), 10000L)));
-	// 			given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 				.willReturn(Optional.of("messageId"));
-	//
-	// 			List<String> tickerSymbols = Stream.of(stock)
-	// 				.map(Stock::getTickerSymbol)
-	// 				.toList();
-	//
-	// 			// when
-	// 			List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
-	//
-	// 			// then
-	// 			assertAll(
-	// 				() -> assertThat(actual).hasSize(1),
-	// 				() -> assertThat(
-	// 					notificationRepository.findAllByMemberIds(List.of(member.getId())))
-	// 					.asList()
-	// 					.hasSize(1)
-	// 			);
-	// 		}),
-	// 		DynamicTest.dynamicTest("전송 이력이 있어서 알림을 받지 않는다", () -> {
-	// 			// given
-	// 			MemberEmail memberEmail = new MemberEmail("dragonbead95@naver.com");
-	// 			Member member = memberRepository.findMemberByEmailAndProvider(memberEmail, "local")
-	// 				.orElseThrow();
-	// 			Stock stock = createSamsungStock();
-	// 			List<String> tickerSymbols = Stream.of(stock)
-	// 				.map(Stock::getTickerSymbol)
-	// 				.toList();
-	//
-	// 			// when
-	// 			List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
-	//
-	// 			// then
-	// 			assertAll(
-	// 				() -> assertThat(actual).isEmpty(),
-	// 				() -> assertThat(
-	// 					notificationRepository.findAllByMemberIds(List.of(member.getId())))
-	// 					.asList()
-	// 					.hasSize(1)
-	// 			);
-	// 		})
-	// 	);
-	// }
-	//
+	@DisplayName("종목 지정가 알림 발송 시나리오")
+	@TestFactory
+	Collection<DynamicTest> createNotifyTargetPriceDynamicTest() {
+		return List.of(
+			DynamicTest.dynamicTest("종목 지정가 알림을 전송한다", () -> {
+				// given
+				Member member = TestDataFactory.createMember(1L, "네모네모", "dragonbead95@naver.com");
+				FcmToken fcmToken = createFcmToken("token1", member);
+				Stock stock = TestDataFactory.createSamsungStock();
+
+				StockTargetPrice stockTargetPrice1 = createStockTargetPrice(member, stock);
+				List<TargetPriceNotification> targetPriceNotifications = createTargetPriceNotification(List.of(1L, 2L),
+					stockTargetPrice1, List.of(60000L, 70000L));
+				targetPriceNotifications.forEach(stockTargetPrice1::addTargetPriceNotification);
+
+				List<String> tickerSymbols = Stream.of(stock)
+					.map(Stock::getTickerSymbol)
+					.toList();
+
+				BDDMockito.given(stockTargetPriceRepository.findAllByTickerSymbols(tickerSymbols))
+					.willReturn(List.of(stockTargetPrice1));
+				BDDMockito.given(fcmService.findTokens(member.getId()))
+					.willReturn(List.of(fcmToken.getToken()));
+				BDDMockito.given(notificationSentRepository.hasTargetPriceSendHistory(1L))
+					.willReturn(false);
+				BDDMockito.given(memberRepository.findById(member.getId()))
+					.willReturn(Optional.of(member));
+				Notification notification = Notification.stockTargetPriceNotification(
+					"종목 지정가",
+					stockTargetPrice1.getReferenceId(),
+					stockTargetPrice1.getLink(),
+					member,
+					List.of("messageId"),
+					stock.getCompanyName(),
+					Money.won(60_000L),
+					1L
+				).withId(1L);
+				BDDMockito.given(notificationRepository.saveAll(ArgumentMatchers.anyList()))
+					.willReturn(List.of(notification));
+				BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+					.willReturn(Money.won(60_000L));
+				BDDMockito.given(firebaseMessagingService.send(any(Message.class)))
+					.willReturn(Optional.of("messageId"));
+				// when
+				List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
+
+				// then
+				NotifyMessageItem expected1 = NotifyMessageItem.targetPriceNotifyMessageItem(
+					notification.getId(),
+					false,
+					"종목 지정가",
+					"삼성전자보통주이(가) ₩60,000에 도달했습니다",
+					NotificationType.STOCK_TARGET_PRICE,
+					"005930",
+					member.getId(),
+					"/stock/005930",
+					List.of("messageId"),
+					"삼성전자보통주",
+					Money.won(60000),
+					targetPriceNotifications.get(0).getId()
+				);
+				Assertions.assertThat(actual).hasSize(1)
+					.containsExactly(expected1);
+				BDDMockito.verify(notificationSentRepository, times(1))
+					.addTargetPriceSendHistory(notification);
+			}),
+			DynamicTest.dynamicTest("전송 이력이 있어서 알림을 받지 않는다", () -> {
+				// given
+				Stock stock = createSamsungStock();
+				List<String> tickerSymbols = Stream.of(stock)
+					.map(Stock::getTickerSymbol)
+					.toList();
+				BDDMockito.given(notificationSentRepository.hasTargetPriceSendHistory(1L))
+					.willReturn(true);
+				BDDMockito.given(notificationRepository.saveAll(ArgumentMatchers.anyList()))
+					.willReturn(Collections.emptyList());
+
+				// when
+				List<NotifyMessageItem> actual = service.notifyTargetPriceBy(tickerSymbols);
+
+				// then
+				Assertions.assertThat(actual).isEmpty();
+				BDDMockito.verify(notificationSentRepository, times(2))
+					.hasTargetPriceSendHistory(1L);
+			})
+		);
+	}
+
 	// @DisplayName("사용자는 사용자가 지정한 종목 지정가에 대한 푸시 알림을 받는다")
 	// @Test
 	// void sendStockTargetPriceNotification() {
