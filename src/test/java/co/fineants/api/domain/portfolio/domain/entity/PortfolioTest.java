@@ -47,9 +47,9 @@ class PortfolioTest extends AbstractContainerBaseTest {
 		Count numShares = Count.from(5);
 		Money purchasePerShare = Money.won(10000);
 		String memo = "첫구매";
-		PurchaseHistory purchaseHistory1 = createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo,
+		PurchaseHistory purchaseHistory1 = createPurchaseHistory(1L, purchaseDate, numShares, purchasePerShare, memo,
 			portFolioHolding);
-		PurchaseHistory purchaseHistory2 = createPurchaseHistory(null, purchaseDate, numShares, purchasePerShare, memo,
+		PurchaseHistory purchaseHistory2 = createPurchaseHistory(2L, purchaseDate, numShares, purchasePerShare, memo,
 			portFolioHolding);
 
 		portFolioHolding.addPurchaseHistory(purchaseHistory1);
@@ -60,7 +60,7 @@ class PortfolioTest extends AbstractContainerBaseTest {
 		Expression result = calculator.calTotalGainBy(portfolio);
 
 		// then
-		assertThat(result).isEqualByComparingTo(Money.won(100000L));
+		assertThat(result).isEqualByComparingTo(Money.won(100_000L));
 	}
 
 	@DisplayName("포트폴리오의 총 손익율 계산한다")

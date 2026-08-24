@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
 import co.fineants.api.domain.portfolio.properties.PortfolioProperties;
 import co.fineants.api.domain.purchasehistory.domain.entity.PurchaseHistory;
+import co.fineants.api.domain.stock_target_price.domain.entity.StockTargetPrice;
+import co.fineants.api.domain.stock_target_price.domain.entity.TargetPriceNotification;
 import co.fineants.api.domain.watchlist.domain.entity.WatchList;
 import co.fineants.api.domain.watchlist.domain.entity.WatchStock;
 import co.fineants.member.domain.Member;
@@ -61,8 +64,12 @@ public final class TestDataFactory {
 	}
 
 	public static KisAccessToken createKisAccessToken() {
+		return createKisAccessToken(LocalDateTime.now());
+	}
+
+	public static KisAccessToken createKisAccessToken(LocalDateTime baseTime) {
 		int expiredSeconds = 86400;
-		return KisAccessToken.bearerType("accessToken", LocalDateTime.now().plusSeconds(expiredSeconds),
+		return KisAccessToken.bearerType("accessToken", baseTime.plusSeconds(expiredSeconds),
 			expiredSeconds);
 	}
 
@@ -172,6 +179,11 @@ public final class TestDataFactory {
 
 	public static Stock createKakaoStock() {
 		return Stock.of("035720", "카카오보통주", "Kakao", "KR7035720002", "서비스업", Market.KOSPI);
+	}
+
+	public static Stock createCcsStack() {
+		return Stock.of("066790", "씨씨에스충북방송", "KOREA CABLE T.V CHUNG-BUK SYSTEM CO.,LTD.", "KR7066790007", "방송서비스",
+			Market.KOSDAQ);
 	}
 
 	/**
@@ -461,15 +473,15 @@ public final class TestDataFactory {
 				"종목 지정가", "005930", "/stock/005930", member, List.of("messageId"), "삼성전자일반주",
 				Money.won(60000L),
 				1L
-			),
+			).withId(1L),
 			Notification.portfolioNotification(
 				"포트폴리오", PORTFOLIO_TARGET_GAIN, "1", "/portfolio/1", member, List.of("messageId"), "포트폴리오1",
 				1L
-			),
+			).withId(2L),
 			Notification.portfolioNotification(
 				"포트폴리오", PORTFOLIO_MAX_LOSS, "2", "/portfolio/1", member, List.of("messageId"), "포트폴리오2",
 				2L
-			)
+			).withId(3L)
 		);
 	}
 
@@ -485,7 +497,7 @@ public final class TestDataFactory {
 	}
 
 	public static FcmToken createFcmToken(String token, Member member) {
-		return FcmToken.create(member, token);
+		return FcmToken.create(1L, member, token);
 	}
 
 	public static FcmToken createFcmToken(Long id, String token, Member member) {
@@ -495,5 +507,36 @@ public final class TestDataFactory {
 	public static PurchaseHistory createPurchaseHistory(Long id, LocalDateTime purchaseDate, Count numShares,
 		Money purchasePricePerShare, String memo, PortfolioHolding portfolioHolding) {
 		return PurchaseHistory.create(id, purchaseDate, numShares, purchasePricePerShare, memo, portfolioHolding);
+	}
+
+	public static NotificationPreference createNotificationPreference(boolean browserNotify, boolean targetGainNotify,
+		boolean maxLossNotify, boolean targetPriceNotify) {
+		return NotificationPreference.create(
+			browserNotify,
+			targetGainNotify,
+			maxLossNotify,
+			targetPriceNotify
+		);
+	}
+
+	public static StockTargetPrice createStockTargetPrice(Member member, Stock stock) {
+		return StockTargetPrice.newStockTargetPriceWithActive(member, stock);
+	}
+
+	public static StockTargetPrice createStockTargetPrice(Long id, Member member, Stock stock) {
+		return StockTargetPrice.newStockTargetPriceWithActive(id, member, stock);
+	}
+
+	public static List<TargetPriceNotification> createTargetPriceNotification(List<Long> ids,
+		StockTargetPrice stockTargetPrice,
+		List<Long> targetPrices) {
+		List<TargetPriceNotification> result = new ArrayList<>();
+		for (int i = 0; i < ids.size(); i++) {
+			Money targetPrice = Money.won(targetPrices.get(i));
+			TargetPriceNotification targetPriceNotification = TargetPriceNotification.newTargetPriceNotification(
+				ids.get(i), targetPrice, stockTargetPrice);
+			result.add(targetPriceNotification);
+		}
+		return result;
 	}
 }

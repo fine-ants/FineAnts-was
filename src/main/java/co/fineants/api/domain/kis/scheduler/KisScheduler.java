@@ -12,8 +12,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 import co.fineants.api.domain.kis.client.KisClient;
 import co.fineants.api.domain.kis.repository.FileHolidayRepository;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
-import co.fineants.api.domain.kis.service.KisAccessTokenRedisService;
+import co.fineants.api.domain.kis.service.KisAccessTokenService;
 import co.fineants.api.domain.kis.service.KisService;
 import co.fineants.api.global.common.delay.DelayManager;
 import co.fineants.api.global.common.time.LocalDateTimeService;
@@ -28,8 +27,7 @@ import reactor.util.retry.Retry;
 @Slf4j
 public class KisScheduler {
 
-	private final KisAccessTokenRepository manager;
-	private final KisAccessTokenRedisService redisService;
+	private final KisAccessTokenService kisAccessTokenService;
 	private final LocalDateTimeService localDateTimeService;
 	private final DelayManager delayManager;
 	private final KisClient kisClient;
@@ -46,7 +44,7 @@ public class KisScheduler {
 	@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	public void checkAndReissueAccessToken() {
 		LocalDateTime now = localDateTimeService.getLocalDateTimeWithNow();
-		if (!manager.isTokenExpiringSoon(now)) {
+		if (!kisAccessTokenService.isAccessTokenExpiringSoon(now)) {
 			return;
 		}
 		kisClient.fetchAccessToken()
@@ -62,8 +60,7 @@ public class KisScheduler {
 			})
 			.blockOptional(delayManager.timeout())
 			.ifPresent(newKisAccessToken -> {
-				redisService.setAccessTokenMap(newKisAccessToken, now);
-				manager.refreshAccessToken(newKisAccessToken);
+				kisAccessTokenService.saveAccessToken(newKisAccessToken, now);
 				log.info("Reissue access tokens 1 hour prior to expiration {}", newKisAccessToken);
 			});
 	}

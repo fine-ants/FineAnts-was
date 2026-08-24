@@ -38,7 +38,7 @@ import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.fcm.domain.entity.FcmToken;
 import co.fineants.api.domain.holding.domain.entity.PortfolioHolding;
 import co.fineants.api.domain.kis.client.KisAccessToken;
-import co.fineants.api.domain.kis.repository.KisAccessTokenRepository;
+import co.fineants.api.domain.kis.repository.infrastructure.KisAccessTokenInMemoryRepository;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioDetail;
 import co.fineants.api.domain.portfolio.domain.entity.PortfolioFinancial;
@@ -106,7 +106,7 @@ public abstract class AbstractContainerBaseTest {
 	private DatabaseCleaner databaseCleaner;
 
 	@Autowired
-	private KisAccessTokenRepository kisAccessTokenRepository;
+	private KisAccessTokenInMemoryRepository kisAccessTokenInMemoryRepository;
 
 	@Autowired
 	private RedisRepository redisRepository;
@@ -162,7 +162,7 @@ public abstract class AbstractContainerBaseTest {
 		roleRepository.save(TestDataFactory.createRole("ROLE_MANAGER", "매니저"));
 		Role userRole = roleRepository.save(TestDataFactory.createRole("ROLE_USER", "회원"));
 		TestDataFactory.userRoleId = userRole.getId();
-		kisAccessTokenRepository.refreshAccessToken(TestDataFactory.createKisAccessToken());
+		kisAccessTokenInMemoryRepository.save(TestDataFactory.createKisAccessToken());
 	}
 
 	@AfterEach

@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import co.fineants.api.domain.common.money.Money;
 import co.fineants.api.domain.common.notification.Notifiable;
+import co.fineants.api.domain.common.notification.PortfolioMaximumLossNotifiable;
 import co.fineants.api.domain.common.notification.PortfolioTargetGainNotifiable;
 import co.fineants.api.domain.common.notification.TargetPriceNotificationNotifiable;
 import co.fineants.api.domain.kis.service.CurrentPriceService;
@@ -21,7 +23,7 @@ import co.fineants.api.domain.stock_target_price.repository.StockTargetPriceRepo
 import co.fineants.api.global.errors.exception.business.PortfolioNotFoundException;
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class NotifiableFactory {
 
@@ -29,27 +31,53 @@ public class NotifiableFactory {
 	private final StockTargetPriceRepository stockTargetPriceRepository;
 	private final CurrentPriceService currentPriceService;
 
-	public List<Notifiable> getAllPortfolios(Predicate<Portfolio> reachedPredicate) {
+	@Transactional(readOnly = true)
+	public List<Notifiable> getAllPortfolioTargetGainNotifiable(Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findAllWithAll().stream()
-			.map(mapToNotifiable(reachedPredicate))
+			.map(mapToTargetGainNotifiable(reachedPredicate))
 			.map(Notifiable.class::cast)
 			.toList();
 	}
 
-	public Notifiable getPortfolio(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
+	@Transactional(readOnly = true)
+	public List<Notifiable> getAllPortfolioMaximumLossNotifiable(Predicate<Portfolio> reachedPredicate) {
+		return portfolioRepository.findAllWithAll().stream()
+			.map(mapToMaximumLossNotifiable(reachedPredicate))
+			.map(Notifiable.class::cast)
+			.toList();
+	}
+
+	@Transactional(readOnly = true)
+	public Notifiable getPortfolioTargetGainNotifiable(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
 		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
-			.map(mapToNotifiable(reachedPredicate))
+			.map(mapToTargetGainNotifiable(reachedPredicate))
 			.map(Notifiable.class::cast)
 			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
 	}
 
-	private Function<Portfolio, Notifiable> mapToNotifiable(Predicate<Portfolio> reachedPredicate) {
+	private Function<Portfolio, Notifiable> mapToTargetGainNotifiable(Predicate<Portfolio> reachedPredicate) {
 		return portfolio -> {
 			boolean isReached = reachedPredicate.test(portfolio);
 			return PortfolioTargetGainNotifiable.from(portfolio, isReached);
 		};
 	}
 
+	@Transactional(readOnly = true)
+	public Notifiable getPortfolioMaximumLossNotifiable(Long portfolioId, Predicate<Portfolio> reachedPredicate) {
+		return portfolioRepository.findByPortfolioIdWithAll(portfolioId)
+			.map(mapToMaximumLossNotifiable(reachedPredicate))
+			.map(Notifiable.class::cast)
+			.orElseThrow(() -> new PortfolioNotFoundException(portfolioId.toString()));
+	}
+
+	private Function<Portfolio, Notifiable> mapToMaximumLossNotifiable(Predicate<Portfolio> reachedPredicate) {
+		return portfolio -> {
+			boolean isReached = reachedPredicate.test(portfolio);
+			return PortfolioMaximumLossNotifiable.from(portfolio, isReached);
+		};
+	}
+
+	@Transactional(readOnly = true)
 	public List<Notifiable> getAllTargetPriceNotificationsBy(Long memberId) {
 		return stockTargetPriceRepository.findAllByMemberId(memberId)
 			.stream()
@@ -70,6 +98,7 @@ public class NotifiableFactory {
 		return targetPriceNotification.getTargetPrice().compareTo(currentPrice) == 0;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Notifiable> getAllTargetPriceNotificationsBy(List<String> tickerSymbols) {
 		return stockTargetPriceRepository.findAllByTickerSymbols(
 				tickerSymbols)

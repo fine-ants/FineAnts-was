@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import co.fineants.AbstractContainerBaseTest;
 import co.fineants.api.domain.kis.domain.ClosingPriceRedisEntity;
 import co.fineants.api.domain.kis.domain.dto.response.KisClosingPrice;
+import co.fineants.api.global.util.ObjectMapperUtil;
 
 class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
@@ -79,6 +80,22 @@ class ClosingPriceRedisHashRepositoryTest extends AbstractContainerBaseTest {
 
 		// then
 		Assertions.assertThat(template.opsForHash().size(ClosingPriceRedisHashRepository.KEY)).isZero();
+	}
+
+	@DisplayName("savePrice - 종가가 0원이어도 저장된다")
+	@Test
+	void should_save_closing_price_when_price_is_zero() {
+		// given
+		String tickerSymbol = "005930";
+
+		// when
+		repository.savePrice(tickerSymbol, 0);
+
+		// then
+		Assertions.assertThat(template.opsForHash().size(ClosingPriceRedisHashRepository.KEY)).isEqualTo(1);
+		String json = (String)template.opsForHash().get(ClosingPriceRedisHashRepository.KEY, tickerSymbol);
+		ClosingPriceRedisEntity entity = ObjectMapperUtil.deserialize(json, ClosingPriceRedisEntity.class);
+		Assertions.assertThat(entity.getPrice()).isZero();
 	}
 
 	@DisplayName("fetchPrice - 저장된 TickerSymbol로 종가를 조회한다.")

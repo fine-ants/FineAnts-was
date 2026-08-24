@@ -37,24 +37,28 @@ public class NotificationService {
 
 	@Transactional
 	public List<NotifyMessageItem> notifyTargetGain(Long portfolioId) {
-		return notifyAll(List.of(notifiableFactory.getPortfolio(portfolioId, calculator::reachedTargetGainBy)),
+		return notifyAll(
+			List.of(notifiableFactory.getPortfolioTargetGainNotifiable(portfolioId, calculator::reachedTargetGainBy)),
 			PORTFOLIO_TARGET_GAIN);
 	}
 
 	@Transactional
 	public List<NotifyMessageItem> notifyTargetGainAll() {
-		return notifyAll(notifiableFactory.getAllPortfolios(calculator::reachedTargetGainBy), PORTFOLIO_TARGET_GAIN);
+		return notifyAll(notifiableFactory.getAllPortfolioTargetGainNotifiable(calculator::reachedTargetGainBy),
+			PORTFOLIO_TARGET_GAIN);
 	}
 
 	@Transactional
 	public List<NotifyMessageItem> notifyMaxLoss(Long portfolioId) {
-		return notifyAll(List.of(notifiableFactory.getPortfolio(portfolioId, calculator::reachedMaximumLossBy)),
+		return notifyAll(
+			List.of(notifiableFactory.getPortfolioMaximumLossNotifiable(portfolioId, calculator::reachedMaximumLossBy)),
 			PORTFOLIO_MAX_LOSS);
 	}
 
 	@Transactional
 	public List<NotifyMessageItem> notifyMaxLossAll() {
-		return notifyAll(notifiableFactory.getAllPortfolios(calculator::reachedMaximumLossBy), PORTFOLIO_MAX_LOSS);
+		return notifyAll(notifiableFactory.getAllPortfolioMaximumLossNotifiable(calculator::reachedMaximumLossBy),
+			PORTFOLIO_MAX_LOSS);
 	}
 
 	@Transactional
@@ -91,7 +95,7 @@ public class NotificationService {
 		List<Notification> notifications = saveNotifications(sentNotifyMessages);
 
 		// 전송 내역 저장
-		notifications.forEach(strategy.getSendHistory());
+		notifications.forEach(strategy.saveSendHistory());
 
 		// 결과 객체 생성
 		return notifications.stream()

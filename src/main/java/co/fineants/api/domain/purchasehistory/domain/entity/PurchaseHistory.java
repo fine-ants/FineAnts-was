@@ -31,7 +31,7 @@ import lombok.ToString;
 @ToString(exclude = {"portfolioHolding"})
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = {"purchaseDate", "purchasePricePerShare", "numShares", "memo"}, callSuper = false)
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
 public class PurchaseHistory extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

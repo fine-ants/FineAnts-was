@@ -3,11 +3,15 @@ package co.fineants.api.domain.common.notification;
 import co.fineants.api.domain.notification.domain.dto.response.NotifyMessage;
 import co.fineants.api.domain.notification.domain.entity.type.NotificationType;
 import co.fineants.api.domain.notification.repository.NotificationSentRepository;
-import co.fineants.member.domain.NotificationPreference;
 import co.fineants.api.domain.portfolio.domain.entity.Portfolio;
+import co.fineants.member.domain.NotificationPreference;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class PortfolioMaximumLossNotifiable implements Notifiable {
 
 	private final String title;
@@ -22,7 +26,7 @@ public class PortfolioMaximumLossNotifiable implements Notifiable {
 	private final Boolean isActive;
 	private final Long id;
 
-	@Builder(access = AccessLevel.PRIVATE)
+	@Builder(access = AccessLevel.PUBLIC)
 	private PortfolioMaximumLossNotifiable(
 		String title,
 		String content,

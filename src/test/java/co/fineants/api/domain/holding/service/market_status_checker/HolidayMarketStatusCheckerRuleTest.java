@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import co.fineants.AbstractContainerBaseTest;
@@ -21,12 +20,11 @@ class HolidayMarketStatusCheckerRuleTest extends AbstractContainerBaseTest {
 
 	@Autowired
 	private HolidayRepository repository;
-	private LocalDateTime dateTime;
 	@Autowired
-	@Qualifier("holidayMarketStatusCheckerRule")
-	private MarketStatusCheckerRule rule;
+	private HolidayMarketStatusCheckerRule rule;
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
+	private LocalDateTime dateTime;
 
 	@BeforeEach
 	void setUp() {
