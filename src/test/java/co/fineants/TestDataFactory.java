@@ -497,7 +497,7 @@ public final class TestDataFactory {
 	}
 
 	public static FcmToken createFcmToken(String token, Member member) {
-		return FcmToken.create(member, token);
+		return FcmToken.create(1L, member, token);
 	}
 
 	public static FcmToken createFcmToken(Long id, String token, Member member) {
