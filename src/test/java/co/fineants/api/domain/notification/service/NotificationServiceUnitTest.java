@@ -1215,52 +1215,86 @@ class NotificationServiceUnitTest {
 			.containsExactly(expected1, expected2, expected3, expected4);
 	}
 
-	// @DisplayName("조건을 만족한 포트폴리오에 대하여 목표수익율 알림을 전송한다")
-	// @Test
-	// void notifyTargetGainAll() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	fcmRepository.saveAll(List.of(createFcmToken("token1", member), createFcmToken("token2", member)));
-	// 	Portfolio portfolio = portfolioRepository.save(createPortfolio(member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-	// 	PortfolioHolding holding = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock));
-	// 	PortfolioHolding holding2 = portfolioHoldingRepository.save(createPortfolioHolding(portfolio, stock2));
-	//
-	// 	LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	Count numShares = Count.from(100);
-	// 	Money purchasePricePerShare = Money.won(100);
-	// 	String memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding));
-	//
-	// 	purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
-	// 	numShares = Count.from(100);
-	// 	purchasePricePerShare = Money.won(60000);
-	// 	memo = "첫구매";
-	// 	purchaseHistoryRepository.save(
-	// 		createPurchaseHistory(null, purchaseDate, numShares, purchasePricePerShare, memo, holding2));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 60000L));
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("messageId"));
-	//
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetGainAll();
-	//
-	// 	// then
-	// 	NotifyMessageItem expected = NotifyMessageItem.portfolioNotifyMessageItem(1L, false, "포트폴리오",
-	// 		"내꿈은 워렌버핏의 목표 수익율을 달성했습니다",
-	// 		NotificationType.PORTFOLIO_TARGET_GAIN, "1", 1L, "/portfolio/1", "내꿈은 워렌버핏",
-	// 		List.of("messageId", "messageId"));
-	// 	assertAll(
-	// 		() -> assertThat(actual)
-	// 			.asList()
-	// 			.hasSize(1)
-	// 			.containsExactly(expected),
-	// 		() -> assertThat(notificationRepository.findAllByMemberId(member.getId())).hasSize(1),
-	// 		() -> assertThat(sentManager.hasTargetGainSendHistory(portfolio.getId())).isTrue()
-	// 	);
-	// }
+	@DisplayName("조건을 만족한 포트폴리오에 대하여 목표수익율 알림을 전송한다")
+	@Test
+	void should_send_target_gain_notification_when_reached__portfolio() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		FcmToken fcmToken1 = TestDataFactory.createFcmToken(1L, "token1", member);
+		FcmToken fcmToken2 = TestDataFactory.createFcmToken(2L, "token2", member);
+		Portfolio portfolio = TestDataFactory.createPortfolio(1L, member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		Stock stock2 = TestDataFactory.createDongwhaPharmStock();
+		PortfolioHolding holding = TestDataFactory.createPortfolioHolding(1L, portfolio, stock);
+		PortfolioHolding holding2 = TestDataFactory.createPortfolioHolding(2L, portfolio, stock2);
+
+		LocalDateTime purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		Count numShares = Count.from(100);
+		Money purchasePricePerShare = Money.won(100);
+		String memo = "첫구매";
+		PurchaseHistory history = createPurchaseHistory(1L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding);
+		holding.addPurchaseHistory(history);
+
+		purchaseDate = LocalDateTime.of(2023, 9, 26, 9, 30, 0);
+		numShares = Count.from(100);
+		purchasePricePerShare = Money.won(60000);
+		memo = "첫구매";
+		PurchaseHistory history2 = createPurchaseHistory(2L, purchaseDate, numShares, purchasePricePerShare, memo,
+			holding2);
+		holding2.addPurchaseHistory(history2);
+		portfolio.addHolding(holding);
+		portfolio.addHolding(holding2);
+
+		BDDMockito.given(portfolioRepository.findAllWithAll())
+			.willReturn(List.of(portfolio));
+		BDDMockito.given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of(fcmToken1.getToken(), fcmToken2.getToken()));
+		BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
+		BDDMockito.given(currentPriceService.fetchPrice(stock2.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
+		BDDMockito.given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("messageId"));
+		BDDMockito.given(notificationSentRepository.hasTargetGainSendHistory(portfolio.getId()))
+			.willReturn(false);
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		Notification notification = Notification.portfolioNotification(
+			"포트폴리오",
+			PORTFOLIO_TARGET_GAIN,
+			portfolio.getReferenceId(),
+			portfolio.getLink(),
+			member,
+			List.of("messageId", "messageId"),
+			portfolio.name(),
+			1L
+		).withId(1L);
+		BDDMockito.given(notificationRepository.saveAll(anyList()))
+			.willReturn(List.of(notification));
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetGainAll();
+
+		// then
+		NotifyMessageItem expected = NotifyMessageItem.portfolioNotifyMessageItem(
+			1L,
+			false,
+			"포트폴리오",
+			"내꿈은 워렌버핏의 목표 수익율을 달성했습니다",
+			NotificationType.PORTFOLIO_TARGET_GAIN,
+			portfolio.getReferenceId(),
+			member.getId(),
+			portfolio.getLink(),
+			portfolio.name(),
+			List.of("messageId", "messageId")
+		);
+		assertThat(actual)
+			.describedAs("알림 데이터가 1개 존재해야 한다.")
+			.asList()
+			.hasSize(1)
+			.containsExactly(expected);
+		BDDMockito.verify(notificationSentRepository, times(1))
+			.addTargetGainSendHistory(notification);
+	}
 }
