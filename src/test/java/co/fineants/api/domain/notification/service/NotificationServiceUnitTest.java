@@ -930,64 +930,85 @@ class NotificationServiceUnitTest {
 			.addTargetPriceSendHistory(ArgumentMatchers.any(Notification.class));
 	}
 
-	// @DisplayName("사용자는 종목 지정가 도달 알림을 받은 상태에서 추가적인 종목 지정가 도달을 하면 알림을 보내지 않는다")
-	// @Test
-	// void notifyTargetPrice_whenExistNotification_thenNotSentNotification() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	fcmRepository.save(createFcmToken("token", member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	Stock stock2 = stockRepository.save(createDongwhaPharmStock());
-	// 	StockTargetPrice stockTargetPrice = stockTargetPriceRepository.save(createStockTargetPrice(member, stock));
-	// 	StockTargetPrice stockTargetPrice2 = stockTargetPriceRepository.save(createStockTargetPrice(member, stock2));
-	// 	List<TargetPriceNotification> targetPriceNotifications = createTargetPriceNotification(stockTargetPrice,
-	// 		List.of(60000L, 70000L));
-	// 	List<TargetPriceNotification> targetPriceNotifications2 = createTargetPriceNotification(stockTargetPrice2,
-	// 		List.of(10000L, 20000L));
-	// 	targetPriceNotificationRepository.saveAll(targetPriceNotifications);
-	// 	targetPriceNotificationRepository.saveAll(targetPriceNotifications2);
-	//
-	// 	TargetPriceNotification sendTargetPriceNotification = targetPriceNotifications.get(0);
-	// 	Notification notification = notificationRepository.save(Notification.stockTargetPriceNotification(
-	// 		"종목 지정가", sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(),
-	// 		"/stock/" + sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(), member,
-	// 		List.of("messageId"), sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(),
-	// 		sendTargetPriceNotification.getTargetPrice(),
-	// 		sendTargetPriceNotification.getId()
-	// 	));
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock2.getTickerSymbol(), 10000L));
-	// 	sentManager.addTargetPriceSendHistory(notification);
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.of("messageId"));
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetPriceBy(
-	// 		List.of(stock.getTickerSymbol(), stock2.getTickerSymbol()));
-	//
-	// 	// then
-	// 	NotifyMessageItem expected1 = NotifyMessageItem.targetPriceNotifyMessageItem(
-	// 		2L,
-	// 		false,
-	// 		"종목 지정가",
-	// 		"동화약품보통주이(가) ₩10,000에 도달했습니다",
-	// 		NotificationType.STOCK_TARGET_PRICE,
-	// 		"000020",
-	// 		member.getId(),
-	// 		"/stock/000020",
-	// 		List.of("messageId"),
-	// 		"동화약품보통주",
-	// 		Money.won(10_000),
-	// 		targetPriceNotifications2.get(0).getId()
-	// 	);
-	// 	assertThat(actual)
-	// 		.hasSize(1)
-	// 		.containsExactly(expected1);
-	// 	assertThat(notificationRepository.findAllByMemberId(member.getId()))
-	// 		.asList()
-	// 		.hasSize(2);
-	// }
-	//
+	@DisplayName("사용자는 종목 지정가 도달 알림을 받은 상태에서 추가적인 종목 지정가 도달을 하면 알림을 보내지 않는다")
+	@Test
+	void should_not_send_notification_when_received_stock_target_price_notification_and_additional_reached_price() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		FcmToken fcmToken = TestDataFactory.createFcmToken("token", member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		Stock stock2 = TestDataFactory.createDongwhaPharmStock();
+		StockTargetPrice stockTargetPrice = TestDataFactory.createStockTargetPrice(member, stock);
+		StockTargetPrice stockTargetPrice2 = TestDataFactory.createStockTargetPrice(member, stock2);
+		List<TargetPriceNotification> targetPriceNotifications = createTargetPriceNotification(List.of(1L, 2L),
+			stockTargetPrice,
+			List.of(60000L, 70000L));
+		List<TargetPriceNotification> targetPriceNotifications2 = createTargetPriceNotification(List.of(3L, 4L),
+			stockTargetPrice2,
+			List.of(10000L, 20000L));
+		targetPriceNotifications.forEach(stockTargetPrice::addTargetPriceNotification);
+		targetPriceNotifications2.forEach(stockTargetPrice2::addTargetPriceNotification);
+
+		TargetPriceNotification sendTargetPriceNotification = targetPriceNotifications.get(0);
+		Notification savedNotification = Notification.stockTargetPriceNotification(
+			"종목 지정가", sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(),
+			"/stock/" + sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(), member,
+			List.of("messageId"), sendTargetPriceNotification.getStockTargetPrice().getStock().getTickerSymbol(),
+			sendTargetPriceNotification.getTargetPrice(),
+			sendTargetPriceNotification.getId()
+		).withId(1L);
+
+		BDDMockito.given(stockTargetPriceRepository.findAllByTickerSymbols(
+				List.of(stock.getTickerSymbol(), stock2.getTickerSymbol())))
+			.willReturn(List.of(stockTargetPrice, stockTargetPrice2));
+		BDDMockito.given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of(fcmToken.getToken()));
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
+		BDDMockito.given(currentPriceService.fetchPrice(stock2.getTickerSymbol()))
+			.willReturn(Money.won(10_000L));
+		BDDMockito.given(notificationSentRepository.hasTargetPriceSendHistory(savedNotification.getId()))
+			.willReturn(true);
+		BDDMockito.given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.of("messageId"));
+		Notification notification2 = Notification.stockTargetPriceNotification(
+			"종목 지정가",
+			stockTargetPrice2.getReferenceId(),
+			stockTargetPrice2.getLink(),
+			member,
+			List.of("messageId"),
+			stock2.getCompanyName(),
+			Money.won(10_000L),
+			3L
+		).withId(2L);
+		BDDMockito.given(notificationRepository.saveAll(anyList()))
+			.willReturn(List.of(notification2));
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetPriceBy(
+			List.of(stock.getTickerSymbol(), stock2.getTickerSymbol()));
+
+		// then
+		NotifyMessageItem expected1 = NotifyMessageItem.targetPriceNotifyMessageItem(
+			2L,
+			false,
+			"종목 지정가",
+			"동화약품보통주이(가) ₩10,000에 도달했습니다",
+			NotificationType.STOCK_TARGET_PRICE,
+			"000020",
+			member.getId(),
+			"/stock/000020",
+			List.of("messageId"),
+			"동화약품보통주",
+			Money.won(10_000),
+			targetPriceNotifications2.get(0).getId()
+		);
+		assertThat(actual)
+			.hasSize(1)
+			.containsExactly(expected1);
+	}
+
 	// @DisplayName("종목 지정가 도달 알림을 보내는데 실패해도 알림은 저장되어야 한다")
 	// @Test
 	// void notifyTargetPrice_whenFailSendingNotification_thenSaveNotification() {
