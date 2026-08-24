@@ -1009,33 +1009,57 @@ class NotificationServiceUnitTest {
 			.containsExactly(expected1);
 	}
 
-	// @DisplayName("종목 지정가 도달 알림을 보내는데 실패해도 알림은 저장되어야 한다")
-	// @Test
-	// void notifyTargetPrice_whenFailSendingNotification_thenSaveNotification() {
-	// 	// given
-	// 	Member member = memberRepository.save(createMember());
-	// 	fcmRepository.save(createFcmToken("token", member));
-	// 	Stock stock = stockRepository.save(createSamsungStock());
-	// 	StockTargetPrice stockTargetPrice = stockTargetPriceRepository.save(createStockTargetPrice(member, stock));
-	// 	List<TargetPriceNotification> targetPriceNotifications = createTargetPriceNotification(stockTargetPrice,
-	// 		List.of(60000L, 70000L));
-	// 	targetPriceNotificationRepository.saveAll(targetPriceNotifications);
-	//
-	// 	currentPriceRepository.savePrice(KisCurrentPrice.create(stock.getTickerSymbol(), 60000L));
-	// 	given(mockedFirebaseMessagingService.send(any(Message.class)))
-	// 		.willReturn(Optional.empty());
-	// 	// when
-	// 	List<NotifyMessageItem> actual = service.notifyTargetPriceBy(List.of(stock.getTickerSymbol()));
-	//
-	// 	// then
-	// 	assertThat(actual)
-	// 		.asList()
-	// 		.hasSize(1);
-	// 	assertThat(notificationRepository.findAllByMemberId(member.getId()))
-	// 		.asList()
-	// 		.hasSize(1);
-	// }
-	//
+	@DisplayName("종목 지정가 도달 알림을 보내는데 실패해도 알림은 저장되어야 한다")
+	@Test
+	void should_save_notification_data_when_fail_sending_stock_target_price_notification() {
+		// given
+		Member member = TestDataFactory.createMember(1L);
+		FcmToken fcmToken = createFcmToken("token", member);
+		Stock stock = TestDataFactory.createSamsungStock();
+		StockTargetPrice stockTargetPrice = TestDataFactory.createStockTargetPrice(1L, member, stock);
+		List<TargetPriceNotification> targetPriceNotifications = TestDataFactory.createTargetPriceNotification(
+			List.of(1L, 2L), stockTargetPrice,
+			List.of(60000L, 70000L));
+		targetPriceNotifications.forEach(stockTargetPrice::addTargetPriceNotification);
+
+		BDDMockito.given(stockTargetPriceRepository.findAllByTickerSymbols(
+				List.of(stock.getTickerSymbol())))
+			.willReturn(List.of(stockTargetPrice));
+		BDDMockito.given(notificationSentRepository.hasTargetPriceSendHistory(targetPriceNotifications.get(0).getId()))
+			.willReturn(false);
+		BDDMockito.given(fcmService.findTokens(member.getId()))
+			.willReturn(List.of(fcmToken.getToken()));
+		BDDMockito.given(memberRepository.findById(member.getId()))
+			.willReturn(Optional.of(member));
+		BDDMockito.given(currentPriceService.fetchPrice(stock.getTickerSymbol()))
+			.willReturn(Money.won(60_000L));
+		BDDMockito.given(firebaseMessagingService.send(any(Message.class)))
+			.willReturn(Optional.empty());
+		Notification notification1 = Notification.stockTargetPriceNotification(
+			"종목 지정가",
+			stockTargetPrice.getReferenceId(),
+			stockTargetPrice.getLink(),
+			member,
+			List.of(""),
+			stock.getCompanyName(),
+			Money.won(60_000L),
+			1L
+		).withId(1L);
+		BDDMockito.given(notificationRepository.saveAll(anyList()))
+			.willReturn(List.of(notification1));
+
+		// when
+		List<NotifyMessageItem> actual = service.notifyTargetPriceBy(List.of(stock.getTickerSymbol()));
+
+		// then
+		assertThat(actual)
+			.asList()
+			.hasSize(1);
+		assertThat(actual.get(0).getMessageIds())
+			.describedAs("저장된 알림 데이터의 messageId는 공백이어야 한다.")
+			.containsExactly("");
+	}
+
 	// @DisplayName("티커 심볼을 기준으로 종목 지정가 알림을 발송한다")
 	// @Test
 	// void notifyTargetPrice_whenMultipleMember_thenSendNotification() {
